@@ -1,0 +1,52 @@
+@keyframes toggleFade {
+    
+    0%{
+        opacity:1;
+    }
+    50% {
+        opacity: 0;
+    }
+}
+
+
+#title-screen{
+	position:absolute;
+	top:0;
+	left:0;
+    width:100%;
+    height:100%;
+	display: none;
+    margin:0px;
+    cursor: pointer;
+    background: url('/assets/img/title-screen.png');
+    -webkit-background-size: cover; /* pour Chrome et Safari */
+	-moz-background-size: cover; /* pour Firefox */
+	-o-background-size: cover; /* pour Opera */
+	background-size: cover; /* version standardis�e */
+}
+
+#logo-big-cont{
+	position:absolute;
+	max-width: 654px;
+	max-height: 300px;
+}
+
+#logo-big-cont img{
+	width:100%;
+	height:100%;
+}
+
+.click-to-continue{
+    
+    display:block;
+    font-size: 10vmin;
+    color:white;
+    text-align: center;
+    position:absolute;
+    bottom:2%;
+    width:100%;
+    animation: toggleFade 1s infinite ease-out;
+    -webkit-text-stroke-width: 2px;
+   -webkit-text-stroke-color: black;
+    
+}
