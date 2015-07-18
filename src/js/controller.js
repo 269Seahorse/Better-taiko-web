@@ -40,7 +40,7 @@ function Controller(selectedSong, songData){
 				_view.refresh();
             }
             else if(ms>=0 && !started){ //when music starts
-                _game.playSound("main-music");
+                assets.sounds["main-music"].play();
                 started=true;
             }
             

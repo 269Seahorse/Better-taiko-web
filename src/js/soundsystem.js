@@ -14,7 +14,7 @@ function soundSystem(controller){
 		_channels[i]["end"] = -1; 
 		_channels[i]["audio"] = new Audio();
 	}
-	
+
 	this.playSound = function(soundID){
 		
 		for(var i=0;i<_channelMAX;i++){ //play in different sounds in different channels
@@ -27,7 +27,7 @@ function soundSystem(controller){
 				break;
 			}
 		}
-
+		
 	}
 	
 	this.pauseSound = function(soundID, stop){

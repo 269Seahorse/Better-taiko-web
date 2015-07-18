@@ -10,7 +10,7 @@ function loadSong(selectedSong){
 	
 	this.run = function(){
 		
-		//assets.sounds["start"]["audio"][0].play();
+		assets.sounds["start"].play();
 		$("#assets").append("<img id='music-bg' src='/songs/"+_selectedSong.folder+"/bg.png' />");
 		
 		var audio = new Audio();

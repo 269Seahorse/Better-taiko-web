@@ -28,7 +28,9 @@ function Loader(){
 			audio.src = '/assets/audio/'+name;
 			audio.load();
 			audio.onloadeddata = function(){
-				assets.sounds[id] = audio;
+				assets.sounds[id] = new Audio();
+				assets.sounds[id].src = audio.src;
+				assets.sounds[id].load();
 				_this.assetLoaded();
 			};
 		});
