@@ -35,7 +35,7 @@ function Titlescreen(){
     }
     
     this.goNext = function(){
-		//assets.sounds["don"][0].play();
+		assets.sounds["don"].play();
         new SongSelect();
     }
     

@@ -38,7 +38,7 @@ function SongSelect(){
 		});
 		
 		$(".song:not(.opened)").click(function(){
-			//assets.sounds["ka"][0].play();
+			assets.sounds["ka"].play();
 			$(".difficulty").hide();
 			$(".opened").removeClass("opened", 300);
 			$(this).addClass("opened", 300, "linear", function(){
