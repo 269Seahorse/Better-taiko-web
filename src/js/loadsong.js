@@ -10,19 +10,23 @@ function loadSong(selectedSong){
 	
 	this.run = function(){
 		
-		document.getElementById("start").play();
-		$("#assets").append("<audio id='main-music' src='/songs/"+_selectedSong.folder+"/"+_selectedSong.title+".mp3'></audio>");
+		//assets.sounds["start"]["audio"][0].play();
 		$("#assets").append("<img id='music-bg' src='/songs/"+_selectedSong.folder+"/bg.png' />");
+		
+		var audio = new Audio();
+		audio.src = '/songs/'+_selectedSong.folder+'/'+_selectedSong.title+'.mp3';
+		audio.load();
 		
 		$("#music-bg").load(function(){
 			_bgLoaded=true;
 			_this.checkIfEverythingLoaded();
 		});
 		
-		$("#main-music").on('canplay', function(){
+		audio.onloadeddata = function(){
 			_musicLoaded=true;
+			assets.sounds["main-music"]=audio;
 			_this.checkIfEverythingLoaded();
-		});
+		};
 		
 		$.ajax({
             url : _songFilePath,

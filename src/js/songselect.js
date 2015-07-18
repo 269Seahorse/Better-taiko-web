@@ -38,7 +38,7 @@ function SongSelect(){
 		});
 		
 		$(".song:not(.opened)").click(function(){
-			document.getElementById("don").play();
+			//assets.sounds["ka"][0].play();
 			$(".difficulty").hide();
 			$(".opened").removeClass("opened", 300);
 			$(this).addClass("opened", 300, "linear", function(){
@@ -61,9 +61,9 @@ function SongSelect(){
 			
 			songDifficulties.sort(function(a, b){
 				if(a.difficulty < b.difficulty)
-					return -1;
-				if(a.difficulty > b.difficulty)
 					return 1;
+				if(a.difficulty > b.difficulty)
+					return -1;
 				return 0;
 			});
 			

@@ -24,11 +24,13 @@ function Loader(){
 		
 		assets.audio.forEach(function(name){
 			var id = name.substr(0, name.length-4);
-			var audio = $("<audio id='"+id+"' src='/assets/audio/"+name+"' />");
-			audio.appendTo("#assets");
-			audio.on('canplay', function(){
+			var audio = new Audio();
+			audio.src = '/assets/audio/'+name;
+			audio.load();
+			audio.onloadeddata = function(){
+				assets.sounds[id] = audio;
 				_this.assetLoaded();
-			});
+			};
 		});
 		
 		$.ajax({

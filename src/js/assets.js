@@ -44,6 +44,8 @@ var assets = {
 	fonts: new Array(
 		'Kozuka',
 		'TnT'
-	)
+	),
+	
+	sounds: {}
 	
 };

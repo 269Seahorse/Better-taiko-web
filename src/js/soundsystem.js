@@ -5,59 +5,43 @@ function soundSystem(controller){
     var _circles = [];
     var _circleID = -1;
     var _measures = [];
-    var _channel_max = 10;// number of channels
-    var _mainMusicChannel=-1;
-    
-	var _audiochannels = new Array();
+    var _sounds = assets.sounds;
+	var _channels=[];
+	var _channelMAX=20;
 	
-	for (var a=0;a<_channel_max;a++) {// prepare the channels
-		_audiochannels[a] = new Array();
-		_audiochannels[a]['channel'] = new Audio();	// create a new audio object
-		_audiochannels[a]['finished'] = -1;	// expected end time for this channel
+	for (var i=0;i<_channelMAX;i++) {// prepare the channels
+		_channels[i] = {};
+		_channels[i]["end"] = -1; 
+		_channels[i]["audio"] = new Audio();
 	}
-    
-    this.playSound = function(soundID){
-        
-        if(soundID=="main-music" && _mainMusicChannel!=-1 && _mainMusicChannel.currentTime>0 ){//if music was paused but is going to be played
-            _mainMusicChannel.play();
-        }
-        else{
-            
-            for(var i=0;i<_audiochannels.length;i++){
-
-                var thistime = new Date();
-                if (_audiochannels[i]['finished'] < thistime.getTime()) {// is this channel finished?
-                    _audiochannels[i]['finished'] = thistime.getTime() + document.getElementById(soundID).duration*1000;
-                    _audiochannels[i]['channel'].src = document.getElementById(soundID).src;
-                    _audiochannels[i]['channel'].load();
-                    _audiochannels[i]['channel'].play();
-
-                    if(soundID=="main-music" && _mainMusicChannel==-1){
-                        _mainMusicChannel=_audiochannels[i]['channel'];
-                    }
-                    break;
-                }
-
-            }
-        }
-    }
 	
-    this.pauseSound = function(soundID, stop){
-        for (var i=0;i<_audiochannels.length;i++){
-            if(_audiochannels[i]['channel'].src == document.getElementById(soundID).src){
-                _audiochannels[i]['channel'].pause();
-                if(stop) _audiochannels[i]['channel'].currentTime=0;
-            }
-        }
-    }
+	this.playSound = function(soundID){
+		
+		for(var i=0;i<_channelMAX;i++){ //play in different sounds in different channels
+			var now = new Date();
+			if (_channels[i]["end"] < now.getTime()) {// is this channel finished?
+				_channels[i]["end"] = now.getTime() + _sounds[soundID].duration*1000;
+				_channels[i]["audio"].src = _sounds[soundID].src;
+				_channels[i]["audio"].load();
+				_channels[i]["audio"].play();
+				break;
+			}
+		}
+
+	}
+	
+	this.pauseSound = function(soundID, stop){
+		_sounds[soundID].pause();
+		if(stop) _sounds[soundID].currentTime=0;
+	}
 
     this.fadeOutMusic = function(){
         
-        if(_mainMusicChannel.volume.toFixed(1)!=0.0){
-            _mainMusicChannel.volume-=0.1;
+        if(_sounds["main-music"].volume.toFixed(1)!=0.0){
+            _sounds["main-music"].volume-=0.1;
         }
         else{
-            _mainMusicChannel.pause();
+            _sounds["main-music"].pause();
             controller.fadeOutOver();
         }
     }
