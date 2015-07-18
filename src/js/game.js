@@ -222,11 +222,11 @@ function Game(controller, selectedSong, songData){
     
     this.toggleMainMusic = function(){
         if(_mainMusicPlaying){
-            _soundSystem.pauseSound("main-music", false);
+            assets.sounds["main-music"].pause();
             _mainMusicPlaying=false;
         }
         else{
-            _soundSystem.playSound("main-music");
+            assets.sounds["main-music"].play();
             _mainMusicPlaying=true;
         }
     }

@@ -29,11 +29,6 @@ function soundSystem(controller){
 		}
 		
 	}
-	
-	this.pauseSound = function(soundID, stop){
-		_sounds[soundID].pause();
-		if(stop) _sounds[soundID].currentTime=0;
-	}
 
     this.fadeOutMusic = function(){
         

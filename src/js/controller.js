@@ -39,7 +39,7 @@ function Controller(selectedSong, songData){
                 _game.updateTime();
 				_view.refresh();
             }
-            else if(ms>=0 && !started){ //when music starts
+            else if(ms>=0 && !started){ //when music shall starts
                 assets.sounds["main-music"].play();
                 started=true;
             }
@@ -93,9 +93,9 @@ function Controller(selectedSong, songData){
     }
     
     this.restartSong = function(){
-		_game.pauseSound("main-music", true);
+		assets.sounds["main-music"].pause();
+		assets.sounds["main-music"].currentTime=0;
 		clearInterval(_mainLoop);
-		//songData.circles.forEach(function(circle){
 		$("#screen").load("/src/views/game.html", function(){
 			var taikoGame = new Controller(selectedSong, songData);
 			taikoGame.run();
