@@ -51,6 +51,7 @@ function SongSelect(){
 	
 	this.createCode = function(){
 		
+		assets.sounds["song-select"].play();
 		for(var i=0; i<assets.songs.length; i++){
 			
 			var songDir = assets.songs[i].songDir;

@@ -36,7 +36,8 @@ var assets = {
 		'combo-400.wav',
 		'combo-500.wav',
 		'combo-600.wav',
-		'combo-700.wav'
+		'combo-700.wav',
+		'song-select.wav'
 	),
 	
 	songs: new Array(),
