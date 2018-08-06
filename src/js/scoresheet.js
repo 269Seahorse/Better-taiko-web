@@ -25,6 +25,8 @@ function Scoresheet(controller, score){
 		$("#nb-good").html(_score.good);
 		$("#nb-fail").html(_score.fail);
 		$("#max-combo").html(_score.maxCombo);
+
+		$('.result-song').attr('alt', _score.song).html(_score.song);
 		
 	}
 	

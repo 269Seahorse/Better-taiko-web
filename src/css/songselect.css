@@ -18,8 +18,9 @@
 
 #song-container{
     width:98%;
-	height:90%;
-	padding:1%;
+	height:80%;
+	padding: 5% 1% 1% 1%;
+    text-align: center;
 }
 
 ul li{
@@ -86,12 +87,13 @@ ul li{
     margin: auto;
     margin-top:10px;
     font-size: 20pt;
+    margin-left: 6px;
 }
 
 .difficulty .stars{
     position:absolute;
     color: #f12b69;
-    text-align: center;
+    margin-left: -17px;
     width:100%;
     bottom:10px;
 }

@@ -42,6 +42,7 @@ var assets = {
 		'pause.wav',
 		'cancel.wav',
 		'results.wav',
+		'diffsel.wav',
 
 		'note_don.ogg',
 		'note_ka.ogg',

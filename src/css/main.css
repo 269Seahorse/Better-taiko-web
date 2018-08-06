@@ -44,3 +44,53 @@ html, body{
     
 }
 
+.stroke-main {
+    font-weight: 300;
+}
+
+.result-title {
+    margin-top: 9px !important;
+    margin-left: 5px !important;
+    z-index: 1;
+}
+
+.result-song {
+    position: absolute;
+    right: 0;
+    font-size: 5vmin;
+    margin: 30px 30px 0px 0px;
+    color: white;
+    float: right;
+    z-index: 1;
+}
+
+.stroke-main:before {
+    content: attr(alt);
+    left: 0;
+    z-index: -1;
+    position: absolute;
+    -webkit-text-stroke: 0.3em #fb3c0c;
+}
+
+.stroke-main:after {
+    content: attr(alt);
+    left: 0;
+    z-index: -2;
+    position: absolute;
+    -webkit-text-stroke: 0.5em #000;
+}
+
+.stroke-sub:before {
+    content: attr(alt);
+    position: absolute;
+    -webkit-text-stroke: 0.25em #000;
+    left: 0;
+    z-index: -1;
+}
+
+.songsel-title {
+    position: absolute;
+    z-index: 1;
+    font-size: 7vmin;
+    margin: 15px;
+}

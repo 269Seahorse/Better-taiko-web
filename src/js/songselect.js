@@ -41,6 +41,17 @@ function SongSelect(){
 		$(".song:not(.opened)").click(function(e){
 			if (!$(e.target).parents('.difficulties').length) {
 				assets.sounds["ka"].play();
+				
+				if(!$('.opened').length) {
+					setTimeout(function(){
+						assets.sounds["diffsel"].play();
+					}, 300);
+
+					$('.songsel-title').fadeOut(200, function(){
+						$('.songsel-title').attr('alt', 'むずかしさをえらぶ').html('むずかしさをえらぶ').css('left', -300);
+						$('.songsel-title').animate({left:0, opacity:"show"}, 400);
+					});
+				}
 			};
 
 			$(".difficulty").hide();

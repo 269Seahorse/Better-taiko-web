@@ -11,7 +11,7 @@ function Game(controller, selectedSong, songData){
     var _currentCircle=0;
     var _currentScore=0;
     var _combo=0;
-    var _globalScore={points:0, great:0, good:0, fail:0, maxCombo:0, hp:0};
+    var _globalScore={points:0, great:0, good:0, fail:0, maxCombo:0, hp:0, song:selectedSong.title};
     var _HPGain= 100/_songData.circles.length;
     var _paused=false;
     var _started=false;
