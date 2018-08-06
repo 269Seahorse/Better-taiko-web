@@ -24,7 +24,9 @@ function SongSelect(){
 			var songID = parseInt(parentID.substr(5, parentID.length-1));
 			_selectedSong.title = $(this).parent().closest('.song').find('.song-title').html();
 			_selectedSong.folder = songID+" "+_selectedSong.title;
-                   
+            
+            assets.sounds["diffsel"].pause();
+            assets.sounds["diffsel"].currentTime = 0;
 			new loadSong(_selectedSong);
 
 		});
@@ -38,11 +40,31 @@ function SongSelect(){
 				$(this).css("background", "rgba(255, 220, 47, 0.90)");
 		});
 		
-		$(".song:not(.opened)").click(function(e){
+		$(".song").click(function(e){
 			if (!$(e.target).parents('.difficulties').length) {
+				if ($(".opened").length && $(".opened").attr('id') == $(this).attr('id')) {
+					assets.sounds["cancel"].play();
+					$(".difficulty").hide();
+					$(".opened").removeClass("opened", 300);
+
+					assets.sounds["diffsel"].pause();
+					assets.sounds["diffsel"].currentTime = 0;
+					setTimeout(function(){
+						assets.sounds["song-select"].play();
+					}, 300);
+
+					$('.songsel-title').fadeOut(200, function(){
+						$('.songsel-title').attr('alt', '曲をえらぶ').html('曲をえらぶ').css('left', -300);
+						$('.songsel-title').animate({left:0, opacity:"show"}, 400);
+					});
+
+					return;
+				}
 				assets.sounds["ka"].play();
 				
 				if(!$('.opened').length) {
+					assets.sounds["song-select"].pause();
+					assets.sounds["song-select"].currentTime = 0;
 					setTimeout(function(){
 						assets.sounds["diffsel"].play();
 					}, 300);
@@ -67,7 +89,9 @@ function SongSelect(){
 	this.createCode = function(){
 
 		assets.sounds["bgm_songsel"].play();		
-		assets.sounds["song-select"].play();
+		setTimeout(function(){
+			assets.sounds["song-select"].play();
+		}, 200);
 		for(var i=0; i<assets.songs.length; i++){
 			
 			var songDir = assets.songs[i].songDir;

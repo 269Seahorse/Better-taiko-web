@@ -37,6 +37,9 @@ function Titlescreen(){
     }
     
     this.goNext = function(){
+    	assets.sounds["title"].pause();
+    	assets.sounds["title"].currentTime = 0;
+
 		assets.sounds["don"].play();
         new SongSelect();
     }
