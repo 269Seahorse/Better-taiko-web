@@ -15,7 +15,8 @@ function SongSelect(){
 		$("#song-container").show();
 		
 		$(".difficulty").click(function(e){
-			
+			assets.sounds["don"].play();
+
 			clearInterval(menuLoop);
 			var difficultyElement = (e.target.className=="stars" || e.target.className=="diffname") ? e.target.parentElement : e.target;
 			_selectedSong.difficulty = difficultyElement.classList[1]+'.osu';
@@ -37,8 +38,11 @@ function SongSelect(){
 				$(this).css("background", "rgba(255, 220, 47, 0.90)");
 		});
 		
-		$(".song:not(.opened)").click(function(){
-			assets.sounds["ka"].play();
+		$(".song:not(.opened)").click(function(e){
+			if (!$(e.target).parents('.difficulties').length) {
+				assets.sounds["ka"].play();
+			};
+
 			$(".difficulty").hide();
 			$(".opened").removeClass("opened", 300);
 			$(this).addClass("opened", 300, "linear", function(){

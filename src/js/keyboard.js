@@ -24,20 +24,20 @@ function Keyboard(controller){
     this.checkGameKeys = function(){
 
         if(_keys[86] && !_this.isWaitingForKeyup(86, "sound")){//if press v, play 'don' sound
-            controller.playSound('don');
+            controller.playSound('note_don');
             _this.waitForKeyup(86, "sound");
         }
         if(_keys[66] && !_this.isWaitingForKeyup(66, "sound")){//if press b, play 'don' sound
-            controller.playSound('don');
+            controller.playSound('note_don');
             _this.waitForKeyup(66, "sound");
         }
         
         if(_keys[67] && !_this.isWaitingForKeyup(67, "sound")){//if press c, play 'ka' sound
-            controller.playSound('ka');
+            controller.playSound('note_ka');
             _this.waitForKeyup(67, "sound");
         }
         if(_keys[78] && !_this.isWaitingForKeyup(78, "sound")){//if press n, play 'ka' sound
-            controller.playSound('ka');
+            controller.playSound('note_ka');
             _this.waitForKeyup(78, "sound");
         }
         
@@ -50,8 +50,8 @@ function Keyboard(controller){
             controller.pauseSound("main-music", true);
             controller.songSelection();
         }
-        if(_keys[27]  && !_this.isWaitingForKeyup(27, "menu")){//if press escape key, pause the game
-            _this.waitForKeyup(27, "menu");
+        if(_keys[81]  && !_this.isWaitingForKeyup(81, "menu")){//if press p key, pause the game
+            _this.waitForKeyup(81, "menu");
             controller.togglePauseMenu();
         }
         

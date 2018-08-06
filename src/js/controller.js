@@ -22,11 +22,16 @@ function Controller(selectedSong, songData){
 	
 	this.loadUIEvents = function(){
 		$("#song-selection-butt").click(function(){
+            assets.sounds["don"].play();
 			_this.songSelection();
 		});
 		$("#restart-butt").click(function(){
+            assets.sounds["don"].play();
 			_this.restartSong();
 		});
+        $("#continue-butt").click(function(){
+            _this.togglePauseMenu();
+        });
 	}
     
     this.startMainLoop = function(){
@@ -40,6 +45,7 @@ function Controller(selectedSong, songData){
 				_view.refresh();
             }
             else if(ms>=0 && !started){ //when music shall starts
+                assets.sounds["main-music"].volume = 0.7;
                 assets.sounds["main-music"].play();
                 started=true;
             }

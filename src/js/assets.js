@@ -43,6 +43,8 @@ var assets = {
 		'cancel.wav',
 		'results.wav',
 
+		'note_don.ogg',
+		'note_ka.ogg',
 
 		'bgm_songsel.mp3',
 		'bgm_results.ogg'
