@@ -1,3 +1,4 @@
+
 function Scoresheet(controller, score){
     
     var _this = this;
@@ -85,14 +86,14 @@ function Scoresheet(controller, score){
         $("#song-select").click(function(){
         	assets.sounds["don"].play();
         	assets.sounds["bgm_results"].pause();
-        	assets.sounds["bgm_songsel"].currentTime = 0;
+        	assets.sounds["bgm_results"].currentTime = 0;
             controller.songSelection();
         });
         
         $("#replay").click(function(){
         	assets.sounds["don"].play();
         	assets.sounds["bgm_results"].pause();
-        	assets.sounds["bgm_songsel"].currentTime = 0;
+        	assets.sounds["bgm_results"].currentTime = 0;
             controller.restartSong();
         });
 		

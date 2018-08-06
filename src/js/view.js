@@ -1,4 +1,4 @@
-function View(controller, bg){
+function View(controller, bg, title){
     
     var _this = this;
     var _canvas = document.getElementById('canvas');
@@ -56,10 +56,14 @@ function View(controller, bg){
 	var _currentBigDonFace=1;
 	
 	var _nextBeat=0;
+
+	var _songTitle = title;
     
     this.run = function(){
 		_ctx.font = _mainFont;
 		_this.setBackground();
+
+		$('.game-song').attr('alt', _songTitle).html(_songTitle);
         _this.refresh();
     }
 	

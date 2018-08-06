@@ -7,7 +7,7 @@ function Controller(selectedSong, songData){
 	var _songData = _songParser.getData();
 	
     var _game = new Game(this, selectedSong, _songData);
-    var _view = new View(this, _backgroundURL);
+    var _view = new View(this, _backgroundURL, selectedSong.title);
     var _keyboard = new Keyboard(this);
     var _mainLoop;
     var _pauseMenu = false;

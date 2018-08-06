@@ -54,7 +54,7 @@ html, body{
     z-index: 1;
 }
 
-.result-song {
+.result-song, .game-song {
     position: absolute;
     right: 0;
     font-size: 5vmin;
