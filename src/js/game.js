@@ -249,12 +249,14 @@ function Game(controller, selectedSong, songData){
     
     this.togglePause = function(){
         if(!_paused){
+            assets.sounds["pause"].play();
             _paused=true;
             _latestDate = new Date();
             _this.toggleMainMusic();
             
         }
         else{
+            assets.sounds["cancel"].play();
            _paused=false;
             var currentDate = new Date();
             _ellapsedTimeSincePause = _ellapsedTimeSincePause + Math.abs(currentDate.getTime() - _latestDate.getTime());

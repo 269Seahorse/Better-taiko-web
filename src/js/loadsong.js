@@ -10,6 +10,9 @@ function loadSong(selectedSong){
 	
 	this.run = function(){
 		
+		assets.sounds["bgm_songsel"].pause();
+		assets.sounds["bgm_songsel"].currentTime = 0;
+
 		assets.sounds["start"].play();
 		$("#assets").append("<img id='music-bg' src='/songs/"+_selectedSong.folder+"/bg.png' />");
 		

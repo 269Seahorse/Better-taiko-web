@@ -37,7 +37,15 @@ var assets = {
 		'combo-500.wav',
 		'combo-600.wav',
 		'combo-700.wav',
-		'song-select.wav'
+		'song-select.wav',
+		'title.ogg',
+		'pause.wav',
+		'cancel.wav',
+		'results.wav',
+
+
+		'bgm_songsel.mp3',
+		'bgm_results.ogg'
 	),
 	
 	songs: new Array(),

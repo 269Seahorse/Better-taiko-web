@@ -32,6 +32,8 @@ function Titlescreen(){
 		$("#screen").find("#title-screen").show();
 		$(window).resize(_this.positionning);		
 
+		assets.sounds["title"].play();
+
     }
     
     this.goNext = function(){

@@ -50,7 +50,8 @@ function SongSelect(){
 	}
 	
 	this.createCode = function(){
-		
+
+		assets.sounds["bgm_songsel"].play();		
 		assets.sounds["song-select"].play();
 		for(var i=0; i<assets.songs.length; i++){
 			
