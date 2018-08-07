@@ -39,6 +39,13 @@
                 }
                 
             }
+
+            $scale = array('easy.osu', 'normal.osu', 'hard.osu', 'oni.osu');
+            usort($files, function ($a, $b) use ($scale) {
+                $pos_a = array_search($a['songFile'], $scale);
+                $pos_b = array_search($b['songFile'], $scale);
+                return $pos_a - $pos_b;
+            });
             
             $song = array(
                 "songDir" => $songDir,

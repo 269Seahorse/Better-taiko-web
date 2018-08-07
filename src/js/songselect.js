@@ -60,9 +60,10 @@ function SongSelect(){
 
 					return;
 				}
-				assets.sounds["ka"].play();
+
 				
 				if(!$('.opened').length) {
+					assets.sounds["don"].play();
 					assets.sounds["song-select"].pause();
 					assets.sounds["song-select"].currentTime = 0;
 					setTimeout(function(){
@@ -73,6 +74,8 @@ function SongSelect(){
 						$('.songsel-title').attr('alt', 'むずかしさをえらぶ').html('むずかしさをえらぶ').css('left', -300);
 						$('.songsel-title').animate({left:0, opacity:"show"}, 400);
 					});
+				} else {
+					assets.sounds["ka"].play();
 				}
 			};
 
@@ -100,15 +103,9 @@ function SongSelect(){
 			var songID = titleSplit[0];
 			var songTitle = songDir.substr(songID.length+1, songDir.length-(songID.length+1));
 			
-			songDifficulties.sort(function(a, b){
-				if(a.difficulty < b.difficulty)
-					return 1;
-				if(a.difficulty > b.difficulty)
-					return -1;
-				return 0;
-			});
+
 			
-			_code += "<div id='song-"+songID+"' class='song'><div class='song-title'>"+songTitle+'</div>';
+			_code += "<div id='song-"+songID+"' class='song'><div class='song-title stroke-sub' alt='"+songTitle+"'>"+songTitle+'</div>';
 			_code += "<ul class='difficulties'>";
 			
 			for(var j=0; j<songDifficulties.length; j++){
