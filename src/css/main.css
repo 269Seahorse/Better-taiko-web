@@ -93,7 +93,7 @@ html, body{
     position: absolute;
     z-index: 1;
     font-size: 7vmin;
-    margin: 15px;
+    margin: 20px;
 }
 
 .click-to-continue:before {

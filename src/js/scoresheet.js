@@ -74,7 +74,6 @@ function Scoresheet(controller, score){
 	}
 	
     this.run = function(){
-    	assets.sounds["results"].volume = 0.6;
         assets.sounds["results"].play();
 
     	assets.sounds["bgm_results"].volume = 1;

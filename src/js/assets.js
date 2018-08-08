@@ -48,7 +48,7 @@ var assets = {
 		'note_ka.ogg',
 
 		'bgm_songsel.mp3',
-		'bgm_results.ogg'
+		'bgm_results.mp3'
 	),
 	
 	songs: new Array(),
