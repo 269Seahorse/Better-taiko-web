@@ -2,7 +2,7 @@
 A web version of Taiko no Tatsujin
 
 Currently uploaded to
-http://taikoweb.clemaister.com
+http://taiko.epizy.com
 
 Still in developement
-Works better with Chrome.
+Only works with Chrome.
