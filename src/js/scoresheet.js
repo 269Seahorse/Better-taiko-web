@@ -82,13 +82,13 @@ function Scoresheet(controller, score){
 		
         $("#song-select").click(function(){
         	assets.sounds["don"].play();
-        	bgm.stop();
+        	bgm.pause();
             controller.songSelection();
         });
         
         $("#replay").click(function(){
         	assets.sounds["don"].play();
-        	bgm.stop();
+        	bgm.pause();
             controller.restartSong();
         });
 		
