@@ -82,13 +82,13 @@ function Scoresheet(controller, score){
 		
         $("#song-select").click(function(){
         	assets.sounds["don"].play();
-        	bgmloop2.stop();
+        	bgm.stop();
             controller.songSelection();
         });
         
         $("#replay").click(function(){
         	assets.sounds["don"].play();
-        	bgmloop2.stop();
+        	bgm.stop();
             controller.restartSong();
         });
 		
@@ -98,14 +98,11 @@ function Scoresheet(controller, score){
 
 	    assets.sounds["results"].play();
 	
-		console.log('init scoresheet bgm');
-		bgmloop2 = new SeamlessLoop();
-		bgmloop2.addUri('/assets/audio/bgm_result.ogg', 870, "bgm_result");
-		bgmloop2.addUri('/assets/audio/bgm_result_loop.ogg', 16860, "bgm_result_loop");
-		bgmloop2.callback(function(){
-			bgmloop2.start('bgm_result');
-			bgmloop2.update('bgm_result_loop');
-		});
+		bgm = new BufferedLoop(
+			{url: '/assets/audio/bgm_result.ogg', duration: 0.847},
+			{url: '/assets/audio/bgm_result_loop.ogg', duration: 16.842}
+		);
+		bgm.play();
 
 
 

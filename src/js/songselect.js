@@ -25,9 +25,8 @@ function SongSelect(){
 			_selectedSong.title = $(this).parent().closest('.song').find('.song-title').html();
 			_selectedSong.folder = songID+" "+_selectedSong.title;
             
-            bgmloop.stop();
+            bgm.pause();
 			new loadSong(_selectedSong);
-
 		});
 		
 		$(".song").hover(function(){
@@ -87,16 +86,13 @@ function SongSelect(){
 		});
 
 	}
-	
-	this.createCode = function(){
 
-		bgmloop = new SeamlessLoop();
-		bgmloop.addUri('/assets/audio/bgm_songsel.ogg', 1450, "bgm_songsel");
-		bgmloop.addUri('/assets/audio/bgm_songsel_loop.ogg', 2085, "bgm_songsel_loop");
-		bgmloop.callback(function(){
-			bgmloop.start('bgm_songsel');
-			bgmloop.update('bgm_songsel_loop')
-		});
+	this.createCode = function(){
+		bgm = new BufferedLoop(
+			{url: '/assets/audio/bgm_songsel.ogg', duration: 1.442},
+			{url: '/assets/audio/bgm_songsel_loop.ogg', duration: 2.064}
+		);
+		bgm.play();
 
 		setTimeout(function(){
 			assets.sounds["song-select"].play();
@@ -108,8 +104,6 @@ function SongSelect(){
 			var titleSplit = songDir.split(" ");
 			var songID = titleSplit[0];
 			var songTitle = songDir.substr(songID.length+1, songDir.length-(songID.length+1));
-			
-
 			
 			_code += "<div id='song-"+songID+"' class='song'><div class='song-title stroke-sub' alt='"+songTitle+"'>"+songTitle+'</div>';
 			_code += "<ul class='difficulties'>";
