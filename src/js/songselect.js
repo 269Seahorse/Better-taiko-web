@@ -25,8 +25,7 @@ function SongSelect(){
 			_selectedSong.title = $(this).parent().closest('.song').find('.song-title').html();
 			_selectedSong.folder = songID+" "+_selectedSong.title;
             
-            assets.sounds["diffsel"].pause();
-            assets.sounds["diffsel"].currentTime = 0;
+            bgmloop.stop();
 			new loadSong(_selectedSong);
 
 		});
@@ -91,7 +90,14 @@ function SongSelect(){
 	
 	this.createCode = function(){
 
-		assets.sounds["bgm_songsel"].play();		
+		bgmloop = new SeamlessLoop();
+		bgmloop.addUri('/assets/audio/bgm_songsel.ogg', 1450, "bgm_songsel");
+		bgmloop.addUri('/assets/audio/bgm_songsel_loop.ogg', 2085, "bgm_songsel_loop");
+		bgmloop.callback(function(){
+			bgmloop.start('bgm_songsel');
+			bgmloop.update('bgm_songsel_loop')
+		});
+
 		setTimeout(function(){
 			assets.sounds["song-select"].play();
 		}, 200);

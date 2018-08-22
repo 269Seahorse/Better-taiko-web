@@ -7,7 +7,7 @@ function Controller(selectedSong, songData){
 	var _songData = _songParser.getData();
 	
     var _game = new Game(this, selectedSong, _songData);
-    var _view = new View(this, _backgroundURL, selectedSong.title);
+    var _view = new View(this, _backgroundURL, selectedSong.title, selectedSong.difficulty);
     var _keyboard = new Keyboard(this);
     var _mainLoop;
     var _pauseMenu = false;
@@ -74,8 +74,27 @@ function Controller(selectedSong, songData){
     
     this.displayResults = function(){
         clearInterval(_mainLoop);
-        var scoresheet = new Scoresheet(_this, _this.getGlobalScore());
-        scoresheet.run();
+
+
+        var score = _this.getGlobalScore();
+        
+        if (score.fail == 0) {
+            vp = 'fullcombo';
+            setTimeout(function(){
+                assets.sounds['fullcombo'].play();
+            }, 1350);
+        } else if (score.hp >= 50) {
+            vp = 'clear';
+        } else {
+            vp = 'fail';
+        }
+
+        assets.sounds['game' + vp].play();
+
+        setTimeout(function(){
+            var scoresheet = new Scoresheet(_this, _this.getGlobalScore());
+            scoresheet.run();
+        }, 7000);
     }
 
     this.displayScore = function(score, notPlayed){

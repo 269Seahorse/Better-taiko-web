@@ -22,7 +22,11 @@ var assets = {
 		'bg-pattern-1.png',
 		'bg-pattern-2.png',
 		'ranking-S.png',
-		'ranking-X.png'
+		'ranking-X.png',
+		'muzu_easy.png',
+		'muzu_normal.png',
+		'muzu_hard.png',
+		'muzu_oni.png'
 	),
 	
 	audio: new Array(
@@ -43,12 +47,19 @@ var assets = {
 		'cancel.wav',
 		'results.wav',
 		'diffsel.wav',
+		'fullcombo.wav',
+
+		'gamefullcombo.wav',
+		'gameclear.wav',
+		'gamefail.wav',
 
 		'note_don.ogg',
 		'note_ka.ogg',
 
-		'bgm_songsel.mp3',
-		'bgm_results.mp3'
+		'bgm_songsel.ogg',
+		'bgm_songsel_loop.ogg',
+		'bgm_result.ogg',
+		'bgm_result_loop.ogg'
 	),
 	
 	songs: new Array(),

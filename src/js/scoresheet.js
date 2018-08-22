@@ -7,20 +7,23 @@ function Scoresheet(controller, score){
 	
 	this.setResults = function(){
 		
-		if(_score.hp==100)
-        _mark="double-gold";
-    else if(_score.hp>=90 && _score.hp<100)
-        _mark="gold";
-    else if(_score.hp>=70 && _score.hp<90)
-        _mark="silver";
-		
+		if (_score.fail == 0) {
+        	_mark = 'gold';
+    	} else if (_score.hp >= 50) {
+    		_mark = 'silver';
+    	};
+
 		var imgW = (_score.hp*$("#score-hp-bar-colour").width())/100;
 		$("#score-hp-bar-colour img").css("clip", "rect(0, "+imgW+"px, "+$("#score-hp-bar-colour").height()+"px, 0)");
 		
-		if(_mark=="double-gold") $("#score-mark").attr("src", $("#ranking-X").attr("src"));
-		else if(_mark=="gold") $("#score-mark").attr("src", $("#ranking-S").attr("src"));
-		else $("#score-mark").remove();
-		
+		if (_mark == 'gold') {
+			$("#score-mark").attr("src", '/assets/img/ranking-X.png');
+		} else if (_mark == 'silver') {
+			$("#score-mark").attr("src", '/assets/img/ranking-S.png');
+		} else {
+			$("#score-mark").remove();
+		};
+
 		$("#score-points").html(_score.points+"点");
 		$("#nb-great").html(_score.great);
 		$("#nb-good").html(_score.good);
@@ -74,32 +77,38 @@ function Scoresheet(controller, score){
 	}
 	
     this.run = function(){
-        assets.sounds["results"].play();
-
-    	assets.sounds["bgm_results"].volume = 1;
-        assets.sounds["bgm_results"].play();
-
 		_this.positionning();
 		_this.setResults();
 		
         $("#song-select").click(function(){
         	assets.sounds["don"].play();
-        	assets.sounds["bgm_results"].pause();
-        	assets.sounds["bgm_results"].currentTime = 0;
+        	bgmloop2.stop();
             controller.songSelection();
         });
         
         $("#replay").click(function(){
         	assets.sounds["don"].play();
-        	assets.sounds["bgm_results"].pause();
-        	assets.sounds["bgm_results"].currentTime = 0;
+        	bgmloop2.stop();
             controller.restartSong();
         });
 		
 		$(window).resize(_this.positionning);
 		
     }
+
+	    assets.sounds["results"].play();
 	
+		console.log('init scoresheet bgm');
+		bgmloop2 = new SeamlessLoop();
+		bgmloop2.addUri('/assets/audio/bgm_result.ogg', 870, "bgm_result");
+		bgmloop2.addUri('/assets/audio/bgm_result_loop.ogg', 16860, "bgm_result_loop");
+		bgmloop2.callback(function(){
+			bgmloop2.start('bgm_result');
+			bgmloop2.update('bgm_result_loop');
+		});
+
+
+
 	$("#screen").load("/src/views/scoresheet.html", _this.run);
     
 }

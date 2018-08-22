@@ -1,4 +1,4 @@
-function View(controller, bg, title){
+function View(controller, bg, title, diff){
     
     var _this = this;
     var _canvas = document.getElementById('canvas');
@@ -33,6 +33,10 @@ function View(controller, bg, title){
 	var _HPBarColH;7
 	var _HPBarColWImage;
 	var _HPBarColWCanvas;
+	var _diffW;
+	var _diffH;
+	var _diffX;
+	var _diffY;
 	
 	var _circleAnimatorT;
 	var _animationStartPos;
@@ -58,6 +62,7 @@ function View(controller, bg, title){
 	var _nextBeat=0;
 
 	var _songTitle = title;
+	var _songDifficulty = diff.split('.').slice(0, -1).join('.');
     
     this.run = function(){
 		_ctx.font = _mainFont;
@@ -108,7 +113,11 @@ function View(controller, bg, title){
 		_HPbarColY = _HPBarY+0.14*_HPBarH;
 		_HPBarColMaxW = _HPBarW-(0.075*_HPBarW);
 		_HPBarColH = _HPBarH-(0.2*_HPBarH);
-		
+		_diffH = _winH * 0.16;
+		_diffW = _winW * 0.11;
+		_diffX = (_taikoX * 1.05)+15;
+		_diffY = _taikoY * 0.10;
+
 		var circles = controller.getCircles();
 		var currentCircle = controller.getCurrentCircle();
 		if(currentCircle==0){
@@ -142,6 +151,7 @@ function View(controller, bg, title){
         this.drawCombo();
         this.drawGlobalScore();
         this.drawTime();
+        this.drawDifficulty();
 		
 		this.updateDonFaces();//animate circle face when combo superior to 50
  
@@ -457,6 +467,11 @@ function View(controller, bg, title){
     this.togglePauseMenu = function(){
         $("#pause-menu").is(":visible") ? $("#pause-menu").hide() : $("#pause-menu").show();
     }
+
+    this.drawDifficulty = function(){
+    	var muzu = document.getElementById('muzu_' + _songDifficulty);
+    	_ctx.drawImage(muzu, _diffY, _diffX, _diffW, _diffH);
+    };
     
     this.drawTime = function(){
         
