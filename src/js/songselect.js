@@ -104,8 +104,9 @@ function SongSelect(){
 			var titleSplit = songDir.split(" ");
 			var songID = titleSplit[0];
 			var songTitle = songDir.substr(songID.length+1, songDir.length-(songID.length+1));
+			var songTitleSpace = songTitle.replace(/ /g, '&nbsp;');
 			
-			_code += "<div id='song-"+songID+"' class='song'><div class='song-title stroke-sub' alt='"+songTitle+"'>"+songTitle+'</div>';
+			_code += "<div id='song-"+songID+"' class='song'><div class='song-title stroke-sub' alt='"+songTitleSpace+"'>"+songTitleSpace+'</div>';
 			_code += "<ul class='difficulties'>";
 			
 			for(var j=0; j<songDifficulties.length; j++){
@@ -147,6 +148,13 @@ function SongSelect(){
 		}
 		
 		$("#song-container").html(_code);
+		$('.song').each(function(){
+			var title = $(this).find('.song-title');
+			var height = $(title).height();
+			$(title).css('margin-top', '-' + height/2 + 'px');
+			document.styleSheets[0].addRule('#'+$(this).attr('id')+' .song-title:before','top:'+height/2+'px;');
+		});
+		$('.difficulty').hide();
 	}
     
     this.display = function(){

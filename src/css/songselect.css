@@ -35,23 +35,30 @@ ul li{
 }
 
 .song-title{
-    float:right;
-    display:inline-block;
-    width:20px;
-    height: 100%;
-    padding:10px;
+    float: right;
+    width: 0px;
+    padding: 12px 24px;
     word-wrap: break-word;
-    font-size: 28pt;
-    color:white;
-    margin-right:10px;
-    -webkit-text-stroke-width: 2px;
-   -webkit-text-stroke-color: black;
+    font-size: 22pt;
+    color: white;
+    margin-right: 10px;
+    position: relative;
+    z-index: 1;
+    line-height: 28px;
+}
+
+.song-title:before {
+    content: attr(alt);
+    position: relative;
+    -webkit-text-stroke: 0.25em #000;
+    z-index: -1;
+    word-wrap: break-word;
 }
 
 .song{
     font-size: 14pt;
-    width: 60px;
-	margin-right:20px;
+    width: 45px;
+	margin-right:15px;
 	height:100%;
     color: black;
     display: inline-block;

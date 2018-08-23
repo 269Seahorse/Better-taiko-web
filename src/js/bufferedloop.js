@@ -42,7 +42,6 @@ class BufferedLoop{
 		source.start(time)
 		this.bufferedTime=time+duration
 		this.sources.add(source)
-		console.log(this.sources)
 		setTimeout(function(){
 			self.sources.delete(source)
 		},duration*1000)
