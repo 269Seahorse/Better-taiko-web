@@ -106,8 +106,13 @@ function SongSelect(){
 			var songTitle = songDir.substr(songID.length+1, songDir.length-(songID.length+1));
 			var songTitleSpace = songTitle.replace(/ /g, '&nbsp;');
 			
-			_code += "<div id='song-"+songID+"' class='song'><div class='song-title stroke-sub' alt='"+songTitleSpace+"'>"+songTitleSpace+'</div>';
-			_code += "<ul class='difficulties'>";
+			_code += "<div id='song-"+songID+"' class='song'><div class='song-title'>";
+			for (var c=0; c<songTitle.length; c++) {
+				var ch = songTitle.charAt(c) == ' ' ? '&nbsp;' : songTitle.charAt(c);
+				var cl = ch == '&nbsp;' ? 'song-title-char song-title-space' : 'song-title-char';
+				_code += '<span class="' + cl + '" alt="' + ch + '">' + ch + '</span>';
+			};
+			_code += "</div><ul class='difficulties'>";
 			
 			for(var j=0; j<songDifficulties.length; j++){
 				
@@ -148,12 +153,6 @@ function SongSelect(){
 		}
 		
 		$("#song-container").html(_code);
-		$('.song').each(function(){
-			var title = $(this).find('.song-title');
-			var height = $(title).height();
-			$(title).css('margin-top', '-' + height/2 + 'px');
-			document.styleSheets[0].addRule('#'+$(this).attr('id')+' .song-title:before','top:'+height/2+'px;');
-		});
 		$('.difficulty').hide();
 	}
     

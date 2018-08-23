@@ -34,25 +34,33 @@ ul li{
     height: 100%;
 }
 
+.song-title-char {
+    text-align: center;
+    width: 45px;
+    display: block;
+}
+
+.song-title-char:before {
+    content: attr(alt);
+    position: absolute;
+    -webkit-text-stroke: 0.25em #000;
+    z-index: -1;
+}
+
 .song-title{
     float: right;
-    width: 0px;
-    padding: 12px 24px;
+    width: 45px;
+    padding: 10px 0px;
     word-wrap: break-word;
     font-size: 22pt;
     color: white;
-    margin-right: 10px;
     position: relative;
     z-index: 1;
     line-height: 28px;
 }
 
-.song-title:before {
-    content: attr(alt);
-    position: relative;
-    -webkit-text-stroke: 0.25em #000;
-    z-index: -1;
-    word-wrap: break-word;
+.song-title-space {
+    line-height: 25px;
 }
 
 .song{
