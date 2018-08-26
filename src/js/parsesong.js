@@ -189,40 +189,41 @@ function ParseSong(fileContent){
             var txt;
             var emptyValue=false;
                 
-            switch(values[4]){
-                case '0':
+            switch(parseInt(values[4])){
+                case 0:
                     type="don";
                     txt="ドン";
                     break;
-                case '2':
+                case 2:
                     type="ka";
                     txt="カッ";
                     break;
-                case '4':
+                case 4:
                     type="daiDon";
                     txt="ドン";
                     break;
-                case '6':
+                case 6:
                     type="daiKa";
                     txt="カッ";
                     break;
-                case '8':
+                case 8:
                     type="ka";
                     txt="カッ";
                     break;
-                case '10':
+                case 10:
                     type="ka";
                     txt="カッ";
                     break;
-                case '12':
+                case 12:
                     type="daiKa";
                     txt="カッ";
                     break;
-                case '14':
+                case 14:
                     type="daiKa";
                     txt="カッ";
                     break;
                 default:
+                    console.log('[WARNING] Unknown note type found on line ' + i+1 + ': ' + _data[i]);
                     emptyValue=true;
                     break;
 				}
