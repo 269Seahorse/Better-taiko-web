@@ -191,7 +191,6 @@ function View(controller, bg, title, diff){
         var barColour = document.getElementById('hp-bar-colour');
 
         _ctx.drawImage(barBG, _HPBarX, _HPBarY, _HPBarW, _HPBarH);
-        console.log(_HPBarColWImage);
         _ctx.drawImage(barColour, 0, 0, Math.max(1, Math.floor(_HPBarColWImage)), 40, _HPbarColX, _HPbarColY, _HPBarColWCanvas, _HPBarColH);
 		
     }
