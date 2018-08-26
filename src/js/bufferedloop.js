@@ -5,8 +5,8 @@ class BufferedLoop{
 		this.context=new AudioContext()
 		this.buffers=[]
 		this.sources=new Set()
+		this.loadCallback=[]
 		this.bufferedTime=0
-		this.iteration=0
 		this.bgm1=bgm1
 		this.bgm2=bgm2
 		this.loadSound(bgm1.url,0)
@@ -28,11 +28,13 @@ class BufferedLoop{
 	setLoaded(){
 		if(this.buffers[0]&&this.buffers[1]){
 			this.loaded=true
-			if(this.loadCallback){
-				this.loadCallback()
-				delete this.loadCallback
+			for(var i in this.loadCallback){
+				this.loadCallback[i]()
 			}
 		}
+	}
+	onLoad(callback){
+		this.loadCallback.push(callback)
 	}
 	playSound(buffer,time,duration){
 		var self=this
@@ -41,10 +43,13 @@ class BufferedLoop{
 		source.connect(this.context.destination)
 		source.start(time)
 		this.bufferedTime=time+duration
-		this.sources.add(source)
-		setTimeout(function(){
-			self.sources.delete(source)
-		},duration*1000)
+		var sourceObject={
+			source:source,
+			timeout:setTimeout(function(){
+				self.sources.delete(sourceObject)
+			},duration*1000)
+		}
+		this.sources.add(sourceObject)
 	}
 	addLoop(){
 		if(this.context.currentTime>this.bufferedTime-1){
@@ -59,10 +64,12 @@ class BufferedLoop{
 	play(){
 		var self=this
 		if(!this.loaded){
-			this.loadCallback=this.play
-			return
+			return this.onLoad(function(){
+				self.play()
+			})
 		}
 		this.start=this.context.currentTime+0.1
+		this.iteration=0
 		this.playSound(
 			this.buffers[0],
 			this.start,
@@ -75,8 +82,9 @@ class BufferedLoop{
 	}
 	pause(){
 		clearInterval(this.interval)
-		this.sources.forEach(function(source){
-			source.stop(0)
+		this.sources.forEach(function(sourceObject){
+			sourceObject.source.stop(0)
+			clearTimeout(sourceObject.timeout)
 		})
 	}
 }
