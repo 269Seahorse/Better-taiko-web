@@ -63,6 +63,7 @@ html, body{
     color: white;
     float: right;
     z-index: 1;
+    font-weight: 300;
 }
 
 .stroke-main:before {
@@ -98,4 +99,11 @@ html, body{
 
 .click-to-continue:before {
     width: 100%;
+}
+
+
+.don {
+  background-position-y: 0;
+  position: absolute;
+  top: 0px;
 }

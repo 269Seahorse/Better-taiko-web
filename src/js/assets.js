@@ -26,7 +26,8 @@ var assets = {
 		'muzu_easy.png',
 		'muzu_normal.png',
 		'muzu_hard.png',
-		'muzu_oni.png'
+		'muzu_oni.png',
+		'don_anim_normal.png'
 	),
 	
 	audio: new Array(

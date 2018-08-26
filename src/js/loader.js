@@ -26,6 +26,7 @@ function Loader(){
 			var id = name.substr(0, name.length-4);
 			var audio = new Audio();
 			audio.src = '/assets/audio/'+name;
+			audio.muted = true;
 			audio.load();
 			audio.onloadeddata = function(){
 				assets.sounds[id] = new Audio();
@@ -37,10 +38,10 @@ function Loader(){
 		
 		$.ajax({
             async:true,
-            type:"POST",
-            url:"/src/php/getsongs.php",
+            type:"GET",
+            url:"/api/songs",
             success:function(songs){
-				assets.songs = $.parseJSON(songs);
+				assets.songs = songs;
 				_this.assetLoaded();
 			},
 			error:function(){

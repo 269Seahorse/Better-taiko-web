@@ -69,6 +69,7 @@ function View(controller, bg, title, diff){
 		_this.setBackground();
 
 		$('.game-song').attr('alt', _songTitle).html(_songTitle);
+
         _this.refresh();
     }
 	
@@ -156,7 +157,7 @@ function View(controller, bg, title, diff){
 		this.updateDonFaces();//animate circle face when combo superior to 50
  
     }
-	
+
 	this.updateDonFaces = function(){
 		
 		if(controller.getEllapsedTime().ms>=_nextBeat){

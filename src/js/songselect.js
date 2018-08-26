@@ -4,6 +4,35 @@ function SongSelect(){
     var _songs;
 	var _selectedSong = {title:'', folder:'', difficulty:''};
 	var _code="";
+	var _preview;
+	var _preview_to;
+
+	this.startPreview = function(id, first_open=true) {
+		var start = Date.now();
+		setTimeout(function(){
+			bgm.pause();
+		}, 400);
+
+		_preview = new Audio('/songs/' + id + '/main.mp3');
+		_preview.onloadeddata = function() {
+			var end = Date.now();
+			var delay = end - start;
+			var no_delay = first_open ? 0 : 300;
+
+			_preview.currentTime = 10.0;
+			_preview.loop = true;
+			_preview.volume = 0.5;
+			
+			_preview_to = setTimeout(function(){
+				_preview.play();
+			}, delay <= 1000 && first_open ? 1000 : no_delay);
+		}
+	};
+
+	this.endPreview = function() {
+		clearTimeout(_preview_to);
+		_preview.pause();
+	};
     
     this.run = function(){
             
@@ -15,6 +44,9 @@ function SongSelect(){
 		$("#song-container").show();
 		
 		$(".difficulty").click(function(e){
+			_this.endPreview();
+			assets.sounds["diffsel"].pause();
+			assets.sounds["diffsel"].currentTime = 0;
 			assets.sounds["don"].play();
 
 			clearInterval(menuLoop);
@@ -22,8 +54,8 @@ function SongSelect(){
 			_selectedSong.difficulty = difficultyElement.classList[1]+'.osu';
 			var parentID = $(this).parent().closest(".song").attr("id");
 			var songID = parseInt(parentID.substr(5, parentID.length-1));
-			_selectedSong.title = $(this).parent().closest('.song').find('.song-title').html();
-			_selectedSong.folder = songID+" "+_selectedSong.title;
+			_selectedSong.title = $(this).parent().closest('.song').data('title');
+			_selectedSong.folder = songID;
             
             bgm.pause();
 			new loadSong(_selectedSong);
@@ -41,6 +73,8 @@ function SongSelect(){
 		$(".song").click(function(e){
 			if (!$(e.target).parents('.difficulties').length) {
 				if ($(".opened").length && $(".opened").attr('id') == $(this).attr('id')) {
+					_this.endPreview();
+					bgm.play();
 					assets.sounds["cancel"].play();
 					$(".difficulty").hide();
 					$(".opened").removeClass("opened", 300);
@@ -59,8 +93,9 @@ function SongSelect(){
 					return;
 				}
 
-				
+
 				if(!$('.opened').length) {
+					_this.startPreview($(this).data('song-id'));				
 					assets.sounds["don"].play();
 					assets.sounds["song-select"].pause();
 					assets.sounds["song-select"].currentTime = 0;
@@ -73,6 +108,8 @@ function SongSelect(){
 						$('.songsel-title').animate({left:0, opacity:"show"}, 400);
 					});
 				} else {
+					_preview.pause();
+					_this.startPreview($(this).data('song-id'), false);				
 					assets.sounds["ka"].play();
 				}
 			};
@@ -98,15 +135,15 @@ function SongSelect(){
 			assets.sounds["song-select"].play();
 		}, 200);
 		for(var i=0; i<assets.songs.length; i++){
-			
-			var songDir = assets.songs[i].songDir;
-			var songDifficulties = assets.songs[i].files;
-			var titleSplit = songDir.split(" ");
-			var songID = titleSplit[0];
-			var songTitle = songDir.substr(songID.length+1, songDir.length-(songID.length+1));
+
+			var song = assets.songs[i];
+			var songDir = '/songs/' + song.id;
+			var songDifficulties = song.stars;
+			var songID = song.id;
+			var songTitle = song.title;
 			var songTitleSpace = songTitle.replace(/ /g, '&nbsp;');
 			
-			_code += "<div id='song-"+songID+"' class='song'><div class='song-title'>";
+			_code += "<div id='song-"+songID+"' class='song' data-title='"+songTitle+"' data-song-id='"+songID+"'><div class='song-title'>";
 			for (var c=0; c<songTitle.length; c++) {
 				var ch = songTitle.charAt(c) == ' ' ? '&nbsp;' : songTitle.charAt(c);
 				var cl = ch == '&nbsp;' ? 'song-title-char song-title-space' : 'song-title-char';
@@ -114,11 +151,12 @@ function SongSelect(){
 			};
 			_code += "</div><ul class='difficulties'>";
 			
-			for(var j=0; j<songDifficulties.length; j++){
-				
-				var diffName = songDifficulties[j].songFile;
-				diffName = diffName.substr(0, diffName.length-4);
-				var diffLevel = songDifficulties[j].difficulty;
+			for(var diff in songDifficulties){
+				var diffName = diff;
+				var diffLevel = songDifficulties[diff];
+				if (!diffLevel) {
+					continue;
+				}
 				
 				var starsDisplay="";
 				for(var x=1; x<=diffLevel; x++){

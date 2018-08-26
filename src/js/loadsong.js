@@ -17,7 +17,7 @@ function loadSong(selectedSong){
 		$("#assets").append("<img id='music-bg' src='/songs/"+_selectedSong.folder+"/bg.png' />");
 		
 		var audio = new Audio();
-		audio.src = '/songs/'+_selectedSong.folder+'/'+_selectedSong.title+'.mp3';
+		audio.src = '/songs/'+_selectedSong.folder+'/main.mp3';
 		audio.load();
 		
 		$("#music-bg").load(function(){

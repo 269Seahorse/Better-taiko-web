@@ -194,7 +194,7 @@ function Game(controller, selectedSong, songData){
             _fadeOutStarted=true;
         }
     }
-    
+
     this.whenFadeoutMusic = function(){
         if(_fadeOutStarted){
             if(_musicFadeOut%8==0){

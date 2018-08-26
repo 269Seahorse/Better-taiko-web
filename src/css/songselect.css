@@ -50,7 +50,7 @@ ul li{
 .song-title{
     float: right;
     width: 45px;
-    padding: 10px 0px;
+    padding: 10px 2px;
     word-wrap: break-word;
     font-size: 22pt;
     color: white;
@@ -65,7 +65,7 @@ ul li{
 
 .song{
     font-size: 14pt;
-    width: 45px;
+    width: 50px;
 	margin-right:15px;
 	height:100%;
     color: black;
