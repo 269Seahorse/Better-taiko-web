@@ -118,6 +118,10 @@ function Game(controller, selectedSong, songData){
 
         if(circle){
 
+            if(controller.autoPlay(circle)){
+                return
+            }
+            
             if(controller.getKeys()[86]){
                 if(!circle.getPlayed() && !controller.isWaitingForKeyup(86, "score") && circle.getStatus()!=-1){
                     var score = _this.checkScore(circle);

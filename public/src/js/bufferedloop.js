@@ -81,10 +81,12 @@ class BufferedLoop{
 		},100)
 	}
 	pause(){
+		var self=this
 		clearInterval(this.interval)
 		this.sources.forEach(function(sourceObject){
 			sourceObject.source.stop(0)
 			clearTimeout(sourceObject.timeout)
+			self.sources.delete(sourceObject)
 		})
 	}
 }

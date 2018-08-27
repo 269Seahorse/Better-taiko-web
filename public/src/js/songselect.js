@@ -62,7 +62,7 @@ function SongSelect(){
 			_selectedSong.folder = songID;
             
             bgm.pause();
-			new loadSong(_selectedSong);
+			new loadSong(_selectedSong, e.shiftKey);
 		});
 		
 		$(".song").hover(function(){
