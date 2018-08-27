@@ -20,8 +20,12 @@ function SongSelect(){
 			var no_delay = first_open ? 0 : 300;
 
 			_preview.currentTime = _preview.duration/2-10;
-			_preview.loop = true;
 			_preview.volume = 0.5;
+
+			_preview.addEventListener('ended', function(){
+				this.currentTime = this.duration/2-10;
+				this.play();
+			}, false);
 			
 			_preview_to = setTimeout(function(){
 				_preview.play();
