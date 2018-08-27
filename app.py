@@ -71,9 +71,9 @@ def route_api_songs():
     songs = query_db('select * from songs where enabled = 1')
     songs_out = []
     for song in songs:
-        osus = [osu for osu in os.listdir('songs/%s' % song[0]) if osu in ['easy.osu', 'normal.osu', 'hard.osu', 'oni.osu']]
+        osus = [osu for osu in os.listdir('public/songs/%s' % song[0]) if osu in ['easy.osu', 'normal.osu', 'hard.osu', 'oni.osu']]
         if osus:
-            osud = parse_osu('songs/%s/%s' % (song[0], osus[0]))
+            osud = parse_osu('public/songs/%s/%s' % (song[0], osus[0]))
             preview = int(get_osu_key(osud, 'General', 'PreviewTime', 0))
         else:
             preview = 0
