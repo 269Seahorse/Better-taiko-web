@@ -341,6 +341,27 @@ function Game(controller, selectedSong, songData){
             case 700:
                 controller.playSound("combo-700");
                 break;
+            case 800:
+                controller.playSound("combo-800");
+                break;
+            case 900:
+                controller.playSound("combo-900");
+                break;
+            case 1000:
+                controller.playSound("combo-1000");
+                break;
+            case 1100:
+                controller.playSound("combo-1100");
+                break;
+            case 1200:
+                controller.playSound("combo-1200");
+                break;
+            case 1300:
+                controller.playSound("combo-1300");
+                break;
+            case 1400:
+                controller.playSound("combo-1400");
+                break;
         }
     }
     
