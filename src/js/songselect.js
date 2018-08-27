@@ -147,11 +147,27 @@ function SongSelect(){
 			var songTitle = song.title;
 			var songTitleSpace = songTitle.replace(/ /g, '&nbsp;');
 			var songPreview = song.preview;
+			var skipChars = [];
 			
-			_code += "<div id='song-"+songID+"' class='song' data-title='"+songTitle+"' data-song-id='"+songID+"' data-preview='"+songPreview+"'><div class='song-title'>";
+			var cl = /^[\x00-\xFF]*$/.test(songTitle) ? 'song-title alpha-title' : 'song-title';
+			_code += "<div id='song-"+songID+"' class='song' data-title='"+songTitle+"' data-song-id='"+songID+"' data-preview='"+songPreview+"'><div class='"+cl+"'>";
 			for (var c=0; c<songTitle.length; c++) {
+				if (skipChars.indexOf(c) > -1) {
+					continue;
+				};
+
 				var ch = songTitle.charAt(c) == ' ' ? '&nbsp;' : songTitle.charAt(c);
+
+				var isApos = false;
+				if (songTitle.charAt(c+1) == '\'') {
+					ch = ch + '\'';
+					skipChars.push(c+1);
+					isApos = true;
+				};
+
 				var cl = ch == '&nbsp;' ? 'song-title-char song-title-space' : 'song-title-char';
+				cl = isApos ? cl + ' song-title-apos' : cl;
+
 				_code += '<span class="' + cl + '" alt="' + ch + '">' + ch + '</span>';
 			};
 			_code += "</div><ul class='difficulties'>";

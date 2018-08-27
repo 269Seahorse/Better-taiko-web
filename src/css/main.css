@@ -107,3 +107,13 @@ html, body{
   position: absolute;
   top: 0px;
 }
+
+.alpha-title .song-title-char {
+    transform: scale(1.3, 1);
+    font-size: 80%;
+    line-height: 22px;
+}
+
+.song-title-apos {
+    padding-left: 4px;
+}
