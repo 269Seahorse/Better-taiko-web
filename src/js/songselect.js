@@ -19,7 +19,7 @@ function SongSelect(){
 			var delay = end - start;
 			var no_delay = first_open ? 0 : 300;
 
-			_preview.currentTime = 10.0;
+			_preview.currentTime = _preview.duration/2-10;
 			_preview.loop = true;
 			_preview.volume = 0.5;
 			

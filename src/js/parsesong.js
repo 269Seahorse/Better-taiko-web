@@ -2,7 +2,7 @@ function ParseSong(fileContent){
 	
 	var _this = this;
 	var _data = fileContent;
-	var _generalInfo={audioFilename:""};
+	var _generalInfo={audioFilename:"", audioWait:0};
 	var _metadata={title:'', artist:''};
 	var _difficulty={sliderMultiplier:0, sliderTickRate:0, approachRate:0};
 	var _beatInfo={beatInterval:0, bpm:0};
@@ -119,6 +119,9 @@ function ParseSong(fileContent){
              
                 case 'SliderMultiple':
                     _generalInfo.audioFilename = key;
+                    break;
+                case 'AudioWait':
+                    _generalInfo.audioWait = parseInt(key);
                     break;
             }
         }

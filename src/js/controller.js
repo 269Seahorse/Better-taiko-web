@@ -45,8 +45,10 @@ function Controller(selectedSong, songData){
 				_view.refresh();
             }
             else if(ms>=0 && !started){ //when music shall starts
-                assets.sounds["main-music"].volume = 0.7;
-                assets.sounds["main-music"].play();
+                setTimeout(function(){
+                    assets.sounds["main-music"].volume = 0.7;
+                    assets.sounds["main-music"].play();
+                }, _songData.generalInfo.audioWait);
                 started=true;
             }
             
