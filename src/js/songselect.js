@@ -7,7 +7,7 @@ function SongSelect(){
 	var _preview;
 	var _preview_to;
 
-	this.startPreview = function(id, first_open=true) {
+	this.startPreview = function(id, prvtime, first_open=true) {
 		var start = Date.now();
 		setTimeout(function(){
 			bgm.pause();
@@ -19,11 +19,11 @@ function SongSelect(){
 			var delay = end - start;
 			var no_delay = first_open ? 0 : 300;
 
-			_preview.currentTime = _preview.duration/2-10;
+			_preview.currentTime = prvtime/1000;
 			_preview.volume = 0.5;
 
 			_preview.addEventListener('ended', function(){
-				this.currentTime = this.duration/2-10;
+				this.currentTime = prvtime/1000;
 				this.play();
 			}, false);
 			
@@ -99,7 +99,7 @@ function SongSelect(){
 
 
 				if(!$('.opened').length) {
-					_this.startPreview($(this).data('song-id'));				
+					_this.startPreview($(this).data('song-id'), $(this).data('preview'));				
 					assets.sounds["don"].play();
 					assets.sounds["song-select"].pause();
 					assets.sounds["song-select"].currentTime = 0;
@@ -113,7 +113,7 @@ function SongSelect(){
 					});
 				} else {
 					_preview.pause();
-					_this.startPreview($(this).data('song-id'), false);				
+					_this.startPreview($(this).data('song-id'), $(this).data('preview'), false);				
 					assets.sounds["ka"].play();
 				}
 			};
@@ -146,8 +146,9 @@ function SongSelect(){
 			var songID = song.id;
 			var songTitle = song.title;
 			var songTitleSpace = songTitle.replace(/ /g, '&nbsp;');
+			var songPreview = song.preview;
 			
-			_code += "<div id='song-"+songID+"' class='song' data-title='"+songTitle+"' data-song-id='"+songID+"'><div class='song-title'>";
+			_code += "<div id='song-"+songID+"' class='song' data-title='"+songTitle+"' data-song-id='"+songID+"' data-preview='"+songPreview+"'><div class='song-title'>";
 			for (var c=0; c<songTitle.length; c++) {
 				var ch = songTitle.charAt(c) == ' ' ? '&nbsp;' : songTitle.charAt(c);
 				var cl = ch == '&nbsp;' ? 'song-title-char song-title-space' : 'song-title-char';
