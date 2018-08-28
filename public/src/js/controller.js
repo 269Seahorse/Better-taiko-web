@@ -1,4 +1,4 @@
-function Controller(selectedSong, songData){
+function Controller(selectedSong, songData, autoPlayEnabled){
     
     var _this = this;
 	var _backgroundURL = "/songs/"+selectedSong.folder+"/bg.png";
@@ -8,6 +8,7 @@ function Controller(selectedSong, songData){
 	
     var _game = new Game(this, selectedSong, _songData);
     var _view = new View(this, _backgroundURL, selectedSong.title, selectedSong.difficulty);
+    var _mekadon = new Mekadon(this, _game);
     var _keyboard = new Keyboard(this);
     var _mainLoop;
     var _pauseMenu = false;
@@ -124,7 +125,7 @@ function Controller(selectedSong, songData){
 		assets.sounds["main-music"].currentTime=0;
 		clearInterval(_mainLoop);
 		$("#screen").load("/src/views/game.html", function(){
-			var taikoGame = new Controller(selectedSong, songData);
+			var taikoGame = new Controller(selectedSong, songData, autoPlayEnabled);
 			taikoGame.run();
 		});
     }
@@ -163,6 +164,10 @@ function Controller(selectedSong, songData){
     
     this.getKeys = function(){
         return _keyboard.getKeys();
+    }
+    
+    this.setKey = function(keyCode, down){
+        return _keyboard.setKey(keyCode, down);
     }
     
     this.getSongData = function(){
@@ -207,6 +212,15 @@ function Controller(selectedSong, songData){
     
     this.updateGlobalScore = function(score){
         _game.updateGlobalScore(score);
+    }
+    
+    this.autoPlay = function(circle){
+        if(autoPlayEnabled){
+            if(circle && circle.getStatus() == 450){
+                _mekadon.play(circle)
+            }
+            return true
+        }
     }
     
 }

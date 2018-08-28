@@ -1,4 +1,4 @@
-function loadSong(selectedSong){
+function loadSong(selectedSong, autoPlayEnabled){
 	
 	var _this = this;
 	var _selectedSong=selectedSong;
@@ -46,7 +46,7 @@ function loadSong(selectedSong){
 	this.checkIfEverythingLoaded = function(){
 		if(_musicLoaded && _songDataLoaded && _bgLoaded){
 			$("#screen").load("/src/views/game.html", function(){
-				var taikoGame = new Controller(_selectedSong, _songData);
+				var taikoGame = new Controller(_selectedSong, _songData, autoPlayEnabled);
 				taikoGame.run();
 			});
 		}
