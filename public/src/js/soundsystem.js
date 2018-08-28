@@ -29,6 +29,10 @@ function soundSystem(controller){
 		}
 		
 	}
+    
+    this.pauseSound = function(){
+        _sounds["main-music"].pause();
+    }
 
     this.fadeOutMusic = function(){
         

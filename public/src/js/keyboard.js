@@ -12,16 +12,29 @@ function Keyboard(controller){
             // Disable back navigation when pressing backspace
             e.preventDefault();
         
-        if(!controller.autoPlay()){
+        if(_this.buttonEnabled(e.which)){
             _this.setKey(e.which, true);
         }
     });
         
     $(document).keyup(function(e){
-        if(!controller.autoPlay()){
+        if(_this.buttonEnabled(e.which)){
             _this.setKey(e.which, false);
         }
     });
+    
+    this.buttonEnabled = function(keyCode){
+        if(controller.autoPlay()){
+            switch(keyCode){
+                case 86:
+                case 66:
+                case 67:
+                case 78:
+                    return false
+            }
+        }
+        return true
+    }
     
     this.checkGameKeys = function(){
 
@@ -58,7 +71,7 @@ function Keyboard(controller){
             controller.songSelection();
         }
         if(_keys[81]  && !_this.isWaitingForKeyup(81, "menu")){
-            // P, pause the game
+            // Q, pause the game
             _this.waitForKeyup(81, "menu");
             controller.togglePauseMenu();
         }
