@@ -125,7 +125,7 @@ function Controller(selectedSong, songData, autoPlayEnabled){
 		assets.sounds["main-music"].currentTime=0;
 		clearInterval(_mainLoop);
 		$("#screen").load("/src/views/game.html", function(){
-			var taikoGame = new Controller(selectedSong, songData);
+			var taikoGame = new Controller(selectedSong, songData, autoPlayEnabled);
 			taikoGame.run();
 		});
     }
