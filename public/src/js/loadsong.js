@@ -13,10 +13,11 @@ function loadSong(selectedSong, autoPlayEnabled){
 		assets.sounds["bgm_songsel"].pause();
 		assets.sounds["bgm_songsel"].currentTime = 0;
 
-		assets.sounds["start"].play();
+		assets.sounds["start"].playAsset();
 		$("#assets").append("<img id='music-bg' src='/songs/"+_selectedSong.folder+"/bg.png' />");
 		
 		var audio = new Audio();
+        audio.muted = true;
 		audio.src = '/songs/'+_selectedSong.folder+'/main.mp3';
 		audio.load();
 		
@@ -24,6 +25,15 @@ function loadSong(selectedSong, autoPlayEnabled){
 			_bgLoaded=true;
 			_this.checkIfEverythingLoaded();
 		});
+		
+		audio.playAsset = function(){
+			try{
+				audio.muted = false;
+				audio.play()
+			}catch(e){
+				console.warn(e)
+			}
+		}
 		
 		audio.onloadeddata = function(){
 			_musicLoaded=true;

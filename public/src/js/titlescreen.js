@@ -32,7 +32,7 @@ function Titlescreen(){
 		$("#screen").find("#title-screen").show();
 		$(window).resize(_this.positionning);		
 
-		assets.sounds["title"].play();
+		assets.sounds["title"].playAsset();
 
     }
     
@@ -40,7 +40,7 @@ function Titlescreen(){
     	assets.sounds["title"].pause();
     	assets.sounds["title"].currentTime = 0;
 
-		assets.sounds["don"].play();
+		assets.sounds["don"].playAsset();
         new SongSelect();
     }
     

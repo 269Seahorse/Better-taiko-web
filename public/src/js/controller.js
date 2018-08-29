@@ -23,11 +23,11 @@ function Controller(selectedSong, songData, autoPlayEnabled){
 	
 	this.loadUIEvents = function(){
 		$("#song-selection-butt").click(function(){
-            assets.sounds["don"].play();
+            assets.sounds["don"].playAsset();
 			_this.songSelection();
 		});
 		$("#restart-butt").click(function(){
-            assets.sounds["don"].play();
+            assets.sounds["don"].playAsset();
 			_this.restartSong();
 		});
         $("#continue-butt").click(function(){
@@ -48,7 +48,7 @@ function Controller(selectedSong, songData, autoPlayEnabled){
             else if(ms>=0 && !started){ //when music shall starts
                 setTimeout(function(){
                     assets.sounds["main-music"].volume = 0.7;
-                    assets.sounds["main-music"].play();
+                    assets.sounds["main-music"].playAsset();
                 }, _songData.generalInfo.audioWait);
                 started=true;
             }
@@ -84,7 +84,7 @@ function Controller(selectedSong, songData, autoPlayEnabled){
         if (score.fail == 0) {
             vp = 'fullcombo';
             setTimeout(function(){
-                assets.sounds['fullcombo'].play();
+                assets.sounds['fullcombo'].playAsset();
             }, 1350);
         } else if (score.hp >= 50) {
             vp = 'clear';
@@ -92,7 +92,7 @@ function Controller(selectedSong, songData, autoPlayEnabled){
             vp = 'fail';
         }
 
-        assets.sounds['game' + vp].play();
+        assets.sounds['game' + vp].playAsset();
 
         setTimeout(function(){
             var scoresheet = new Scoresheet(_this, _this.getGlobalScore());

@@ -81,13 +81,13 @@ function Scoresheet(controller, score){
 		_this.setResults();
 		
         $("#song-select").click(function(){
-        	assets.sounds["don"].play();
+        	assets.sounds["don"].playAsset();
         	bgm.pause();
             controller.songSelection();
         });
         
         $("#replay").click(function(){
-        	assets.sounds["don"].play();
+        	assets.sounds["don"].playAsset();
         	bgm.pause();
             controller.restartSong();
         });
@@ -96,7 +96,7 @@ function Scoresheet(controller, score){
 		
     }
 
-	    assets.sounds["results"].play();
+	    assets.sounds["results"].playAsset();
 	
 		bgm = new BufferedLoop(
 			{url: '/assets/audio/bgm_result.ogg', duration: 0.847},

@@ -51,7 +51,7 @@ function SongSelect(){
 			_this.endPreview();
 			assets.sounds["diffsel"].pause();
 			assets.sounds["diffsel"].currentTime = 0;
-			assets.sounds["don"].play();
+			assets.sounds["don"].playAsset();
 
 			clearInterval(menuLoop);
 			var difficultyElement = (e.target.className=="stars" || e.target.className=="diffname") ? e.target.parentElement : e.target;
@@ -79,14 +79,14 @@ function SongSelect(){
 				if ($(".opened").length && $(".opened").attr('id') == $(this).attr('id')) {
 					_this.endPreview();
 					bgm.play();
-					assets.sounds["cancel"].play();
+					assets.sounds["cancel"].playAsset();
 					$(".difficulty").hide();
 					$(".opened").removeClass("opened", 300);
 
 					assets.sounds["diffsel"].pause();
 					assets.sounds["diffsel"].currentTime = 0;
 					setTimeout(function(){
-						assets.sounds["song-select"].play();
+						assets.sounds["song-select"].playAsset();
 					}, 300);
 
 					$('.songsel-title').fadeOut(200, function(){
@@ -100,11 +100,11 @@ function SongSelect(){
 
 				if(!$('.opened').length) {
 					_this.startPreview($(this).data('song-id'), $(this).data('preview'));				
-					assets.sounds["don"].play();
+					assets.sounds["don"].playAsset();
 					assets.sounds["song-select"].pause();
 					assets.sounds["song-select"].currentTime = 0;
 					setTimeout(function(){
-						assets.sounds["diffsel"].play();
+						assets.sounds["diffsel"].playAsset();
 					}, 300);
 
 					$('.songsel-title').fadeOut(200, function(){
@@ -114,7 +114,7 @@ function SongSelect(){
 				} else {
 					_preview.pause();
 					_this.startPreview($(this).data('song-id'), $(this).data('preview'), false);				
-					assets.sounds["ka"].play();
+					assets.sounds["ka"].playAsset();
 				}
 			};
 
@@ -136,7 +136,7 @@ function SongSelect(){
 		bgm.play();
 
 		setTimeout(function(){
-			assets.sounds["song-select"].play();
+			assets.sounds["song-select"].playAsset();
 		}, 200);
 		for(var i=0; i<assets.songs.length; i++){
 

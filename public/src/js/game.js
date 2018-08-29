@@ -230,7 +230,7 @@ function Game(controller, selectedSong, songData){
             _mainMusicPlaying=false;
         }
         else{
-            assets.sounds["main-music"].play();
+            assets.sounds["main-music"].playAsset();
             _mainMusicPlaying=true;
         }
     }
@@ -253,14 +253,14 @@ function Game(controller, selectedSong, songData){
     
     this.togglePause = function(){
         if(!_paused){
-            assets.sounds["pause"].play();
+            assets.sounds["pause"].playAsset();
             _paused=true;
             _latestDate = new Date();
             _this.toggleMainMusic();
             
         }
         else{
-            assets.sounds["cancel"].play();
+            assets.sounds["cancel"].playAsset();
            _paused=false;
             var currentDate = new Date();
             _ellapsedTimeSincePause = _ellapsedTimeSincePause + Math.abs(currentDate.getTime() - _latestDate.getTime());
