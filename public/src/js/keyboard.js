@@ -1,10 +1,22 @@
 function Keyboard(controller){
  
+    var _kbd = {
+        "don_l": 86, // V
+        "don_r": 66, // B
+        "ka_l": 67, // C
+        "ka_r": 78, // N
+        "pause": 81, // Q
+        "back": 8 // Backspace
+    }
     var _this = this;
     var _keys = {};
     var _waitKeyupScore = {};
     var _waitKeyupSound = {};
     var _waitKeyupMenu = {};
+    
+    this.getBindings = function(){
+        return _kbd
+    }
     
     $(document).keydown(function(e){
         
@@ -24,12 +36,12 @@ function Keyboard(controller){
     });
     
     this.buttonEnabled = function(keyCode){
-        if(controller.autoPlay()){
+        if(controller.autoPlayEnabled){
             switch(keyCode){
-                case 86:
-                case 66:
-                case 67:
-                case 78:
+                case _kbd["don_l"]:
+                case _kbd["don_r"]:
+                case _kbd["ka_l"]:
+                case _kbd["ka_r"]:
                     return false
             }
         }
@@ -37,45 +49,33 @@ function Keyboard(controller){
     }
     
     this.checkGameKeys = function(){
-
-        if(_keys[86] && !_this.isWaitingForKeyup(86, "sound")){
-            // V, play 'don' sound
-            controller.playSound('note_don');
-            _this.waitForKeyup(86, "sound");
-        }
-        if(_keys[66] && !_this.isWaitingForKeyup(66, "sound")){
-            // B, play 'don' sound
-            controller.playSound('note_don');
-            _this.waitForKeyup(66, "sound");
-        }
-        
-        if(_keys[67] && !_this.isWaitingForKeyup(67, "sound")){
-            // C, play 'ka' sound
-            controller.playSound('note_ka');
-            _this.waitForKeyup(67, "sound");
-        }
-        if(_keys[78] && !_this.isWaitingForKeyup(78, "sound")){
-            // N, play 'ka' sound
-            controller.playSound('note_ka');
-            _this.waitForKeyup(78, "sound");
-        }
-        
+        _this.checkKeySound(_kbd["don_l"], "note_don")
+        _this.checkKeySound(_kbd["don_r"], "note_don")
+        _this.checkKeySound(_kbd["ka_l"], "note_ka")
+        _this.checkKeySound(_kbd["ka_r"], "note_ka")
     }
     
     this.checkMenuKeys = function(){
-        
-        if(_keys[8] && !_this.isWaitingForKeyup(8, "menu")){
-            // Backspace, go back to song selection
-            _this.waitForKeyup(8, "menu");
+        _this.checkKey(_kbd["back"], "menu", function(){
             controller.pauseSound("main-music", true);
             controller.songSelection();
-        }
-        if(_keys[81]  && !_this.isWaitingForKeyup(81, "menu")){
-            // Q, pause the game
-            _this.waitForKeyup(81, "menu");
+        })
+        _this.checkKey(_kbd["pause"], "menu", function(){
             controller.togglePauseMenu();
+        })
+    }
+    
+    this.checkKey = function(keyCode, keyup, callback){
+        if(_keys[keyCode] && !_this.isWaitingForKeyup(keyCode, keyup)){
+            _this.waitForKeyup(keyCode, keyup);
+            callback()
         }
-        
+    }
+    
+    this.checkKeySound = function(keyCode, sound){
+        _this.checkKey(keyCode, "sound", function(){
+            controller.playSound(sound);
+        })
     }
     
     this.getKeys = function(){

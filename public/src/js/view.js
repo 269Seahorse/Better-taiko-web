@@ -267,23 +267,25 @@ function View(controller, bg, title, diff){
 
 		var keyRed = document.getElementById("taiko-key-red");
 		var keyBlue = document.getElementById("taiko-key-blue");
+        var keys = controller.getKeys()
+        var kbd = controller.getBindings()
  
-		if(controller.getKeys()[67]){
+		if(keys[kbd["ka_l"]]){
 			var elemW = 0.45*_taikoW;
 			_ctx.drawImage(keyBlue, 0, 0, 68, 124, _taikoX+0.05*_taikoW, _taikoY+0.03*_taikoH, elemW, (124/68)*elemW);
         }
 		
-        if(controller.getKeys()[86]){
+        if(keys[kbd["don_l"]]){
 			var elemW = 0.35*_taikoW;
             _ctx.drawImage(keyRed, 0, 0, 53, 100, _taikoX+0.15*_taikoW, _taikoY+0.09*_taikoH, elemW, (100/53)*elemW);
         }
     
-        if(controller.getKeys()[66]){
+        if(keys[kbd["don_r"]]){
 			var elemW = 0.35*_taikoW;
             _ctx.drawImage(keyRed, 53, 0, 53, 100, (_taikoX+0.15*_taikoW)+elemW, _taikoY+0.09*_taikoH, elemW, (100/53)*elemW);
         }
     
-        if(controller.getKeys()[78]){
+        if(keys[kbd["ka_r"]]){
 			var elemW = 0.45*_taikoW;
             _ctx.drawImage(keyBlue, 68, 0, 68, 124, (_taikoX+0.05*_taikoW)+elemW, _taikoY+0.03*_taikoH, elemW, (124/68)*elemW);
         }

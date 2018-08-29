@@ -13,6 +13,8 @@ function Controller(selectedSong, songData, autoPlayEnabled){
     var _mainLoop;
     var _pauseMenu = false;
     
+    this.autoPlayEnabled = autoPlayEnabled
+    
     this.run = function(){
 		
 		_this.loadUIEvents();
@@ -170,6 +172,10 @@ function Controller(selectedSong, songData, autoPlayEnabled){
         return _keyboard.setKey(keyCode, down);
     }
     
+    this.getBindings = function(){
+        return _keyboard.getBindings();
+    }
+    
     this.getSongData = function(){
         return _game.getSongData();
     }
@@ -215,12 +221,7 @@ function Controller(selectedSong, songData, autoPlayEnabled){
     }
     
     this.autoPlay = function(circle){
-        if(autoPlayEnabled){
-            if(circle && circle.getStatus() == 450){
-                _mekadon.play(circle)
-            }
-            return true
-        }
+        _mekadon.play(circle)
     }
     
 }

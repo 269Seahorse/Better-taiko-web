@@ -6,24 +6,27 @@ class Mekadon{
         this.keys = {}
     }
     play(circle){
-        if(circle.getType() == "don"){
-            this.setKey(this.lr ? 86 : 66)
-            this.lr = !this.lr
-        }else if(circle.getType() == "daiDon"){
-            this.setKey(86)
-            this.setKey(66)
-            this.lr = false
-        }else if(circle.getType() == "ka"){
-            this.setKey(this.lr ? 67 : 78)
-            this.lr = !this.lr
-        }else if(circle.getType() == "daiKa"){
-            this.setKey(67)
-            this.setKey(78)
-            this.lr = false
+        if(circle.getStatus() == 450){
+            var kbd = this.controller.getBindings()
+            if(circle.getType() == "don"){
+                this.setKey(this.lr ? kbd["don_l"] : kbd["don_r"])
+                this.lr = !this.lr
+            }else if(circle.getType() == "daiDon"){
+                this.setKey(kbd["don_l"])
+                this.setKey(kbd["don_r"])
+                this.lr = false
+            }else if(circle.getType() == "ka"){
+                this.setKey(this.lr ? kbd["ka_l"] : kbd["ka_r"])
+                this.lr = !this.lr
+            }else if(circle.getType() == "daiKa"){
+                this.setKey(kbd["ka_l"])
+                this.setKey(kbd["ka_r"])
+                this.lr = false
+            }
+            var score = this.game.checkScore(circle);
+            circle.played(score);
+            this.game.updateCurrentCircle();
         }
-        var score = this.game.checkScore(circle);
-        circle.played(score);
-        this.game.updateCurrentCircle();
     }
     setKey(keyCode){
         var self = this
