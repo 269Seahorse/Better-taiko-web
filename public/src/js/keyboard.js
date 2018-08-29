@@ -18,6 +18,8 @@ function Keyboard(controller){
         return _kbd
     }
     
+    var _gamepad = new Gamepad(this)
+    
     $(document).keydown(function(e){
         
         if (e.which === 8 && !$(e.target).is("input, textarea"))
@@ -49,6 +51,9 @@ function Keyboard(controller){
     }
     
     this.checkGameKeys = function(){
+        if(!controller.autoPlayEnabled){
+            _gamepad.play()
+        }
         _this.checkKeySound(_kbd["don_l"], "note_don")
         _this.checkKeySound(_kbd["don_r"], "note_don")
         _this.checkKeySound(_kbd["ka_l"], "note_ka")
@@ -56,6 +61,7 @@ function Keyboard(controller){
     }
     
     this.checkMenuKeys = function(){
+        _gamepad.play(1)
         _this.checkKey(_kbd["back"], "menu", function(){
             controller.pauseSound("main-music", true);
             controller.songSelection();
