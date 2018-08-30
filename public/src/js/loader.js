@@ -24,16 +24,21 @@ function Loader(){
 		
 		assets.audio.forEach(function(name){
 			var id = name.substr(0, name.length-4);
-			var audio = new Audio();
-			audio.src = '/assets/audio/'+name;
-			audio.muted = true;
-			audio.load();
-			audio.onloadeddata = function(){
-				assets.sounds[id] = new Audio();
-				assets.sounds[id].src = audio.src;
-				assets.sounds[id].load();
+			assets.sounds[id] = new Audio();
+			assets.sounds[id].muted = true;
+			assets.sounds[id].playAsset = function(){
+				try{
+					assets.sounds[id].muted = false;
+					assets.sounds[id].play()
+				}catch(e){
+					console.warn(e)
+				}
+			}
+			assets.sounds[id].onloadeddata = function(){
 				_this.assetLoaded();
 			};
+			assets.sounds[id].src = '/assets/audio/'+name;
+			assets.sounds[id].load();
 		});
 		
 		$.ajax({

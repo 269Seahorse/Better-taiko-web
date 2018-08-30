@@ -117,46 +117,34 @@ function Game(controller, selectedSong, songData){
         var circle = circles[_currentCircle];
 
         if(circle){
-
-            if(controller.autoPlay(circle)){
-                return
+            if(controller.autoPlayEnabled){
+                return controller.autoPlay(circle)
             }
-            
-            if(controller.getKeys()[86]){
-                if(!circle.getPlayed() && !controller.isWaitingForKeyup(86, "score") && circle.getStatus()!=-1){
-                    var score = _this.checkScore(circle);
-                    circle.played(score);
-                    _this.updateCurrentCircle();
-                    controller.waitForKeyup(86, "score");
-                }
+            var keys = controller.getKeys()
+            var kbd = controller.getBindings()
+            if(keys[kbd["don_l"]]){
+                _this.checkKey(kbd["don_l"], circle)
             }
-            if(controller.getKeys()[66]){
-                if(!circle.getPlayed() && !controller.isWaitingForKeyup(66, "score") && circle.getStatus()!=-1){
-                    var score = _this.checkScore(circle);
-                    circle.played(score);
-                    _this.updateCurrentCircle();
-                    controller.waitForKeyup(66, "score");
-                }
+            if(keys[kbd["don_r"]]){
+                _this.checkKey(kbd["don_r"], circle)
             }
-            if(controller.getKeys()[67]){
-                if(!circle.getPlayed() && !controller.isWaitingForKeyup(67, "score") && circle.getStatus()!=-1){
-                    var score = _this.checkScore(circle);
-                    circle.played(score);
-                    _this.updateCurrentCircle();
-                    controller.waitForKeyup(67, "score");
-                }
+            if(keys[kbd["ka_l"]]){
+                _this.checkKey(kbd["ka_l"], circle)
             }
-            if(controller.getKeys()[78]){
-                if(!circle.getPlayed() && !controller.isWaitingForKeyup(78, "score") && circle.getStatus()!=-1){
-                    var score = _this.checkScore(circle);
-                    circle.played(score);
-                    _this.updateCurrentCircle();
-                    controller.waitForKeyup(78, "score");
-                }
+            if(keys[kbd["ka_r"]]){
+                _this.checkKey(kbd["ka_r"], circle)
             }
-           
         }
 
+    }
+    
+    this.checkKey = function(keyCode, circle){
+        if(!circle.getPlayed() && !controller.isWaitingForKeyup(keyCode, "score") && circle.getStatus()!=-1){
+            var score = _this.checkScore(circle);
+            circle.played(score);
+            _this.updateCurrentCircle();
+            controller.waitForKeyup(keyCode, "score");
+        }
     }
     
     this.checkScore = function(circle){
@@ -230,7 +218,7 @@ function Game(controller, selectedSong, songData){
             _mainMusicPlaying=false;
         }
         else{
-            assets.sounds["main-music"].play();
+            assets.sounds["main-music"].playAsset();
             _mainMusicPlaying=true;
         }
     }
@@ -253,14 +241,14 @@ function Game(controller, selectedSong, songData){
     
     this.togglePause = function(){
         if(!_paused){
-            assets.sounds["pause"].play();
+            assets.sounds["pause"].playAsset();
             _paused=true;
             _latestDate = new Date();
             _this.toggleMainMusic();
             
         }
         else{
-            assets.sounds["cancel"].play();
+            assets.sounds["cancel"].playAsset();
            _paused=false;
             var currentDate = new Date();
             _ellapsedTimeSincePause = _ellapsedTimeSincePause + Math.abs(currentDate.getTime() - _latestDate.getTime());
