@@ -117,3 +117,16 @@ html, body{
 .song-title-apos {
     padding-left: 4px;
 }
+
+.song-title-char[alt="ぁ"],.song-title-char[alt="ぃ"],.song-title-char[alt="ぅ"],.song-title-char[alt="ぇ"],.song-title-char[alt="ぉ"],
+.song-title-char[alt="ゃ"],.song-title-char[alt="ゅ"],.song-title-char[alt="ょ"],.song-title-char[alt="っ"],
+.song-title-char[alt="ァ"],.song-title-char[alt="ィ"],.song-title-char[alt="ゥ"],.song-title-char[alt="ェ"],.song-title-char[alt="ォ"],
+.song-title-char[alt="ャ"],.song-title-char[alt="ュ"],.song-title-char[alt="ョ"],.song-title-char[alt="ッ"]
+{
+    margin-top: -6px;
+}
+
+.song-title-char[alt="ー"], .song-title-char[alt="-"] {
+    transform: rotate(95deg);
+    font-size: 90%;
+}
