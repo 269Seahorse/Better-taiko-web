@@ -310,49 +310,49 @@ function Game(controller, selectedSong, songData){
         
         switch(_combo){
             case 50:
-                controller.playSound("combo-50");
+                controller.playSoundMeka("combo-50");
                 break;
             case 100:
-                controller.playSound("combo-100");
+                controller.playSoundMeka("combo-100");
                 break;
             case 200:
-                controller.playSound("combo-200");
+                controller.playSoundMeka("combo-200");
                 break;
             case 300:
-                controller.playSound("combo-300");
+                controller.playSoundMeka("combo-300");
                 break;
             case 400:
-                controller.playSound("combo-400");
+                controller.playSoundMeka("combo-400");
                 break;
             case 500:
-                controller.playSound("combo-500");
+                controller.playSoundMeka("combo-500");
                 break;
             case 600:
-                controller.playSound("combo-600");
+                controller.playSoundMeka("combo-600");
                 break;
             case 700:
-                controller.playSound("combo-700");
+                controller.playSoundMeka("combo-700");
                 break;
             case 800:
-                controller.playSound("combo-800");
+                controller.playSoundMeka("combo-800");
                 break;
             case 900:
-                controller.playSound("combo-900");
+                controller.playSoundMeka("combo-900");
                 break;
             case 1000:
-                controller.playSound("combo-1000");
+                controller.playSoundMeka("combo-1000");
                 break;
             case 1100:
-                controller.playSound("combo-1100");
+                controller.playSoundMeka("combo-1100");
                 break;
             case 1200:
-                controller.playSound("combo-1200");
+                controller.playSoundMeka("combo-1200");
                 break;
             case 1300:
-                controller.playSound("combo-1300");
+                controller.playSoundMeka("combo-1300");
                 break;
             case 1400:
-                controller.playSound("combo-1400");
+                controller.playSoundMeka("combo-1400");
                 break;
         }
     }

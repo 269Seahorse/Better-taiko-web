@@ -86,7 +86,7 @@ function Controller(selectedSong, songData, autoPlayEnabled){
         if (score.fail == 0) {
             vp = 'fullcombo';
             setTimeout(function(){
-                assets.sounds['fullcombo'].playAsset();
+                _this.playSoundMeka('fullcombo');
             }, 1350);
         } else if (score.hp >= 50) {
             vp = 'clear';
@@ -134,6 +134,10 @@ function Controller(selectedSong, songData, autoPlayEnabled){
     
     this.playSound = function(soundID){
         _game.playSound(soundID);
+    }
+
+    this.playSoundMeka = function(soundID){
+        _game.playSound(soundID + (autoPlayEnabled ? '-meka' : ''));
     }
     
     this.pauseSound = function(soundID, stop){
