@@ -86,7 +86,9 @@ var assets = {
 		'bgm_songsel.ogg',
 		'bgm_songsel_loop.ogg',
 		'bgm_result.ogg',
-		'bgm_result_loop.ogg'
+		'bgm_result_loop.ogg',
+		'bgm_setsume.ogg',
+		'bgm_setsume_loop.ogg'
 	),
 	
 	songs: new Array(),

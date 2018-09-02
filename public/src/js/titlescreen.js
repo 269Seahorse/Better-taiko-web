@@ -41,7 +41,11 @@ function Titlescreen(){
     	assets.sounds["title"].currentTime = 0;
 
 		assets.sounds["don"].playAsset();
-        new SongSelect();
+        if (localStorage.getItem('tutorial') !== 'true') {
+        	new Tutorial();
+        } else {
+        	new SongSelect();
+        };
     }
     
 	$("#screen").load("/src/views/titlescreen.html", _this.run);

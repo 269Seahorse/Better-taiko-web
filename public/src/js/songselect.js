@@ -35,7 +35,9 @@ function SongSelect(){
 
 	this.endPreview = function() {
 		clearTimeout(_preview_to);
-		_preview.pause();
+		if (_preview) {
+			_preview.pause();
+		};
 	};
     
     this.run = function(){
@@ -46,6 +48,14 @@ function SongSelect(){
 		
 		var menuLoop = setInterval(_this.refresh, 20);
 		$("#song-container").show();
+
+		$('#songsel-help').click(function(){
+			bgm.pause();
+			_this.endPreview();
+			assets.sounds['don'].playAsset();
+
+			new Tutorial();
+		});
 		
 		$(".difficulty").click(function(e){
 			_this.endPreview();
