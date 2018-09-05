@@ -1,4 +1,4 @@
-function Circle(id, ms, type){
+function Circle(id, ms, type, text, speed){
     
     var _id=id;
     var _ms = ms;
@@ -42,15 +42,6 @@ function Circle(id, ms, type){
 	this.isAnimated = function(){
 		return _animating;
 	}
-    
-    this.setInitPos = function(initPos){
-        _pos.x = initPos.x;   
-		_pos.y = initPos.y
-    }
-    
-    this.move = function(pxPerFrame){
-        _pos.x -= pxPerFrame;
-    }
 	
 	this.getAnimT = function(){
 		return _animT;
@@ -59,15 +50,6 @@ function Circle(id, ms, type){
 	this.incAnimT = function(){
 		_animT+=0.05;	
 	}
-	
-	this.moveTo = function(x, y){
-		_pos.x=x;
-		_pos.y=y;
-	}
-    
-    this.getPos = function(){
-        return _pos;
-    }
     
     this.updateStatus = function(status){
         _status=status;
@@ -100,5 +82,13 @@ function Circle(id, ms, type){
     
     this.getID = function(){
         return _id;
+    }
+    
+    this.getText = function(){
+        return text;
+    }
+    
+    this.getSpeed = function(){
+        return speed;
     }
 }

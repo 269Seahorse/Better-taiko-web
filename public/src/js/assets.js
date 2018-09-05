@@ -98,6 +98,7 @@ var assets = {
 		'TnT'
 	),
 	
-	sounds: {}
+	sounds: {},
+	image: {}
 	
 };

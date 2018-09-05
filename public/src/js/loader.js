@@ -4,22 +4,32 @@ function Loader(){
 	var _loadedAssets=0;
 	var _percentage=0;
 	var _nbAssets=assets.audio.length+assets.img.length+assets.fonts.length+1; //+1 for song structures
-
+	var _assetsDiv=document.getElementById("assets")
+	var _loaderPercentage
+	var _errorCount=0
+	
 	this.run = function(){
 		
+		_loaderPercentage = document.querySelector("#loader .percentage")
+		
 		assets.fonts.forEach(function(name){
-			var font = $("<h1 style='font-family:"+name+"'>I am a font</h1>"); 
-			font.appendTo("#assets");
-			FontDetect.onFontLoaded (name, _this.assetLoaded, _this.fontFailed, {msTimeout: 90000});
+			var font = document.createElement("h1")
+			font.style.fontFamily = name
+			font.appendChild(document.createTextNode("I am a font"))
+			_assetsDiv.appendChild(font)
+			FontDetect.onFontLoaded (name, _this.assetLoaded, _this.errorMsg, {msTimeout: 90000});
 		});
 		
 		assets.img.forEach(function(name){
 			var id = name.substr(0, name.length-4);
-			var image = $("<img id='"+id+"' src='/assets/img/"+name+"' />");
-			image.appendTo("#assets");
-			image.load(function(){
+			var image = document.createElement("img")
+			image.addEventListener("load", event=>{
 				_this.assetLoaded();
-			});
+			})
+			image.id = name
+			image.src = "/assets/img/" + name
+			_assetsDiv.appendChild(image)
+			assets.image[id] = image
 		});
 		
 		assets.audio.forEach(function(name){
@@ -42,29 +52,30 @@ function Loader(){
 		});
 		
 		$.ajax({
-            async:true,
-            type:"GET",
-            url:"/api/songs",
-            success:function(songs){
+			url: "/api/songs",
+			mimeType: "application/json",
+			success: function(songs){
 				assets.songs = songs;
 				_this.assetLoaded();
 			},
-			error:function(){
-				alert("An error occured, please refresh");
-			}
+			error: _this.errorMsg
 		});
 		
 	}
 	
-	this.fontFailed = function(){
-		alert("An error occured, please refresh");
+	this.errorMsg = function(){
+		if(_errorCount == 0){
+			_loaderPercentage.appendChild(document.createElement("br"))
+			_loaderPercentage.appendChild(document.createTextNode("An error occured, please refresh"))
+		}
+		_errorCount++
 	}
 	
 	this.assetLoaded = function(){
 		_loadedAssets++;
 		_percentage=parseInt((_loadedAssets*100)/_nbAssets);
 		$("#loader .progress").css("width", _percentage+"%");
-		$("#loader .percentage").html(_percentage+"%");
+		_loaderPercentage.firstChild.data=_percentage+"%"
 		_this.checkIfEverythingLoaded();
 	}
 	

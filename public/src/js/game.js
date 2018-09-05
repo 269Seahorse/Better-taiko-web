@@ -149,9 +149,12 @@ function Game(controller, selectedSong, songData){
     
     this.checkScore = function(circle){
         
+        var keys = controller.getKeys()
+        var kbd = controller.getBindings()
+        
         if(
-            ((controller.getKeys()[86] || controller.getKeys()[66]) && (circle.getType()=="don" || circle.getType()=="daiDon")) || 
-            ((controller.getKeys()[67] || controller.getKeys()[78]) && (circle.getType()=="ka" || circle.getType()=="daiKa"))
+            ((keys[kbd["don_l"]] || keys[kbd["don_r"]]) && (circle.getType()=="don" || circle.getType()=="daiDon")) || 
+            ((keys[kbd["ka_l"]] || keys[kbd["ka_r"]]) && (circle.getType()=="ka" || circle.getType()=="daiKa"))
         ){
              
             switch(circle.getStatus()){

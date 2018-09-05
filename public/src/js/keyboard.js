@@ -13,6 +13,10 @@ function Keyboard(controller){
     var _waitKeyupScore = {};
     var _waitKeyupSound = {};
     var _waitKeyupMenu = {};
+    var _keyTime = {
+        "don": -Infinity,
+        "ka": -Infinity
+    }
     
     this.getBindings = function(){
         return _kbd
@@ -54,10 +58,10 @@ function Keyboard(controller){
         if(!controller.autoPlayEnabled){
             _gamepad.play()
         }
-        _this.checkKeySound(_kbd["don_l"], "note_don")
-        _this.checkKeySound(_kbd["don_r"], "note_don")
-        _this.checkKeySound(_kbd["ka_l"], "note_ka")
-        _this.checkKeySound(_kbd["ka_r"], "note_ka")
+        _this.checkKeySound(_kbd["don_l"], "don")
+        _this.checkKeySound(_kbd["don_r"], "don")
+        _this.checkKeySound(_kbd["ka_l"], "ka")
+        _this.checkKeySound(_kbd["ka_r"], "ka")
     }
     
     this.checkMenuKeys = function(){
@@ -80,7 +84,8 @@ function Keyboard(controller){
     
     this.checkKeySound = function(keyCode, sound){
         _this.checkKey(keyCode, "sound", function(){
-            controller.playSound(sound);
+            controller.playSound("note_"+sound);
+            _keyTime[sound] = controller.getEllapsedTime().ms
         })
     }
     
@@ -111,6 +116,10 @@ function Keyboard(controller){
         if(type == "score") _waitKeyupScore[key] = true;
         else if(type == "sound") _waitKeyupSound[key] = true;
         else if(type == "menu") _waitKeyupMenu[key] = true;
+    }
+    
+    this.getKeyTime = function(){
+        return _keyTime;
     }
 
 }
