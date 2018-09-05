@@ -101,8 +101,8 @@ class View{
 		this.drawScore()
 		this.drawCircles()
 		this.drawTaikoSquare()
-		this.drawPressedKeys()
 		this.drawDifficulty()
+		this.drawPressedKeys()
 		this.drawCombo()
 		this.drawGlobalScore()
 		this.updateDonFaces()
@@ -212,11 +212,6 @@ class View{
 	}
 	
 	drawCombo(){
-		this.ctx.drawImage(assets.image.taiko,
-			this.taikoX, this.taikoY,
-			this.taikoW, this.taikoH
-		)
-		
 		var comboCount = this.controller.getCombo()
 		if(comboCount >= 10){
 			var comboX = this.taikoX + this.taikoW / 2
@@ -249,31 +244,21 @@ class View{
 				)
 			}
 			
-			var currentTime = this.controller.getEllapsedTime().ms
-			if(comboCount % 100 == 0 && !this.comboHasText){
-				this.comboHasText = currentTime
+			var fontSize = this.taikoH * 0.12
+			if(comboCount >= 100){
+				var grd = this.ctx.createLinearGradient(0, comboY + fontSize * 0.5, 0, comboY + fontSize * 1.5)
+				grd.addColorStop(0, "#f00")
+				grd.addColorStop(1, "#fe0")
+				this.ctx.fillStyle = grd
+			}else{
+				this.ctx.fillStyle = "#fff"
 			}
-			if(currentTime >= this.comboHasText + 2000){
-				this.comboHasText = false
-			}
-			if(this.comboHasText){
-				var fontSize = this.taikoH * 0.12
-				if(comboCount >= 100){
-					var grd = this.ctx.createLinearGradient(0, comboY + fontSize * 0.5, 0, comboY + fontSize * 1.5)
-					grd.addColorStop(0, "#f00")
-					grd.addColorStop(1, "#fe0")
-					this.ctx.fillStyle = grd
-				}else{
-					this.ctx.fillStyle = "#fff"
-				}
-				this.ctx.font = "normal " + fontSize + "px TnT"
-				this.ctx.globalAlpha = Math.min(4 - ((currentTime - this.comboHasText) / 500),1)
-				this.strokeFillText("コンボ",
-					comboX,
-					comboY + fontSize * 1.5
-				)
-				this.ctx.globalAlpha = 1
-			}
+			this.ctx.font = "normal " + fontSize + "px TnT"
+			this.ctx.lineWidth = fontSize / 5
+			this.strokeFillText("コンボ",
+				comboX,
+				comboY + fontSize * 1.5
+			)
 			
 			this.scoreDispCount++
 		}
@@ -546,6 +531,11 @@ class View{
 		this.ctx.drawImage(assets.image["muzu_" + this.songDifficulty],
 			this.diffX, this.diffY,
 			this.diffW, this.diffH
+		)
+		
+		this.ctx.drawImage(assets.image.taiko,
+			this.taikoX, this.taikoY,
+			this.taikoW, this.taikoH
 		)
 	}
 	
