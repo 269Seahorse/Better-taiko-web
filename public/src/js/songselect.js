@@ -6,6 +6,12 @@ function SongSelect(){
 	var _code="";
 	var _preview;
 	var _preview_to;
+	var _diffNames={
+		easy:"かんたん",
+		normal:"ふつう",
+		hard:"むずかしい",
+		oni:"おに"
+	}
 
 	this.startPreview = function(id, prvtime, first_open=true) {
 		var start = Date.now();
@@ -182,7 +188,7 @@ function SongSelect(){
 			};
 			_code += "</div><ul class='difficulties'>";
 			
-			for(var diff in songDifficulties){
+			for(var diff in _diffNames){
 				var diffName = diff;
 				var diffLevel = songDifficulties[diff];
 				if (!diffLevel) {
@@ -194,21 +200,7 @@ function SongSelect(){
 					starsDisplay+="&#9733;<br>";
 				}
 				
-				var diffTxt;
-				switch(diffName){
-					case 'easy':
-						diffTxt="かんたん";
-						break;
-					case 'normal':
-						diffTxt="ふつう";
-						break;
-					case 'hard':
-						diffTxt="むずかしい";
-						break;
-					case 'oni':
-						diffTxt="おに";
-						break;
-				}
+				var diffTxt=_diffNames[diffName]
 
 				_code += "<li class='difficulty "+diffName+"'>";
 					_code+= "<span class='diffname'>"+diffTxt+"</span>";

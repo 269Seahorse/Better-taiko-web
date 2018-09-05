@@ -50,6 +50,7 @@ function ParseSong(fileContent){
              
                 case 'SliderMultiplier':
                     _difficulty.sliderMultiplier = key;
+                    _difficulty.originalMultiplier = key;
                     break;
                 case 'SliderTickRate':
                     _difficulty.sliderTickRate = key;
@@ -71,30 +72,40 @@ function ParseSong(fileContent){
     
             var values = _data[i].split(",");
             
-            var sliderMultiplier;
+            var start=parseInt(values[0])
+            var msOrPercent=parseFloat(values[1])
             if(i==indexes.start){
-                _beatInfo.beatInterval=parseFloat(values[1]);
+                start=0
+                _beatInfo.beatInterval=msOrPercent;
                 _beatInfo.bpm=parseInt((1000/_beatInfo.beatInterval)*60);
-                sliderMultiplier=1;
             }
-            else{
-                sliderMultiplier=Math.abs(parseFloat(values[1]))/100;
+            if(msOrPercent<0){
+                var sliderMultiplier=_difficulty.originalMultiplier*1/Math.abs(msOrPercent/100);
+            }else{
+                var sliderMultiplier=500/msOrPercent;
+                _difficulty.originalMultiplier=sliderMultiplier
             }
             
             _timingPoints.push({
-                start:parseInt(values[0]),
+                start:start,
                 sliderMultiplier:sliderMultiplier,
                 measure:parseInt(values[2]),
             });
             
         }
-        
+    }
+    
+    this.parseMeasures = function(){
         var measureNumber=0;
         for(var i=0; i<_timingPoints.length; i++){
             var limit = (_timingPoints[i+1]) ? _timingPoints[i+1].start : _circles[_circles.length-1].getMS();
             for(var j=_timingPoints[i].start; j<=limit; j+=_beatInfo.beatInterval){
                 
-                _measures.push({ms:j, x:$(window).width(), nb:measureNumber});
+                _measures.push({
+                    ms:j,
+                    nb:measureNumber,
+                    speed:_timingPoints[i].sliderMultiplier
+                });
                 measureNumber++;
                 if(measureNumber==_timingPoints[i].measure+1){
                     measureNumber=0;
@@ -191,6 +202,16 @@ function ParseSong(fileContent){
             var type;
             var txt;
             var emptyValue=false;
+            var start=parseInt(values[2])
+            var speed=_difficulty.originalMultiplier
+            
+            for(var j=0; j<_timingPoints.length; j++){
+                if(_timingPoints[j].start<=start){
+                    speed=_timingPoints[j].sliderMultiplier
+                }else{
+                    break
+                }
+            }
                 
             switch(parseInt(values[4])){
                 case 0:
@@ -203,11 +224,11 @@ function ParseSong(fileContent){
                     break;
                 case 4:
                     type="daiDon";
-                    txt="ドン";
+                    txt="ドン(大)";
                     break;
                 case 6:
                     type="daiKa";
-                    txt="カッ";
+                    txt="カッ(大)";
                     break;
                 case 8:
                     type="ka";
@@ -219,11 +240,11 @@ function ParseSong(fileContent){
                     break;
                 case 12:
                     type="daiKa";
-                    txt="カッ";
+                    txt="カッ(大)";
                     break;
                 case 14:
                     type="daiKa";
-                    txt="カッ";
+                    txt="カッ(大)";
                     break;
                 default:
                     console.log('[WARNING] Unknown note type found on line ' + i+1 + ': ' + _data[i]);
@@ -231,16 +252,17 @@ function ParseSong(fileContent){
                     break;
 				}
 				if(!emptyValue)
-				    _circles.push(new Circle(_circleID, parseInt(values[2]),type,txt));
+				    _circles.push(new Circle(_circleID,start,type,txt,speed));
         }
     }
 	
 	_this.parseGeneralInfo(); 
 	_this.parseMetadata();
-	_this.parseCircles();
 	_this.parseEditor();
-	_this.parseTiming();
 	_this.parseDifficulty();
+	_this.parseTiming();
+	_this.parseCircles();
+	_this.parseMeasures();
 
 	this.getData = function(){
 		return {

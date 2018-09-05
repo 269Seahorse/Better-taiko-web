@@ -208,6 +208,10 @@ function Controller(selectedSong, songData, autoPlayEnabled){
         _keyboard.waitForKeyup(key, type);
     }
     
+    this.getKeyTime = function(){
+        return _keyboard.getKeyTime();
+    }
+    
     this.updateCombo = function(score){
         _game.updateCombo(score);
     }
