@@ -3,11 +3,12 @@ class View{
 		this.controller = controller
 		this.bg = bg
 		this.diff = diff
-		this.canvas = document.getElementById("canvas")
-		this.ctx = this.canvas.getContext("2d")
 		
 		this.winW = $(window).width()
 		this.winH = $(window).height()
+		
+		this.canvas = new ScalableCanvas("canvas", this.winW, this.winH)
+		this.ctx = this.canvas.ctx
 		
 		this.taikoSquareW = this.winW / 4
 		this.slotX = this.taikoSquareW + 100
@@ -27,7 +28,7 @@ class View{
 		this.currentBigDonFace = 1
 		this.nextBeat = 0
 		
-		this.songTitle = this.title
+		this.songTitle = title
 		this.songDifficulty = this.diff.split(".").slice(0, -1).join(".")
 	}
 	
@@ -49,10 +50,11 @@ class View{
 	}
 	
 	positionning(){
-		this.winW = $(window).width()
-		this.winH = $(window).height()
-		this.canvas.width = this.winW
-		this.canvas.height = this.winH
+		this.canvas.rescale()
+		this.canvas.resize($(window).width(), $(window).height())
+		this.winW = this.canvas.scaledWidth
+		this.winH = this.canvas.scaledHeight
+		
 		this.barY = 0.25 * this.winH
 		this.barH = 0.23 * this.winH
 		this.lyricsBarH = 0.2 * this.barH
@@ -61,7 +63,7 @@ class View{
 		this.taikoX = this.taikoSquareW * 0.76 - this.taikoW / 2
 		this.taikoY = this.barY + 5
 		this.taikoSquareW = this.winW / 4
-		this.slotX = this.taikoSquareW + 100
+		this.slotX = this.taikoSquareW + this.barH * 0.45
 		this.scoreSquareW = this.taikoSquareW * 0.55
 		this.scoreSquareH = this.barH * 0.25
 		this.circleSize = this.barH * 0.15
@@ -84,7 +86,7 @@ class View{
 		this.HPBarColH = this.HPBarH * 0.8
 		var diffRatio = 176 / 120
 		this.diffH = this.winH * 0.16
-		this.diffW = this.diffH*diffRatio
+		this.diffW = this.diffH * diffRatio
 		this.diffX = this.taikoX * 0.10
 		this.diffY = this.taikoY * 1.05 + this.taikoH * 0.19
 	}
@@ -92,6 +94,8 @@ class View{
 	refresh(){
 		this.positionning()
 		this.distanceForCircle = this.winW - this.slotX
+		
+		this.ctx.clearRect(0, 0, this.canvas.scaledWidth, this.canvas.scaledHeight)
 		
 		// Draw
 		this.drawBar()
@@ -124,6 +128,8 @@ class View{
 	}
 	
 	drawHPBar(){
+		var z = this.canvas.scale
+		
 		var bottomSquareX = this.taikoSquareW
 		var borderSize = this.HPBarH * 0.2
 		this.ctx.fillStyle = "#000"
@@ -139,13 +145,13 @@ class View{
 			bottomSquareX + borderSize,
 			this.HPBarY + 0.435 * this.HPBarH,
 			this.winW - bottomSquareX - borderSize,
-			this.HPBarH / 2 + 1
+			this.HPBarH / 2 + 2 * z
 		)
 		this.ctx.fillRect(
 			bottomSquareX,
 			this.HPBarY + 0.68 * this.HPBarH,
 			this.HPBarW * 0.8,
-			this.HPBarH / 4 + 1
+			this.HPBarH / 4 + 2 * z
 		)
 		this.ctx.arc(
 			bottomSquareX+borderSize,
@@ -200,13 +206,14 @@ class View{
 	}
 	
 	drawMeasure(measure){
+		var z = this.canvas.scale
 		var currentTime = this.controller.getEllapsedTime().ms
 		var measureX = this.slotX + measure.speed / (70 / this.circleSize) * (measure.ms - currentTime)
 		this.ctx.strokeStyle = "#bab8b8"
 		this.ctx.lineWidth = 2
 		this.ctx.beginPath()
-		this.ctx.moveTo(measureX, this.barY + 5)
-		this.ctx.lineTo(measureX, this.barY + this.barH - this.lyricsBarH - 5)
+		this.ctx.moveTo(measureX, this.barY + 5 * z)
+		this.ctx.lineTo(measureX, this.barY + this.barH - this.lyricsBarH - 5 * z)
 		this.ctx.closePath()
 		this.ctx.stroke()
 	}
@@ -294,7 +301,7 @@ class View{
 		var pointsText = this.controller.getGlobalScore().points.toString().split("")
 		for(var i in pointsText){
 			this.ctx.fillText(pointsText[i],
-				this.scoreSquareW - 20 + glyph * (i - pointsText.length + 1),
+				this.scoreSquareW - 30 + glyph * (i - pointsText.length + 1),
 				this.barY + this.scoreSquareH * 0.7
 			)
 		}
@@ -449,6 +456,8 @@ class View{
 	}
 	
 	drawCircle(circle, circlePos){
+		var z = this.canvas.scale
+		
 		var fill, size, faceID
 		if(!circlePos){
 			var currentTime = this.controller.getEllapsedTime().ms
@@ -540,11 +549,12 @@ class View{
 	}
 	
 	drawTime(){
+		var z = this.canvas.scale
 		var time = this.controller.getEllapsedTime()
 		
 		this.ctx.globalAlpha = 0.7
 		this.ctx.fillStyle = "#000"
-		this.ctx.fillRect(this.winW - 110, this.winH - 60, this.winW, this.winH)
+		this.ctx.fillRect(this.winW - 110 * z, this.winH - 60 * z, this.winW, this.winH)
 		
 		this.ctx.globalAlpha = 1
 		this.ctx.fillStyle = "#fff"
@@ -556,9 +566,9 @@ class View{
 		this.ctx.font = "normal " + (this.barH / 12) + "px Kozuka"
 		this.ctx.textAlign = "right"
 		this.ctx.fillText(formatedH + ":" + formatedM + ":" + formatedS,
-			this.winW - 10, this.winH - 30
+			this.winW - 10 * z, this.winH - 30 * z
 		)
-		this.ctx.fillText(time.ms, this.winW - 10, this.winH - 10)
+		this.ctx.fillText(time.ms, this.winW - 10 * z, this.winH - 10 * z)
 	}
 	
 	drawBar(){

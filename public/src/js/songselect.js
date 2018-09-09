@@ -3,7 +3,6 @@ function SongSelect(){
     var _this=this;
     var _songs;
 	var _selectedSong = {title:'', folder:'', difficulty:''};
-	var _code="";
 	var _preview;
 	var _preview_to;
 	var _diffNames={
@@ -115,7 +114,7 @@ function SongSelect(){
 
 
 				if(!$('.opened').length) {
-					_this.startPreview($(this).data('song-id'), $(this).data('preview'));				
+					_this.startPreview($(this).data('song-id'), $(this).data('preview'));
 					assets.sounds["don"].playAsset();
 					assets.sounds["song-select"].pause();
 					assets.sounds["song-select"].currentTime = 0;
@@ -129,7 +128,7 @@ function SongSelect(){
 					});
 				} else {
 					_preview.pause();
-					_this.startPreview($(this).data('song-id'), $(this).data('preview'), false);				
+					_this.startPreview($(this).data('song-id'), $(this).data('preview'), false);
 					assets.sounds["ka"].playAsset();
 				}
 			};
@@ -150,70 +149,98 @@ function SongSelect(){
 			{url: '/assets/audio/bgm_songsel_loop.ogg', duration: 2.064}
 		);
 		bgm.play();
-
+		
 		setTimeout(function(){
 			assets.sounds["song-select"].playAsset();
 		}, 200);
+		
+		var songElements = [0]
+		
 		for(var i=0; i<assets.songs.length; i++){
-
-			var song = assets.songs[i];
-			var songDir = '/songs/' + song.id;
-			var songDifficulties = song.stars;
-			var songID = song.id;
-			var songTitle = song.title;
-			var songTitleSpace = songTitle.replace(/ /g, '&nbsp;');
-			var songPreview = song.preview;
-			var skipChars = [];
 			
-			var cl = /^[\x00-\xFF]*$/.test(songTitle) ? 'song-title alpha-title' : 'song-title';
-			_code += "<div id='song-"+songID+"' class='song' data-title='"+songTitle+"' data-song-id='"+songID+"' data-preview='"+songPreview+"'><div class='"+cl+"'>";
+			var song = assets.songs[i];
+			var songTitle = song.title;
+			var skipChars = [];
+			var charElements = [0]
+			var diffElements = [0]
+			
 			for (var c=0; c<songTitle.length; c++) {
 				if (skipChars.indexOf(c) > -1) {
 					continue;
 				};
-
-				var ch = songTitle.charAt(c) == ' ' ? '&nbsp;' : songTitle.charAt(c);
-
+				
+				var ch = songTitle.charAt(c) == " " ? "\xa0" : songTitle.charAt(c);
+				
 				var isApos = false;
-				if (songTitle.charAt(c+1) == '\'') {
-					ch = ch + '\'';
+				if (songTitle.charAt(c+1) == "'") {
+					ch = ch + "'";
 					skipChars.push(c+1);
 					isApos = true;
 				};
-
-				var cl = ch == '&nbsp;' ? 'song-title-char song-title-space' : 'song-title-char';
-				cl = isApos ? cl + ' song-title-apos' : cl;
-
-				_code += '<span class="' + cl + '" alt="' + ch + '">' + ch + '</span>';
+				
+				var cl = ch == "\xa0" ? "song-title-char song-title-space" : "song-title-char";
+				cl = isApos ? cl + " song-title-apos" : cl;
+				
+				charElements.push(
+					["span", {
+						class: cl,
+						alt: ch
+					}, ch]
+				)
 			};
-			_code += "</div><ul class='difficulties'>";
 			
 			for(var diff in _diffNames){
 				var diffName = diff;
-				var diffLevel = songDifficulties[diff];
+				var diffLevel = song.stars[diff];
 				if (!diffLevel) {
 					continue;
 				}
 				
-				var starsDisplay="";
+				var starsDisplay = [0]
 				for(var x=1; x<=diffLevel; x++){
-					starsDisplay+="&#9733;<br>";
+					starsDisplay.push("\u2605")
+					starsDisplay.push(["br"])
 				}
 				
 				var diffTxt=_diffNames[diffName]
-
-				_code += "<li class='difficulty "+diffName+"'>";
-					_code+= "<span class='diffname'>"+diffTxt+"</span>";
-					_code+= "<span class='stars'>"+starsDisplay+"</span>";
-				_code += "</li>";
+				
+				diffElements.push(
+					["li", {
+						class: "difficulty " + diffName
+					},
+						["span", {
+							class: "diffname"
+						}, diffTxt],
+						["span", {
+							class: "stars"
+						}, starsDisplay]
+					]
+				)
 			
 			}
 			
-			_code += "</ul></div>";
-			
+			songElements.push(
+				["div", {
+					id: "song-" + song.id,
+					class: "song",
+					"data-title": songTitle,
+					"data-song-id": song.id,
+					"data-preview": song.preview
+				},
+					["div", {
+						class: /^[\x00-\xFF]*$/.test(songTitle) ? "song-title alpha-title" : "song-title"
+					}, charElements],
+					["ul", {
+						class: "difficulties"
+					}, diffElements]
+				]
+			)
 		}
 		
-		$("#song-container").html(_code);
+		element(
+			document.getElementById("song-container"),
+			songElements
+		)
 		$('.difficulty').hide();
 	}
     

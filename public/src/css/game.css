@@ -28,14 +28,14 @@
 	width: 90%;
 	height: 25%;
 	display: block;
-	margin: auto auto 30px;
+	margin: 0 auto;
 	cursor: pointer;
-	border:5px solid #ae7a26;
+	border:.5vmin solid #ae7a26;
 	background: rgb(255, 255, 255);
 	color: black;
 	font-family: TnT;
-	font-size: 5vmin;
-	border-radius: 10px;
+	font-size: 3.5vmin;
+	border-radius: 1.5vmin;
 }
 
 #pause-menu button:hover{
