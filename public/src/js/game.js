@@ -6,7 +6,6 @@ function Game(controller, selectedSong, songData){
     var _offsetDate; //date when the chrono is started (before the game begins)
     var _startDate; //real start date (when the chrono will be 0)
     var _currentDate; // refreshed date
-	var _soundSystem = new soundSystem(controller);
     var _songData=songData;
     var _currentCircle=0;
     var _currentScore=0;
@@ -24,6 +23,12 @@ function Game(controller, selectedSong, songData){
     var _offsetTime=0;
 	var _hitcircleSpeed=_songData.difficulty.sliderMultiplier*8;
 	var _timeForDistanceCircle;
+	var _mainAsset
+	assets.songs.forEach(song => {
+		if(song.id == selectedSong.folder){
+			_mainAsset = song.sound
+		}
+	})
     
     this.run = function(){
 		_timeForDistanceCircle=((20*controller.getDistanceForCircle())/_hitcircleSpeed);
@@ -185,20 +190,22 @@ function Game(controller, selectedSong, songData){
     this.whenLastCirclePlayed = function(){
         var circles = _songData.circles;
         var lastCircle = circles[_songData.circles.length-1];
-        if(_ellapsedTime.ms>=lastCircle.getMS()+2000){
-            _fadeOutStarted=true;
+        if(!_fadeOutStarted && _ellapsedTime.ms>=lastCircle.getMS()+2000){
+            _fadeOutStarted=_ellapsedTime.ms
         }
     }
 
     this.whenFadeoutMusic = function(){
         if(_fadeOutStarted){
-            if(_musicFadeOut%8==0){
-                _soundSystem.fadeOutMusic();
-                _musicFadeOut++;
+            if(_musicFadeOut==0){
+                snd.musicGain.fadeOut(1.6)
+                _mainAsset.stop(1.6)
+                snd.musicGain.fadeIn(0, 1.7)
             }
-            else{
-                _musicFadeOut++;
+            if(_ellapsedTime.ms>=_fadeOutStarted+1600){
+                controller.fadeOutOver()
             }
+            _musicFadeOut++;
         }
     }
     
@@ -217,21 +224,17 @@ function Game(controller, selectedSong, songData){
     
     this.toggleMainMusic = function(){
         if(_mainMusicPlaying){
-            assets.sounds["main-music"].pause();
+            _mainAsset.pause();
             _mainMusicPlaying=false;
         }
         else{
-            assets.sounds["main-music"].playAsset();
+            _mainAsset.play(0, false, _this.getEllapsedTime().ms / 1000);
             _mainMusicPlaying=true;
         }
     }
 
     this.fadeOutOver = function(){
         _fadeOutStarted=false;
-    }
-    
-    this.playSound = function(soundID){
-        _soundSystem.playSound(soundID);
     }
     
     this.pauseSound = function(soundID, stop){
@@ -244,14 +247,14 @@ function Game(controller, selectedSong, songData){
     
     this.togglePause = function(){
         if(!_paused){
-            assets.sounds["pause"].playAsset();
+            assets.sounds["pause"].play();
             _paused=true;
             _latestDate = new Date();
             _this.toggleMainMusic();
             
         }
         else{
-            assets.sounds["cancel"].playAsset();
+            assets.sounds["cancel"].play();
            _paused=false;
             var currentDate = new Date();
             _ellapsedTimeSincePause = _ellapsedTimeSincePause + Math.abs(currentDate.getTime() - _latestDate.getTime());

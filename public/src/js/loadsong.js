@@ -1,66 +1,52 @@
-function loadSong(selectedSong, autoPlayEnabled){
-	
-	var _this = this;
-	var _selectedSong=selectedSong;
-	var _bgLoaded=false;
-	var _musicLoaded=false;
-	var _songDataLoaded=false;
-	var _songFilePath = '/songs/'+_selectedSong.folder+'/'+_selectedSong.difficulty;
-	var _songData;
-	
-	this.run = function(){
+class loadSong{
+	constructor(selectedSong, autoPlayEnabled){
+		this.selectedSong = selectedSong
+		this.autoPlayEnabled = autoPlayEnabled
+		this.songFilePath = "/songs/" + this.selectedSong.folder + "/" + this.selectedSong.difficulty
+		$("#screen").load("/src/views/loadsong.html", () => {
+			this.run()
+		})
+	}
+	run(){
+		var id = this.selectedSong.folder
+		var promises = []
+		assets.sounds["start"].play()
 		
-		assets.sounds["bgm_songsel"].pause();
-		assets.sounds["bgm_songsel"].currentTime = 0;
-
-		assets.sounds["start"].playAsset();
-		$("#assets").append("<img id='music-bg' src='/songs/"+_selectedSong.folder+"/bg.png' />");
+		var img = document.createElement("img")
+		promises.push(promiseLoad(img))
+		img.id = "music-bg"
+		img.src = "/songs/" + id + "/bg.png"
+		document.getElementById("assets").appendChild(img)
 		
-		var audio = new Audio();
-        audio.muted = true;
-		audio.src = '/songs/'+_selectedSong.folder+'/main.mp3';
-		audio.load();
-		
-		$("#music-bg").load(function(){
-			_bgLoaded=true;
-			_this.checkIfEverythingLoaded();
-		});
-		
-		audio.playAsset = function(){
-			try{
-				audio.muted = false;
-				audio.play()
-			}catch(e){
-				console.warn(e)
+		promises.push(new Promise((resolve, reject) => {
+			var songObj
+			assets.songs.forEach(song => {
+				if(song.id == id){
+					songObj = song
+				}
+			})
+			if(songObj.sound){
+				songObj.sound.gain = snd.musicGain
+				resolve()
+			}else{
+				snd.musicGain.load("/songs/" + id + "/main.mp3").then(sound => {
+					songObj.sound = sound
+					resolve()
+				}, reject)
 			}
-		}
+		}))
 		
-		audio.onloadeddata = function(){
-			_musicLoaded=true;
-			assets.sounds["main-music"]=audio;
-			_this.checkIfEverythingLoaded();
-		};
+		promises.push(ajax(this.songFilePath).then(data => {
+			this.songData = data.replace(/\0/g, "").split("\n")
+		}))
 		
-		$.ajax({
-            url : _songFilePath,
-            dataType: "text",
-            success : function (data) {
-                _songData = data.split("\n");
-				_songDataLoaded=true;
-				_this.checkIfEverythingLoaded();
-            }
-        });
-		
+		Promise.all(promises).then(() => {
+			$("#screen").load("/src/views/game.html", () => {
+				var taikoGame = new Controller(this.selectedSong, this.songData, this.autoPlayEnabled)
+				taikoGame.run()
+			})
+		}, () => {
+			alert("An error occurred, please refresh")
+		})
 	}
-	
-	this.checkIfEverythingLoaded = function(){
-		if(_musicLoaded && _songDataLoaded && _bgLoaded){
-			$("#screen").load("/src/views/game.html", function(){
-				var taikoGame = new Controller(_selectedSong, _songData, autoPlayEnabled);
-				taikoGame.run();
-			});
-		}
-	}
-	
-	$("#screen").load("/src/views/loadsong.html", _this.run);
  }

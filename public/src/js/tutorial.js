@@ -2,15 +2,11 @@ function Tutorial() {
     var _this = this;
 
     this.run = function() {
-        bgm = new BufferedLoop(
-            {url: '/assets/audio/bgm_setsume.ogg', duration: 1.054},
-            {url: '/assets/audio/bgm_setsume_loop.ogg', duration: 15}
-        );
-        bgm.play();
+        assets.sounds["bgm_setsume"].playLoop(0, false, 0, 1.0540416666666668)
 
         $('#tutorial-end-button').click(function(){
-            bgm.pause();
-            assets.sounds['don'].playAsset();
+            assets.sounds["bgm_setsume"].stop();
+            assets.sounds["don"].play();
 
             localStorage.setItem('tutorial', 'true');
             new SongSelect();

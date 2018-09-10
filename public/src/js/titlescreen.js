@@ -32,7 +32,7 @@ function Titlescreen(){
 		$("#screen").find("#title-screen").show();
 		$(window).resize(_this.positionning);		
 
-		assets.sounds["title"].playAsset();
+		assets.sounds["title"].play();
 
     }
     
@@ -40,7 +40,7 @@ function Titlescreen(){
     	assets.sounds["title"].pause();
     	assets.sounds["title"].currentTime = 0;
 
-		assets.sounds["don"].playAsset();
+		assets.sounds["don"].play();
         if (localStorage.getItem('tutorial') !== 'true') {
         	new Tutorial();
         } else {

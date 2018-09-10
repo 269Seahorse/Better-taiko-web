@@ -67,7 +67,7 @@ function Keyboard(controller){
     this.checkMenuKeys = function(){
         _gamepad.play(1)
         _this.checkKey(_kbd["back"], "menu", function(){
-            controller.pauseSound("main-music", true);
+            controller.togglePause();
             controller.songSelection();
         })
         _this.checkKey(_kbd["pause"], "menu", function(){
@@ -84,7 +84,7 @@ function Keyboard(controller){
     
     this.checkKeySound = function(keyCode, sound){
         _this.checkKey(keyCode, "sound", function(){
-            controller.playSound("note_"+sound);
+            assets.sounds["note_"+sound].play()
             _keyTime[sound] = controller.getEllapsedTime().ms
         })
     }

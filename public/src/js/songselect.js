@@ -1,82 +1,88 @@
 function SongSelect(){
- 
-    var _this=this;
-    var _songs;
+	var _this=this;
+	var _songs;
 	var _selectedSong = {title:'', folder:'', difficulty:''};
 	var _preview;
-	var _preview_to;
+	var _preview_ended
+	var _preview_startLoad
 	var _diffNames={
 		easy:"かんたん",
 		normal:"ふつう",
 		hard:"むずかしい",
 		oni:"おに"
 	}
-
+	
 	this.startPreview = function(id, prvtime, first_open=true) {
-		var start = Date.now();
-		setTimeout(function(){
-			bgm.pause();
-		}, 400);
-
-		_preview = new Audio('/songs/' + id + '/main.mp3');
-		_preview.onloadeddata = function() {
-			var end = Date.now();
-			var delay = end - start;
-			var no_delay = first_open ? 0 : 300;
-
-			_preview.currentTime = prvtime/1000;
-			_preview.volume = 0.5;
-
-			_preview.addEventListener('ended', function(){
-				this.currentTime = prvtime/1000;
-				this.play();
-			}, false);
-			
-			_preview_to = setTimeout(function(){
-				_preview.play();
-			}, delay <= 1000 && first_open ? 1000 : no_delay);
+		_this.endPreview();
+		_preview_startLoad = +new Date
+		_preview_ended = false
+		if(first_open){
+			snd.musicGain.fadeOut(0.4)
+		}
+		var songObj
+		assets.songs.forEach(song => {
+			if(song.id == id){
+				songObj = song
+			}
+		})
+		if(songObj.sound){
+			_preview = songObj.sound
+			_preview.gain = snd.previewGain
+			this.previewLoaded(prvtime)
+		}else{
+			snd.previewGain.load("/songs/" + id + "/main.mp3").then(sound => {
+				if(!_preview_ended){
+					songObj.sound = sound
+					_preview = sound
+					this.previewLoaded(prvtime)
+				}
+			})
 		}
 	};
-
+	
+	this.previewLoaded = function(prvtime){
+		var endLoad = +new Date
+		var delay = Math.max(1000 - Math.min(1000, endLoad - _preview_startLoad), 300)
+		_preview.playLoop(delay / 1000, false, prvtime / 1000)
+	}
+	
 	this.endPreview = function() {
-		clearTimeout(_preview_to);
+		_preview_ended = true
 		if (_preview) {
-			_preview.pause();
+			_preview.stop();
 		};
 	};
-    
-    this.run = function(){
-            
+	
+	this.run = function(){
 		_this.createCode();
-		_this.display();
-		$(window).resize(_this.display);
 		
-		var menuLoop = setInterval(_this.refresh, 20);
 		$("#song-container").show();
-
+		
 		$('#songsel-help').click(function(){
-			bgm.pause();
+			assets.sounds["bgm_songsel"].stop()
+			assets.sounds["song-select"].stop()
+			assets.sounds["diffsel"].stop()
+			assets.sounds["don"].play()
+			snd.musicGain.fadeIn()
 			_this.endPreview();
-			assets.sounds['don'].playAsset();
-
+			
 			new Tutorial();
 		});
 		
 		$(".difficulty").click(function(e){
 			_this.endPreview();
-			assets.sounds["diffsel"].pause();
-			assets.sounds["diffsel"].currentTime = 0;
-			assets.sounds["don"].playAsset();
-
-			clearInterval(menuLoop);
+			assets.sounds["bgm_songsel"].stop()
+			assets.sounds["diffsel"].stop()
+			assets.sounds["don"].play()
+			
 			var difficultyElement = (e.target.className=="stars" || e.target.className=="diffname") ? e.target.parentElement : e.target;
 			_selectedSong.difficulty = difficultyElement.classList[1]+'.osu';
 			var parentID = $(this).parent().closest(".song").attr("id");
 			var songID = parseInt(parentID.substr(5, parentID.length-1));
 			_selectedSong.title = $(this).parent().closest('.song').data('title');
 			_selectedSong.folder = songID;
-            
-            bgm.pause();
+			
+			snd.musicGain.fadeIn()
 			new loadSong(_selectedSong, e.shiftKey);
 		});
 		
@@ -93,46 +99,38 @@ function SongSelect(){
 			if (!$(e.target).parents('.difficulties').length) {
 				if ($(".opened").length && $(".opened").attr('id') == $(this).attr('id')) {
 					_this.endPreview();
-					bgm.play();
-					assets.sounds["cancel"].playAsset();
+					snd.musicGain.fadeIn(0.4)
+					assets.sounds["diffsel"].stop()
+					assets.sounds["cancel"].play()
+					assets.sounds["song-select"].play(0.3)
+					
 					$(".difficulty").hide();
 					$(".opened").removeClass("opened", 300);
-
-					assets.sounds["diffsel"].pause();
-					assets.sounds["diffsel"].currentTime = 0;
-					setTimeout(function(){
-						assets.sounds["song-select"].playAsset();
-					}, 300);
-
+					
 					$('.songsel-title').fadeOut(200, function(){
 						$('.songsel-title').attr('alt', '曲をえらぶ').html('曲をえらぶ').css('left', -300);
 						$('.songsel-title').animate({left:0, opacity:"show"}, 400);
 					});
-
+					
 					return;
 				}
-
-
+				
 				if(!$('.opened').length) {
 					_this.startPreview($(this).data('song-id'), $(this).data('preview'));
-					assets.sounds["don"].playAsset();
-					assets.sounds["song-select"].pause();
-					assets.sounds["song-select"].currentTime = 0;
-					setTimeout(function(){
-						assets.sounds["diffsel"].playAsset();
-					}, 300);
-
+					assets.sounds["don"].play()
+					assets.sounds["song-select"].stop()
+					assets.sounds["diffsel"].play(0.3)
+					
 					$('.songsel-title').fadeOut(200, function(){
 						$('.songsel-title').attr('alt', 'むずかしさをえらぶ').html('むずかしさをえらぶ').css('left', -300);
 						$('.songsel-title').animate({left:0, opacity:"show"}, 400);
 					});
 				} else {
-					_preview.pause();
 					_this.startPreview($(this).data('song-id'), $(this).data('preview'), false);
-					assets.sounds["ka"].playAsset();
+					assets.sounds["ka"].play();
 				}
 			};
-
+			
 			$(".difficulty").hide();
 			$(".opened").removeClass("opened", 300);
 			$(this).addClass("opened", 300, "linear", function(){
@@ -140,19 +138,12 @@ function SongSelect(){
 				$(this).css("background", "rgba(255, 220, 47, 0.90)");
 			});
 		});
-
+	
 	}
-
+	
 	this.createCode = function(){
-		bgm = new BufferedLoop(
-			{url: '/assets/audio/bgm_songsel.ogg', duration: 1.442},
-			{url: '/assets/audio/bgm_songsel_loop.ogg', duration: 2.064}
-		);
-		bgm.play();
-		
-		setTimeout(function(){
-			assets.sounds["song-select"].playAsset();
-		}, 200);
+		assets.sounds["bgm_songsel"].playLoop(0, false, 0, 1.4423958333333333)
+		assets.sounds["song-select"].play(0.2);
 		
 		var songElements = [0]
 		
@@ -243,14 +234,7 @@ function SongSelect(){
 		)
 		$('.difficulty').hide();
 	}
-    
-    this.display = function(){
-    }
-    
-    this.refresh = function(){
-        
-    }
 	
 	$("#screen").load("/src/views/songselect.html", _this.run);
-    
+	
 }

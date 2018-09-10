@@ -12,6 +12,12 @@ function Controller(selectedSong, songData, autoPlayEnabled){
     var _keyboard = new Keyboard(this);
     var _mainLoop;
     var _pauseMenu = false;
+	var _mainAsset
+	assets.songs.forEach(song => {
+		if(song.id == selectedSong.folder){
+			_mainAsset = song.sound
+		}
+	})
     
     this.autoPlayEnabled = autoPlayEnabled
     
@@ -25,11 +31,11 @@ function Controller(selectedSong, songData, autoPlayEnabled){
 	
 	this.loadUIEvents = function(){
 		$("#song-selection-butt").click(function(){
-            assets.sounds["don"].playAsset();
+            assets.sounds["don"].play();
 			_this.songSelection();
 		});
 		$("#restart-butt").click(function(){
-            assets.sounds["don"].playAsset();
+            assets.sounds["don"].play();
 			_this.restartSong();
 		});
         $("#continue-butt").click(function(){
@@ -48,10 +54,7 @@ function Controller(selectedSong, songData, autoPlayEnabled){
 				_view.refresh();
             }
             else if(ms>=0 && !started){ //when music shall starts
-                setTimeout(function(){
-                    assets.sounds["main-music"].volume = 0.7;
-                    assets.sounds["main-music"].playAsset();
-                }, _songData.generalInfo.audioWait);
+                _mainAsset.play(_songData.generalInfo.audioWait)
                 started=true;
             }
             
@@ -85,20 +88,17 @@ function Controller(selectedSong, songData, autoPlayEnabled){
         
         if (score.fail == 0) {
             vp = 'fullcombo';
-            setTimeout(function(){
-                _this.playSoundMeka('fullcombo');
-            }, 1350);
+            _this.playSoundMeka('fullcombo', 1350);
         } else if (score.hp >= 50) {
             vp = 'clear';
         } else {
             vp = 'fail';
         }
 
-        assets.sounds['game' + vp].playAsset();
+        assets.sounds['game' + vp].play();
 
         setTimeout(function(){
-            var scoresheet = new Scoresheet(_this, _this.getGlobalScore());
-            scoresheet.run();
+            new Scoresheet(_this, _this.getGlobalScore());
         }, 7000);
     }
 
@@ -123,25 +123,16 @@ function Controller(selectedSong, songData, autoPlayEnabled){
     }
     
     this.restartSong = function(){
-		assets.sounds["main-music"].pause();
-		assets.sounds["main-music"].currentTime=0;
+		_mainAsset.stop()
 		clearInterval(_mainLoop);
 		$("#screen").load("/src/views/game.html", function(){
 			var taikoGame = new Controller(selectedSong, songData, autoPlayEnabled);
 			taikoGame.run();
 		});
     }
-    
-    this.playSound = function(soundID){
-        _game.playSound(soundID);
-    }
 
-    this.playSoundMeka = function(soundID){
-        _game.playSound(soundID + (autoPlayEnabled ? '-meka' : ''));
-    }
-    
-    this.pauseSound = function(soundID, stop){
-        _game.pauseSound(soundID, stop);
+    this.playSoundMeka = function(soundID, time){
+        assets.sounds[soundID + (autoPlayEnabled ? '-meka' : '')].play(time)
     }
     
     this.initTiming = function(){
