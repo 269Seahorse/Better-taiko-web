@@ -199,11 +199,14 @@ function Game(controller, selectedSong, songData){
         if(_fadeOutStarted){
             if(_musicFadeOut==0){
                 snd.musicGain.fadeOut(1.6)
-                _mainAsset.stop(1.6)
-                snd.musicGain.fadeIn(0, 1.7)
             }
             if(_ellapsedTime.ms>=_fadeOutStarted+1600){
                 controller.fadeOutOver()
+                _mainAsset.stop()
+                setTimeout(() => {
+                    snd.musicGain.fadeIn()
+                    snd.musicGain.unmute()
+                }, 1000)
             }
             _musicFadeOut++;
         }
@@ -224,7 +227,7 @@ function Game(controller, selectedSong, songData){
     
     this.toggleMainMusic = function(){
         if(_mainMusicPlaying){
-            _mainAsset.pause();
+            _mainAsset.stop();
             _mainMusicPlaying=false;
         }
         else{
@@ -235,10 +238,6 @@ function Game(controller, selectedSong, songData){
 
     this.fadeOutOver = function(){
         _fadeOutStarted=false;
-    }
-    
-    this.pauseSound = function(soundID, stop){
-        _soundSystem.pauseSound(soundID, stop);
     }
     
     this.getHitcircleSpeed = function(){
