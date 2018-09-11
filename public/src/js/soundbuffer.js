@@ -124,7 +124,9 @@ class Sound{
 	playLoop(time, absolute, seek1, seek2, until){
 		time = this.convertTime(time, absolute)
 		seek1 = seek1 || 0
-		seek2 = seek2 || 0
+		if(typeof seek2 == "undefined"){
+			seek2 = seek1
+		}
 		until = until || this.duration
 		this.loop = {
 			started: time + until - seek1,

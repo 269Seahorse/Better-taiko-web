@@ -3,7 +3,7 @@ function SongSelect(){
 	var _songs;
 	var _selectedSong = {title:'', folder:'', difficulty:''};
 	var _preview;
-	var _preview_ended
+	var _preview_id = 0
 	var _diffNames={
 		easy:"かんたん",
 		normal:"ふつう",
@@ -14,7 +14,7 @@ function SongSelect(){
 	this.startPreview = function(id, prvtime, first_open=true) {
 		_this.endPreview();
 		var startLoad = +new Date
-		_preview_ended = false
+		var current_id = _preview_id
 		if(first_open){
 			snd.musicGain.fadeOut(0.4)
 		}
@@ -30,7 +30,7 @@ function SongSelect(){
 			this.previewLoaded(startLoad, prvtime, first_open)
 		}else{
 			snd.previewGain.load("/songs/" + id + "/main.mp3").then(sound => {
-				if(!_preview_ended){
+				if(current_id == _preview_id){
 					songObj.sound = sound
 					_preview = sound
 					this.previewLoaded(startLoad, prvtime, first_open)
@@ -48,7 +48,7 @@ function SongSelect(){
 	}
 	
 	this.endPreview = function() {
-		_preview_ended = true
+		_preview_id++
 		if (_preview) {
 			_preview.stop();
 		};
