@@ -1,6 +1,6 @@
 var assets = {
 	
-	img: new Array(
+	img: [
 		'background.png',
 		'title-screen.png',
 		'logo-big.png',
@@ -28,13 +28,13 @@ var assets = {
 		'muzu_hard.png',
 		'muzu_oni.png',
 		'don_anim_normal.png'
-	),
+	],
 	
-	audio: new Array(
+	audioSfx: [
 		'start.wav',
 		'don.wav',
 		'ka.wav',
-
+		
 		'combo-50.wav',
 		'combo-100.wav',
 		'combo-200.wav',
@@ -51,7 +51,7 @@ var assets = {
 		'combo-1300.wav',
 		'combo-1400.wav',
 		'fullcombo.wav',
-
+		
 		'combo-50-meka.wav',
 		'combo-100-meka.wav',
 		'combo-200-meka.wav',
@@ -68,35 +68,34 @@ var assets = {
 		'combo-1300-meka.wav',
 		'combo-1400-meka.wav',
 		'fullcombo-meka.wav',
-
+		
 		'song-select.wav',
 		'title.ogg',
 		'pause.wav',
 		'cancel.wav',
 		'results.wav',
 		'diffsel.wav',
-
+		
 		'gamefullcombo.wav',
 		'gameclear.wav',
 		'gamefail.wav',
-
+		
 		'note_don.ogg',
 		'note_ka.ogg',
-
+	],
+	
+	audioMusic:[
 		'bgm_songsel.ogg',
-		'bgm_songsel_loop.ogg',
 		'bgm_result.ogg',
-		'bgm_result_loop.ogg',
-		'bgm_setsume.ogg',
-		'bgm_setsume_loop.ogg'
-	),
+		'bgm_setsume.ogg'
+	],
 	
-	songs: new Array(),
+	songs: [],
 	
-	fonts: new Array(
+	fonts: [
 		'Kozuka',
 		'TnT'
-	),
+	],
 	
 	sounds: {},
 	image: {}

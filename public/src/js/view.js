@@ -4,10 +4,9 @@ class View{
 		this.bg = bg
 		this.diff = diff
 		
-		this.winW = $(window).width()
-		this.winH = $(window).height()
-		
-		this.canvas = new ScalableCanvas("canvas", this.winW, this.winH)
+		this.canvas = new ScalableCanvas("canvas", $(window).width(), $(window).height())
+		this.winW = this.canvas.scaledWidth
+		this.winH = this.canvas.scaledHeight
 		this.ctx = this.canvas.ctx
 		
 		this.taikoSquareW = this.winW / 4

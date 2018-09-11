@@ -1,18 +1,18 @@
 
 function Scoresheet(controller, score){
-    
-    var _this = this;
-    var _score = score;
-    var _mark;
+	
+	var _this = this;
+	var _score = score;
+	var _mark;
 	
 	this.setResults = function(){
 		
 		if (_score.fail == 0) {
-        	_mark = 'gold';
-    	} else if (_score.hp >= 50) {
-    		_mark = 'silver';
-    	};
-
+			_mark = 'gold';
+		} else if (_score.hp >= 50) {
+			_mark = 'silver';
+		};
+		
 		var imgW = (_score.hp*$("#score-hp-bar-colour").width())/100;
 		$("#score-hp-bar-colour img").css("clip", "rect(0, "+imgW+"px, "+$("#score-hp-bar-colour").height()+"px, 0)");
 		
@@ -23,13 +23,13 @@ function Scoresheet(controller, score){
 		} else {
 			$("#score-mark").remove();
 		};
-
+		
 		$("#score-points").html(_score.points+"点");
 		$("#nb-great").html(_score.great);
 		$("#nb-good").html(_score.good);
 		$("#nb-fail").html(_score.fail);
 		$("#max-combo").html(_score.maxCombo);
-
+		
 		$('.result-song').attr('alt', _score.song).html(_score.song);
 		
 	}
@@ -76,36 +76,29 @@ function Scoresheet(controller, score){
 		
 	}
 	
-    this.run = function(){
+	this.run = function(){
 		_this.positionning();
 		_this.setResults();
 		
-        $("#song-select").click(function(){
-        	assets.sounds["don"].playAsset();
-        	bgm.pause();
-            controller.songSelection();
-        });
-        
-        $("#replay").click(function(){
-        	assets.sounds["don"].playAsset();
-        	bgm.pause();
-            controller.restartSong();
-        });
+		$("#song-select").click(function(){
+			assets.sounds["don"].play();
+			assets.sounds["bgm_result"].stop();
+			controller.songSelection();
+		});
+		
+		$("#replay").click(function(){
+			assets.sounds["don"].play();
+			assets.sounds["bgm_result"].stop();
+			controller.restartSong();
+		});
 		
 		$(window).resize(_this.positionning);
 		
-    }
-
-	    assets.sounds["results"].playAsset();
+	}
 	
-		bgm = new BufferedLoop(
-			{url: '/assets/audio/bgm_result.ogg', duration: 0.847},
-			{url: '/assets/audio/bgm_result_loop.ogg', duration: 16.842}
-		);
-		bgm.play();
-
-
-
+	assets.sounds["results"].play()
+	assets.sounds["bgm_result"].playLoop(0, false, 0, 0.846625)
+	
 	$("#screen").load("/src/views/scoresheet.html", _this.run);
     
 }

@@ -1,92 +1,103 @@
-function Loader(){
-	
-	var _this=this;
-	var _loadedAssets=0;
-	var _percentage=0;
-	var _nbAssets=assets.audio.length+assets.img.length+assets.fonts.length+1; //+1 for song structures
-	var _assetsDiv=document.getElementById("assets")
-	var _loaderPercentage
-	var _errorCount=0
-	
-	this.run = function(){
+class Loader{
+	constructor(){
+		this.loadedAssets = 0
+		this.errorCount = 0
+		this.assetsDiv = document.getElementById("assets")
+		this.promises = []
+		$("#screen").load("/src/views/loader.html", () => {
+			this.run()
+		})
+	}
+	run(){
+		this.loaderPercentage = document.querySelector("#loader .percentage")
 		
-		_loaderPercentage = document.querySelector("#loader .percentage")
-		
-		assets.fonts.forEach(function(name){
+		assets.fonts.forEach(name => {
 			var font = document.createElement("h1")
 			font.style.fontFamily = name
 			font.appendChild(document.createTextNode("I am a font"))
-			_assetsDiv.appendChild(font)
-			FontDetect.onFontLoaded (name, _this.assetLoaded, _this.errorMsg, {msTimeout: 90000});
-		});
+			this.assetsDiv.appendChild(font)
+			this.promises.push(new Promise((resolve, reject) => {
+				FontDetect.onFontLoaded(name, resolve, reject, {msTimeout: 90000})
+			}))
+		})
 		
-		assets.img.forEach(function(name){
-			var id = name.substr(0, name.length-4);
+		assets.img.forEach(name => {
+			var id = name.substr(0, name.length - 4)
 			var image = document.createElement("img")
-			image.addEventListener("load", event=>{
-				_this.assetLoaded();
-			})
+			this.promises.push(promiseLoad(image))
 			image.id = name
 			image.src = "/assets/img/" + name
-			_assetsDiv.appendChild(image)
+			this.assetsDiv.appendChild(image)
 			assets.image[id] = image
-		});
+		})
 		
-		assets.audio.forEach(function(name){
-			var id = name.substr(0, name.length-4);
-			assets.sounds[id] = new Audio();
-			assets.sounds[id].muted = true;
-			assets.sounds[id].playAsset = function(){
-				try{
-					assets.sounds[id].muted = false;
-					assets.sounds[id].play()
-				}catch(e){
-					console.warn(e)
-				}
-			}
-			assets.sounds[id].onloadeddata = function(){
-				_this.assetLoaded();
-			};
-			assets.sounds[id].src = '/assets/audio/'+name;
-			assets.sounds[id].load();
-		});
+		snd.buffer = new SoundBuffer()
+		snd.musicGain = snd.buffer.createGain()
+		snd.sfxGain = snd.buffer.createGain()
+		snd.buffer.setCrossfade(snd.musicGain, snd.sfxGain, 0.5)
+		snd.previewGain = snd.buffer.createGain()
+		snd.previewGain.setVolume(0.5)
 		
-		$.ajax({
-			url: "/api/songs",
-			mimeType: "application/json",
-			success: function(songs){
-				assets.songs = songs;
-				_this.assetLoaded();
-			},
-			error: _this.errorMsg
-		});
+		assets.audioSfx.forEach(name => {
+			var id = name.substr(0, name.length-4)
+			this.promises.push(snd.sfxGain.load("/assets/audio/" + name).then(sound => {
+				assets.sounds[id] = sound
+			}))
+		})
+		assets.audioMusic.forEach(name => {
+			var id = name.substr(0, name.length-4)
+			this.promises.push(snd.musicGain.load("/assets/audio/" + name).then(sound => {
+				assets.sounds[id] = sound
+			}))
+		})
 		
+		this.promises.push(ajax("/api/songs").then(songs => {
+			assets.songs = JSON.parse(songs)
+		}))
+		
+		this.promises.forEach(promise => {
+			promise.then(() => {
+				this.assetLoaded()
+			}, () => {
+				this.errorMsg()
+			})
+		})
+		
+		Promise.all(this.promises).then(() => {
+			new Titlescreen()
+		})
 	}
-	
-	this.errorMsg = function(){
-		if(_errorCount == 0){
-			_loaderPercentage.appendChild(document.createElement("br"))
-			_loaderPercentage.appendChild(document.createTextNode("An error occured, please refresh"))
+	errorMsg(){
+		if(this.errorCount == 0){
+			this.loaderPercentage.appendChild(document.createElement("br"))
+			this.loaderPercentage.appendChild(document.createTextNode("An error occurred, please refresh"))
 		}
-		_errorCount++
+		this.errorCount++
 	}
-	
-	this.assetLoaded = function(){
-		_loadedAssets++;
-		_percentage=parseInt((_loadedAssets*100)/_nbAssets);
-		$("#loader .progress").css("width", _percentage+"%");
-		_loaderPercentage.firstChild.data=_percentage+"%"
-		_this.checkIfEverythingLoaded();
+	assetLoaded(){
+		this.loadedAssets++
+		var percentage = parseInt(this.loadedAssets * 100 / this.promises.length)
+		document.querySelector("#loader .progress").style.width = percentage + "%"
+		this.loaderPercentage.firstChild.data = percentage + "%"
 	}
-	
-	this.checkIfEverythingLoaded = function(){
-		if(_percentage==100){
-			new Titlescreen();
-			//var globalScore={points:1000, great:100, good:60, fail:10, maxCombo:50, hp:90};
-			//new Scoresheet(null, globalScore);
-		}
-	}
-	
-	$("#screen").load("/src/views/loader.html", _this.run);
-	
 }
+function ajax(url){
+	return new Promise((resolve, reject) => {
+		var request = new XMLHttpRequest()
+		request.open("GET", url)
+		promiseLoad(request).then(() => {
+			resolve(request.response)
+		}, reject)
+		request.send()
+	})
+}
+function promiseLoad(asset){
+	return new Promise((resolve, reject) => {
+		asset.addEventListener("load", resolve)
+		asset.addEventListener("error", reject)
+		asset.addEventListener("abort", reject)
+	})
+}
+
+var snd = {}
+new Loader()
