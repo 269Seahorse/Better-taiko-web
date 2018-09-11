@@ -4,7 +4,6 @@ function SongSelect(){
 	var _selectedSong = {title:'', folder:'', difficulty:''};
 	var _preview;
 	var _preview_ended
-	var _preview_startLoad
 	var _diffNames={
 		easy:"かんたん",
 		normal:"ふつう",
@@ -14,7 +13,7 @@ function SongSelect(){
 	
 	this.startPreview = function(id, prvtime, first_open=true) {
 		_this.endPreview();
-		_preview_startLoad = +new Date
+		var startLoad = +new Date
 		_preview_ended = false
 		if(first_open){
 			snd.musicGain.fadeOut(0.4)
@@ -28,21 +27,23 @@ function SongSelect(){
 		if(songObj.sound){
 			_preview = songObj.sound
 			_preview.gain = snd.previewGain
-			this.previewLoaded(prvtime)
+			this.previewLoaded(startLoad, prvtime, first_open)
 		}else{
 			snd.previewGain.load("/songs/" + id + "/main.mp3").then(sound => {
 				if(!_preview_ended){
 					songObj.sound = sound
 					_preview = sound
-					this.previewLoaded(prvtime)
+					this.previewLoaded(startLoad, prvtime, first_open)
 				}
 			})
 		}
 	};
 	
-	this.previewLoaded = function(prvtime){
+	this.previewLoaded = function(startLoad, prvtime, first_open){
 		var endLoad = +new Date
-		var delay = Math.max(1000 - Math.min(1000, endLoad - _preview_startLoad), 300)
+		var difference = endLoad - startLoad
+		var minDelay = first_open ? 1000 : 300
+		var delay = minDelay - Math.min(minDelay, difference)
 		_preview.playLoop(delay / 1000, false, prvtime / 1000)
 	}
 	
@@ -142,7 +143,7 @@ function SongSelect(){
 	}
 	
 	this.createCode = function(){
-		assets.sounds["bgm_songsel"].playLoop(0, false, 0, 1.4423958333333333)
+		assets.sounds["bgm_songsel"].playLoop(0.1, false, 0, 1.442, 3.506)
 		assets.sounds["song-select"].play(0.2);
 		
 		var songElements = [0]

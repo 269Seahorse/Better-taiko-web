@@ -88,7 +88,7 @@ function Controller(selectedSong, songData, autoPlayEnabled){
         
         if (score.fail == 0) {
             vp = 'fullcombo';
-            _this.playSoundMeka('fullcombo', 1350);
+            _this.playSoundMeka('fullcombo', 1.350);
         } else if (score.hp >= 50) {
             vp = 'clear';
         } else {

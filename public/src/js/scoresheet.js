@@ -97,7 +97,7 @@ function Scoresheet(controller, score){
 	}
 	
 	assets.sounds["results"].play()
-	assets.sounds["bgm_result"].playLoop(0, false, 0, 0.846625)
+	assets.sounds["bgm_result"].playLoop(0.1, false, 0, 0.847, 17.689)
 	
 	$("#screen").load("/src/views/scoresheet.html", _this.run);
     
