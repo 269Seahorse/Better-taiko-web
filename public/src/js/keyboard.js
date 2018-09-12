@@ -65,14 +65,21 @@ function Keyboard(controller){
     }
     
     this.checkMenuKeys = function(){
-        _gamepad.play(1)
-        _this.checkKey(_kbd["back"], "menu", function(){
-            controller.togglePause();
-            controller.songSelection();
-        })
-        _this.checkKey(_kbd["pause"], "menu", function(){
-            controller.togglePauseMenu();
-        })
+        if(!controller.multiplayer){
+            _gamepad.play(1)
+            _this.checkKey(_kbd["pause"], "menu", function(){
+                controller.togglePauseMenu();
+            })
+        }
+        if(controller.multiplayer != 2){
+            _this.checkKey(_kbd["back"], "menu", function(){
+                if(controller.multiplayer == 1){
+                    p2.send("gameend")
+                }
+                controller.togglePause();
+                controller.songSelection();
+            })
+        }
     }
     
     this.checkKey = function(keyCode, keyup, callback){
@@ -85,7 +92,7 @@ function Keyboard(controller){
     this.checkKeySound = function(keyCode, sound){
         _this.checkKey(keyCode, "sound", function(){
             assets.sounds["note_"+sound].play()
-            _keyTime[sound] = controller.getEllapsedTime().ms
+            _keyTime[sound] = controller.getElapsedTime().ms
         })
     }
     

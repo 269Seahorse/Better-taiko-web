@@ -75,6 +75,7 @@ ul li{
     box-shadow: 2px 2px 10px black;
     overflow: hidden;
 	cursor: pointer;
+	position: relative;
 }
 
 .opened{
@@ -126,4 +127,13 @@ ul li{
 
 .difficulty:hover .stars{
     color:white;
+}
+
+.song.p2:not(.opened)::after,
+.difficulty.p2::after{
+	content:"P2";
+	display:block;
+	position:absolute;
+	bottom:0;
+	width:100%;
 }

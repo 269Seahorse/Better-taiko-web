@@ -2,7 +2,7 @@ function Game(controller, selectedSong, songData){
     
     var _this = this;
     var _selectedSong = selectedSong;
-    var _ellapsedTime; //current time in ms from the beginning of the song
+    this.elapsedTime = {} //current time in ms from the beginning of the song
     var _offsetDate; //date when the chrono is started (before the game begins)
     var _startDate; //real start date (when the chrono will be 0)
     var _currentDate; // refreshed date
@@ -14,60 +14,53 @@ function Game(controller, selectedSong, songData){
     var _HPGain= 100/_songData.circles.length;
     var _paused=false;
     var _started=false;
-    var _mainMusicPlaying=true;
+    var _mainMusicPlaying=false;
     var _latestDate;
-    var _ellapsedTimeSincePause=0;
+    var _elapsedTimeSincePause=0;
     var _musicFadeOut=0;
     var _fadeOutStarted=false;
     var _currentTimingPoint=0;
     var _offsetTime=0;
-	var _hitcircleSpeed=_songData.difficulty.sliderMultiplier*8;
-	var _timeForDistanceCircle;
-	var _mainAsset
-	assets.songs.forEach(song => {
-		if(song.id == selectedSong.folder){
-			_mainAsset = song.sound
-		}
-	})
+    var _hitcircleSpeed=_songData.difficulty.sliderMultiplier*8;
+    var _timeForDistanceCircle;
+    var _mainAsset
+    assets.songs.forEach(song => {
+        if(song.id == selectedSong.folder){
+            _mainAsset = song.sound
+        }
+    })
     
     this.run = function(){
-		_timeForDistanceCircle=((20*controller.getDistanceForCircle())/_hitcircleSpeed);
-		_this.initTiming();
+        _timeForDistanceCircle=2500
+        _this.initTiming();
     }
     
     this.initTiming = function(){
-        
         _offsetDate = new Date();
-	        
-        _ellapsedTime = {
-            ms:-parseInt(_timeForDistanceCircle),
-            sec:0,
-            min:0,
-            hour:0
-        }
-        _offsetTime = parseInt(_timeForDistanceCircle);
+        _this.setElapsedTime(-_timeForDistanceCircle |0)
+        _offsetTime = _timeForDistanceCircle |0
         _startDate = new Date();
-        _startDate.setMilliseconds(_startDate.getMilliseconds()+_offsetTime); //The real start for the game will start when chrono will reach 0
-        
+        // The real start for the game will start when chrono will reach 0
+        _startDate.setMilliseconds(_startDate.getMilliseconds()+_offsetTime);
     }
     
     this.update = function(){
         
-        /* Main operations */
+        // Main operations
         _this.updateTime();
         _this.checkTiming();
         _this.updateCirclesStatus();
         _this.checkPlays();
         
-        /* Event operations */
+        // Event operations
         _this.whenFadeoutMusic();
         _this.whenLastCirclePlayed();
-      
+        
     }
-	
-	this.getCircles = function(){
-		return _songData.circles;
-	}
+    
+    this.getCircles = function(){
+        return _songData.circles;
+    }
     
     this.updateCirclesStatus = function(){
         
@@ -77,13 +70,14 @@ function Game(controller, selectedSong, songData){
             
             if(!circle.getPlayed()){
                 
-                var currentTime = _ellapsedTime.ms;
+                var currentTime = _this.getElapsedTime().ms;
                 var startingTime = circle.getMS()-_timeForDistanceCircle;
-                var finishTime = circle.getMS(); //at circle.getMS(), the cirlce fits the slot
+                // At circle.getMS(), the circle fits the slot
+                var finishTime = circle.getMS();
 
                 if( currentTime >= startingTime && currentTime <= finishTime+200){
 
-					if(currentTime>= finishTime-50 && currentTime < finishTime-30){
+                    if(currentTime>= finishTime-50 && currentTime < finishTime-30){
                         circle.updateStatus(0);
                     }
                     else if(currentTime>= finishTime-30 && currentTime < finishTime){
@@ -95,14 +89,20 @@ function Game(controller, selectedSong, songData){
 
                 }
                 else if(currentTime>finishTime+200 && currentTime<=finishTime+300){
-
-                    circle.updateStatus(-1);
-					_currentScore=0;
-                    circle.played(_currentScore);
-                    controller.displayScore(_currentScore, true);
-                    _this.updateCurrentCircle();
-                    _this.updateCombo(_currentScore);
-                    _this.updateGlobalScore(_currentScore);
+                    if(controller.multiplayer != 2){
+                        circle.updateStatus(-1);
+                        _currentScore=0;
+                        circle.played(_currentScore);
+                        controller.displayScore(_currentScore, true);
+                        _this.updateCurrentCircle();
+                        _this.updateCombo(_currentScore);
+                        _this.updateGlobalScore(_currentScore);
+                    }
+                    if(controller.multiplayer == 1){
+                        p2.send("note", {
+                            score: -1
+                        })
+                    }
 
                 }
   
@@ -118,7 +118,7 @@ function Game(controller, selectedSong, songData){
     
     this.checkPlays = function(){
         
-        var circles = _songData.circles;	
+        var circles = _songData.circles;
         var circle = circles[_currentCircle];
 
         if(circle){
@@ -149,6 +149,12 @@ function Game(controller, selectedSong, songData){
             circle.played(score);
             _this.updateCurrentCircle();
             controller.waitForKeyup(keyCode, "score");
+            if(controller.multiplayer == 1){
+                p2.send("note", {
+                    score: score,
+                    ms: circle.getMS() - _this.getElapsedTime().ms
+                })
+            }
         }
     }
     
@@ -158,7 +164,7 @@ function Game(controller, selectedSong, songData){
         var kbd = controller.getBindings()
         
         if(
-            ((keys[kbd["don_l"]] || keys[kbd["don_r"]]) && (circle.getType()=="don" || circle.getType()=="daiDon")) || 
+            ((keys[kbd["don_l"]] || keys[kbd["don_r"]]) && (circle.getType()=="don" || circle.getType()=="daiDon")) ||
             ((keys[kbd["ka_l"]] || keys[kbd["ka_r"]]) && (circle.getType()=="ka" || circle.getType()=="daiKa"))
         ){
              
@@ -173,25 +179,25 @@ function Game(controller, selectedSong, songData){
                     break;
 
             }
-			controller.displayScore(_currentScore);
+            controller.displayScore(_currentScore);
 
         }
         else{
             _currentScore=0;
-			controller.displayScore(_currentScore, true);
+            controller.displayScore(_currentScore, true);
         }
         
         
         _this.updateCombo(_currentScore);
         _this.updateGlobalScore(_currentScore);
-		return _currentScore;
+        return _currentScore;
     }
         
     this.whenLastCirclePlayed = function(){
         var circles = _songData.circles;
         var lastCircle = circles[_songData.circles.length-1];
-        if(!_fadeOutStarted && _ellapsedTime.ms>=lastCircle.getMS()+2000){
-            _fadeOutStarted=_ellapsedTime.ms
+        if(!_fadeOutStarted && _this.getElapsedTime().ms>=lastCircle.getMS()+2000){
+            _fadeOutStarted=_this.getElapsedTime().ms
         }
     }
 
@@ -199,23 +205,27 @@ function Game(controller, selectedSong, songData){
         if(_fadeOutStarted){
             if(_musicFadeOut==0){
                 snd.musicGain.fadeOut(1.6)
+                _musicFadeOut++
+                if(controller.multiplayer == 1){
+                    p2.send("gameend")
+                }
             }
-            if(_ellapsedTime.ms>=_fadeOutStarted+1600){
+            if(_musicFadeOut==1 && _this.getElapsedTime().ms>=_fadeOutStarted+1600){
                 controller.fadeOutOver()
                 _mainAsset.stop()
+                _musicFadeOut++
                 setTimeout(() => {
                     snd.musicGain.fadeIn()
                     snd.musicGain.unmute()
                 }, 1000)
             }
-            _musicFadeOut++;
         }
     }
     
     this.checkTiming = function(){
         
         if(_songData.timingPoints[_currentTimingPoint+1]){
-            if(_this.getEllapsedTime().ms>=_songData.timingPoints[_currentTimingPoint+1].start){
+            if(_this.getElapsedTime().ms>=_songData.timingPoints[_currentTimingPoint+1].start){
                 _currentTimingPoint++;
             }
         }
@@ -225,19 +235,18 @@ function Game(controller, selectedSong, songData){
         return _songData.timingPoints[_currentTimingPoint];
     }
     
-    this.toggleMainMusic = function(){
-        if(_mainMusicPlaying){
-            _mainAsset.stop();
-            _mainMusicPlaying=false;
-        }
-        else{
-            _mainAsset.play(0, false, _this.getEllapsedTime().ms / 1000);
+    this.playMainMusic = function(){
+        var ms = _this.getElapsedTime().ms
+        if(!_mainMusicPlaying && (!_fadeOutStarted || ms<_fadeOutStarted+1600)){
+            if(controller.multiplayer != 2){
+                _mainAsset.play((ms < 0 ? -ms : 0) / 1000, false, Math.max(0, ms / 1000));
+            }
             _mainMusicPlaying=true;
         }
     }
 
     this.fadeOutOver = function(){
-        _fadeOutStarted=false;
+        
     }
     
     this.getHitcircleSpeed = function(){
@@ -249,15 +258,15 @@ function Game(controller, selectedSong, songData){
             assets.sounds["pause"].play();
             _paused=true;
             _latestDate = new Date();
-            _this.toggleMainMusic();
+            _mainAsset.stop();
+            _mainMusicPlaying=false;
             
         }
         else{
             assets.sounds["cancel"].play();
-           _paused=false;
+            _paused=false;
             var currentDate = new Date();
-            _ellapsedTimeSincePause = _ellapsedTimeSincePause + Math.abs(currentDate.getTime() - _latestDate.getTime());
-            _this.toggleMainMusic(); 
+            _elapsedTimeSincePause = _elapsedTimeSincePause + currentDate.getTime() - _latestDate.getTime();
         }
     }
 
@@ -265,30 +274,33 @@ function Game(controller, selectedSong, songData){
         return _paused;
     }
     
-    this.getEllapsedTime = function(){
-        return _ellapsedTime;
+    this.getElapsedTime = function(){
+        return this.elapsedTime;
+    }
+    
+    this.setElapsedTime = function(time){
+        this.elapsedTime.ms = time
+        this.elapsedTime.sec = (this.elapsedTime.ms / 1000 |0) % 60
+        this.elapsedTime.min = (this.elapsedTime.ms / 1000 / 60 |0) % 60
+        this.elapsedTime.hour = (this.elapsedTime.ms / 1000 / 60 / 60 |0) % 60
     }
     
     this.updateTime = function(){
- 
         _currentDate = new Date();
+        var time = _this.getElapsedTime()
         
-        if(_ellapsedTime.ms<0){
-            _ellapsedTime.ms = _currentDate.getTime() - _startDate.getTime();
+        if(time.ms<0){
+            _this.setElapsedTime(_currentDate.getTime() - _startDate.getTime() - _elapsedTimeSincePause)
         }
-        else if(_ellapsedTime.ms>=0 && !_started){
+        else if(time.ms>=0 && !_started){
             _startDate = new Date();
-            _ellapsedTime.ms = Math.abs(_startDate.getTime() -  _currentDate.getTime());
+            _elapsedTimeSincePause = 0;
+            _this.setElapsedTime(_currentDate.getTime() - _startDate.getTime())
             _started=true;
         }
-        else if(_ellapsedTime.ms>=0 && _started){
-            _ellapsedTime.ms = Math.abs(_startDate.getTime() -  _currentDate.getTime()) - _ellapsedTimeSincePause;
+        else if(time.ms>=0 && _started){
+            _this.setElapsedTime(_currentDate.getTime() - _startDate.getTime() - _elapsedTimeSincePause)
         }
-        
-        _ellapsedTime.sec = parseInt(_ellapsedTime.ms / 1000) % 60;
-        _ellapsedTime.min = parseInt(_ellapsedTime.ms / (1000 * 60)) % 60; 
-        _ellapsedTime.hour = parseInt(_ellapsedTime.ms / (1000 * 60 * 60)) % 60; 
-        
     }
     
     this.getCircles = function(){
@@ -300,7 +312,7 @@ function Game(controller, selectedSong, songData){
     }
     
     this.updateCurrentCircle = function(){
-        _currentCircle++; 
+        _currentCircle++;
     }
     
     this.getCurrentCircle = function(){
@@ -400,32 +412,32 @@ function Game(controller, selectedSong, songData){
         if(_combo>=11 && _combo<=20){
             score+=100;
         }
-		else if(_combo>=21 && _combo<=30){
-			score+=200;
-		}
-		else if(_combo>=31 && _combo<=40){
-			score+=300;
-		}
-		else if(_combo>=41 && _combo<=50){
-			score+=400;
-		}
-		else if(_combo>=51 && _combo<=60){
-			score+=500;
-		}
-		else if(_combo>=61 && _combo<=70){
-			score+=500;
-		}
-		else if(_combo>=71 && _combo<=80){
-			score+=600;
-		}
-		else if(_combo>=81 && _combo<=90){
-			score+=700;
-		}
-		else if(_combo>=91 && _combo<=100){
-			score+=800;
-		}
+        else if(_combo>=21 && _combo<=30){
+            score+=200;
+        }
+        else if(_combo>=31 && _combo<=40){
+            score+=300;
+        }
+        else if(_combo>=41 && _combo<=50){
+            score+=400;
+        }
+        else if(_combo>=51 && _combo<=60){
+            score+=500;
+        }
+        else if(_combo>=61 && _combo<=70){
+            score+=500;
+        }
+        else if(_combo>=71 && _combo<=80){
+            score+=600;
+        }
+        else if(_combo>=81 && _combo<=90){
+            score+=700;
+        }
+        else if(_combo>=91 && _combo<=100){
+            score+=800;
+        }
         
-		_globalScore.points+=score;
+        _globalScore.points+=score;
         
     }
     

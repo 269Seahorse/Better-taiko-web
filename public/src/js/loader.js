@@ -51,6 +51,8 @@ class Loader{
 			}))
 		})
 		
+		p2 = new P2Connection()
+		
 		this.promises.push(ajax("/api/songs").then(songs => {
 			assets.songs = JSON.parse(songs)
 		}))
@@ -100,4 +102,5 @@ function promiseLoad(asset){
 }
 
 var snd = {}
+var p2
 new Loader()
