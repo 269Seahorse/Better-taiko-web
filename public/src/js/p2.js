@@ -21,7 +21,7 @@ class P2Connection{
 	open(){
 		this.closed = false
 		var wsProtocol = location.protocol == "https:" ? "wss:" : "ws:"
-		this.socket = new WebSocket(wsProtocol + "//" + window.location.hostname + "/p2")
+		this.socket = new WebSocket(wsProtocol + "//" + location.host + "/p2")
 		var events = ["open", "close", "message"]
 		events.forEach(eventName => {
 			this.socket.addEventListener(eventName, event => {
