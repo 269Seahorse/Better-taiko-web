@@ -4,7 +4,14 @@ class View{
 		this.bg = bg
 		this.diff = diff
 		
-		this.canvas = new ScalableCanvas("canvas", $(window).width(), $(window).height())
+		if(this.controller.multiplayer == 2){
+			this.canvas = new ScalableCanvas("canvas-p2", $(window).width(), $(window).height() / 3 * 2)
+			this.canvas.canvas.style.position = "absolute"
+			this.canvas.canvas.style.top = "33%"
+			document.getElementById("game").appendChild(this.canvas.canvas)
+		}else{
+			this.canvas = new ScalableCanvas("canvas", $(window).width(), $(window).height())
+		}
 		this.winW = this.canvas.scaledWidth
 		this.winH = this.canvas.scaledHeight
 		this.ctx = this.canvas.ctx
@@ -50,9 +57,16 @@ class View{
 	
 	positionning(){
 		this.canvas.rescale()
-		this.canvas.resize($(window).width(), $(window).height())
+		var height = $(window).height()
+		if(this.controller.multiplayer == 2){
+			height = height / 3 * 2
+		}
+		this.canvas.resize($(window).width(), height)
 		this.winW = this.canvas.scaledWidth
 		this.winH = this.canvas.scaledHeight
+		if(this.controller.multiplayer == 2){
+			this.winH = this.winH / 2 * 3
+		}
 		
 		this.barY = 0.25 * this.winH
 		this.barH = 0.23 * this.winH
@@ -113,7 +127,7 @@ class View{
 	}
 	
 	updateDonFaces(){
-		if(this.controller.getEllapsedTime().ms >= this.nextBeat){
+		if(this.controller.getElapsedTime().ms >= this.nextBeat){
 			this.nextBeat += this.controller.getSongData().beatInfo.beatInterval
 			if(this.controller.getCombo() >= 50){
 				this.currentBigDonFace = (this.currentBigDonFace + 1) % 2
@@ -190,7 +204,7 @@ class View{
 	
 	drawMeasures(){
 		var measures = this.controller.getSongData().measures
-		var currentTime = this.controller.getEllapsedTime().ms
+		var currentTime = this.controller.getElapsedTime().ms
 		
 		measures.forEach((measure, index)=>{
 			var timeForDistance = 70 / this.circleSize * this.distanceForCircle / measure.speed
@@ -206,7 +220,7 @@ class View{
 	
 	drawMeasure(measure){
 		var z = this.canvas.scale
-		var currentTime = this.controller.getEllapsedTime().ms
+		var currentTime = this.controller.getElapsedTime().ms
 		var measureX = this.slotX + measure.speed / (70 / this.circleSize) * (measure.ms - currentTime)
 		this.ctx.strokeStyle = "#bab8b8"
 		this.ctx.lineWidth = 2
@@ -388,7 +402,7 @@ class View{
 		for(var i = circles.length; i--;){
 			var circle = circles[i]
 			
-			var currentTime = this.controller.getEllapsedTime().ms
+			var currentTime = this.controller.getElapsedTime().ms
 			var timeForDistance = 70 / this.circleSize * this.distanceForCircle / circle.getSpeed() + this.bigCircleSize / 2
 			var startingTime = circle.getMS() - timeForDistance
 			// At circle.getMS(), the cirlce fits the slot
@@ -459,7 +473,7 @@ class View{
 		
 		var fill, size, faceID
 		if(!circlePos){
-			var currentTime = this.controller.getEllapsedTime().ms
+			var currentTime = this.controller.getElapsedTime().ms
 			circlePos = {
 				x: this.slotX + circle.getSpeed() / (70 / this.circleSize) * (circle.getMS() - currentTime),
 				y: this.circleY
@@ -549,7 +563,7 @@ class View{
 	
 	drawTime(){
 		var z = this.canvas.scale
-		var time = this.controller.getEllapsedTime()
+		var time = this.controller.getElapsedTime()
 		
 		this.ctx.globalAlpha = 0.7
 		this.ctx.fillStyle = "#000"
@@ -579,7 +593,7 @@ class View{
 		this.ctx.closePath()
 		this.ctx.fill()
 		
-		var currentTime = this.controller.getEllapsedTime().ms
+		var currentTime = this.controller.getElapsedTime().ms
 		var keyTime = this.controller.getKeyTime()
 		var sound = keyTime["don"] > keyTime["ka"] ? "don" : "ka"
 		if(keyTime[sound] > currentTime - 200){

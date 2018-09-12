@@ -56,6 +56,7 @@ function SongSelect(){
 	
 	this.run = function(){
 		_this.createCode();
+		_this.startP2();
 		
 		$("#song-container").show();
 		
@@ -84,7 +85,7 @@ function SongSelect(){
 			_selectedSong.folder = songID;
 			
 			snd.musicGain.fadeIn()
-			new loadSong(_selectedSong, e.shiftKey);
+			new loadSong(_selectedSong, e.shiftKey, e.ctrlKey);
 		});
 		
 		$(".song").hover(function(){
@@ -234,6 +235,41 @@ function SongSelect(){
 			songElements
 		)
 		$('.difficulty').hide();
+	}
+	
+	this.onusers = function(response){
+		var oldP2Elements = document.getElementsByClassName("p2")
+		for(var i = oldP2Elements.length; i--;){
+			oldP2Elements[i].classList.remove("p2")
+		}
+		if(response){
+			response.forEach(idDiff => {
+				id = idDiff.id |0
+				diff = idDiff.diff
+				if(diff in _diffNames){
+					var idElement = document.getElementById("song-" + id)
+					if(idElement){
+						idElement.classList.add("p2")
+						var diffElement = idElement.getElementsByClassName("difficulty " + diff)[0]
+						if(diffElement){
+							diffElement.classList.add("p2")
+						}
+					}
+				}
+			})
+		}
+	}
+	
+	this.startP2 = function(){
+		p2.getMessage("users", response =>{
+			this.onusers(response)
+		})
+		p2.onmessage("users", response => {
+			this.onusers(response)
+		})
+		if(p2.closed){
+			p2.open()
+		}
 	}
 	
 	$("#screen").load("/src/views/songselect.html", _this.run);
