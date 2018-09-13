@@ -112,7 +112,7 @@ class P2Connection{
 		}
 	}
 	play(circle, mekadon){
-		if(this.otherConnected){
+		if(this.otherConnected || this.notes.length > 0){
 			if(this.notes.length == 0){
 				mekadon.play(circle)
 			}else{
@@ -127,6 +127,8 @@ class P2Connection{
 					}
 				}
 			}
+		}else if(mekadon.miss(circle)){
+			this.notes.shift()
 		}
 	}
 }
