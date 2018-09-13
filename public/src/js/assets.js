@@ -27,7 +27,8 @@ var assets = {
 		'muzu_normal.png',
 		'muzu_hard.png',
 		'muzu_oni.png',
-		'don_anim_normal.png'
+		'don_anim_normal.png',
+		'don_anim_10combo.png'
 	],
 	
 	audioSfx: [

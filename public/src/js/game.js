@@ -372,6 +372,8 @@ function Game(controller, selectedSong, songData){
                 controller.playSoundMeka("combo-1400");
                 break;
         }
+        
+        controller.view.updateCombo(_combo)
     }
     
     this.getCombo = function(){

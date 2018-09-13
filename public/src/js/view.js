@@ -14,6 +14,9 @@ class View{
 		}
 		this.winW = this.canvas.scaledWidth
 		this.winH = this.canvas.scaledHeight
+		if(this.controller.multiplayer == 2){
+			this.winH = this.winH / 2 * 3
+		}
 		this.ctx = this.canvas.ctx
 		
 		this.taikoSquareW = this.winW / 4
@@ -36,14 +39,41 @@ class View{
 		
 		this.songTitle = title
 		this.songDifficulty = this.diff.split(".").slice(0, -1).join(".")
+		
+		this.beatInterval = this.controller.getSongData().beatInfo.beatInterval
+		this.assets = []
+		this.don = this.createAsset(frame => {
+			var imgw = 360
+			var imgh = 184
+			var scale = 165
+			var w = (this.barH * imgw) / scale
+			var h = (this.barH * imgh) / scale
+			return {
+				sx: 0,
+				sy: frame * imgh,
+				sw: imgw,
+				sh: imgh,
+				x: this.taikoSquareW - w + this.barH * 0.2,
+				y: this.barY - h,
+				w: w,
+				h: h
+			}
+		})
+		this.don.addFrames("normal", [
+			0 ,0 ,0 ,0 ,1 ,2 ,3 ,4 ,5 ,6 ,6 ,5 ,4 ,3 ,2 ,1 ,
+			0 ,0 ,0 ,0 ,1 ,2 ,3 ,4 ,5 ,6 ,6 ,5 ,4 ,3 ,2 ,1 ,
+			0 ,0 ,0 ,0 ,1 ,2 ,3 ,4 ,5 ,6 ,6 ,5 ,7 ,8 ,9 ,10,
+			11,11,11,11,10,9 ,8 ,7 ,13,12,12,13,14,15,16,17
+		], "don_anim_normal")
+		this.don.addFrames("10combo", 22, "don_anim_10combo")
+		this.don.setAnimation("normal")
+		this.don.setUpdateSpeed(this.beatInterval / 16)
 	}
 	
 	run(){
 		this.ctx.font = "normal 14pt TnT"
 		this.setBackground()
-		
 		$(".game-song").attr("alt", this.songTitle).html(this.songTitle)
-		
 		this.refresh()
 	}
 	
@@ -71,16 +101,16 @@ class View{
 		this.barY = 0.25 * this.winH
 		this.barH = 0.23 * this.winH
 		this.lyricsBarH = 0.2 * this.barH
+		this.taikoSquareW = this.winW / 4
 		this.taikoH = this.barH
 		this.taikoW = this.taikoH / 1.2
 		this.taikoX = this.taikoSquareW * 0.76 - this.taikoW / 2
 		this.taikoY = this.barY + 5
-		this.taikoSquareW = this.winW / 4
-		this.slotX = this.taikoSquareW + this.barH * 0.45
+		this.slotX = this.taikoSquareW + this.barH * 0.5
 		this.scoreSquareW = this.taikoSquareW * 0.55
 		this.scoreSquareH = this.barH * 0.25
-		this.circleSize = this.barH * 0.15
-		this.bigCircleSize = this.barH * 0.25
+		this.circleSize = this.barH * 0.18
+		this.bigCircleSize = this.circleSize * (5 / 3)
 		this.circleY = this.barY + (this.barH - this.lyricsBarH) / 2
 		this.lyricsSize = this.lyricsBarH * 0.6
 		var HPBarRatio = 703 / 51
@@ -111,6 +141,7 @@ class View{
 		this.ctx.clearRect(0, 0, this.canvas.scaledWidth, this.canvas.scaledHeight)
 		
 		// Draw
+		this.drawAssets()
 		this.drawBar()
 		this.drawSlot()
 		this.drawMeasures()
@@ -128,7 +159,7 @@ class View{
 	
 	updateDonFaces(){
 		if(this.controller.getElapsedTime().ms >= this.nextBeat){
-			this.nextBeat += this.controller.getSongData().beatInfo.beatInterval
+			this.nextBeat += this.beatInterval
 			if(this.controller.getCombo() >= 50){
 				this.currentBigDonFace = (this.currentBigDonFace + 1) % 2
 				this.currentDonFace = (this.currentDonFace + 1) % 2
@@ -656,5 +687,32 @@ class View{
 		this.ctx.fill()
 		this.ctx.closePath()
 		this.ctx.stroke()
+	}
+	
+	createAsset(image, position){
+		var asset = new CanvasAsset(this, image, position)
+		this.assets.push(asset)
+		return asset
+	}
+	
+	drawAssets(){
+		if(this.controller.multiplayer != 2){
+			this.assets.forEach(asset => {
+				asset.draw()
+			})
+		}
+	}
+	
+	updateCombo(combo){
+		if(combo > 0 && combo % 10 == 0 && this.don.getAnimation() != "10combo"){
+			this.don.setAnimation("10combo")
+			var ms = this.controller.getElapsedTime().ms
+			this.don.setAnimationStart(ms)
+			var length = this.don.getAnimationLength("10combo")
+			this.don.setAnimationEnd(ms + length * this.don.speed, () => {
+				this.don.setAnimationStart(0)
+				this.don.setAnimation("normal")
+			})
+		}
 	}
 }

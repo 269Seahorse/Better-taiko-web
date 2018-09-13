@@ -19,8 +19,6 @@ class Mekadon{
     miss(circle){
         var currentMs = circle.getMS() - this.controller.getElapsedTime().ms
         if(0 > currentMs - 10){
-            circle.updateStatus(-1)
-            circle.played(0)
             this.controller.displayScore(0, true)
             this.game.updateCurrentCircle()
             this.game.updateCombo(0)
