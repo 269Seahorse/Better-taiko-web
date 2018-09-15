@@ -12,6 +12,7 @@ class Game{
 			good: 0,
 			fail: 0,
 			maxCombo: 0,
+			drumroll: 0,
 			hp: 0,
 			song: selectedSong.title
 		}
@@ -196,6 +197,7 @@ class Game{
 			var score = 300
 			circle.hit()
 		}
+		this.globalScore.drumroll ++
 		this.globalScore.points += score
 	}
 	checkDrumroll(circle){
@@ -211,6 +213,7 @@ class Game{
 		circleAnim.played(score)
 		circleAnim.animate()
 		this.controller.view.drumroll.push(circleAnim)
+		this.globalScore.drumroll ++
 		this.globalScore.points += score
 	}
 	whenLastCirclePlayed(){

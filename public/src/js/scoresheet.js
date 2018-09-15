@@ -34,6 +34,7 @@ class Scoresheet{
 		this.altText(this.elem("nb-good", scoreCont), score.good)
 		this.altText(this.elem("nb-fail", scoreCont), score.fail)
 		this.altText(this.elem("max-combo", scoreCont), score.maxCombo)
+		this.altText(this.elem("nb-drumroll", scoreCont), score.drumroll)
 		
 		addEventListener("resize", () => {
 			this.positionning(scoreCont)
