@@ -4,9 +4,9 @@ import asyncio
 import websockets
 import json
 
-users = []
 server_status = {
-	"waiting": {}
+	"waiting": {},
+	"users": []
 }
 
 def msgobj(type, value=None):
@@ -25,7 +25,7 @@ def status_event():
 	return msgobj("users", value)
 
 async def notify_status():
-	ready_users = [user for user in users if "ws" in user and user["action"] == "ready"]
+	ready_users = [user for user in server_status["users"] if "ws" in user and user["action"] == "ready"]
 	if ready_users:
 		sent_msg = status_event()
 		await asyncio.wait([user["ws"].send(sent_msg) for user in ready_users])
@@ -36,7 +36,7 @@ async def connection(ws, path):
 		"ws": ws,
 		"action": "ready"
 	}
-	users.append(user)
+	server_status["users"].append(user)
 	try:
 		# Notify user about other users
 		await ws.send(status_event())
@@ -126,8 +126,8 @@ async def connection(ws, path):
 				elif action == "playing":
 					# Playing with another user
 					if "other_user" in user and "ws" in user["other_user"]:
-						if type == "note":
-							await user["other_user"]["ws"].send(msgobj("note", value))
+						if type == "note" or type == "drumroll" or type == "gameresults":
+							await user["other_user"]["ws"].send(msgobj(type, value))
 						if type == "gameend":
 							# User wants to disconnect
 							user["action"] = "ready"
@@ -151,7 +151,7 @@ async def connection(ws, path):
 	finally:
 		# User disconnected
 		del user["ws"]
-		del users[users.index(user)]
+		del server_status["users"][server_status["users"].index(user)]
 		if "other_user" in user and "ws" in user["other_user"]:
 			user["other_user"]["action"] = "ready"
 			await asyncio.wait([

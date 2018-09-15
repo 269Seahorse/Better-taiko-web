@@ -28,7 +28,8 @@ var assets = {
 		'muzu_hard.png',
 		'muzu_oni.png',
 		'don_anim_normal.png',
-		'don_anim_10combo.png'
+		'don_anim_10combo.png',
+		'balloon.png'
 	],
 	
 	audioSfx: [
@@ -83,6 +84,7 @@ var assets = {
 		
 		'note_don.ogg',
 		'note_ka.ogg',
+		'balloon.ogg'
 	],
 	
 	audioMusic:[

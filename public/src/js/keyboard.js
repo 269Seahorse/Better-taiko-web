@@ -91,7 +91,20 @@ function Keyboard(controller){
     
     this.checkKeySound = function(keyCode, sound){
         _this.checkKey(keyCode, "sound", function(){
-            assets.sounds["note_"+sound].play()
+            var circles = controller.parsedSongData.circles
+            var circle = circles[controller.game.getCurrentCircle()]
+            if(
+                (keyCode == _kbd["don_l"] || keyCode == _kbd["don_r"])
+                && circle
+                && !circle.getPlayed()
+                && circle.getStatus() != -1
+                && circle.getType() == "balloon"
+                && circle.requiredHits - circle.timesHit <= 1
+            ){
+                assets.sounds["balloon"].play()
+            }else{
+                assets.sounds["note_"+sound].play()
+            }
             _keyTime[sound] = controller.getElapsedTime().ms
         })
     }

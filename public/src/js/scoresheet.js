@@ -1,104 +1,104 @@
-
-function Scoresheet(controller, score){
-	
-	var _this = this;
-	var _score = score;
-	var _mark;
-	
-	this.setResults = function(){
-		
-		if (_score.fail == 0) {
-			_mark = 'gold';
-		} else if (_score.hp >= 50) {
-			_mark = 'silver';
-		};
-		
-		var imgW = (_score.hp*$("#score-hp-bar-colour").width())/100;
-		$("#score-hp-bar-colour img").css("clip", "rect(0, "+imgW+"px, "+$("#score-hp-bar-colour").height()+"px, 0)");
-		
-		if (_mark == 'gold') {
-			$("#score-mark").attr("src", '/assets/img/ranking-X.png');
-		} else if (_mark == 'silver') {
-			$("#score-mark").attr("src", '/assets/img/ranking-S.png');
-		} else {
-			$("#score-mark").remove();
-		};
-		
-		$("#score-points").html(_score.points+"点");
-		$("#nb-great").html(_score.great);
-		$("#nb-good").html(_score.good);
-		$("#nb-fail").html(_score.fail);
-		$("#max-combo").html(_score.maxCombo);
-		
-		$('.result-song').attr('alt', _score.song).html(_score.song);
-		
+class Scoresheet{
+	constructor(controller, score, multiplayer){
+		this.controller = controller
+		this.score = score
+		this.multiplayer = multiplayer
+		$("#screen").load("/src/views/scoresheet.html", () =>{
+			this.run()
+		})
 	}
-	
-	this.positionning = function(){
+	setResults(score, scoreCont){
+		this.positionning(scoreCont)
+		var scoreMark = this.elem("score-mark", scoreCont)
+		var scoreHpBarColour = this.elem("score-hp-bar-colour", scoreCont)
 		
-		$("#score-cont").css("top", $("#result-bar").height()/2 - ($("#score-cont").height()/2));
+		if(score.fail == 0){
+			var mark = "gold"
+		}else if (score.hp >= 50){
+			var mark = "silver"
+		}
+		scoreHpBarColour.dataset.hp = score.hp
+		var imgW = score.hp * scoreHpBarColour.offsetWidth / 100
+		var imgH = scoreHpBarColour.offsetHeight
+		scoreHpBarColour.getElementsByTagName("img")[0].style.clip = "rect(0, " + imgW + "px, " + imgH + "px, 0)"
 		
-		var markSize = 0.1*$("#score-cont").width();
-		var markX = $("#score-cont").offset().left - markSize - (0.5*markSize);
-		var markY = $("#score-cont").offset().top;
+		if(mark == "gold"){
+			scoreMark.src = "/assets/img/ranking-X.png"
+		}else if(mark == "silver"){
+			scoreMark.src = "/assets/img/ranking-S.png"
+		}else{
+			scoreMark.parentNode.removeChild(scoreMark)
+		}
+		this.altText(this.elem("score-points", scoreCont), score.points + "点")
+		this.altText(this.elem("nb-great", scoreCont), score.great)
+		this.altText(this.elem("nb-good", scoreCont), score.good)
+		this.altText(this.elem("nb-fail", scoreCont), score.fail)
+		this.altText(this.elem("max-combo", scoreCont), score.maxCombo)
+		this.altText(this.elem("nb-drumroll", scoreCont), score.drumroll)
 		
-		$("#score-mark").width(markSize);
-		$("#score-mark").height(markSize);
-		$("#score-mark").css("left", markX);
-		$("#score-mark").css("top", markY);
-		
-		var scoreBarW = 0.9*$("#score-cont").width();
-
-		$("#score-hp-bar-bg").width(scoreBarW);
-		$("#score-hp-bar-bg").height((51/703)*scoreBarW);
-		
-		var bgW = $("#score-hp-bar-bg").width();
-		var bgH = $("#score-hp-bar-bg").height();
-		var bgX = $("#score-hp-bar-bg").position().left;
-		var bgY = $("#score-hp-bar-bg").position().top;
-		
-		$("#score-hp-bar-colour").css("left", bgX+(0.008*bgW));
-		$("#score-hp-bar-colour").css("top", bgY+(0.15*bgH));
-		$("#score-hp-bar-colour").width(bgW-(0.08*bgW));
-		$("#score-hp-bar-colour").height(bgH-(0.25*bgH));
-		
-		$("#score-details").css("top", bgY+bgH+(bgH));
-
-		var barY = $("#result-bar").position().top;
-		var barH = $("#result-bar").height();
-		
-		var bottomY = barY+barH+15;
-		var bottomH = $(window).height()-bottomY;
-		
-		$("#bottom-part").css("top", bottomY);
-		$("#bottom-part").height(bottomH);
-		
-		
+		addEventListener("resize", () => {
+			this.positionning(scoreCont)
+		})
 	}
-	
-	this.run = function(){
-		_this.positionning();
-		_this.setResults();
-		
-		$("#song-select").click(function(){
-			assets.sounds["don"].play();
-			assets.sounds["bgm_result"].stop();
-			controller.songSelection();
-		});
-		
-		$("#replay").click(function(){
-			assets.sounds["don"].play();
-			assets.sounds["bgm_result"].stop();
-			controller.restartSong();
-		});
-		
-		$(window).resize(_this.positionning);
-		
+	elem(className, parent){
+		return parent.getElementsByClassName(className)[0]
 	}
-	
-	assets.sounds["results"].play()
-	assets.sounds["bgm_result"].playLoop(0.1, false, 0, 0.847, 17.689)
-	
-	$("#screen").load("/src/views/scoresheet.html", _this.run);
-    
+	text(string){
+		return document.createTextNode(string)
+	}
+	altText(element, string){
+		element.appendChild(this.text(string))
+		element.setAttribute("alt", string)
+	}
+	positionning(scoreCont){
+		var scoreHpBarBg = this.elem("score-hp-bar-bg", scoreCont)
+		var scoreHpBarColour = this.elem("score-hp-bar-colour", scoreCont)
+		
+		var scoreBarW = scoreCont.offsetWidth * 0.9
+		var bgW = scoreBarW
+		var bgH = 51 / 703 * scoreBarW
+		
+		scoreHpBarBg.style.width = bgW + "px"
+		scoreHpBarBg.style.height = bgH + "px"
+		var bgX = scoreHpBarBg.offsetLeft
+		var bgY = scoreHpBarBg.offsetTop
+		
+		scoreHpBarColour.style.left = (bgW * 0.008) + "px"
+		scoreHpBarColour.style.top = (bgH * 0.15) + "px"
+		scoreHpBarColour.style.width = (bgW - bgW * 0.08) + "px"
+		scoreHpBarColour.style.height = (bgH - bgH * 0.25) + "px"
+		
+		var imgW = scoreHpBarColour.dataset.hp * scoreHpBarColour.offsetWidth / 100
+		var imgH = scoreHpBarColour.offsetHeight
+		scoreHpBarColour.getElementsByTagName("img")[0].style.clip = "rect(0, " + imgW + "px, " + imgH + "px, 0)"
+	}
+	run(){
+		this.scoresheet = document.getElementsByClassName("scoresheet")[0]
+		var scoreCont = this.elem("score-cont", this.scoresheet)
+		var scoreContHtml = scoreCont.innerHTML
+		assets.sounds["results"].play()
+		assets.sounds["bgm_result"].playLoop(0.1, false, 0, 0.847, 17.689)
+		
+		this.setResults(this.score, scoreCont)
+		this.altText(this.elem("result-song", this.scoresheet), this.score.song)
+		
+		this.elem("song-select", this.scoresheet).addEventListener("click", () => {
+			assets.sounds["don"].play()
+			assets.sounds["bgm_result"].stop()
+			this.controller.songSelection()
+		})
+		this.elem("replay", this.scoresheet).addEventListener("click", () => {
+			assets.sounds["don"].play()
+			assets.sounds["bgm_result"].stop()
+			this.controller.restartSong()
+		})
+		
+		if(this.multiplayer && p2.results){
+			var scoreCont2 = document.createElement("div")
+			scoreCont2.classList.add("score-cont")
+			scoreCont2.innerHTML = scoreContHtml
+			scoreCont.parentNode.appendChild(scoreCont2)
+			this.setResults(p2.results, scoreCont2)
+		}
+	}
 }
