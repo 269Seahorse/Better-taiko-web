@@ -40,6 +40,8 @@ class View{
 		this.songTitle = title
 		this.songDifficulty = this.diff.split(".").slice(0, -1).join(".")
 		
+		this.drumroll = []
+		
 		this.beatInterval = this.controller.getSongData().beatInfo.beatInterval
 		this.assets = []
 		this.don = this.createAsset(frame => {
@@ -69,22 +71,15 @@ class View{
 		this.don.setAnimation("normal")
 		this.don.setUpdateSpeed(this.beatInterval / 16)
 	}
-	
 	run(){
 		this.ctx.font = "normal 14pt TnT"
 		this.setBackground()
 		$(".game-song").attr("alt", this.songTitle).html(this.songTitle)
 		this.refresh()
 	}
-	
 	setBackground(){
 		$("#game").css("background-image", "url('" + this.bg + "')")
 	}
-	
-	getDistanceForCircle(){
-		return this.distanceForCircle
-	}
-	
 	positionning(){
 		this.canvas.rescale()
 		var height = $(window).height()
@@ -133,7 +128,6 @@ class View{
 		this.diffX = this.taikoX * 0.10
 		this.diffY = this.taikoY * 1.05 + this.taikoH * 0.19
 	}
-	
 	refresh(){
 		this.positionning()
 		this.distanceForCircle = this.winW - this.slotX
@@ -147,7 +141,8 @@ class View{
 		this.drawMeasures()
 		this.drawHPBar()
 		this.drawScore()
-		this.drawCircles()
+		this.drawCircles(this.controller.getCircles())
+		this.drawCircles(this.drumroll)
 		this.drawTaikoSquare()
 		this.drawDifficulty()
 		this.drawPressedKeys()
@@ -156,7 +151,6 @@ class View{
 		this.updateDonFaces()
 		//this.drawTime()
 	}
-	
 	updateDonFaces(){
 		if(this.controller.getElapsedTime().ms >= this.nextBeat){
 			this.nextBeat += this.beatInterval
@@ -170,7 +164,6 @@ class View{
 			}
 		}
 	}
-	
 	drawHPBar(){
 		var z = this.canvas.scale
 		
@@ -221,7 +214,6 @@ class View{
 			hpBar.canvasW, this.HPBarColH
 		)
 	}
-	
 	getHP(){
 		var circles = this.controller.getCircles()
 		var currentCircle = this.controller.getCurrentCircle()
@@ -232,7 +224,6 @@ class View{
 			canvasW: width / 650 * this.HPBarColMaxW
 		}
 	}
-	
 	drawMeasures(){
 		var measures = this.controller.getSongData().measures
 		var currentTime = this.controller.getElapsedTime().ms
@@ -248,7 +239,6 @@ class View{
 			}
 		})
 	}
-	
 	drawMeasure(measure){
 		var z = this.canvas.scale
 		var currentTime = this.controller.getElapsedTime().ms
@@ -261,7 +251,6 @@ class View{
 		this.ctx.closePath()
 		this.ctx.stroke()
 	}
-	
 	drawCombo(){
 		var comboCount = this.controller.getCombo()
 		if(comboCount >= 10){
@@ -314,14 +303,12 @@ class View{
 			this.scoreDispCount++
 		}
 	}
-	
 	strokeFillText(text, x, y){
 		this.ctx.strokeText(text, x, y)
 		this.ctx.fillText(text, x, y)
 	}
-	
 	drawGlobalScore(){
-		/* Draw score square */
+		// Draw score square
 		this.ctx.fillStyle="#000"
 		this.ctx.beginPath()
 		this.ctx.fillRect(0, this.barY, this.scoreSquareW, this.scoreSquareH - 10)
@@ -350,7 +337,6 @@ class View{
 			)
 		}
 	}
-	
 	drawPressedKeys(){
 		var keys = this.controller.getKeys()
 		var kbd = this.controller.getBindings()
@@ -399,14 +385,12 @@ class View{
 			)
 		}
 	}
-	
 	displayScore(score, notPlayed){
 		this.currentScore = score
 		this.special = notPlayed ? "-b" : ""
 		this.scoreDispCount = 0
 		this.scoreOpacity = 1
 	}
-	
 	drawScore(){
 		if(this.scoreDispCount >= 0 && this.scoreDispCount <= 20){
 			this.ctx.globalAlpha = this.scoreOpacity
@@ -427,63 +411,59 @@ class View{
 		}
 		this.ctx.globalAlpha = 1
 	}
-	
-	drawCircles(){
-		var circles = this.controller.getCircles()
+	posToMs(pos, speed){
+		return 70 / this.circleSize * pos / speed
+	}
+	msToPos(ms, speed){
+		return speed / (70 / this.circleSize) * ms
+	}
+	drawCircles(circles){
 		for(var i = circles.length; i--;){
 			var circle = circles[i]
+			var ms = this.controller.getElapsedTime().ms
+			var speed = circle.getSpeed()
 			
-			var currentTime = this.controller.getElapsedTime().ms
-			var timeForDistance = 70 / this.circleSize * this.distanceForCircle / circle.getSpeed() + this.bigCircleSize / 2
+			var timeForDistance = this.posToMs(this.distanceForCircle + this.bigCircleSize / 2, speed)
 			var startingTime = circle.getMS() - timeForDistance
-			// At circle.getMS(), the cirlce fits the slot
-			var finishTime = circle.getMS() + 100
+			var finishTime = circle.getEndTime() + this.posToMs(this.slotX - this.taikoSquareW + this.bigCircleSize / 2, speed)
 			
-			if(!circle.getPlayed() && currentTime >= startingTime && currentTime <= finishTime){
-				this.drawCircle(circle)
-			}
-			else{
-				// Animate circle to the HP bar
-				
-				// Animation in ms
-				var animationDuration = 470
-				
-				if(!circle.isAnimated()){
-					if(circle.getScore() != 0){
-						// Start animation to HP bar
-						circle.animate()
-					}
+			if(!circle.getPlayed() || circle.getScore() == 0){
+				if(ms >= startingTime && ms <= finishTime){
+					this.drawCircle(circle)
 				}
-				if(circle.isAnimated()){
-					if(currentTime <= finishTime + animationDuration){
-						var curveDistance = this.HPBarX + this.HPBarW - this.slotX
-						var bezierPoint = this.calcBezierPoint(circle.getAnimT(), [{
-							x: this.slotX,
-							y: this.circleY
-						}, {
-							x: this.slotX + curveDistance * 0.15,
-							y: this.barH * 0.5
-						}, {
-							x: this.slotX + curveDistance * 0.35,
-							y: 0
-						}, {
-							x: this.slotX + curveDistance,
-							y: this.HPbarColY
-						}])
-						this.drawCircle(circle, {x: bezierPoint.x, y: bezierPoint.y})
-						
-						// Update animation frame
-						circle.incAnimT()
-						circle.incFrame()
-					}
-					else{
-						circle.endAnimation()
-					}
+			}else if(!circle.isAnimated()){
+				// Start animation to HP bar
+				circle.animate()
+			}
+			if(circle.isAnimated()){
+				var animationDuration = 470
+				if(ms <= finishTime + animationDuration){
+					var curveDistance = this.HPBarX + this.HPBarW - this.slotX
+					var bezierPoint = this.calcBezierPoint(circle.getAnimT(), [{
+						x: this.slotX + this.circleSize * 0.4,
+						y: this.circleY - this.circleSize * 0.8
+					}, {
+						x: this.slotX + curveDistance * 0.15,
+						y: this.barH * 0.5
+					}, {
+						x: this.slotX + curveDistance * 0.35,
+						y: 0
+					}, {
+						x: this.slotX + curveDistance,
+						y: this.HPbarColY
+					}])
+					this.drawCircle(circle, {x: bezierPoint.x, y: bezierPoint.y})
+					
+					// Update animation frame
+					circle.incAnimT()
+					circle.incFrame()
+				}
+				else{
+					circle.endAnimation()
 				}
 			}
 		}
 	}
-	
 	calcBezierPoint(t, data){
 		var at = 1 - t
 		
@@ -498,72 +478,117 @@ class View{
 		
 		return data[0]
 	}
-	
 	drawCircle(circle, circlePos){
 		var z = this.canvas.scale
-		
 		var fill, size, faceID
+		var type = circle.getType()
+		var ms = this.controller.getElapsedTime().ms
+		var circleMs = circle.getMS()
+		var endTime = circle.getEndTime()
+		var animated = circle.isAnimated()
+		var speed = circle.getSpeed()
+		
 		if(!circlePos){
-			var currentTime = this.controller.getElapsedTime().ms
 			circlePos = {
-				x: this.slotX + circle.getSpeed() / (70 / this.circleSize) * (circle.getMS() - currentTime),
+				x: this.slotX + this.msToPos(circleMs - ms, speed),
 				y: this.circleY
 			}
 		}
 		
-		if(circle.getPlayed()){
-			var currentDonFace = 1
+		if(animated){
+			var currentDonFace = 0
 			var currentBigDonFace = 1
 		}else{
 			var currentDonFace = this.currentDonFace
 			var currentBigDonFace = this.currentBigDonFace
 		}
 		
-		switch(circle.getType()){
+		switch(type){
 			case "don":
-				fill = "#f54c25"
+				fill = "#f34728"
 				size = this.circleSize
 				faceID = "don-" + currentDonFace
 				break
 			case "ka":
-				fill = "#75cee9"
+				fill = "#65bdbb"
 				size = this.circleSize
 				faceID = "don-" + currentDonFace
 				break
 			case "daiDon":
-				fill = "#f54c25"
+				fill = "#f34728"
 				size = this.bigCircleSize
 				faceID = "big-don-" + currentBigDonFace
 				break
 			case "daiKa":
-				fill = "#75cee9"
+				fill = "#65bdbb"
 				size = this.bigCircleSize
 				faceID = "big-don-" + currentBigDonFace
 				break
+			case "balloon":
+				if(animated){
+					fill = "#f34728"
+					size = this.bigCircleSize * 0.8
+					faceID = "big-don-" + currentBigDonFace
+					break
+				}
+				fill = "#f87700"
+				size = this.circleSize
+				faceID = "don-" + currentDonFace
+				var h = size * 1.8
+				if(circleMs < ms && ms <= endTime){
+					circlePos.x = this.slotX
+				}else if(ms > endTime){
+					circlePos.x = this.slotX + this.msToPos(endTime - ms, speed)
+				}
+				this.ctx.drawImage(assets.image["balloon"],
+					circlePos.x + size - 3,
+					circlePos.y - h / 2,
+					h / 61 * 115,
+					h
+				)
+				break
+			case "drumroll":
+			case "daiDrumroll":
+				fill = "#f3b500"
+				if(type == "drumroll"){
+					size = this.circleSize
+					faceID = "don-" + currentDonFace
+				}else{
+					size = this.bigCircleSize
+					faceID = "big-don-" + currentBigDonFace
+				}
+				var endX = this.msToPos(endTime - circleMs, speed)
+				this.ctx.fillStyle = fill
+				this.ctx.strokeStyle = "#1f1a17"
+				this.ctx.lineWidth = this.lyricsSize / 10
+				this.ctx.beginPath()
+				this.ctx.moveTo(circlePos.x, circlePos.y - size)
+				this.ctx.lineTo(circlePos.x + endX, circlePos.y - size)
+				this.ctx.arc(circlePos.x + endX, circlePos.y, size, -Math.PI / 2, Math.PI / 2)
+				this.ctx.lineTo(circlePos.x, circlePos.y + size)
+				this.ctx.fill()
+				this.ctx.stroke()
+				break
 		}
-		
 		// Main circle
 		this.ctx.fillStyle = fill
 		this.ctx.beginPath()
 		this.ctx.arc(circlePos.x, circlePos.y, size, 0, Math.PI * 2)
 		this.ctx.closePath()
 		this.ctx.fill()
-		
 		// Face on circle
-		var face = assets.image[faceID]
-		this.ctx.drawImage(face,
+		this.ctx.drawImage(assets.image[faceID],
 			circlePos.x - size - 2,
 			circlePos.y - size - 4,
 			size * 2 + 5,
 			size * 2 + 6
 		)
-		
 		if(!circle.isAnimated()){
 			// Text
 			this.ctx.font = "normal bold " + this.lyricsSize + "px Kozuka"
 			this.ctx.textAlign = "center"
 			this.ctx.strokeStyle = "#000"
-            this.ctx.lineWidth = this.lyricsSize / 5
+			this.ctx.lineWidth = this.lyricsSize / 5
 			this.ctx.fillStyle = "#fff"
 			this.strokeFillText(circle.getText(),
 				circlePos.x,
@@ -571,7 +596,6 @@ class View{
 			)
 		}
 	}
-	
 	togglePauseMenu(){
 		if($("#pause-menu").is(":visible")){
 			$("#pause-menu").hide()
@@ -579,7 +603,6 @@ class View{
 			$("#pause-menu").show()
 		}
 	}
-	
 	drawDifficulty(){
 		this.ctx.drawImage(assets.image["muzu_" + this.songDifficulty],
 			this.diffX, this.diffY,
@@ -591,7 +614,6 @@ class View{
 			this.taikoW, this.taikoH
 		)
 	}
-	
 	drawTime(){
 		var z = this.canvas.scale
 		var time = this.controller.getElapsedTime()
@@ -614,7 +636,6 @@ class View{
 		)
 		this.ctx.fillText(time.ms, this.winW - 10 * z, this.winH - 10 * z)
 	}
-	
 	drawBar(){
 		this.ctx.strokeStyle = "#000"
 		this.ctx.fillStyle = "#232323"
@@ -641,7 +662,6 @@ class View{
 			this.ctx.fill()
 			this.ctx.globalAlpha = 1
 		}
-		
 		this.ctx.stroke()
 		// Lyrics bar
 		this.ctx.fillStyle = "#888888"
@@ -651,7 +671,6 @@ class View{
 		this.ctx.fill()
 		this.ctx.stroke()
 	}
-	
 	drawSlot(){
 		// Main circle
 		this.ctx.fillStyle = "#6f6f6e"
@@ -659,7 +678,6 @@ class View{
 		this.ctx.arc(this.slotX, this.circleY, this.circleSize - 0.2 * this.circleSize, 0, 2 * Math.PI)
 		this.ctx.closePath()
 		this.ctx.fill()
-		
 		// Big stroke circle
 		this.ctx.strokeStyle = "#9e9f9f"
 		this.ctx.lineWidth = 3
@@ -667,7 +685,6 @@ class View{
 		this.ctx.arc(this.slotX, this.circleY, this.circleSize, 0, 2 * Math.PI)
 		this.ctx.closePath()
 		this.ctx.stroke()
-		
 		// Bigger stroke circle
 		this.ctx.strokeStyle = "#6f6f6e"
 		this.ctx.lineWidth = 3
@@ -676,7 +693,6 @@ class View{
 		this.ctx.closePath()
 		this.ctx.stroke()
 	}
-	
 	drawTaikoSquare(){
 		// Taiko square
 		this.ctx.lineWidth = 7
@@ -688,13 +704,11 @@ class View{
 		this.ctx.closePath()
 		this.ctx.stroke()
 	}
-	
 	createAsset(image, position){
 		var asset = new CanvasAsset(this, image, position)
 		this.assets.push(asset)
 		return asset
 	}
-	
 	drawAssets(){
 		if(this.controller.multiplayer != 2){
 			this.assets.forEach(asset => {
@@ -702,7 +716,6 @@ class View{
 			})
 		}
 	}
-	
 	updateCombo(combo){
 		if(combo > 0 && combo % 10 == 0 && this.don.getAnimation() != "10combo"){
 			this.don.setAnimation("10combo")

@@ -1,43 +1,39 @@
-<div id='scoresheet'>
-	
-	<div id='top-part'>
+<div class="scoresheet">
+	<div class="top-part">
 		<h2 alt="成績発表" class="stroke-main result-title">成績発表</h2>
 		<h3 alt="" class="stroke-sub result-song"></h3>
 	</div>
-	
-	<div id='result-bar'>
-		
-		<img id='score-mark' />
-		
-		<div id='score-cont'>
-			<div id='score-hp-bar-bg'>
-				<div id='score-hp-bar-colour'>
-					<img  src="/assets/img/hp-bar-colour.png" />
+	<div class="result-bar">
+		<div class="score-cont">
+			<img class="score-mark" />
+			<div class="score-hp-bar-bg">
+				<div class="score-hp-bar-colour">
+					<img src="/assets/img/hp-bar-colour.png" />
 				</div>
 			</div> 
-		
-			<div id='score-points'></div>
-			<table id='score-details'>
+			<div class="score-points"></div>
+			<table class="score-details">
 				<tr>
-					<td class='floatLeft'>良</td><td class='value' id='nb-great'></td>
-					<td>最大コンボ数</td><td class='value' id='max-combo'></td>
+					<th class="header-great stroke-sub" alt="良">良</th>
+					<td class="value nb-great stroke-sub"></td>
+					<td class="stroke-sub" alt="最大コンボ数">最大コンボ数</td><td class="value max-combo stroke-sub"></td>
 				</tr>
 				<tr>
-					<td class='floatLeft'>可</td><td class='value' id='nb-good'></td>
-					<!--<td>連打数</td><td id='nb-rendasu'></td>-->
+					<th class="header-good stroke-sub" alt="可">可</th>
+					<td class="value nb-good stroke-sub"></td>
+					<!--<td class="stroke-sub" alt="連打数">連打数</td><td class="value nb-rendasu stroke-sub"></td>-->
 				</tr>
 				<tr>
-					<td class='floatLeft'>不可</td><td class='value' id='nb-fail'></td>
+					<th class="header-fail stroke-sub" alt="不可">不可</th>
+					<td class="value nb-fail stroke-sub"></td>
 					<td></td><td></td>
 				</tr>
 			</table>
 		</div>
 	</div>
-	
-	<div id='bottom-part'>
-		<div class='gradient-overlay'></div>
-		<button type='button' id='song-select'>Song select</button>
-		<button type='button' id='replay'>Replay</button>
+	<div class="bottom-part">
+		<div class="gradient-overlay"></div>
+		<button type="button" class="song-select">Song select</button>
+		<button type="button" class="replay">Replay</button>
 	</div>
-	
 </div>

@@ -1,94 +1,80 @@
-function Circle(id, ms, type, text, speed){
-    
-    var _id=id;
-    var _ms = ms;
-    var _type = type;
-    var _played = false;
-    var _pos={x:0, y:0};
-	var _animating = false;
-	var _animT = 0;
-	var _score=0;
-	var _lastFrame = ms+100;
-	var _animationEnded = false;
-    
-    var played=false; //if cirlce has been played
-    var _status=-1; //check if circle is playable
-    
-    // -1 : Not playable
-    // 0 : Playable, giving 0 points if played at current time (fail)
-    // 50 : Playable, giving 50 points if played at current time (pass)
-    // 100 : Playable, giving 100 points if played at current time (good)
-
-    this.getMS = function(){
-        return _ms;
-    }
-    
-    this.getType = function(){
-        return _type;
-    }
-	
-	this.getLastFrame = function(){
-		return _lastFrame;
+class Circle{
+	constructor(id, ms, type, text, speed, endTime, requiredHits){
+		this.id = id
+		this.ms = ms
+		this.type = type
+		this.text = text
+		this.speed = speed
+		this.endTime = endTime ? endTime : ms + 150
+		this.isPlayed = false
+		this.animating = false
+		this.animT = 0
+		this.score = 0
+		this.lastFrame = ms + 100
+		this.animationEnded = false
+		this.status = -1
+		this.timesHit = 0
+		this.requiredHits = requiredHits ? requiredHits : 0
 	}
-	
-	this.incFrame = function(){
-		_lastFrame+=20;
+	getMS(){
+		return this.ms
 	}
-	
-	this.animate = function(){
-		_animating=true;
+	getEndTime(){
+		return this.endTime
 	}
-	
-	this.isAnimated = function(){
-		return _animating;
+	getType(){
+		return this.type
 	}
-	
-	this.getAnimT = function(){
-		return _animT;
+	getLastFrame(){
+		return this.lastFrame
 	}
-	
-	this.incAnimT = function(){
-		_animT+=0.05;	
+	incFrame(){
+		this.lastFrame += 20
 	}
-    
-    this.updateStatus = function(status){
-        _status=status;
-    }
-    
-    this.getStatus = function(){
-        return _status;
-    }
-    
-    this.getPlayed = function(){
-        return _played;
-    }
-	
-	this.isAnimationFinished = function(){
-		return _animationEnded;
+	animate(){
+		this.animating = true
 	}
-	
-	this.endAnimation = function(){
-		_animationEnded = true;
+	isAnimated(){
+		return this.animating
 	}
-    
-    this.played = function(score){
-		_score=score;
-        _played=true;
-    }
-	
-	this.getScore = function(){
-		return _score;
+	getAnimT(){
+		return this.animT
 	}
-    
-    this.getID = function(){
-        return _id;
-    }
-    
-    this.getText = function(){
-        return text;
-    }
-    
-    this.getSpeed = function(){
-        return speed;
-    }
+	incAnimT(){
+		this.animT += 0.05
+	}
+	updateStatus(status){
+		this.status = status
+	}
+	getStatus(){
+		return this.status
+	}
+	getPlayed(){
+		return this.isPlayed
+	}
+	isAnimationFinished(){
+		return this.animationEnded
+	}
+	endAnimation(){
+		this.animationEnded = true
+	}
+	played(score){
+		this.score = score
+		this.isPlayed = true
+	}
+	hit(){
+		this.timesHit++
+	}
+	getScore(){
+		return this.score
+	}
+	getID(){
+		return this.id
+	}
+	getText(){
+		return this.text
+	}
+	getSpeed(){
+		return this.speed
+	}
 }

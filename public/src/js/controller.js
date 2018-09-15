@@ -57,6 +57,13 @@ class Controller{
 		this.mainLoopRunning = true
 		this.mainLoop()
 	}
+	stopMainLoop(){
+		this.mainLoopRunning = false
+		this.mainAsset.stop()
+		if(this.syncWith){
+			this.syncWith.stopMainLoop()
+		}
+	}
 	mainLoop(){
 		if(this.mainLoopRunning){
 			if(this.multiplayer != 2){
@@ -88,9 +95,6 @@ class Controller{
 			this.keyboard.checkMenuKeys()
 		}
 	}
-	getDistanceForCircle(){
-		return this.view.getDistanceForCircle()
-	}
 	togglePauseMenu(){
 		this.togglePause()
 		this.view.togglePauseMenu()
@@ -98,43 +102,41 @@ class Controller{
 	displayResults(){
 		var score = this.getGlobalScore()
 		var vp
-		if (score.fail == 0) {
+		if(score.fail == 0){
 			vp = "fullcombo"
 			this.playSoundMeka("fullcombo", 1.350)
-		} else if (score.hp >= 50) {
+		}else if(score.hp >= 50){
 			vp = "clear"
-		} else {
+		}else{
 			vp = "fail"
 		}
 		assets.sounds["game" + vp].play()
 		setTimeout(() => {
-			this.mainLoopRunning = false
-			if(this.multiplayer != 2){
-				new Scoresheet(this, this.getGlobalScore())
+			if(this.mainLoopRunning){
+				this.stopMainLoop()
+				if(this.multiplayer != 2){
+					new Scoresheet(this, this.getGlobalScore(), this.multiplayer)
+				}
 			}
 		}, 7000)
 	}
 	displayScore(score, notPlayed){
 		this.view.displayScore(score, notPlayed)
 	}
-	fadeOutOver(){
-		this.game.fadeOutOver()
-		this.displayResults()
-	}
-	getCurrentTimingPoint(){
-		return this.game.getCurrentTimingPoint()
-	}
 	songSelection(){
 		$("#music-bg").remove()
-		this.mainLoopRunning = false
+		this.stopMainLoop()
 		new SongSelect()
 	}
 	restartSong(){
-		this.mainAsset.stop()
-		this.mainLoopRunning = false
+		this.stopMainLoop()
 		$("#screen").load("/src/views/game.html", () => {
-			var taikoGame = new Controller(this.selectedSong, this.songData, this.autoPlayEnabled)
-			taikoGame.run()
+			if(this.multiplayer){
+				new loadSong(this.selectedSong, false, true)
+			}else{
+				var taikoGame = new Controller(this.selectedSong, this.songData, this.autoPlayEnabled)
+				taikoGame.run()
+			}
 		})
 	}
 	playSoundMeka(soundID, time){
@@ -144,26 +146,11 @@ class Controller{
 		}
 		assets.sounds[soundID + meka].play(time)
 	}
-	initTiming(){
-		this.game.initTiming()
-	}
-	setHitcircleSpeed(speed){
-		this.view.setHitcircleSpeed(speed)
-	}
-	getHitcircleSpeed(){
-		return this.game.getHitcircleSpeed()
-	}
-	toggleMainMusic(){
-		this.game.toggleMainMusic()
-	}
 	togglePause(){
 		if(this.syncWith){
 			this.syncWith.game.togglePause()
 		}
 		this.game.togglePause()
-	}
-	isPaused(){
-		return this.game.isPaused()
 	}
 	getKeys(){
 		return this.keyboard.getKeys()
@@ -186,9 +173,6 @@ class Controller{
 	getCurrentCircle(){
 		return this.game.getCurrentCircle()
 	}
-	updateCurrentCircle(){
-		this.game.updateCurrentCircle()
-	}
 	isWaitingForKeyup(key, type){
 		return this.keyboard.isWaitingForKeyup(key, type)
 	}
@@ -198,17 +182,11 @@ class Controller{
 	getKeyTime(){
 		return this.keyboard.getKeyTime()
 	}
-	updateCombo(score){
-		this.game.updateCombo(score)
-	}
 	getCombo(){
 		return this.game.getCombo()
 	}
 	getGlobalScore(){
 		return this.game.getGlobalScore()
-	}
-	updateGlobalScore(score){
-		this.game.updateGlobalScore(score)
 	}
 	autoPlay(circle){
 		if(this.multiplayer){

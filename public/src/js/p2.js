@@ -5,17 +5,24 @@ class P2Connection{
 		this.msgCallbacks = {}
 		this.closeCallbacks = new Set()
 		this.openCallbacks = new Set()
-		this.notes = []
 		this.otherConnected = false
 		this.onmessage("gamestart", () => {
 			this.otherConnected = true
 			this.notes = []
+			this.drumrollPace = 45
+			this.results = false
 		})
 		this.onmessage("gameend", () => {
 			this.otherConnected = false
 		})
+		this.onmessage("gameresults", response => {
+			this.results = response
+		})
 		this.onmessage("note", response => {
 			this.notes.push(response)
+		})
+		this.onmessage("drumroll", response => {
+			this.drumrollPace = response.pace
 		})
 	}
 	open(){
@@ -92,7 +99,7 @@ class P2Connection{
 			this.msgCallbacks[data.type].forEach(obj => {
 				obj.callback(data.value)
 				if(obj.once){
-					delete this.msgCallbacks[obj]
+					this.msgCallbacks[data.type].delete(obj)
 				}
 			})
 		}
@@ -113,7 +120,10 @@ class P2Connection{
 	}
 	play(circle, mekadon){
 		if(this.otherConnected || this.notes.length > 0){
-			if(this.notes.length == 0){
+			var type = circle.getType()
+			if(type == "balloon"|| type == "drumroll" || type == "daiDrumroll"){
+				mekadon.playDrumrollAt(circle, 0, this.drumrollPace)
+			}else if(this.notes.length == 0){
 				mekadon.play(circle)
 			}else{
 				var note = this.notes[0]
