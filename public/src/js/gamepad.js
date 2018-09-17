@@ -9,23 +9,23 @@ class Gamepad{
 		this.menuBtn = {}
 		this.menuBtn[kbd["pause"]] = ["start"]
 		this.b = {
-			"a": "0",
-			"b": "1",
-			"x": "2",
-			"y": "3",
-			"lb": "4",
-			"rb": "5",
-			"lt": "6",
-			"rt": "7",
-			"back": "8",
-			"start": "9",
-			"ls": "10",
-			"rs": "11",
-			"u": "12",
-			"d": "13",
-			"l": "14",
-			"r": "15",
-			"guide": "16"
+			"a": 0,
+			"b": 1,
+			"x": 2,
+			"y": 3,
+			"lb": 4,
+			"rb": 5,
+			"lt": 6,
+			"rt": 7,
+			"back": 8,
+			"start": 9,
+			"ls": 10,
+			"rs": 11,
+			"u": 12,
+			"d": 13,
+			"l": 14,
+			"r": 15,
+			"guide": 16
 		}
 		this.btn = {}
 		this.keyboard = keyboard
@@ -43,7 +43,7 @@ class Gamepad{
 				for(var bind in bindings){
 					this.toRelease[bind] = bindings[bind].length
 				}
-				for(var btnName in gamepads[i].buttons){
+				for(var btnName = 0; btnName <= 16; btnName++){
 					buttonSearch: {
 						for(var bind in bindings){
 							for(var name in bindings[bind]){
@@ -63,9 +63,12 @@ class Gamepad{
 		var button = false
 		for(var i = 0; i < gamepads.length; i++){
 			if(gamepads[i]){
-				var btnPressed = gamepads[i].buttons[btnName].pressed
-				if(btnPressed){
-					button = btnPressed
+				var btn = gamepads[i].buttons[btnName]
+				if(btn){
+					var btnPressed = btn.pressed || btn.value >= 0.5
+					if(btnPressed){
+						button = btnPressed
+					}
 				}
 			}
 		}
