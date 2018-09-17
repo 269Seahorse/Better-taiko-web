@@ -2,128 +2,119 @@ class P2Connection{
 	constructor(){
 		this.closed = true
 		this.lastMessages = {}
-		this.msgCallbacks = {}
-		this.closeCallbacks = new Set()
-		this.openCallbacks = new Set()
 		this.otherConnected = false
-		this.onmessage("gamestart", () => {
-			this.otherConnected = true
-			this.notes = []
-			this.drumrollPace = 45
-			this.results = false
-		})
-		this.onmessage("gameend", () => {
-			this.otherConnected = false
-		})
-		this.onmessage("gameresults", response => {
-			this.results = response
-		})
-		this.onmessage("note", response => {
-			this.notes.push(response)
-		})
-		this.onmessage("drumroll", response => {
-			this.drumrollPace = response.pace
-		})
+		this.allEvents = new Map()
+		this.addEventListener("message", this.message.bind(this))
+	}
+	addEventListener(type, callback){
+		var addedType = this.allEvents.get(type)
+		if(!addedType){
+			addedType = new Set()
+			this.allEvents.set(type, addedType)
+		}
+		return addedType.add(callback)
+	}
+	removeEventListener(type, callback){
+		var addedType = this.allEvents.get(type)
+		if(addedType){
+			return addedType.delete(callback)
+		}
 	}
 	open(){
 		this.closed = false
 		var wsProtocol = location.protocol == "https:" ? "wss:" : "ws:"
 		this.socket = new WebSocket(wsProtocol + "//" + location.host + "/p2")
-		var events = ["open", "close", "message"]
-		events.forEach(eventName => {
-			this.socket.addEventListener(eventName, event => {
-				this[eventName + "Event"](event)
-			})
-		})
-	}
-	openEvent(event){
-		this.openCallbacks.forEach(obj => {
-			obj.callback()
-			if(obj.once){
-				this.openCallbacks.delete(obj)
+		pageEvents.race(this.socket, "open", "close", listener =>{
+			if(listener === "open"){
+				return this.openEvent()
 			}
+			return this.closeEvent()
 		})
+		pageEvents.add(this.socket, "message", this.messageEvent.bind(this))
 	}
-	onopen(callback, once){
-		this.openCallbacks.add({
-			callback: callback,
-			once: once
-		})
+	openEvent(){
+		var addedType = this.allEvents.get("open")
+		if(addedType){
+			addedType.forEach(callback => callback())
+		}
 	}
 	close(){
 		this.closed = true
 		this.socket.close()
 	}
-	closeEvent(event){
+	closeEvent(){
+		this.removeEventListener(onmessage)
+		this.otherConnected = false
 		if(!this.closed){
 			setTimeout(() => {
-				if(this.socket.readyState != this.socket.OPEN){
+				if(this.socket.readyState !== this.socket.OPEN){
 					this.open()
 				}
 			}, 500)
 		}
-		this.closeCallbacks.forEach(obj => {
-			obj.callback()
-			if(obj.once){
-				this.closeCallbacks.delete(obj)
-			}
-		})
-	}
-	onclose(callback, once){
-		this.closeCallbacks.add({
-			callback: callback,
-			once: once
-		})
+		var addedType = this.allEvents.get("close")
+		if(addedType){
+			addedType.forEach(callback => callback())
+		}
 	}
 	send(type, value){
-		if(this.socket.readyState == this.socket.OPEN){
-			if(typeof value == "undefined"){
+		if(this.socket.readyState === this.socket.OPEN){
+			if(typeof value === "undefined"){
 				this.socket.send(JSON.stringify({type: type}))
 			}else{
 				this.socket.send(JSON.stringify({type: type, value: value}))
 			}
 		}else{
-			this.onopen(() => {
+			pageEvents.once(this, "open").then(() => {
 				this.send(type, value)
-			}, true)
+			})
 		}
 	}
 	messageEvent(event){
 		try{
-			var data = JSON.parse(event.data)
+			var response = JSON.parse(event.data)
 		}catch(e){
-			var data = {}
+			var response = {}
 		}
-		this.lastMessages[data.type] = data.value
-		if(this.msgCallbacks[data.type]){
-			this.msgCallbacks[data.type].forEach(obj => {
-				obj.callback(data.value)
-				if(obj.once){
-					this.msgCallbacks[data.type].delete(obj)
-				}
-			})
+		this.lastMessages[response.type] = response.value
+		var addedType = this.allEvents.get("message")
+		if(addedType){
+			addedType.forEach(callback => callback(response))
 		}
-	}
-	onmessage(type, callback, once){
-		if(!(type in this.msgCallbacks)){
-			this.msgCallbacks[type] = new Set()
-		}
-		this.msgCallbacks[type].add({
-			callback: callback,
-			once: once
-		})
 	}
 	getMessage(type, callback){
 		if(type in this.lastMessages){
-			callback(this.lastMessages[type])
+			return this.lastMessages[type]
+		}
+	}
+	message(response){
+		switch(response.type){
+			case "gamestart":
+				this.otherConnected = true
+				this.notes = []
+				this.drumrollPace = 45
+				this.results = false
+				break
+			case "gameend":
+				this.otherConnected = false
+				break
+			case "gameresults":
+				this.results = response.value
+				break
+			case "note":
+				this.notes.push(response.value)
+				break
+			case "drumroll":
+				this.drumrollPace = response.value.pace
+				break
 		}
 	}
 	play(circle, mekadon){
 		if(this.otherConnected || this.notes.length > 0){
 			var type = circle.getType()
-			if(type == "balloon"|| type == "drumroll" || type == "daiDrumroll"){
+			if(type === "balloon"|| type === "drumroll" || type === "daiDrumroll"){
 				mekadon.playDrumrollAt(circle, 0, this.drumrollPace)
-			}else if(this.notes.length == 0){
+			}else if(this.notes.length === 0){
 				mekadon.play(circle)
 			}else{
 				var note = this.notes[0]

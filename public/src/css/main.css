@@ -1,229 +1,190 @@
-@font-face {
-    font-family: 'TnT';
-    src: url('../../assets/fonts/TnT.ttf') format('truetype');
+@font-face{
+	font-family: TnT;
+	src: url("/assets/fonts/TnT.ttf") format("truetype");
 }
-
-@font-face {
-    font-family: 'Kozuka';
-    src: url('../../assets/fonts/KozGoPro-Bold.otf') format('truetype');
+@font-face{
+	font-family: Kozuka;
+	src: url("/assets/fonts/KozGoPro-Bold.otf") format("truetype");
 }
-
-html, body{
-	padding: 0;
+html,
+body{
 	margin: 0;
-	width:100%;
+	width: 100%;
 	height: 100%;
-	background: black;
-	color:white;
-    user-select: none;
+	background: #fe7839;
+	user-select: none;
 }
-
 #screen{
-	width:100%;
-	height:100%;
-	margin:0;
-	padding:0;
-	background: url('/assets/img/bg-pattern-1.png') top center;
+	width: 100%;
+	height: 100%;
+	margin: 0;
+	padding: 0;
+	background: #fe7839 url("/assets/img/bg-pattern-1.png") top center;
+	font-family: TnT;
 }
-
 #assets{
-	display:none;
+	display: none;
 }
-
 .window{
-    width: 60vmin;
-    height: 23vmin;
-    padding: 3vmin;
-    color: black;
-    background: rgba(255, 220, 47, 0.95);
-    border: .5vmin outset #f4ae00;
-    box-shadow: 2px 2px 10px black;
-    margin: auto;
-    position: fixed;
-    top: 0;
-    right: 0;
-    bottom: 0;
-    left: 0;
-    display: flex;
-    flex-direction: column;
-    justify-content: space-between;
-    
+	width: 60vmin;
+	height: 23vmin;
+	padding: 3vmin;
+	color: black;
+	background: rgba(255, 220, 47, 0.95);
+	border: .5vmin outset #f4ae00;
+	box-shadow: 2px 2px 10px black;
+	margin: auto;
+	position: fixed;
+	top: 0;
+	right: 0;
+	bottom: 0;
+	left: 0;
+	display: flex;
+	flex-direction: column;
+	justify-content: space-between;
+	
 }
-
-.stroke-main {
-    font-weight: 300;
+.stroke-main{
+	font-weight: 300;
 }
-
-.result-title {
-    margin-top: 9px !important;
-    margin-left: 5px !important;
-    z-index: 1;
+.result-title{
+	margin-top: 9px !important;
+	margin-left: 5px !important;
+	z-index: 1;
 }
-
-.result-song, .game-song {
-    position: absolute;
-    right: 0;
-    font-size: 5vmin;
-    margin: 3vmin 3vmin 0px 0px;
-    color: white;
-    float: right;
-    z-index: 1;
-    font-weight: 300;
+.result-song,
+.game-song{
+	position: absolute;
+	right: 0;
+	font-size: 5vmin;
+	margin: 3vmin 3vmin 0px 0px;
+	color: white;
+	float: right;
+	z-index: 1;
+	font-weight: 300;
 }
-
-.stroke-main:before {
-    content: attr(alt);
-    left: 0;
-    z-index: -1;
-    position: absolute;
-    -webkit-text-stroke: 0.3em #fb3c0c;
+.stroke-main::before{
+	content: attr(alt);
+	left: 0;
+	z-index: -1;
+	position: absolute;
+	-webkit-text-stroke: 0.3em #fb3c0c;
 }
-
-.stroke-main:after {
-    content: attr(alt);
-    left: 0;
-    z-index: -2;
-    position: absolute;
-    -webkit-text-stroke: 0.5em #000;
+.stroke-main::after{
+	content: attr(alt);
+	left: 0;
+	z-index: -2;
+	position: absolute;
+	-webkit-text-stroke: 0.5em #000;
 }
-
-.stroke-sub:before {
-    content: attr(alt);
-    position: absolute;
-    -webkit-text-stroke: 0.25em #000;
-    left: 0;
-    z-index: -1;
+.stroke-sub::before{
+	content: attr(alt);
+	position: absolute;
+	-webkit-text-stroke: 0.25em #000;
+	left: 0;
+	z-index: -1;
 }
-
-.songsel-title {
-    position: absolute;
-    z-index: 1;
-    font-size: 7vmin;
-    margin: 20px;
+.don{
+	background-position-y: 0;
+	position: absolute;
+	top: 0px;
 }
-
-.click-to-continue:before {
-    width: 100%;
+.alpha-title .song-title-char{
+	transform: scale(1.3, 1);
+	font-size: 80%;
+	line-height: 22px;
 }
-
-
-.don {
-  background-position-y: 0;
-  position: absolute;
-  top: 0px;
+.song-title-apos{
+	padding-left: 4px;
 }
-
-.alpha-title .song-title-char {
-    transform: scale(1.3, 1);
-    font-size: 80%;
-    line-height: 22px;
+.song-title-char[alt="ぁ"],
+.song-title-char[alt="ぃ"],
+.song-title-char[alt="ぅ"],
+.song-title-char[alt="ぇ"],
+.song-title-char[alt="ぉ"],
+.song-title-char[alt="ゃ"],
+.song-title-char[alt="ゅ"],
+.song-title-char[alt="ょ"],
+.song-title-char[alt="っ"],
+.song-title-char[alt="ァ"],
+.song-title-char[alt="ィ"],
+.song-title-char[alt="ゥ"],
+.song-title-char[alt="ェ"],
+.song-title-char[alt="ォ"],
+.song-title-char[alt="ャ"],
+.song-title-char[alt="ュ"],
+.song-title-char[alt="ョ"],
+.song-title-char[alt="ッ"]{
+	margin-top: -6px;
 }
-
-.song-title-apos {
-    padding-left: 4px;
+.song-title-char[alt="ー"],
+.song-title-char[alt="-"]{
+	transform: rotate(95deg);
+	font-size: 90%;
 }
-
-.song-title-char[alt="ぁ"],.song-title-char[alt="ぃ"],.song-title-char[alt="ぅ"],.song-title-char[alt="ぇ"],.song-title-char[alt="ぉ"],
-.song-title-char[alt="ゃ"],.song-title-char[alt="ゅ"],.song-title-char[alt="ょ"],.song-title-char[alt="っ"],
-.song-title-char[alt="ァ"],.song-title-char[alt="ィ"],.song-title-char[alt="ゥ"],.song-title-char[alt="ェ"],.song-title-char[alt="ォ"],
-.song-title-char[alt="ャ"],.song-title-char[alt="ュ"],.song-title-char[alt="ョ"],.song-title-char[alt="ッ"]
-{
-    margin-top: -6px;
+#tutorial-outer{
+	display: flex;
+	justify-content: center;
+	align-items: center;
+	overflow: hidden;
+	position: absolute;
+	width: 100%;
+	height: 100%;
 }
-
-.song-title-char[alt="ー"], .song-title-char[alt="-"] {
-    transform: rotate(95deg);
-    font-size: 90%;
+#tutorial{
+	background: rgb(246, 234, 212);
+	color: black;
+	border: 5px black solid;
+	border-radius: 10px;
+	height: 65%;
+	width: 50%;
+	padding: 20px;
+	font-size: 16pt;
+	position: relative;
 }
-
-
-#tutorial-outer {
-    display: flex;
-    justify-content: center;
-    align-items: center;
-    overflow: hidden;
-    position: absolute;
-    width: 100%;
-    height: 100%;
+#tutorial-title{
+	z-index: 1;
+	position: absolute;
+	color: white;
+	top: -25px;
+	font-size: 26pt;
 }
-
-#tutorial {
-    background: rgb(246, 234, 212);
-    color: black;
-    border: 5px black solid;
-    border-radius: 10px;
-    height: 65%;
-    width: 50%;
-    padding: 20px;
-    font-size: 16pt;
-    position: relative;
+#tutorial-content{
+	padding: 15px 30px;
 }
-
-#tutorial-title {
-    z-index: 1;
-    position: absolute;
-    color: white;
-    top: -25px;
-    font-size: 26pt;
+kbd{
+	font-family: inherit;
+	padding: 0.1em 0.6em;
+	border: 1px solid #ccc;
+	font-size: 13px;
+	background-color: #f7f7f7;
+	color: #333;
+	box-shadow: 0 1px 0px rgba(0, 0, 0, 0.2), 0 0 0 2px #ffffff inset;
+	border-radius: 3px;
+	display: inline-block;
+	text-shadow: 0 1px 0 #fff;
+	line-height: 1.4;
+	white-space: nowrap;
 }
-
-#tutorial-content {
-    padding: 15px 30px;
+.taibtn{
+	bottom: 15px;
+	margin: 0 auto;
+	position: absolute;
+	right: 15px;
+	padding: 10px 40px;
+	border-radius: 15px;
+	border: 3px rgba(218, 205, 178, 1) solid;
+	cursor: pointer;
 }
-
-kbd {
-    font-family: inherit;
-    padding: 0.1em 0.6em;
-    border: 1px solid #ccc;
-    font-size: 13px;
-    background-color: #f7f7f7;
-    color: #333;
-    -moz-box-shadow: 0 1px 0px rgba(0, 0, 0, 0.2),0 0 0 2px #ffffff inset;
-    -webkit-box-shadow: 0 1px 0px rgba(0, 0, 0, 0.2), 0 0 0 2px #ffffff inset;
-    box-shadow: 0 1px 0px rgba(0, 0, 0, 0.2), 0 0 0 2px #ffffff inset;
-    -moz-border-radius: 3px;
-    -webkit-border-radius: 3px;
-    border-radius: 3px;
-    display: inline-block;
-    text-shadow: 0 1px 0 #fff;
-    line-height: 1.4;
-    white-space: nowrap;
+.taibtn:hover{
+	z-index: 1;
+	color: white;
+	background: rgb(255, 181, 71);
+	border-color: white;
 }
-
-.taibtn {
-    bottom: 15px;
-    margin: 0 auto;
-    position: absolute;
-    right: 15px;
-    padding: 10px 40px;
-    border-radius: 15px;
-    border: 3px rgba(218, 205, 178, 1) solid;
-    cursor: pointer;
+.taibtn::before{
+	padding: 0 40px;
 }
-
-.taibtn:hover {
-    z-index: 1;
-    color: white;
-    background: rgb(255, 181, 71);
-    border-color: white;
-}
-
-.taibtn:before {
-    padding: 0 40px;
-}
-
-#tutorial-end-button {
-    font-size: 22pt;
-}
-
-#songsel-help {
-    float: right;
-    background: rgba(255, 255, 255, 0.5);
-    color: black;
-    padding: 15px;
-    margin: 10px;
-    font-size: 18px;
-    border: 3px black solid;
-    border-radius: 50px;
-    cursor: pointer;
+#tutorial-end-button{
+	font-size: 22pt;
 }

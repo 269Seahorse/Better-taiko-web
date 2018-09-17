@@ -1,31 +1,31 @@
 #load-song{
 	width: 100%;
 	height: 100%;
-	margin:0;
-	padding: 0%;
 }
-
 #loading-song{
-	width:20%;
-	height:30%;
 	position: absolute;
-	top:35%;
-	left:40%;
-	background: rgba(0,0,0,0.75);
+	top: 0;
+	right: 0;
+	bottom: 0;
+	left: 0;
+	margin: auto;
+	display: flex;
+	flex-direction: column;
+	justify-content: center;
+	align-items: center;
+	width: 20vw;
+	height: 15vw;
+	background: rgba(0, 0, 0, 0.75);
 	border-radius: 5px;
-	border:3px solid white;
+	border: 3px solid white;
+	color: #fff;
 }
-
 #loading-don{
-	position: relative;
-	width:50%;
-	height:65%;
-	top: 12%;
-	left: 30%;
+	width: 50%;
 }
-
-#loading-song p{
-	position: absolute;
-	left:28%;
-	font-size: 3vmin;
+.loading-text{
+	position: relative;
+	font-size: 1.5vw;
+	text-align: center;
+	z-index: 1;
 }

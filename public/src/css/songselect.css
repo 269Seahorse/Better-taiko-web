@@ -1,139 +1,174 @@
-@-webkit-keyframes bgscroll {
-    from {background-position:0 0;}
-    to {background-position:-200px 0;}
+@-webkit-keyframes bgscroll{
+	from{
+		background-position: 0 0;
+	}
+	to{
+		background-position: -200px 0;
+	}
 }
-
-@keyframes bgscroll {
-    from {background-position:0 0;}
-    to {background-position:-200px 0;}
+@keyframes bgscroll{
+	from{
+		background-position: 0 0;
+	}
+	to{
+		background-position: -200px 0;
+	}
 }
-
 #song-select{
 	width: 100%;
-	height:100%;
-	background: url('/assets/img/bg-pattern-1.png');
+	height: 100%;
+	background: url("/assets/img/bg-pattern-1.png");
 	animation: bgscroll 3s infinite linear;
-	-webkit-animation: bgscroll 3s infinite linear;
+	white-space: nowrap;
 }
-
 #song-container{
-    width:98%;
-	height:80%;
+	width: 98%;
+	height: 80%;
 	padding: 5% 1% 1% 1%;
-    text-align: center;
+	text-align: center;
 }
-
 ul li{
-    list-style:none;
+	list-style: none;
 }
-
 .difficulties{
-    float:left;
-    display:inline-block;
-    width:70%;
-    height: 100%;
+	position: absolute;
+	left: 0;
+	display: block;
+	width: 303px;
+	height: 100%;
+	opacity: 0;
+	transition: opacity 0.1s;
 }
-
-.song-title-char {
-    text-align: center;
-    width: 45px;
-    display: block;
+.song.opened .difficulties{
+	opacity: 1;
+	transition: opacity 0.1s 0.2s;
 }
-
-.song-title-char:before {
-    content: attr(alt);
-    position: absolute;
-    -webkit-text-stroke: 0.25em #000;
-    z-index: -1;
+.song-title-char{
+	text-align: center;
+	width: 45px;
+	display: block;
 }
-
+.song-title-char::before{
+	content: attr(alt);
+	position: absolute;
+	-webkit-text-stroke: 0.25em #000;
+	z-index: -1;
+}
 .song-title{
-    float: right;
-    width: 45px;
-    padding: 10px 2px;
-    word-wrap: break-word;
-    font-size: 22pt;
-    color: white;
-    position: relative;
-    z-index: 1;
-    line-height: 28px;
+	float: right;
+	width: 45px;
+	height: 100%;
+	padding: 10px 2px;
+	word-wrap: break-word;
+	font-size: 22pt;
+	color: white;
+	position: relative;
+	z-index: 1;
+	line-height: 28px;
 }
-
-.song-title-space {
-    line-height: 25px;
+.song-title-space{
+	line-height: 25px;
 }
-
 .song{
-    font-size: 14pt;
-    width: 50px;
-	margin-right:15px;
-	height:100%;
-    color: black;
-    display: inline-block;
-    background: rgba(255, 220, 47, 0.90);
-    border: 7px outset #f4ae00;
-    box-shadow: 2px 2px 10px black;
-    overflow: hidden;
+	font-size: 14pt;
+	width: 50px;
+	margin-right: 15px;
+	height: 100%;
+	color: black;
+	display: inline-block;
+	background: rgba(255, 220, 47, 0.90);
+	border: 7px outset #f4ae00;
+	box-shadow: 2px 2px 10px black;
+	overflow: hidden;
 	cursor: pointer;
 	position: relative;
+	transition: width 0.3s;
 }
-
+.song:not(.opened):hover{
+	background: rgba(255, 233, 125, 0.90);
+}
 .opened{
-	width:375px;
+	width: 375px;
 }
-
 .difficulty{
-	display:none;
-    cursor:pointer;
-    width: 35px;
-    height: 70%;
-    border-radius: 5px;
-    display: inline-block;
-    margin: 5px;
-    float: left;
-    background:white;
-    border:10px solid #ae7a26;
-    position:relative;
+	display: none;
+	cursor: pointer;
+	width: 35px;
+	height: 70%;
+	border-radius: 5px;
+	display: inline-block;
+	margin: 5px;
+	float: left;
+	background: white;
+	border: 10px solid #ae7a26;
+	position: relative;
 }
-
 .difficulty .diffname{
-    word-wrap: break-word;
-    width: 20px;
-    display: block;
-    margin: auto;
-    margin-top:10px;
-    font-size: 20pt;
-    margin-left: 6px;
+	word-wrap: break-word;
+	width: 20px;
+	display: block;
+	margin: auto;
+	margin-top: 10px;
+	font-size: 20pt;
+	margin-left: 6px;
+	white-space: normal;
 }
-
 .difficulty .stars{
-    position:absolute;
-    color: #f12b69;
-    margin-left: -17px;
-    width:100%;
-    bottom:10px;
+	position: absolute;
+	color: #f12b69;
+	margin-left: -17px;
+	width: 100%;
+	bottom: 10px;
 }
-
 .difficulty:hover{
-    border-color:#fa5d3a;
-    color:white;
-    background:#0c6577;
+	border-color: #fa5d3a;
+	color: white;
+	background: #0c6577;
 }
-
 .difficulty:hover .diffname{
-    -webkit-text-stroke-width: 1px;
-   -webkit-text-stroke-color: black;
+	-webkit-text-stroke-width: 1px;
+	-webkit-text-stroke-color: black;
 }
-
 .difficulty:hover .stars{
-    color:white;
+	color: white;
 }
-
 .song.p2:not(.opened)::after,
 .difficulty.p2::after{
-	content:"P2";
-	display:block;
-	position:absolute;
-	bottom:0;
-	width:100%;
+	content: "P2";
+	display: block;
+	position: absolute;
+	bottom: 0;
+	width: 100%;
+}
+#songsel-help{
+	float: right;
+	background: rgba(255, 255, 255, 0.5);
+	color: black;
+	padding: 15px;
+	margin: 10px;
+	font-size: 18px;
+	border: 3px black solid;
+	border-radius: 50px;
+	cursor: pointer;
+}
+.songsel-title-song,
+.songsel-title-difficulty{
+	position: absolute;
+	left: -300px;
+	opacity: 0;
+	margin: 20px;
+	color: #fff;
+	font-size: 7vmin;
+	z-index: 1;
+	transition: left 0s 0.2s, opacity 0.2s;
+}
+#song-select.difficulty-select .songsel-title-difficulty{
+	left: 0;
+	opacity: 1;
+	transition: left 0.4s 0.2s, opacity 0.4s 0.2s;
+}
+#song-select:not(.difficulty-select) .songsel-title-song{
+	left: 0;
+	opacity: 1;
+	transition: left 0.4s 0.2s, opacity 0.4s 0.2s;
 }
