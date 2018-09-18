@@ -112,7 +112,7 @@ class ParseSong{
 			if(msOrPercent < 0){
 				var sliderMultiplier = this.difficulty.lastMultiplier / Math.abs(msOrPercent / 100)
 			}else{
-				var sliderMultiplier = 500 / msOrPercent
+				var sliderMultiplier = 1000 / msOrPercent
 				if(i == 0){
 					this.difficulty.originalMultiplier = sliderMultiplier
 				}
@@ -250,7 +250,7 @@ class ParseSong{
 				
 				var extras = values.slice(this.osu.EXTRAS)
 				var pixelLength = parseFloat(extras[this.osu.PIXELLENGTH])
-				var endTime = start + pixelLength / (this.difficulty.originalMultiplier * 100) * this.beatInfo.beatInterval
+				var endTime = start + pixelLength / (speed * 100) * this.beatInfo.beatInterval
 				if(hitSound & this.osu.FINISH){
 					type = "daiDrumroll"
 					txt = "連打(大)ーっ!!"
@@ -261,14 +261,14 @@ class ParseSong{
 				circles.push(new Circle(circleID, start, type, txt, speed, endTime))
 				
 			}else if(osuType & this.osu.CIRCLE){
-				
 				var type
 				var txt
+				
 				if(hitSound & this.osu.FINISH){
 					if(hitSound & this.osu.WHISTLE || hitSound & this.osu.CLAP){
 						type = "daiKa"
 						txt = "カッ(大)"
-					}else if(hitSound & this.osu.NORMAL || hitSound == this.osu.FINISH){
+					}else if(hitSound & this.osu.NORMAL || hitSound === this.osu.FINISH){
 						type = "daiDon"
 						txt = "ドン(大)"
 					}else{
@@ -277,7 +277,7 @@ class ParseSong{
 				}else if(hitSound & this.osu.WHISTLE || hitSound & this.osu.CLAP){
 					type = "ka"
 					txt = "カッ"
-				}else if(hitSound & this.osu.NORMAL || hitSound == 0){
+				}else if(hitSound & this.osu.NORMAL || hitSound === 0){
 					type = "don"
 					txt = "ドン"
 				}else{
@@ -286,7 +286,6 @@ class ParseSong{
 				if(!emptyValue){
 					circles.push(new Circle(circleID, start, type, txt, speed))
 				}
-				
 			}else{
 				emptyValue = true
 			}

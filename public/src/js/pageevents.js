@@ -2,8 +2,10 @@ class PageEvents{
 	constructor(){
 		this.allEvents = new Map()
 		this.keyListeners = new Map()
+		this.mouseListeners = new Map()
 		this.add(window, "keydown", this.keyEvent.bind(this))
 		this.add(window, "keyup", this.keyEvent.bind(this))
+		this.add(window, "mousemove", this.mouseEvent.bind(this))
 	}
 	add(target, type, callback){
 		this.remove(target, type)
@@ -111,5 +113,18 @@ class PageEvents{
 				return resolve(event)
 			})
 		})
+	}
+	mouseEvent(event){
+		this.lastMouse = event
+		this.mouseListeners.forEach(callback => callback(event))
+	}
+	mouseAdd(target, callback){
+		this.mouseListeners.set(target, callback)
+	}
+	mouseRemove(target){
+		this.mouseListeners.delete(target)
+	}
+	getMouse(){
+		return this.lastMouse
 	}
 }

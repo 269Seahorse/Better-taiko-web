@@ -5,6 +5,7 @@ class View{
 		this.diff = diff
 		
 		this.pauseMenu = document.getElementById("pause-menu")
+		this.cursor = document.getElementById("cursor")
 		
 		var docW = document.body.offsetWidth
 		var docH = document.body.offsetHeight
@@ -81,6 +82,10 @@ class View{
 		var gameSong = document.getElementsByClassName("game-song")[0]
 		gameSong.appendChild(document.createTextNode(this.songTitle))
 		gameSong.setAttribute("alt", this.songTitle)
+		
+		this.lastMousemove = this.controller.getElapsedTime().ms
+		pageEvents.mouseAdd(this, this.onmousemove.bind(this))
+		
 		this.refresh()
 	}
 	setBackground(){
@@ -99,7 +104,6 @@ class View{
 		if(this.controller.multiplayer == 2){
 			this.winH = this.winH / 2 * 3
 		}
-		
 		this.barY = 0.25 * this.winH
 		this.barH = 0.23 * this.winH
 		this.lyricsBarH = 0.2 * this.barH
@@ -156,6 +160,7 @@ class View{
 		this.drawCombo()
 		this.drawGlobalScore()
 		this.updateDonFaces()
+		this.mouseIdle()
 		//this.drawTime()
 	}
 	updateDonFaces(){
@@ -236,7 +241,7 @@ class View{
 		var currentTime = this.controller.getElapsedTime().ms
 		
 		measures.forEach((measure, index)=>{
-			var timeForDistance = 70 / this.circleSize * this.distanceForCircle / measure.speed
+			var timeForDistance = this.posToMs(this.distanceForCircle, measure.speed)
 			if(
 				currentTime >= measure.ms - timeForDistance
 				&& currentTime <= measure.ms + 350
@@ -249,7 +254,7 @@ class View{
 	drawMeasure(measure){
 		var z = this.canvas.scale
 		var currentTime = this.controller.getElapsedTime().ms
-		var measureX = this.slotX + measure.speed / (70 / this.circleSize) * (measure.ms - currentTime)
+		var measureX = this.slotX + this.msToPos(measure.ms - currentTime, measure.speed)
 		this.ctx.strokeStyle = "#bab8b8"
 		this.ctx.lineWidth = 2
 		this.ctx.beginPath()
@@ -345,11 +350,13 @@ class View{
 		}
 	}
 	drawPressedKeys(){
-		var keys = this.controller.getKeys()
+		var ms = this.controller.getElapsedTime().ms
+		var keyTime = this.controller.getKeyTime()
 		var kbd = this.controller.getBindings()
 		
-		if(keys[kbd["ka_l"]]){
+		if(keyTime[kbd["ka_l"]] > ms - 150){
 			var elemW = 0.45 * this.taikoW
+			this.ctx.globalAlpha = Math.min(1, 4 - (ms - keyTime[kbd["ka_l"]]) / 37.5)
 			this.ctx.drawImage(assets.image["taiko-key-blue"],
 				0, 0, 68, 124,
 				this.taikoX + this.taikoW * 0.05,
@@ -358,9 +365,9 @@ class View{
 				124 / 68 * elemW
 			)
 		}
-		
-		if(keys[kbd["don_l"]]){
+		if(keyTime[kbd["don_l"]] > ms - 150){
 			var elemW = 0.35 * this.taikoW
+			this.ctx.globalAlpha = Math.min(1, 4 - (ms - keyTime[kbd["don_l"]]) / 37.5)
 			this.ctx.drawImage(assets.image["taiko-key-red"],
 				0, 0, 53, 100,
 				this.taikoX + this.taikoW * 0.15,
@@ -369,9 +376,9 @@ class View{
 				100 / 53 * elemW
 			)
 		}
-		
-		if(keys[kbd["don_r"]]){
+		if(keyTime[kbd["don_r"]] > ms - 150){
 			var elemW = 0.35 * this.taikoW
+			this.ctx.globalAlpha = Math.min(1, 4 - (ms - keyTime[kbd["don_r"]]) / 37.5)
 			this.ctx.drawImage(assets.image["taiko-key-red"],
 				53, 0, 53, 100,
 				this.taikoX + this.taikoW * 0.15 + elemW,
@@ -380,9 +387,9 @@ class View{
 				100 / 53 * elemW
 			)
 		}
-		
-		if(keys[kbd["ka_r"]]){
+		if(keyTime[kbd["ka_r"]] > ms - 150){
 			var elemW = 0.45 * this.taikoW
+			this.ctx.globalAlpha = Math.min(1, 4 - (ms - keyTime[kbd["ka_r"]]) / 37.5)
 			this.ctx.drawImage(assets.image["taiko-key-blue"],
 				68, 0, 68, 124,
 				this.taikoX + this.taikoW * 0.05 + elemW,
@@ -391,6 +398,7 @@ class View{
 				124 / 68 * elemW
 			)
 		}
+		this.ctx.globalAlpha = 1
 	}
 	displayScore(score, notPlayed){
 		this.currentScore = score
@@ -412,17 +420,16 @@ class View{
 			if(this.scoreOpacity - 0.1 >= 0 && this.currentScore != 0){
 				this.scoreOpacity -= 0.1
 			}
-		}
-		else if(this.scoreDispCount == 21){
+		}else if(this.scoreDispCount === 21){
 			this.scoreDispCount = -1
 		}
 		this.ctx.globalAlpha = 1
 	}
 	posToMs(pos, speed){
-		return 70 / this.circleSize * pos / speed
+		return 140 / this.circleSize * pos / speed
 	}
 	msToPos(ms, speed){
-		return speed / (70 / this.circleSize) * ms
+		return speed / (140 / this.circleSize) * ms
 	}
 	drawCircles(circles){
 		for(var i = circles.length; i--;){
@@ -434,7 +441,7 @@ class View{
 			var startingTime = circle.getMS() - timeForDistance
 			var finishTime = circle.getEndTime() + this.posToMs(this.slotX - this.taikoSquareW + this.bigCircleSize / 2, speed)
 			
-			if(!circle.getPlayed() || circle.getScore() == 0){
+			if(!circle.getPlayed() || circle.getScore() === 0){
 				if(ms >= startingTime && ms <= finishTime){
 					this.drawCircle(circle)
 				}
@@ -482,7 +489,6 @@ class View{
 				}
 			}
 		}
-		
 		return data[0]
 	}
 	drawCircle(circle, circlePos){
@@ -501,7 +507,6 @@ class View{
 				y: this.circleY
 			}
 		}
-		
 		if(animated){
 			var currentDonFace = 0
 			var currentBigDonFace = 1
@@ -509,7 +514,6 @@ class View{
 			var currentDonFace = this.currentDonFace
 			var currentBigDonFace = this.currentBigDonFace
 		}
-		
 		switch(type){
 			case "don":
 				fill = "#f34728"
@@ -606,6 +610,9 @@ class View{
 	togglePauseMenu(){
 		if(this.controller.game.isPaused()){
 			this.pauseMenu.style.display = "block"
+			this.lastMousemove = this.controller.getElapsedTime().ms
+			this.cursorHidden = false
+			this.mouseIdle()
 		}else{
 			this.pauseMenu.style.display = ""
 		}
@@ -615,7 +622,6 @@ class View{
 			this.diffX, this.diffY,
 			this.diffW, this.diffH
 		)
-		
 		this.ctx.drawImage(assets.image.taiko,
 			this.taikoX, this.taikoY,
 			this.taikoW, this.taikoH
@@ -652,10 +658,10 @@ class View{
 		this.ctx.closePath()
 		this.ctx.fill()
 		
-		var currentTime = this.controller.getElapsedTime().ms
+		var ms = this.controller.getElapsedTime().ms
 		var keyTime = this.controller.getKeyTime()
 		var sound = keyTime["don"] > keyTime["ka"] ? "don" : "ka"
-		if(keyTime[sound] > currentTime - 200){
+		if(keyTime[sound] > ms - 200){
 			var gradients = {
 				"don": ["#f54c25", "#232323"],
 				"ka": ["#75cee9", "#232323"]
@@ -665,7 +671,7 @@ class View{
 			grd.addColorStop(1, gradients[sound][1])
 			this.ctx.fillStyle = grd
 			this.ctx.rect(0, this.barY, this.winW, this.barH)
-			this.ctx.globalAlpha = 1 - (currentTime - keyTime[sound]) / 200
+			this.ctx.globalAlpha = 1 - (ms - keyTime[sound]) / 200
 			this.ctx.fill()
 			this.ctx.globalAlpha = 1
 		}
@@ -717,14 +723,14 @@ class View{
 		return asset
 	}
 	drawAssets(){
-		if(this.controller.multiplayer != 2){
+		if(this.controller.multiplayer !== 2){
 			this.assets.forEach(asset => {
 				asset.draw()
 			})
 		}
 	}
 	updateCombo(combo){
-		if(combo > 0 && combo % 10 == 0 && this.don.getAnimation() != "10combo"){
+		if(combo > 0 && combo % 10 === 0 && this.don.getAnimation() != "10combo"){
 			this.don.setAnimation("10combo")
 			var ms = this.controller.getElapsedTime().ms
 			this.don.setAnimationStart(ms)
@@ -735,10 +741,30 @@ class View{
 			})
 		}
 	}
+	onmousemove(event){
+		this.lastMousemove = this.controller.getElapsedTime().ms
+		this.cursorHidden = false
+	}
+	mouseIdle(){
+		var lastMouse = pageEvents.getMouse()
+		if(lastMouse && !this.cursorHidden){
+			if(this.controller.getElapsedTime().ms >= this.lastMousemove + 2000){
+				this.cursor.style.top = lastMouse.clientY + "px"
+				this.cursor.style.left = lastMouse.clientX + "px"
+				this.cursor.style.pointerEvents = "auto"
+				this.cursorHidden = true
+			}else{
+				this.cursor.style.top = ""
+				this.cursor.style.left = ""
+				this.cursor.style.pointerEvents = ""
+			}
+		}
+	}
 	clean(){
+		pageEvents.mouseRemove(this)
 		delete this.pauseMenu
+		delete this.cursor
 		delete this.canvas
 		delete this.ctx
-		
 	}
 }
