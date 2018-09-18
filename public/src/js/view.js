@@ -4,17 +4,21 @@ class View{
 		this.bg = bg
 		this.diff = diff
 		
-		if(this.controller.multiplayer == 2){
-			this.canvas = new ScalableCanvas("canvas-p2", $(window).width(), $(window).height() / 3 * 2)
+		this.pauseMenu = document.getElementById("pause-menu")
+		
+		var docW = document.body.offsetWidth
+		var docH = document.body.offsetHeight
+		if(this.controller.multiplayer === 2){
+			this.canvas = new ScalableCanvas("canvas-p2", docW, docH / 3 * 2)
 			this.canvas.canvas.style.position = "absolute"
 			this.canvas.canvas.style.top = "33%"
 			document.getElementById("game").appendChild(this.canvas.canvas)
 		}else{
-			this.canvas = new ScalableCanvas("canvas", $(window).width(), $(window).height())
+			this.canvas = new ScalableCanvas("canvas", docW, docH)
 		}
 		this.winW = this.canvas.scaledWidth
 		this.winH = this.canvas.scaledHeight
-		if(this.controller.multiplayer == 2){
+		if(this.controller.multiplayer === 2){
 			this.winH = this.winH / 2 * 3
 		}
 		this.ctx = this.canvas.ctx
@@ -74,19 +78,22 @@ class View{
 	run(){
 		this.ctx.font = "normal 14pt TnT"
 		this.setBackground()
-		$(".game-song").attr("alt", this.songTitle).html(this.songTitle)
+		var gameSong = document.getElementsByClassName("game-song")[0]
+		gameSong.appendChild(document.createTextNode(this.songTitle))
+		gameSong.setAttribute("alt", this.songTitle)
 		this.refresh()
 	}
 	setBackground(){
-		$("#game").css("background-image", "url('" + this.bg + "')")
+		document.getElementById("game").style.backgroundImage = "url('" + this.bg + "')"
 	}
 	positionning(){
+		var docW = document.body.offsetWidth
+		var docH = document.body.offsetHeight
 		this.canvas.rescale()
-		var height = $(window).height()
 		if(this.controller.multiplayer == 2){
-			height = height / 3 * 2
+			docH = docH / 3 * 2
 		}
-		this.canvas.resize($(window).width(), height)
+		this.canvas.resize(docW, docH)
 		this.winW = this.canvas.scaledWidth
 		this.winH = this.canvas.scaledHeight
 		if(this.controller.multiplayer == 2){
@@ -597,10 +604,10 @@ class View{
 		}
 	}
 	togglePauseMenu(){
-		if($("#pause-menu").is(":visible")){
-			$("#pause-menu").hide()
+		if(this.controller.game.isPaused()){
+			this.pauseMenu.style.display = "block"
 		}else{
-			$("#pause-menu").show()
+			this.pauseMenu.style.display = ""
 		}
 	}
 	drawDifficulty(){
@@ -727,5 +734,11 @@ class View{
 				this.don.setAnimation("normal")
 			})
 		}
+	}
+	clean(){
+		delete this.pauseMenu
+		delete this.canvas
+		delete this.ctx
+		
 	}
 }

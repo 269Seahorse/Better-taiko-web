@@ -1,27 +1,19 @@
 ﻿class SoundBuffer{
 	constructor(){
 		this.context = new AudioContext()
-		var resume = () => {
+		pageEvents.once(window, "click").then(() => {
 			if(this.context.state == "suspended"){
 				this.context.resume()
 			}
-			removeEventListener("click", resume)
-		}
-		addEventListener("click", resume)
+		})
 	}
 	load(url, gain){
-		return new Promise((resolve, reject) => {
-			var request = new XMLHttpRequest()
-			request.open("GET", url)
+		return loader.ajax(url, request => {
 			request.responseType = "arraybuffer"
-			request.addEventListener("load", () => {
-				this.context.decodeAudioData(request.response, buffer => {
-					resolve(new Sound(gain || {soundBuffer: this}, buffer))
-				}, reject)
-			})
-			request.addEventListener("error", reject)
-			request.addEventListener("abort", reject)
-			request.send()
+		}).then(response => {
+			return this.context.decodeAudioData(response)
+		}).then(buffer => {
+			return new Sound(gain || {soundBuffer: this}, buffer)
 		})
 	}
 	createGain(){

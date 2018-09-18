@@ -4,7 +4,6 @@ class Controller{
 		this.songData = songData
 		this.autoPlayEnabled = autoPlayEnabled
 		this.multiplayer = multiplayer
-		this.pauseMenu = false
 		
 		var backgroundURL = "/songs/" + this.selectedSong.folder + "/bg.png"
 		var songParser = new ParseSong(songData)
@@ -40,16 +39,19 @@ class Controller{
 		}
 	}
 	loadUIEvents(){
-		$("#song-selection-butt").click(() => {
-			assets.sounds["don"].play()
-			this.songSelection()
+		this.continueBtn = document.getElementById("song-selection-butt")
+		this.restartBtn = document.getElementById("song-selection-butt")
+		this.songSelBtn = document.getElementById("song-selection-butt")
+		pageEvents.add(this.continueBtn, "click", () => {
+			this.togglePauseMenu()
 		})
-		$("#restart-butt").click(() => {
+		pageEvents.add(this.restartBtn, "click", () => {
 			assets.sounds["don"].play()
 			this.restartSong()
 		})
-		$("#continue-butt").click(() => {
-			this.togglePauseMenu()
+		pageEvents.add(this.songSelBtn, "click", () => {
+			assets.sounds["don"].play()
+			this.songSelection()
 		})
 	}
 	startMainLoop(){
@@ -66,7 +68,7 @@ class Controller{
 	}
 	mainLoop(){
 		if(this.mainLoopRunning){
-			if(this.multiplayer != 2){
+			if(this.multiplayer !== 2){
 				requestAnimationFrame(() => {
 					if(this.syncWith){
 						this.syncWith.game.elapsedTime.ms = this.game.elapsedTime.ms
@@ -87,6 +89,9 @@ class Controller{
 				}
 				if(this.mainLoopStarted){
 					this.game.update()
+					if(!this.mainLoopRunning){
+						return
+					}
 					this.game.playMainMusic()
 				}
 				this.view.refresh()
@@ -99,10 +104,10 @@ class Controller{
 		this.togglePause()
 		this.view.togglePauseMenu()
 	}
-	displayResults(){
+	gameEnded(){
 		var score = this.getGlobalScore()
 		var vp
-		if(score.fail == 0){
+		if(score.fail === 0){
 			vp = "fullcombo"
 			this.playSoundMeka("fullcombo", 1.350)
 		}else if(score.hp >= 50){
@@ -111,33 +116,29 @@ class Controller{
 			vp = "fail"
 		}
 		assets.sounds["game" + vp].play()
-		setTimeout(() => {
-			if(this.mainLoopRunning){
-				this.stopMainLoop()
-				if(this.multiplayer != 2){
-					new Scoresheet(this, this.getGlobalScore(), this.multiplayer)
-				}
-			}
-		}, 7000)
+	}
+	displayResults(){
+		this.clean()
+		if(this.multiplayer !== 2){
+			new Scoresheet(this, this.getGlobalScore(), this.multiplayer)
+		}
 	}
 	displayScore(score, notPlayed){
 		this.view.displayScore(score, notPlayed)
 	}
 	songSelection(){
-		$("#music-bg").remove()
-		this.stopMainLoop()
+		this.clean()
 		new SongSelect()
 	}
 	restartSong(){
-		this.stopMainLoop()
-		$("#screen").load("/src/views/game.html", () => {
-			if(this.multiplayer){
-				new loadSong(this.selectedSong, false, true)
-			}else{
-				var taikoGame = new Controller(this.selectedSong, this.songData, this.autoPlayEnabled)
-				taikoGame.run()
-			}
-		})
+		this.clean()
+		if(this.multiplayer){
+			new loadSong(this.selectedSong, false, true)
+		}else{
+			loader.changePage("game")
+			var taikoGame = new Controller(this.selectedSong, this.songData, this.autoPlayEnabled)
+			taikoGame.run()
+		}
 	}
 	playSoundMeka(soundID, time){
 		var meka = ""
@@ -194,5 +195,17 @@ class Controller{
 		}else{
 			this.mekadon.play(circle)
 		}
+	}
+	clean(){
+		this.stopMainLoop()
+		this.keyboard.clean()
+		this.view.clean()
+		
+		pageEvents.remove(this.continueBtn, "click")
+		delete this.continueBtn
+		pageEvents.remove(this.restartBtn, "click")
+		delete this.restartBtn
+		pageEvents.remove(this.songSelBtn, "click")
+		delete this.songSelBtn
 	}
 }

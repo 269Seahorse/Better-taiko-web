@@ -51,6 +51,9 @@ async def connection(ws, path):
 				except asyncio.TimeoutError:
 					# Disconnect
 					break
+			except websockets.exceptions.ConnectionClosed:
+				# Connection closed
+				break
 			else:
 				# Message received
 				try:

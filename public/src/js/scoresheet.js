@@ -3,9 +3,8 @@ class Scoresheet{
 		this.controller = controller
 		this.score = score
 		this.multiplayer = multiplayer
-		$("#screen").load("/src/views/scoresheet.html", () =>{
-			this.run()
-		})
+		loader.changePage("scoresheet")
+		this.run()
 	}
 	setResults(score, scoreCont){
 		this.positionning(scoreCont)
@@ -36,7 +35,7 @@ class Scoresheet{
 		this.altText(this.elem("max-combo", scoreCont), score.maxCombo)
 		this.altText(this.elem("nb-drumroll", scoreCont), score.drumroll)
 		
-		addEventListener("resize", () => {
+		pageEvents.add(window, "resize", () => {
 			this.positionning(scoreCont)
 		})
 	}
@@ -82,17 +81,16 @@ class Scoresheet{
 		this.setResults(this.score, scoreCont)
 		this.altText(this.elem("result-song", this.scoresheet), this.score.song)
 		
-		this.elem("song-select", this.scoresheet).addEventListener("click", () => {
+		pageEvents.once(this.elem("song-select", this.scoresheet), "click").then(() => {
+			this.clean()
 			assets.sounds["don"].play()
-			assets.sounds["bgm_result"].stop()
 			this.controller.songSelection()
 		})
-		this.elem("replay", this.scoresheet).addEventListener("click", () => {
+		pageEvents.once(this.elem("replay", this.scoresheet), "click").then(() => {
+			this.clean()
 			assets.sounds["don"].play()
-			assets.sounds["bgm_result"].stop()
 			this.controller.restartSong()
 		})
-		
 		if(this.multiplayer && p2.results){
 			var scoreCont2 = document.createElement("div")
 			scoreCont2.classList.add("score-cont")
@@ -100,5 +98,9 @@ class Scoresheet{
 			scoreCont.parentNode.appendChild(scoreCont2)
 			this.setResults(p2.results, scoreCont2)
 		}
+	}
+	clean(){
+		assets.sounds["bgm_result"].stop()
+		pageEvents.remove(window, "resize")
 	}
 }

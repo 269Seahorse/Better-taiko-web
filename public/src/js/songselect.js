@@ -1,202 +1,153 @@
-function SongSelect(){
-	var _this=this;
-	var _songs;
-	var _selectedSong = {title:'', folder:'', difficulty:''};
-	var _preview;
-	var _preview_id = 0
-	var _diffNames={
-		easy:"かんたん",
-		normal:"ふつう",
-		hard:"むずかしい",
-		oni:"おに"
+class SongSelect{
+	constructor(){
+		this.songs
+		this.selectedSong = {
+			"title": "",
+			"folder": "",
+			"difficulty": ""
+		}
+		this.previewId = 0
+		this.diffNames={
+			"easy": "かんたん",
+			"normal": "ふつう",
+			"hard": "むずかしい",
+			"oni": "おに"
+		}
+		loader.changePage("songselect")
+		this.run()
 	}
-	
-	this.startPreview = function(id, prvtime, first_open=true) {
-		_this.endPreview();
+	startPreview(id, prvtime, switchedTo){
+		this.endPreview()
 		var startLoad = +new Date
-		var current_id = _preview_id
-		if(first_open){
+		var currentId = this.previewId
+		if(!switchedTo){
 			snd.musicGain.fadeOut(0.4)
 		}
-		var songObj
-		assets.songs.forEach(song => {
-			if(song.id == id){
-				songObj = song
-			}
-		})
+		var songObj = assets.songs.find(song => song.id == id)
 		if(songObj.sound){
-			_preview = songObj.sound
-			_preview.gain = snd.previewGain
-			this.previewLoaded(startLoad, prvtime, first_open)
+			this.preview = songObj.sound
+			this.preview.gain = snd.previewGain
+			this.previewLoaded(startLoad, prvtime, switchedTo)
 		}else{
 			snd.previewGain.load("/songs/" + id + "/main.mp3").then(sound => {
-				if(current_id == _preview_id){
+				if(currentId == this.previewId){
 					songObj.sound = sound
-					_preview = sound
-					this.previewLoaded(startLoad, prvtime, first_open)
+					this.preview = sound
+					this.previewLoaded(startLoad, prvtime, switchedTo)
 				}
 			})
 		}
-	};
-	
-	this.previewLoaded = function(startLoad, prvtime, first_open){
+	}
+	previewLoaded(startLoad, prvtime, switchedTo){
 		var endLoad = +new Date
 		var difference = endLoad - startLoad
-		var minDelay = first_open ? 1000 : 300
+		var minDelay = switchedTo ? 300 : 1000
 		var delay = minDelay - Math.min(minDelay, difference)
-		_preview.playLoop(delay / 1000, false, prvtime / 1000)
+		this.preview.playLoop(delay / 1000, false, prvtime / 1000)
 	}
-	
-	this.endPreview = function() {
-		_preview_id++
-		if (_preview) {
-			_preview.stop();
-		};
-	};
-	
-	this.run = function(){
-		_this.createCode();
-		_this.startP2();
+	endPreview() {
+		this.previewId++
+		if(this.preview){
+			this.preview.stop()
+		}
+	}
+	run(){
+		this.createCode()
+		this.startP2()
 		
-		$("#song-container").show();
+		this.songselHelp = document.getElementById("songsel-help")
+		pageEvents.once(this.songselHelp, "click").then(() => {
+			this.clean()
+			assets.sounds["don"].play()
+			new Tutorial()
+		})
+		this.diffElements = document.getElementsByClassName("difficulty")
+		for(let difficulty of this.diffElements){
+			pageEvents.once(difficulty, "click").then(this.onDifficulty.bind(this))
+		}
+		this.songElements = document.getElementsByClassName("song")
+		for(let song of this.songElements){
+			pageEvents.add(song, "click", this.onSong.bind(this))
+		}
+		this.songSelect = document.getElementById("song-select")
+	}
+	onDifficulty(event){
+		this.clean()
+		var target = event.currentTarget
+		var song = target.parentNode.parentNode
+		assets.sounds["don"].play()
 		
-		$('#songsel-help').click(function(){
-			assets.sounds["bgm_songsel"].stop()
+		this.selectedSong.difficulty = target.classList[1] + ".osu"
+		this.selectedSong.title = song.dataset.title
+		this.selectedSong.folder = song.dataset.songId
+		
+		new loadSong(this.selectedSong, event.shiftKey, event.ctrlKey)
+	}
+	onSong(event){
+		var target = event.currentTarget
+		var opened = document.getElementsByClassName("opened")[0]
+		if(!opened){
+			this.startPreview(target.dataset.songId, target.dataset.preview)
+			assets.sounds["don"].play()
 			assets.sounds["song-select"].stop()
+			assets.sounds["diffsel"].play(0.3)
+			target.classList.add("opened")
+			this.songSelect.classList.add("difficulty-select")
+		}else if(opened == target){
+			this.endPreview()
+			snd.musicGain.fadeIn(0.4)
 			assets.sounds["diffsel"].stop()
-			assets.sounds["don"].play()
-			snd.musicGain.fadeIn()
-			_this.endPreview();
-			
-			new Tutorial();
-		});
-		
-		$(".difficulty").click(function(e){
-			_this.endPreview();
-			assets.sounds["bgm_songsel"].stop()
-			assets.sounds["diffsel"].stop()
-			assets.sounds["don"].play()
-			
-			var difficultyElement = (e.target.className=="stars" || e.target.className=="diffname") ? e.target.parentElement : e.target;
-			_selectedSong.difficulty = difficultyElement.classList[1]+'.osu';
-			var parentID = $(this).parent().closest(".song").attr("id");
-			var songID = parseInt(parentID.substr(5, parentID.length-1));
-			_selectedSong.title = $(this).parent().closest('.song').data('title');
-			_selectedSong.folder = songID;
-			
-			snd.musicGain.fadeIn()
-			new loadSong(_selectedSong, e.shiftKey, e.ctrlKey);
-		});
-		
-		$(".song").hover(function(){
-			if(!$(this).hasClass("opened"))
-				$(this).css("background", "rgba(255, 233, 125, 0.90)");
-		},
-		function(){
-			if(!$(this).hasClass("opened"))
-				$(this).css("background", "rgba(255, 220, 47, 0.90)");
-		});
-		
-		$(".song").click(function(e){
-			if (!$(e.target).parents('.difficulties').length) {
-				if ($(".opened").length && $(".opened").attr('id') == $(this).attr('id')) {
-					_this.endPreview();
-					snd.musicGain.fadeIn(0.4)
-					assets.sounds["diffsel"].stop()
-					assets.sounds["cancel"].play()
-					assets.sounds["song-select"].play(0.3)
-					
-					$(".difficulty").hide();
-					$(".opened").removeClass("opened", 300);
-					
-					$('.songsel-title').fadeOut(200, function(){
-						$('.songsel-title').attr('alt', '曲をえらぶ').html('曲をえらぶ').css('left', -300);
-						$('.songsel-title').animate({left:0, opacity:"show"}, 400);
-					});
-					
-					return;
-				}
-				
-				if(!$('.opened').length) {
-					_this.startPreview($(this).data('song-id'), $(this).data('preview'));
-					assets.sounds["don"].play()
-					assets.sounds["song-select"].stop()
-					assets.sounds["diffsel"].play(0.3)
-					
-					$('.songsel-title').fadeOut(200, function(){
-						$('.songsel-title').attr('alt', 'むずかしさをえらぶ').html('むずかしさをえらぶ').css('left', -300);
-						$('.songsel-title').animate({left:0, opacity:"show"}, 400);
-					});
-				} else {
-					_this.startPreview($(this).data('song-id'), $(this).data('preview'), false);
-					assets.sounds["ka"].play();
-				}
-			};
-			
-			$(".difficulty").hide();
-			$(".opened").removeClass("opened", 300);
-			$(this).addClass("opened", 300, "linear", function(){
-				$(this).find(".difficulty").show();
-				$(this).css("background", "rgba(255, 220, 47, 0.90)");
-			});
-		});
-	
+			assets.sounds["cancel"].play()
+			assets.sounds["song-select"].play(0.3)
+			opened.classList.remove("opened")
+			this.songSelect.classList.remove("difficulty-select")
+		}else{
+			this.startPreview(target.dataset.songId, target.dataset.preview, true)
+			assets.sounds["ka"].play()
+			opened.classList.remove("opened")
+			target.classList.add("opened")
+		}
 	}
-	
-	this.createCode = function(){
+	createCode(){
 		assets.sounds["bgm_songsel"].playLoop(0.1, false, 0, 1.442, 3.506)
-		assets.sounds["song-select"].play(0.2);
-		
+		assets.sounds["song-select"].play(0.2)
 		var songElements = [0]
 		
-		for(var i=0; i<assets.songs.length; i++){
-			
-			var song = assets.songs[i];
-			var songTitle = song.title;
-			var skipChars = [];
+		assets.songs.forEach(song => {
+			var songTitle = song.title
 			var charElements = [0]
 			var diffElements = [0]
 			
-			for (var c=0; c<songTitle.length; c++) {
-				if (skipChars.indexOf(c) > -1) {
-					continue;
-				};
-				
-				var ch = songTitle.charAt(c) == " " ? "\xa0" : songTitle.charAt(c);
-				
-				var isApos = false;
-				if (songTitle.charAt(c+1) == "'") {
-					ch = ch + "'";
-					skipChars.push(c+1);
-					isApos = true;
-				};
-				
-				var cl = ch == "\xa0" ? "song-title-char song-title-space" : "song-title-char";
-				cl = isApos ? cl + " song-title-apos" : cl;
-				
+			for(var charIndex = 0; charIndex < songTitle.length; charIndex++){
+				var ch = songTitle.charAt(charIndex)
+				var cl = "song-title-char"
+				if(ch == " "){
+					ch = "\xa0"
+					cl += " song-title-space"
+				}else if(songTitle.charAt(charIndex + 1) == "'"){
+					ch = ch + "'"
+					cl += " song-title-apos"
+					charIndex++
+				}
 				charElements.push(
 					["span", {
 						class: cl,
 						alt: ch
 					}, ch]
 				)
-			};
-			
-			for(var diff in _diffNames){
-				var diffName = diff;
-				var diffLevel = song.stars[diff];
+			}
+			for(var diff in this.diffNames){
+				var diffName = diff
+				var diffLevel = song.stars[diff]
 				if (!diffLevel) {
-					continue;
+					continue
 				}
-				
 				var starsDisplay = [0]
-				for(var x=1; x<=diffLevel; x++){
+				for(var star = 1; star <= diffLevel; star++){
 					starsDisplay.push("\u2605")
 					starsDisplay.push(["br"])
 				}
-				
-				var diffTxt=_diffNames[diffName]
-				
+				var diffTxt = this.diffNames[diffName]
 				diffElements.push(
 					["li", {
 						class: "difficulty " + diffName
@@ -209,9 +160,7 @@ function SongSelect(){
 						}, starsDisplay]
 					]
 				)
-			
 			}
-			
 			songElements.push(
 				["div", {
 					id: "song-" + song.id,
@@ -228,25 +177,22 @@ function SongSelect(){
 					}, diffElements]
 				]
 			)
-		}
-		
+		})
 		element(
 			document.getElementById("song-container"),
 			songElements
 		)
-		$('.difficulty').hide();
 	}
-	
-	this.onusers = function(response){
+	onusers(response){
 		var oldP2Elements = document.getElementsByClassName("p2")
 		for(var i = oldP2Elements.length; i--;){
 			oldP2Elements[i].classList.remove("p2")
 		}
 		if(response){
 			response.forEach(idDiff => {
-				id = idDiff.id |0
-				diff = idDiff.diff
-				if(diff in _diffNames){
+				var id = idDiff.id |0
+				var diff = idDiff.diff
+				if(diff in this.diffNames){
 					var idElement = document.getElementById("song-" + id)
 					if(idElement){
 						idElement.classList.add("p2")
@@ -259,19 +205,34 @@ function SongSelect(){
 			})
 		}
 	}
-	
-	this.startP2 = function(){
-		p2.getMessage("users", response =>{
-			this.onusers(response)
-		})
-		p2.onmessage("users", response => {
-			this.onusers(response)
+	startP2(){
+		this.onusers(p2.getMessage("users"))
+		pageEvents.add(p2, "message", response => {
+			if(response.type == "users"){
+				this.onusers(response.value)
+			}
 		})
 		if(p2.closed){
 			p2.open()
 		}
 	}
-	
-	$("#screen").load("/src/views/songselect.html", _this.run);
-	
+	clean(){
+		assets.sounds["bgm_songsel"].stop()
+		assets.sounds["song-select"].stop()
+		assets.sounds["diffsel"].stop()
+		this.endPreview()
+		snd.musicGain.fadeIn()
+		pageEvents.remove(p2, "message")
+		for(let difficulty of this.diffElements){
+			pageEvents.remove(difficulty, "click")
+		}
+		delete this.diffElements
+		for(let song of this.songElements){
+			pageEvents.remove(song, "click")
+		}
+		delete this.songElements
+		pageEvents.remove(this.songselHelp, "click")
+		delete this.songselHelp
+		delete this.songSelect
+	}
 }

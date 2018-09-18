@@ -1,51 +1,39 @@
-@keyframes toggleFade {
-    
-    0%{
-        opacity:1;
-    }
-    50% {
-        opacity: 0;
-    }
+@keyframes toggleFade{
+	40%{
+		opacity: 1;
+	}
+	70%{
+		opacity: 0.2;
+	}
 }
-
-
 #title-screen{
-	position:absolute;
-	top:0;
-	left:0;
-    width:100%;
-    height:100%;
-	display: none;
-    margin:0px;
-    cursor: pointer;
-    background: url('/assets/img/title-screen.png');
-    -webkit-background-size: cover; /* pour Chrome et Safari */
-	-moz-background-size: cover; /* pour Firefox */
-	-o-background-size: cover; /* pour Opera */
-	background-size: cover; /* version standardis�e */
+	position: absolute;
+	top: 0;
+	right: 0;
+	bottom: 0;
+	left: 0;
+	display: flex;
+	justify-content: center;
+	align-items: center;
+	background: #1389f0 url("/assets/img/title-screen.png") no-repeat center;
+	background-size: cover;
+	cursor: pointer;
 }
-
-#logo-big-cont{
-	position:absolute;
-	max-width: 654px;
-	max-height: 300px;
+.logo-big{
+	width: 90vmin;
+	height: auto;
 }
-
-#logo-big-cont img{
-	width:100%;
-	height:100%;
-}
-
 .click-to-continue{
-    
-    display:block;
-    font-size: 8vmin;
-    color:white;
-    text-align: center;
-    position:absolute;
-    bottom:2%;
-    width:100%;
-    animation: toggleFade 1s infinite ease-out;
-    z-index: 1;
-    
+	position:absolute;
+	bottom: 10%;
+	color: #fff;
+	font-size: 8vmin;
+	text-align: center;
+	z-index: 1;
+	animation: toggleFade 2s infinite ease-in-out;
+}
+.click-to-continue::before{
+	-webkit-text-stroke: 0.25em #f00;
+	filter: blur(0.3vmin);
+	left: auto;
 }

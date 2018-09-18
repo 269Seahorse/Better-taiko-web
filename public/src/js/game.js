@@ -219,27 +219,32 @@ class Game{
 	whenLastCirclePlayed(){
 		var circles = this.songData.circles
 		var lastCircle = circles[this.songData.circles.length - 1]
-		if(!this.fadeOutStarted && this.getElapsedTime().ms >= lastCircle.getEndTime() + 1900){
-			this.fadeOutStarted=this.getElapsedTime().ms
+		var ms = this.getElapsedTime().ms
+		if(!this.fadeOutStarted && ms >= lastCircle.getEndTime() + 1900){
+			this.fadeOutStarted = ms
 		}
 	}
 	whenFadeoutMusic(){
-		if(this.fadeOutStarted){
-			if(this.musicFadeOut==0){
+		var started = this.fadeOutStarted
+		if(started){
+			var ms = this.getElapsedTime().ms
+			if(this.musicFadeOut === 0){
 				snd.musicGain.fadeOut(1.6)
-				if(this.controller.multiplayer == 1){
+				if(this.controller.multiplayer === 1){
 					p2.send("gameresults", this.controller.getGlobalScore())
 				}
 				this.musicFadeOut++
-			}
-			if(this.musicFadeOut == 1 && this.getElapsedTime().ms >= this.fadeOutStarted + 1600){
-				this.controller.displayResults()
+			}else if(this.musicFadeOut === 1 && ms >= started + 1600){
+				this.controller.gameEnded()
 				this.mainAsset.stop()
 				p2.send("gameend")
-				setTimeout(() => {
-					snd.musicGain.fadeIn()
-					snd.musicGain.unmute()
-				}, 1000)
+				this.musicFadeOut++
+			}else if(this.musicFadeOut === 2 &&  ms >= started + 2600){
+				snd.musicGain.fadeIn()
+				snd.musicGain.unmute()
+				this.musicFadeOut++
+			}else if(this.musicFadeOut === 3 &&  ms >= started + 8600){
+				this.controller.displayResults()
 				this.musicFadeOut++
 			}
 		}
