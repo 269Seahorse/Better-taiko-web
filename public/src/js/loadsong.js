@@ -3,8 +3,6 @@ class loadSong{
 		this.selectedSong = selectedSong
 		this.multiplayer = multiplayer
 		this.autoPlayEnabled = autoPlayEnabled
-		this.diff = this.selectedSong.difficulty.slice(0, -4)
-		this.songFilePath = "/songs/" + this.selectedSong.folder + "/" + this.selectedSong.difficulty
 		loader.changePage("loadsong")
 		this.run()
 	}
@@ -36,7 +34,7 @@ class loadSong{
 				}, reject)
 			}
 		}))
-		promises.push(loader.ajax(this.songFilePath).then(data => {
+		promises.push(loader.ajax(this.getOsuPath(this.selectedSong)).then(data => {
 			this.songData = data.replace(/\0/g, "").split("\n")
 		}))
 		Promise.all(promises).then(() => {
@@ -45,6 +43,9 @@ class loadSong{
 			console.error(error)
 			alert("An error occurred, please refresh")
 		})
+	}
+	getOsuPath(selectedSong){
+		return "/songs/" + selectedSong.folder + "/" + selectedSong.difficulty + ".osu"
 	}
 	setupMultiplayer(){
 		if(this.multiplayer){
@@ -57,15 +58,15 @@ class loadSong{
 			this.selectedSong2 = this.selectedSong
 			pageEvents.add(p2, "message", event => {
 				if(event.type === "gameload"){
-					if(event.value === this.diff){
+					if(event.value === this.selectedSong.difficulty){
 						p2.send("gamestart")
 					}else{
 						this.selectedSong2 = {
 							title: this.selectedSong.title,
 							folder: this.selectedSong.folder,
-							difficulty: event.value + ".osu"
+							difficulty: event.value
 						}
-						loader.ajax("/songs/" + this.selectedSong2.folder + "/" + this.selectedSong2.difficulty).then(data => {
+						loader.ajax(this.getOsuPath(this.selectedSong2)).then(data => {
 							this.song2Data = data.replace(/\0/g, "").split("\n")
 							p2.send("gamestart")
 						}, () => {
@@ -82,7 +83,7 @@ class loadSong{
 			})
 			p2.send("join", {
 				id: this.selectedSong.folder,
-				diff: this.diff
+				diff: this.selectedSong.difficulty
 			})
 		}else{
 			this.clean()

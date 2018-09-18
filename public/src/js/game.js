@@ -41,7 +41,7 @@ class Game{
 	initTiming(){
 		// Date when the chrono is started (before the game begins)
 		this.offsetDate = new Date()
-		this.offsetTime = this.timeForDistanceCircle |0
+		this.offsetTime = Math.max(0, this.timeForDistanceCircle  - this.songData.circles[0].ms) |0
 		this.setElapsedTime(-this.offsetTime)
 		// The real start for the game will start when chrono will reach 0
 		this.startDate = new Date()
@@ -70,20 +70,26 @@ class Game{
 				var hitTime = circle.getMS()
 				var endTime = circle.getEndTime()
 				var type = circle.getType()
-				var normalNotes = type == "don" || type == "daiDon" || type == "ka" || type == "daiKa"
+				var drumrollNotes = type === "balloon" || type === "drumroll" || type === "daiDrumroll"
 				
 				if(currentTime >= startingTime && currentTime <= endTime){
 					
 					if(currentTime>= hitTime - 50 && currentTime < hitTime - 30){
 						circle.updateStatus(0)
-					}else if(currentTime>= hitTime - 30 && currentTime < hitTime){
+					}else if(currentTime >= hitTime - 30 && currentTime < hitTime){
 						circle.updateStatus(230)
 					}else if(currentTime >= hitTime && currentTime < endTime){
 						circle.updateStatus(450)
+						if(drumrollNotes && !circle.rendaPlayed){
+							circle.rendaPlayed = true
+							if(this.controller.selectedSong.difficulty === "easy"){
+								assets.sounds["renda"].stop()
+								assets.sounds["renda"].play()
+							}
+						}
 					}
-					
-				}else if(currentTime>endTime){
-					if(type == "balloon" || type == "drumroll" || type == "daiDrumroll"){
+				}else if(currentTime > endTime){
+					if(drumrollNotes){
 						circle.updateStatus(-1)
 						circle.played(0)
 						this.updateCurrentCircle()
@@ -100,9 +106,9 @@ class Game{
 							this.controller.displayScore(currentScore, true)
 							this.updateCurrentCircle()
 							this.updateCombo(currentScore)
-							this.updateGlobalScore(currentScore)
+							this.updateGlobalScore(currentScore, 1)
 						}
-						if(this.controller.multiplayer == 1){
+						if(this.controller.multiplayer === 1){
 							p2.send("note", {
 								score: -1
 							})
@@ -124,42 +130,61 @@ class Game{
 		}
 		var keys = this.controller.getKeys()
 		var kbd = this.controller.getBindings()
-		if(keys[kbd["don_l"]]){
-			this.checkKey(kbd["don_l"], circle)
-		}
-		if(keys[kbd["don_r"]]){
-			this.checkKey(kbd["don_r"], circle)
-		}
-		if(keys[kbd["ka_l"]]){
-			this.checkKey(kbd["ka_l"], circle)
-		}
-		if(keys[kbd["ka_r"]]){
-			this.checkKey(kbd["ka_r"], circle)
-		}
-	}
-	checkKey(keyCode, circle){
-		if(!this.controller.isWaitingForKeyup(keyCode, "score")){
-			if(circle && !circle.getPlayed() && circle.getStatus() != -1){
-				this.checkScore(circle)
-			}
-			this.controller.waitForKeyup(keyCode, "score")
-		}
-	}
-	checkScore(circle){
-		var keys = this.controller.getKeys()
-		var kbd = this.controller.getBindings()
-		var keysDon = keys[kbd["don_l"]] || keys[kbd["don_r"]]
-		var keysKa = keys[kbd["ka_l"]] || keys[kbd["ka_r"]]
 		
+		var don_l = keys[kbd["don_l"]] && !this.controller.isWaiting(kbd["don_l"], "score")
+		var don_r = keys[kbd["don_r"]] && !this.controller.isWaiting(kbd["don_r"], "score")
+		var ka_l = keys[kbd["ka_l"]] && !this.controller.isWaiting(kbd["ka_l"], "score")
+		var ka_r = keys[kbd["ka_r"]] && !this.controller.isWaiting(kbd["ka_r"], "score")
+		
+		if(don_l && don_r){
+			this.checkKey([kbd["don_l"], kbd["don_r"]], circle, "daiDon")
+		}else if(don_l){
+			this.checkKey([kbd["don_l"]], circle, "don")
+		}else if(don_r){
+			this.checkKey([kbd["don_r"]], circle, "don")
+		}
+		if(ka_l && ka_r){
+			this.checkKey([kbd["ka_l"], kbd["ka_r"]], circle, "daiKa")
+		}else if(ka_l){
+			this.checkKey([kbd["ka_l"]], circle, "ka")
+		}else if(ka_r){
+			this.checkKey([kbd["ka_r"]], circle, "ka")
+		}
+	}
+	checkKey(keyCodes, circle, check){
+		if(circle && !circle.getPlayed() && circle.getStatus() != -1){
+			if(!this.checkScore(circle, check)){
+				return
+			}
+		}
+		keyCodes.forEach(keyCode => {
+			this.controller.waitForKeyup(keyCode, "score")
+		})
+	}
+	checkScore(circle, check){
+		var ms = this.getElapsedTime().ms
 		var type = circle.getType()
-		var typeDon = type == "don" || type == "daiDon"
-		var typeKa = type == "ka" || type == "daiKa"
+		
+		var keysDon = check === "don" || check === "daiDon"
+		var keysKa = check === "ka" || check === "daiKa"
+		var keyDai = check === "daiDon" || check === "daiKa"
+		var typeDon = type === "don" || type === "daiDon"
+		var typeKa = type === "ka" || type === "daiKa"
+		var typeDai = type === "daiDon" || type === "daiKa"
 		
 		if(typeDon || typeKa){
 			var score = 0
 			if(keysDon && typeDon || keysKa && typeKa){
+				if(typeDai && !keyDai){
+					if(!circle.daiFailed){
+						circle.daiFailed = ms
+						return false
+					}else if(ms < circle.daiFailed + 2000 / 60){
+						return false
+					}
+				}
 				var circleStatus = circle.getStatus()
-				if(circleStatus == 230 || circleStatus == 450){
+				if(circleStatus === 230 || circleStatus === 450){
 					score = circleStatus
 				}
 				this.controller.displayScore(score)
@@ -167,20 +192,28 @@ class Game{
 				this.controller.displayScore(score, true)
 			}
 			this.updateCombo(score)
-			this.updateGlobalScore(score)
+			this.updateGlobalScore(score, typeDai && keyDai ? 2 : 1)
 			this.updateCurrentCircle()
-			circle.played(score)
+			circle.played(score, keyDai)
 			if(this.controller.multiplayer == 1){
 				p2.send("note", {
 					score: score,
-					ms: circle.getMS() - this.getElapsedTime().ms
+					ms: circle.getMS() - ms,
+					dai: typeDai ? keyDai ? 2 : 1 : 0
 				})
 			}
 		}else if(keysDon && type == "balloon"){
 			this.checkBalloon(circle)
-		}else if((keysDon || keysKa) && (type == "drumroll" || type == "daiDrumroll")){
+			if(check === "daiDon" && !circle.getPlayed()){
+				this.checkBalloon(circle)
+			}
+		}else if((keysDon || keysKa) && (type === "drumroll" || type === "daiDrumroll")){
 			this.checkDrumroll(circle)
+			if(keyDai){
+				this.checkDrumroll(circle)
+			}
 		}
+		return true
 	}
 	checkBalloon(circle){
 		if(circle.timesHit >= circle.requiredHits - 1){
@@ -201,20 +234,21 @@ class Game{
 		this.globalScore.points += score
 	}
 	checkDrumroll(circle){
+		var dai = circle.getType() === "daiDrumroll"
 		var score = 100
 		circle.hit()
 		var keyTime = this.controller.getKeyTime()
-		if(circle.getType() == "drumroll"){
+		if(circle.getType() === "drumroll"){
 			var sound = keyTime["don"] > keyTime["ka"] ? "don" : "ka"
 		}else{
 			var sound = keyTime["don"] > keyTime["ka"] ? "daiDon" : "daiKa"
 		}
 		var circleAnim = new Circle(0, this.getElapsedTime().ms, sound, "", circle.speed)
-		circleAnim.played(score)
+		circleAnim.played(score, dai)
 		circleAnim.animate()
 		this.controller.view.drumroll.push(circleAnim)
-		this.globalScore.drumroll ++
-		this.globalScore.points += score
+		this.globalScore.drumroll++
+		this.globalScore.points += score * (dai ? 2 : 1)
 	}
 	whenLastCirclePlayed(){
 		var circles = this.songData.circles
@@ -229,21 +263,15 @@ class Game{
 		if(started){
 			var ms = this.getElapsedTime().ms
 			if(this.musicFadeOut === 0){
-				snd.musicGain.fadeOut(1.6)
 				if(this.controller.multiplayer === 1){
 					p2.send("gameresults", this.controller.getGlobalScore())
 				}
 				this.musicFadeOut++
 			}else if(this.musicFadeOut === 1 && ms >= started + 1600){
 				this.controller.gameEnded()
-				this.mainAsset.stop()
 				p2.send("gameend")
 				this.musicFadeOut++
-			}else if(this.musicFadeOut === 2 &&  ms >= started + 2600){
-				snd.musicGain.fadeIn()
-				snd.musicGain.unmute()
-				this.musicFadeOut++
-			}else if(this.musicFadeOut === 3 &&  ms >= started + 8600){
+			}else if(this.musicFadeOut === 2 && (ms >= started + 8600 && ms >= this.controller.mainAsset.duration * 1000 + 250)){
 				this.controller.displayResults()
 				this.musicFadeOut++
 			}
@@ -259,7 +287,7 @@ class Game{
 	playMainMusic(){
 		var ms = this.getElapsedTime().ms
 		if(!this.mainMusicPlaying && (!this.fadeOutStarted || ms<this.fadeOutStarted + 1600)){
-			if(this.controller.multiplayer != 2){
+			if(this.controller.multiplayer !== 2){
 				this.mainAsset.play((ms < 0 ? -ms : 0) / 1000, false, Math.max(0, ms / 1000))
 			}
 			this.mainMusicPlaying = true
@@ -318,7 +346,7 @@ class Game{
 		return this.currentCircle
 	}
 	updateCombo(score){
-		if(score != 0){
+		if(score !== 0){
 			this.combo++
 		}else{
 			this.combo = 0
@@ -326,7 +354,7 @@ class Game{
 		if(this.combo > this.globalScore.maxCombo){
 			this.globalScore.maxCombo = this.combo
 		}
-		if(this.combo == 50 || this.combo > 0 && this.combo % 100 == 0 && this.combo <= 1400){
+		if(this.combo === 50 || this.combo > 0 && this.combo % 100 === 0 && this.combo <= 1400){
 			this.controller.playSoundMeka("combo-" + this.combo)
 		}
 		this.controller.view.updateCombo(this.combo)
@@ -337,7 +365,7 @@ class Game{
 	getGlobalScore(){
 		return this.globalScore
 	}
-	updateGlobalScore(score){
+	updateGlobalScore(score, multiplier){
 		// Circle score
 		switch(score){
 			case 450:
@@ -351,7 +379,7 @@ class Game{
 				break
 		}
 		// HP Update
-		if(score != 0){
+		if(score !== 0){
 			this.globalScore.hp += this.HPGain
 		}else if(this.globalScore.hp - this.HPGain > 0){
 			this.globalScore.hp -= this.HPGain
@@ -361,6 +389,6 @@ class Game{
 		// Points update
 		score += Math.max(0, Math.floor((Math.min(this.combo, 100) - 1) / 10) * 100)
 		
-		this.globalScore.points+=score
+		this.globalScore.points += score * multiplier
 	}
 }

@@ -174,8 +174,8 @@ class Controller{
 	getCurrentCircle(){
 		return this.game.getCurrentCircle()
 	}
-	isWaitingForKeyup(key, type){
-		return this.keyboard.isWaitingForKeyup(key, type)
+	isWaiting(key, type){
+		return this.keyboard.isWaiting(key, type)
 	}
 	waitForKeyup(key, type){
 		this.keyboard.waitForKeyup(key, type)

@@ -16,10 +16,10 @@ class Mekadon{
 			this.playAt(circle, 0, 450)
 		}
 	}
-	playAt(circle, ms, score){
+	playAt(circle, ms, score, dai){
 		var currentMs = circle.getMS() - this.getMS()
 		if(ms > currentMs - 10){
-			return this.playNow(circle, score)
+			return this.playNow(circle, score, dai)
 		}
 	}
 	playDrumrollAt(circle, ms, pace){
@@ -33,27 +33,31 @@ class Mekadon{
 			this.controller.displayScore(0, true)
 			this.game.updateCurrentCircle()
 			this.game.updateCombo(0)
-			this.game.updateGlobalScore(0)
+			this.game.updateGlobalScore(0, 1)
 			return true
 		}
 	}
-	playNow(circle, score){
+	playNow(circle, score, dai){
 		var kbd = this.controller.getBindings()
 		var type = circle.getType()
-		if(type == "don" || type == "balloon" || type == "drumroll" || type == "daiDrumroll"){
-			this.setKey(this.lr ? kbd["don_l"] : kbd["don_r"])
-			this.lr = !this.lr
-		}else if(type == "daiDon"){
+		var keyDai = false
+		var playDai = !dai || dai === 2
+		if(type == "daiDon" && playDai){
 			this.setKey(kbd["don_l"])
 			this.setKey(kbd["don_r"])
 			this.lr = false
-		}else if(type == "ka"){
-			this.setKey(this.lr ? kbd["ka_l"] : kbd["ka_r"])
+			keyDai = true
+		}else if(type == "don" || type == "daiDon" || type == "balloon" || type == "drumroll" || type == "daiDrumroll"){
+			this.setKey(this.lr ? kbd["don_l"] : kbd["don_r"])
 			this.lr = !this.lr
-		}else if(type == "daiKa"){
+		}else if(type == "daiKa" && playDai){
 			this.setKey(kbd["ka_l"])
 			this.setKey(kbd["ka_r"])
 			this.lr = false
+			keyDai = true
+		}else if(type == "ka" || type == "daiKa"){
+			this.setKey(this.lr ? kbd["ka_l"] : kbd["ka_r"])
+			this.lr = !this.lr
 		}
 		if(type == "balloon"){
 			if(circle.requiredHits == 1){
@@ -68,11 +72,11 @@ class Mekadon{
 			}else{
 				this.controller.displayScore(score)
 				this.game.updateCombo(score)
-				this.game.updateGlobalScore(score)
+				this.game.updateGlobalScore(score, keyDai ? 2 : 1)
 				this.game.updateCurrentCircle()
 			}
 			circle.updateStatus(score)
-			circle.played(score)
+			circle.played(score, keyDai)
 		}
 		this.lastHit = this.getMS()
 		return true

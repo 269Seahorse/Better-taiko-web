@@ -6,7 +6,7 @@ class Circle{
 		this.text = text
 		this.speed = speed
 		this.endTime = endTime ? endTime : ms + 150
-		this.isPlayed = false
+		this.isPlayed = 0
 		this.animating = false
 		this.animT = 0
 		this.score = 0
@@ -15,6 +15,7 @@ class Circle{
 		this.status = -1
 		this.timesHit = 0
 		this.requiredHits = requiredHits ? requiredHits : 0
+		this.rendaPlayed = false
 	}
 	getMS(){
 		return this.ms
@@ -58,9 +59,9 @@ class Circle{
 	endAnimation(){
 		this.animationEnded = true
 	}
-	played(score){
+	played(score, big){
 		this.score = score
-		this.isPlayed = true
+		this.isPlayed = big ? 2 : 1
 	}
 	hit(){
 		this.timesHit++

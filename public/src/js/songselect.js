@@ -77,7 +77,7 @@ class SongSelect{
 		var song = target.parentNode.parentNode
 		assets.sounds["don"].play()
 		
-		this.selectedSong.difficulty = target.classList[1] + ".osu"
+		this.selectedSong.difficulty = target.classList[1]
 		this.selectedSong.title = song.dataset.title
 		this.selectedSong.folder = song.dataset.songId
 		

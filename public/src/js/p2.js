@@ -93,6 +93,7 @@ class P2Connection{
 				this.otherConnected = true
 				this.notes = []
 				this.drumrollPace = 45
+				this.dai = 2
 				this.results = false
 				break
 			case "gameend":
@@ -103,6 +104,9 @@ class P2Connection{
 				break
 			case "note":
 				this.notes.push(response.value)
+				if(response.value.dai){
+					this.dai = response.value.dai
+				}
 				break
 			case "drumroll":
 				this.drumrollPace = response.value.pace
@@ -119,7 +123,11 @@ class P2Connection{
 			}else{
 				var note = this.notes[0]
 				if(note.score >= 0){
-					if(mekadon.playAt(circle, note.ms, note.score)){
+					var dai = 1
+					if(circle.getType() === "daiDon" || circle.getType() === "daiKa"){
+						dai = this.dai
+					}
+					if(mekadon.playAt(circle, note.ms, note.score, dai)){
 						this.notes.shift()
 					}
 				}else{

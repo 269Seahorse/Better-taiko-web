@@ -82,7 +82,8 @@ var assets = {
 		
 		"note_don.ogg",
 		"note_ka.ogg",
-		"balloon.ogg"
+		"balloon.ogg",
+		"renda.ogg"
 	],
 	"audioMusic": [
 		"bgm_songsel.ogg",
