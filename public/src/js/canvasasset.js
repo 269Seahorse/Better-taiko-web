@@ -11,7 +11,7 @@ class CanvasAsset{
 		this.animationStart = 0
 	}
 	draw(){
-		var u = (a, b) => typeof a == "undefined" ? b : a
+		var u = (a, b) => typeof a === "undefined" ? b : a
 		var frame = 0
 		if(this.animation){
 			var ms = this.controller.getElapsedTime().ms
@@ -24,9 +24,9 @@ class CanvasAsset{
 			}
 			var index = Math.floor((ms - this.animationStart) / this.speed)
 			if(Array.isArray(this.animation)){
-				frame = this.animation[this.boundedIndex(this.animation.length, index)]
+				frame = this.animation[this.mod(this.animation.length, index)]
 			}else{
-				frame = this.boundedIndex(this.animation, index)
+				frame = this.mod(this.animation, index)
 			}
 		}
 		var pos = this.position(frame)
@@ -38,14 +38,8 @@ class CanvasAsset{
 			)
 		}
 	}
-	boundedIndex(length, index){
-		if(length == 0){
-			return
-		}
-		while(index < length){
-			index += length
-		}
-		return index % length
+	mod(length, index){
+		return ((index % length) + length) % length
 	}
 	addFrames(name, frames, image){
 		var framesObj = {
@@ -82,7 +76,7 @@ class CanvasAsset{
 		this.animationStart = ms
 	}
 	setAnimationEnd(ms, callback){
-		if(typeof ms == "undefined"){
+		if(typeof ms === "undefined"){
 			delete this.animationEnd
 		}else{
 			this.animationEnd = {

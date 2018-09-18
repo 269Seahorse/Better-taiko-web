@@ -91,7 +91,9 @@ class Keyboard{
 			}else{
 				assets.sounds["note_" + sound].play()
 			}
-			this.keyTime[sound] = this.controller.getElapsedTime().ms
+			var ms = this.controller.getElapsedTime().ms
+			this.keyTime[keyCode] = ms
+			this.keyTime[sound] = ms
 		})
 	}
 	getKeys(){

@@ -39,8 +39,8 @@ class Controller{
 		}
 	}
 	loadUIEvents(){
-		this.continueBtn = document.getElementById("song-selection-butt")
-		this.restartBtn = document.getElementById("song-selection-butt")
+		this.continueBtn = document.getElementById("continue-butt")
+		this.restartBtn = document.getElementById("restart-butt")
 		this.songSelBtn = document.getElementById("song-selection-butt")
 		pageEvents.add(this.continueBtn, "click", () => {
 			this.togglePauseMenu()
