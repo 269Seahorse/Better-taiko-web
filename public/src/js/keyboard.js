@@ -70,7 +70,7 @@ class Keyboard{
 		}
 	}
 	checkKey(keyCode, keyup, callback){
-		if(this.keys[keyCode] && !this.isWaitingForKeyup(keyCode, keyup)){
+		if(this.keys[keyCode] && !this.isWaiting(keyCode, keyup)){
 			this.waitForKeyup(keyCode, keyup)
 			callback()
 		}
@@ -109,7 +109,7 @@ class Keyboard{
 			delete this.waitKeyupMenu[keyCode]
 		}
 	}
-	isWaitingForKeyup(key, type){
+	isWaiting(key, type){
 		if(type === "score"){
 			return this.waitKeyupScore[key]
 		}else if(type === "sound"){

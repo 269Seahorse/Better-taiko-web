@@ -1,8 +1,9 @@
 class View{
-	constructor(controller, bg, title, diff){
+	constructor(controller, bg, songTitle, songDifficulty){
 		this.controller = controller
 		this.bg = bg
-		this.diff = diff
+		this.songTitle = songTitle
+		this.songDifficulty = songDifficulty
 		
 		this.pauseMenu = document.getElementById("pause-menu")
 		this.cursor = document.getElementById("cursor")
@@ -42,9 +43,6 @@ class View{
 		this.currentBigDonFace = 1
 		this.nextBeat = 0
 		
-		this.songTitle = title
-		this.songDifficulty = this.diff.split(".").slice(0, -1).join(".")
-		
 		this.drumroll = []
 		
 		this.beatInterval = this.controller.getSongData().beatInfo.beatInterval
@@ -79,10 +77,12 @@ class View{
 	run(){
 		this.ctx.font = "normal 14pt TnT"
 		this.setBackground()
-		var gameSong = document.getElementsByClassName("game-song")[0]
-		gameSong.appendChild(document.createTextNode(this.songTitle))
-		gameSong.setAttribute("alt", this.songTitle)
 		
+		if(this.controller.multiplayer !== 2){
+			var gameSong = document.getElementsByClassName("game-song")[0]
+			gameSong.appendChild(document.createTextNode(this.songTitle))
+			gameSong.setAttribute("alt", this.songTitle)
+		}
 		this.lastMousemove = this.controller.getElapsedTime().ms
 		pageEvents.mouseAdd(this, this.onmousemove.bind(this))
 		
@@ -500,6 +500,7 @@ class View{
 		var endTime = circle.getEndTime()
 		var animated = circle.isAnimated()
 		var speed = circle.getSpeed()
+		var played = circle.getPlayed()
 		
 		if(!circlePos){
 			circlePos = {
@@ -514,34 +515,28 @@ class View{
 			var currentDonFace = this.currentDonFace
 			var currentBigDonFace = this.currentBigDonFace
 		}
-		switch(type){
-			case "don":
+		if(type === "don" || type === "daiDon" && played === 1){
+			fill = "#f34728"
+			size = this.circleSize
+			faceID = "don-" + currentDonFace
+		}else if(type === "ka" || type === "daiKa" && played === 1){
+			fill = "#65bdbb"
+			size = this.circleSize
+			faceID = "don-" + currentDonFace
+		}else if(type === "daiDon"){
+			fill = "#f34728"
+			size = this.bigCircleSize
+			faceID = "big-don-" + currentBigDonFace
+		}else if(type === "daiKa"){
+			fill = "#65bdbb"
+			size = this.bigCircleSize
+			faceID = "big-don-" + currentBigDonFace
+		}else if(type === "balloon"){
+			if(animated){
 				fill = "#f34728"
-				size = this.circleSize
-				faceID = "don-" + currentDonFace
-				break
-			case "ka":
-				fill = "#65bdbb"
-				size = this.circleSize
-				faceID = "don-" + currentDonFace
-				break
-			case "daiDon":
-				fill = "#f34728"
-				size = this.bigCircleSize
+				size = this.bigCircleSize * 0.8
 				faceID = "big-don-" + currentBigDonFace
-				break
-			case "daiKa":
-				fill = "#65bdbb"
-				size = this.bigCircleSize
-				faceID = "big-don-" + currentBigDonFace
-				break
-			case "balloon":
-				if(animated){
-					fill = "#f34728"
-					size = this.bigCircleSize * 0.8
-					faceID = "big-don-" + currentBigDonFace
-					break
-				}
+			}else{
 				fill = "#f87700"
 				size = this.circleSize
 				faceID = "don-" + currentDonFace
@@ -557,29 +552,27 @@ class View{
 					h / 61 * 115,
 					h
 				)
-				break
-			case "drumroll":
-			case "daiDrumroll":
-				fill = "#f3b500"
-				if(type == "drumroll"){
-					size = this.circleSize
-					faceID = "don-" + currentDonFace
-				}else{
-					size = this.bigCircleSize
-					faceID = "big-don-" + currentBigDonFace
-				}
-				var endX = this.msToPos(endTime - circleMs, speed)
-				this.ctx.fillStyle = fill
-				this.ctx.strokeStyle = "#1f1a17"
-				this.ctx.lineWidth = this.lyricsSize / 10
-				this.ctx.beginPath()
-				this.ctx.moveTo(circlePos.x, circlePos.y - size)
-				this.ctx.lineTo(circlePos.x + endX, circlePos.y - size)
-				this.ctx.arc(circlePos.x + endX, circlePos.y, size, -Math.PI / 2, Math.PI / 2)
-				this.ctx.lineTo(circlePos.x, circlePos.y + size)
-				this.ctx.fill()
-				this.ctx.stroke()
-				break
+			}
+		}else if(type === "drumroll" || type === "daiDrumroll"){
+			fill = "#f3b500"
+			if(type == "drumroll"){
+				size = this.circleSize
+				faceID = "don-" + currentDonFace
+			}else{
+				size = this.bigCircleSize
+				faceID = "big-don-" + currentBigDonFace
+			}
+			var endX = this.msToPos(endTime - circleMs, speed)
+			this.ctx.fillStyle = fill
+			this.ctx.strokeStyle = "#1f1a17"
+			this.ctx.lineWidth = this.lyricsSize / 10
+			this.ctx.beginPath()
+			this.ctx.moveTo(circlePos.x, circlePos.y - size)
+			this.ctx.lineTo(circlePos.x + endX, circlePos.y - size)
+			this.ctx.arc(circlePos.x + endX, circlePos.y, size, -Math.PI / 2, Math.PI / 2)
+			this.ctx.lineTo(circlePos.x, circlePos.y + size)
+			this.ctx.fill()
+			this.ctx.stroke()
 		}
 		// Main circle
 		this.ctx.fillStyle = fill
