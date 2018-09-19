@@ -7,6 +7,7 @@ var assets = {
 		"don-1.png",
 		"big-don-0.png",
 		"big-don-1.png",
+		"balloon.png",
 		"taiko.png",
 		"taiko-key-blue.png",
 		"taiko-key-red.png",
@@ -28,7 +29,10 @@ var assets = {
 		"muzu_oni.png",
 		"don_anim_normal.png",
 		"don_anim_10combo.png",
-		"balloon.png"
+		"don_anim_gogo.png",
+		"don_anim_gogostart.png",
+		"fire_anim.png",
+		"fireworks_anim.png"
 	],
 	"audioSfx": [
 		"start.wav",
