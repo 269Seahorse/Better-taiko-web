@@ -18,7 +18,7 @@ class Game{
 		}
 		this.HPGain = 100 / this.songData.circles.filter(circle => {
 			var type = circle.getType()
-			return type == "don" || type == "ka" || type == "daiDon" || type == "daiKa"
+			return type === "don" || type === "ka" || type === "daiDon" || type === "daiKa"
 		}).length
 		this.paused = false
 		this.started = false
@@ -89,29 +89,29 @@ class Game{
 						}
 					}
 				}else if(currentTime > endTime){
-					if(drumrollNotes){
-						circle.updateStatus(-1)
-						circle.played(0)
-						this.updateCurrentCircle()
-						if(this.controller.multiplayer == 1){
-							p2.send("drumroll", {
-								pace: (this.getElapsedTime().ms - circle.getMS()) / circle.timesHit
-							})
-						}
-					}else{
-						if(!this.controller.autoPlayEnabled){
+					if(!this.controller.autoPlayEnabled){
+						if(drumrollNotes){
+							circle.updateStatus(-1)
+							circle.played(0, false)
+							this.updateCurrentCircle()
+							if(this.controller.multiplayer === 1){
+								p2.send("drumroll", {
+									pace: (this.getElapsedTime().ms - circle.getMS()) / circle.timesHit
+								})
+							}
+						}else{
 							circle.updateStatus(-1)
 							var currentScore = 0
-							circle.played(currentScore)
+							circle.played(currentScore, type === "daiDon" || type === "daiKa")
 							this.controller.displayScore(currentScore, true)
 							this.updateCurrentCircle()
 							this.updateCombo(currentScore)
 							this.updateGlobalScore(currentScore, 1)
-						}
-						if(this.controller.multiplayer === 1){
-							p2.send("note", {
-								score: -1
-							})
+							if(this.controller.multiplayer === 1){
+								p2.send("note", {
+									score: -1
+								})
+							}
 						}
 					}
 				}

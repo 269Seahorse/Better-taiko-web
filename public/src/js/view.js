@@ -31,7 +31,7 @@ class View{
 		this.currentScore = 0
 		this.special = ""
 		this.scoreDispCount = -1
-		this.scoreOpacity = 1.0
+		this.scoreOpacity = 1
 		
 		this.lastMeasure = 0
 		this.currentTimingPoint = 0
@@ -418,7 +418,7 @@ class View{
 			
 			var timeForDistance = this.posToMs(this.distanceForCircle + this.bigCircleSize / 2, speed)
 			var startingTime = circle.getMS() - timeForDistance
-			var finishTime = circle.getEndTime() + this.posToMs(this.slotX - this.taikoSquareW + this.bigCircleSize / 2, speed)
+			var finishTime = circle.getEndTime() + this.posToMs(this.slotX - this.taikoSquareW + this.bigCircleSize * 3, speed)
 			
 			if(!circle.getPlayed() || circle.getScore() === 0){
 				if(ms >= startingTime && ms <= finishTime){
