@@ -714,6 +714,7 @@ class View{
 	toggleGogoTime(circle){
 		this.gogoTime = circle.gogoTime
 		this.gogoTimeStarted = circle.ms
+		
 		if(this.gogoTime){
 			this.assets.fireworks.forEach(fireworksAsset => {
 				fireworksAsset.setAnimation("normal")
@@ -726,24 +727,18 @@ class View{
 			this.assets.fire.setAnimation("normal")
 			var don = this.assets.don
 			don.setAnimation("gogostart")
-			don.setAnimationStart(circle.ms)
+			var length = don.getAnimationLength("gogo")
+			don.setUpdateSpeed(this.beatInterval / (length / 4))
+			var start = circle.ms - (circle.ms % this.beatInterval)
+			don.setAnimationStart(start)
 			var length = don.getAnimationLength("gogostart")
-			don.setAnimationEnd(circle.ms + length * don.speed, () => {
-				don.setAnimationStart(0)
-				if(this.gogoTime){
-					don.setAnimation("gogo")
-				}else{
-					don.setAnimation("normal")
-				}
-			})
+			don.setAnimationEnd(start + length * don.speed, don.normalAnimation)
 		}
 	}
 	drawGogoTime(){
 		var ms = this.controller.getElapsedTime().ms
+		
 		if(this.gogoTime){
-			if(this.gogoTimeStarted){
-				
-			}
 			var circles = this.controller.parsedSongData.circles
 			var lastCircle = circles[circles.length - 1]
 			var endTime = lastCircle.getEndTime() + 3000
@@ -755,7 +750,7 @@ class View{
 			}
 		}else{
 			if(this.assets.don.getAnimation() === "gogo"){
-				this.assets.don.setAnimation("normal")
+				this.assets.don.normalAnimation()
 			}
 			if(ms >= this.gogoTimeStarted + 100){
 				this.assets.fire.setAnimation(false)
@@ -776,14 +771,7 @@ class View{
 			var ms = this.controller.getElapsedTime().ms
 			don.setAnimationStart(ms)
 			var length = don.getAnimationLength("10combo")
-			don.setAnimationEnd(ms + length * don.speed, () => {
-				don.setAnimationStart(0)
-				if(this.gogoTime){
-					don.setAnimation("gogo")
-				}else{
-					don.setAnimation("normal")
-				}
-			})
+			don.setAnimationEnd(ms + length * don.speed, don.normalAnimation)
 		}
 	}
 	onmousemove(event){

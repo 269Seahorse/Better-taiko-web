@@ -30,10 +30,25 @@ class ViewAssets{
 			11,11,11,11,10,9 ,8 ,7 ,13,12,12,13,14,15,16,17
 		], "don_anim_normal")
 		this.don.addFrames("10combo", 22, "don_anim_10combo")
-		this.don.addFrames("gogo", 56, "don_anim_gogo")
+		this.don.addFrames("gogo", [
+			42,43,43,44,45,46,47,48,49,50,51,52,53,54,
+			55,0 ,1 ,2 ,3 ,4 ,5 ,6 ,7 ,8 ,9 ,11,12,13,
+			14,14,15,16,17,18,19,20,21,22,23,24,25,26,
+			27,28,29,30,31,32,33,34,35,36,37,38,39,40,41
+		], "don_anim_gogo")
 		this.don.addFrames("gogostart", 27, "don_anim_gogostart")
-		this.don.setAnimation("normal")
-		this.don.setUpdateSpeed(this.beatInterval / 16)
+		this.don.normalAnimation = () => {
+			if(this.view.gogoTime){
+				var length = this.don.getAnimationLength("gogo")
+				this.don.setUpdateSpeed(this.beatInterval / (length / 4))
+				this.don.setAnimation("gogo")
+			}else{
+				this.don.setAnimationStart(0)
+				this.don.setUpdateSpeed(this.beatInterval / 16)
+				this.don.setAnimation("normal")
+			}
+		}
+		this.don.normalAnimation()
 		this.fire = this.createAsset("bar", frame => {
 			var imgw = 360
 			var imgh = 370
@@ -92,7 +107,7 @@ class ViewAssets{
 		return asset
 	}
 	drawAssets(layer){
-		if(this.controller.multiplayer !== 2){
+		if(this.controller.multiplayer !== 2 || layer === "bar"){
 			this.allAssets.forEach(asset => {
 				if(layer === asset.layer){
 					asset.draw()
