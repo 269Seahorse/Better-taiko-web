@@ -54,9 +54,12 @@ class ViewAssets{
 			var imgh = 370
 			var scale = 175
 			var ms = this.controller.getElapsedTime().ms
-			var grow = Math.min(100, ms - this.view.gogoTimeStarted) / 100
-			if(!this.view.gogoTime){
-				grow = 1 - grow
+			var elapsed = ms - this.view.gogoTimeStarted
+			if(this.view.gogoTime){
+				var grow = 3 - Math.min(200, elapsed) / 100
+				this.ctx.globalAlpha = Math.min(200, elapsed) / 200
+			}else{
+				var grow = 1 - Math.min(100, elapsed) / 100
 			}
 			var w = (this.view.barH * imgw) / scale * grow
 			var h = (this.view.barH * imgh) / scale * grow
@@ -72,6 +75,7 @@ class ViewAssets{
 				h: h,
 				callback: () => {
 					this.ctx.globalCompositeOperation = "source-over"
+					this.ctx.globalAlpha = 1
 				}
 			}
 		})

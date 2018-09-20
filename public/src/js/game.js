@@ -91,7 +91,7 @@ class Game{
 				}else if(currentTime > endTime){
 					if(drumrollNotes){
 						circle.updateStatus(-1)
-						circle.played(0)
+						circle.played(0, false)
 						this.updateCurrentCircle()
 						if(this.controller.multiplayer == 1){
 							p2.send("drumroll", {
@@ -102,7 +102,7 @@ class Game{
 						if(!this.controller.autoPlayEnabled){
 							circle.updateStatus(-1)
 							var currentScore = 0
-							circle.played(currentScore)
+							circle.played(currentScore, type === "daiDon" || type === "daiKa")
 							this.controller.displayScore(currentScore, true)
 							this.updateCurrentCircle()
 							this.updateCombo(currentScore)
