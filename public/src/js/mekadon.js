@@ -8,9 +8,15 @@ class Mekadon{
 	}
 	play(circle){
 		var type = circle.getType()
-		if(type == "balloon"){
+		if((type === "balloon" || type === "drumroll" || type === "daiDrumroll") && this.getMS() > circle.getEndTime()){
+			circle.updateStatus(-1)
+			circle.played(0, false)
+			this.game.updateCurrentCircle()
+		}
+		type = circle.getType()
+		if(type === "balloon"){
 			this.playDrumrollAt(circle, 0, 30)
-		}else if(type == "drumroll" || type == "daiDrumroll"){
+		}else if(type === "drumroll" || type === "daiDrumroll"){
 			this.playDrumrollAt(circle, 0, 60)
 		}else{
 			this.playAt(circle, 0, 450)
@@ -59,12 +65,12 @@ class Mekadon{
 			this.setKey(this.lr ? kbd["ka_l"] : kbd["ka_r"])
 			this.lr = !this.lr
 		}
-		if(type == "balloon"){
+		if(type === "balloon"){
 			if(circle.requiredHits == 1){
 				assets.sounds["balloon"].play()
 			}
 			this.game.checkBalloon(circle)
-		}else if(type == "drumroll" || type == "daiDrumroll"){
+		}else if(type === "drumroll" || type === "daiDrumroll"){
 			this.game.checkDrumroll(circle)
 		}else{
 			if(typeof score == "undefined"){
