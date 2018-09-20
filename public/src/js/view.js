@@ -42,37 +42,13 @@ class View{
 		this.currentDonFace = 0
 		this.currentBigDonFace = 1
 		this.nextBeat = 0
+		this.gogoTime = 0
+		this.gogoTimeStarted = -Infinity
 		
 		this.drumroll = []
 		
 		this.beatInterval = this.controller.getSongData().beatInfo.beatInterval
-		this.assets = []
-		this.don = this.createAsset(frame => {
-			var imgw = 360
-			var imgh = 184
-			var scale = 165
-			var w = (this.barH * imgw) / scale
-			var h = (this.barH * imgh) / scale
-			return {
-				sx: 0,
-				sy: frame * imgh,
-				sw: imgw,
-				sh: imgh,
-				x: this.taikoSquareW - w + this.barH * 0.2,
-				y: this.barY - h,
-				w: w,
-				h: h
-			}
-		})
-		this.don.addFrames("normal", [
-			0 ,0 ,0 ,0 ,1 ,2 ,3 ,4 ,5 ,6 ,6 ,5 ,4 ,3 ,2 ,1 ,
-			0 ,0 ,0 ,0 ,1 ,2 ,3 ,4 ,5 ,6 ,6 ,5 ,4 ,3 ,2 ,1 ,
-			0 ,0 ,0 ,0 ,1 ,2 ,3 ,4 ,5 ,6 ,6 ,5 ,7 ,8 ,9 ,10,
-			11,11,11,11,10,9 ,8 ,7 ,13,12,12,13,14,15,16,17
-		], "don_anim_normal")
-		this.don.addFrames("10combo", 22, "don_anim_10combo")
-		this.don.setAnimation("normal")
-		this.don.setUpdateSpeed(this.beatInterval / 16)
+		this.assets = new ViewAssets(this)
 	}
 	run(){
 		this.ctx.font = "normal 14pt TnT"
@@ -146,11 +122,12 @@ class View{
 		this.ctx.clearRect(0, 0, this.canvas.scaledWidth, this.canvas.scaledHeight)
 		
 		// Draw
-		this.drawAssets()
+		this.assets.drawAssets("background")
 		this.drawBar()
 		this.drawSlot()
-		this.drawMeasures()
 		this.drawHPBar()
+		this.assets.drawAssets("bar")
+		this.drawMeasures()
 		this.drawScore()
 		this.drawCircles(this.controller.getCircles())
 		this.drawCircles(this.drumroll)
@@ -160,7 +137,9 @@ class View{
 		this.drawCombo()
 		this.drawGlobalScore()
 		this.updateDonFaces()
+		this.drawGogoTime()
 		this.mouseIdle()
+		this.assets.drawAssets("foreground")
 		//this.drawTime()
 	}
 	updateDonFaces(){
@@ -449,6 +428,12 @@ class View{
 				// Start animation to HP bar
 				circle.animate()
 			}
+			if(ms >= circle.ms && !circle.gogoChecked){
+				if(this.gogoTime != circle.gogoTime){
+					this.toggleGogoTime(circle)
+				}
+				circle.gogoChecked = true
+			}
 			if(circle.isAnimated()){
 				var animationDuration = 470
 				if(ms <= finishTime + animationDuration){
@@ -654,6 +639,22 @@ class View{
 		var ms = this.controller.getElapsedTime().ms
 		var keyTime = this.controller.getKeyTime()
 		var sound = keyTime["don"] > keyTime["ka"] ? "don" : "ka"
+		if(this.gogoTime || ms <= this.gogoTimeStarted + 100){
+			var grd = this.ctx.createLinearGradient(0, this.barY, this.winW, this.barH)
+			grd.addColorStop(0, "#512a2c")
+			grd.addColorStop(0.46, "#6f2a2d")
+			grd.addColorStop(0.76, "#8a4763")
+			grd.addColorStop(1, "#2c2a2c")
+			this.ctx.fillStyle = grd
+			this.ctx.rect(0, this.barY, this.winW, this.barH)
+			var alpha = Math.min(100, this.controller.getElapsedTime().ms - this.gogoTimeStarted) / 100
+			if(!this.gogoTime){
+				alpha = 1 - alpha
+			}
+			this.ctx.globalAlpha = alpha
+			this.ctx.fill()
+			this.ctx.globalAlpha = 1
+		}
 		if(keyTime[sound] > ms - 200){
 			var gradients = {
 				"don": ["#f54c25", "#232323"],
@@ -710,28 +711,67 @@ class View{
 		this.ctx.closePath()
 		this.ctx.stroke()
 	}
-	createAsset(image, position){
-		var asset = new CanvasAsset(this, image, position)
-		this.assets.push(asset)
-		return asset
-	}
-	drawAssets(){
-		if(this.controller.multiplayer !== 2){
-			this.assets.forEach(asset => {
-				asset.draw()
+	toggleGogoTime(circle){
+		this.gogoTime = circle.gogoTime
+		this.gogoTimeStarted = circle.ms
+		
+		if(this.gogoTime){
+			this.assets.fireworks.forEach(fireworksAsset => {
+				fireworksAsset.setAnimation("normal")
+				fireworksAsset.setAnimationStart(circle.ms)
+				var length = fireworksAsset.getAnimationLength("normal")
+				fireworksAsset.setAnimationEnd(circle.ms + length * fireworksAsset.speed, () => {
+					fireworksAsset.setAnimation(false)
+				})
 			})
+			this.assets.fire.setAnimation("normal")
+			var don = this.assets.don
+			don.setAnimation("gogostart")
+			var length = don.getAnimationLength("gogo")
+			don.setUpdateSpeed(this.beatInterval / (length / 4))
+			var start = circle.ms - (circle.ms % this.beatInterval)
+			don.setAnimationStart(start)
+			var length = don.getAnimationLength("gogostart")
+			don.setAnimationEnd(start + length * don.speed, don.normalAnimation)
+		}
+	}
+	drawGogoTime(){
+		var ms = this.controller.getElapsedTime().ms
+		
+		if(this.gogoTime){
+			var circles = this.controller.parsedSongData.circles
+			var lastCircle = circles[circles.length - 1]
+			var endTime = lastCircle.getEndTime() + 3000
+			if(ms >= endTime){
+				this.toggleGogoTime({
+					gogoTime: 0,
+					ms: endTime
+				})
+			}
+		}else{
+			if(this.assets.don.getAnimation() === "gogo"){
+				this.assets.don.normalAnimation()
+			}
+			if(ms >= this.gogoTimeStarted + 100){
+				this.assets.fire.setAnimation(false)
+			}
 		}
 	}
 	updateCombo(combo){
-		if(combo > 0 && combo % 10 === 0 && this.don.getAnimation() != "10combo"){
-			this.don.setAnimation("10combo")
+		var don = this.assets.don
+		var animation = don.getAnimation()
+		if(
+			combo > 0
+			&& combo % 10 === 0
+			&& animation !== "10combo"
+			&& animation !== "gogostart"
+			&& animation !== "gogo"
+		){
+			don.setAnimation("10combo")
 			var ms = this.controller.getElapsedTime().ms
-			this.don.setAnimationStart(ms)
-			var length = this.don.getAnimationLength("10combo")
-			this.don.setAnimationEnd(ms + length * this.don.speed, () => {
-				this.don.setAnimationStart(0)
-				this.don.setAnimation("normal")
-			})
+			don.setAnimationStart(ms)
+			var length = don.getAnimationLength("10combo")
+			don.setAnimationEnd(ms + length * don.speed, don.normalAnimation)
 		}
 	}
 	onmousemove(event){

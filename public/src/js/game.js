@@ -41,7 +41,7 @@ class Game{
 	initTiming(){
 		// Date when the chrono is started (before the game begins)
 		this.offsetDate = new Date()
-		this.offsetTime = Math.max(0, this.timeForDistanceCircle  - this.songData.circles[0].ms) |0
+		this.offsetTime = Math.max(0, this.timeForDistanceCircle - this.songData.circles[0].ms) |0
 		this.setElapsedTime(-this.offsetTime)
 		// The real start for the game will start when chrono will reach 0
 		this.startDate = new Date()
@@ -192,9 +192,9 @@ class Game{
 				this.controller.displayScore(score, true)
 			}
 			this.updateCombo(score)
-			this.updateGlobalScore(score, typeDai && keyDai ? 2 : 1)
+			this.updateGlobalScore(score, typeDai && keyDai ? 2 : 1, circle.gogoTime)
 			this.updateCurrentCircle()
-			circle.played(score, keyDai)
+			circle.played(score, score === 0 ? typeDai : keyDai)
 			if(this.controller.multiplayer == 1){
 				p2.send("note", {
 					score: score,
@@ -243,7 +243,14 @@ class Game{
 		}else{
 			var sound = keyTime["don"] > keyTime["ka"] ? "daiDon" : "daiKa"
 		}
-		var circleAnim = new Circle(0, this.getElapsedTime().ms, sound, "", circle.speed)
+		var circleAnim = new Circle({
+			id: 0,
+			start: this.getElapsedTime().ms,
+			type: sound,
+			txt: "",
+			speed: circle.speed,
+			gogoTime: circle.gogoTime
+		})
 		circleAnim.played(score, dai)
 		circleAnim.animate()
 		this.controller.view.drumroll.push(circleAnim)
@@ -252,7 +259,7 @@ class Game{
 	}
 	whenLastCirclePlayed(){
 		var circles = this.songData.circles
-		var lastCircle = circles[this.songData.circles.length - 1]
+		var lastCircle = circles[circles.length - 1]
 		var ms = this.getElapsedTime().ms
 		if(!this.fadeOutStarted && ms >= lastCircle.getEndTime() + 1900){
 			this.fadeOutStarted = ms
@@ -365,7 +372,7 @@ class Game{
 	getGlobalScore(){
 		return this.globalScore
 	}
-	updateGlobalScore(score, multiplier){
+	updateGlobalScore(score, multiplier, gogoTime){
 		// Circle score
 		switch(score){
 			case 450:
@@ -389,6 +396,9 @@ class Game{
 		// Points update
 		score += Math.max(0, Math.floor((Math.min(this.combo, 100) - 1) / 10) * 100)
 		
-		this.globalScore.points += score * multiplier
+		if(gogoTime){
+			multiplier *= 1.2
+		}
+		this.globalScore.points += Math.floor(score * multiplier / 10) * 10
 	}
 }

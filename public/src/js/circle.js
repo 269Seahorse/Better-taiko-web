@@ -1,21 +1,24 @@
 class Circle{
-	constructor(id, ms, type, text, speed, endTime, requiredHits){
-		this.id = id
-		this.ms = ms
-		this.type = type
-		this.text = text
-		this.speed = speed
-		this.endTime = endTime ? endTime : ms + 150
+	constructor(config){
+		// id, ms, type, text, speed, endTime, requiredHits
+		this.id = config.id
+		this.ms = config.start
+		this.type = config.type
+		this.text = config.txt
+		this.speed = config.speed
+		this.endTime = config.endTime || this.ms + 150
 		this.isPlayed = 0
 		this.animating = false
 		this.animT = 0
 		this.score = 0
-		this.lastFrame = ms + 100
+		this.lastFrame = this.ms + 100
 		this.animationEnded = false
 		this.status = -1
 		this.timesHit = 0
-		this.requiredHits = requiredHits ? requiredHits : 0
+		this.requiredHits = config.requiredHits || 0
 		this.rendaPlayed = false
+		this.gogoTime = config.gogoTime
+		this.gogoChecked = false
 	}
 	getMS(){
 		return this.ms

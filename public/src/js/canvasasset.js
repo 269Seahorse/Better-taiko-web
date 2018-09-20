@@ -1,19 +1,17 @@
 class CanvasAsset{
-	constructor(view, position, image){
+	constructor(view, layer, position){
 		this.ctx = view.ctx
 		this.controller = view.controller
-		if(image){
-			this.image = assets.image[image]
-		}
 		this.position = position
 		this.animationFrames = {}
 		this.speed = 1000 / 60
 		this.animationStart = 0
+		this.layer = layer
 	}
 	draw(){
-		var u = (a, b) => typeof a === "undefined" ? b : a
-		var frame = 0
 		if(this.animation){
+			var u = (a, b) => typeof a === "undefined" ? b : a
+			var frame = 0
 			var ms = this.controller.getElapsedTime().ms
 			if(this.animationEnd){
 				if(ms > this.animationEnd.ms){
@@ -28,14 +26,17 @@ class CanvasAsset{
 			}else{
 				frame = this.mod(this.animation, index)
 			}
-		}
-		var pos = this.position(frame)
-		if(this.image){
-			this.ctx.drawImage(this.image,
-				u(pos.sx, pos.x), u(pos.sy, pos.y),
-				u(pos.sw, pos.w), u(pos.sh, pos.h),
-				pos.x, pos.y, pos.w, pos.h
-			)
+			var pos = this.position(frame)
+			if(this.image){
+				this.ctx.drawImage(this.image,
+					u(pos.sx, pos.x), u(pos.sy, pos.y),
+					u(pos.sw, pos.w), u(pos.sh, pos.h),
+					pos.x, pos.y, pos.w, pos.h
+				)
+			}
+			if(pos.callback){
+				pos.callback()
+			}
 		}
 	}
 	mod(length, index){
@@ -52,17 +53,21 @@ class CanvasAsset{
 	}
 	setAnimation(name){
 		var framesObj = this.animationFrames[name]
-		this.animation = framesObj.frames
 		this.animationName = name
-		if(framesObj.image){
-			this.image = framesObj.image
+		if(framesObj){
+			this.animation = framesObj.frames
+			if(framesObj.image){
+				this.image = framesObj.image
+			}
+		}else{
+			this.animation = false
 		}
 	}
 	getAnimation(){
 		return this.animationName
 	}
-	getAnimationLength(){
-		var frames = this.animationFrames["10combo"].frames
+	getAnimationLength(name){
+		var frames = this.animationFrames[name].frames
 		if(Array.isArray(frames)){
 			return frames.length
 		}else{

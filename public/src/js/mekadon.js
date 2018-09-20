@@ -33,7 +33,7 @@ class Mekadon{
 			this.controller.displayScore(0, true)
 			this.game.updateCurrentCircle()
 			this.game.updateCombo(0)
-			this.game.updateGlobalScore(0, 1)
+			this.game.updateGlobalScore(0, 1, circle.gogoTime)
 			return true
 		}
 	}
@@ -72,7 +72,7 @@ class Mekadon{
 			}else{
 				this.controller.displayScore(score)
 				this.game.updateCombo(score)
-				this.game.updateGlobalScore(score, keyDai ? 2 : 1)
+				this.game.updateGlobalScore(score, keyDai ? 2 : 1, circle.gogoTime)
 				this.game.updateCurrentCircle()
 			}
 			circle.updateStatus(score)

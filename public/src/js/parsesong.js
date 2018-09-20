@@ -121,7 +121,8 @@ class ParseSong{
 			timingPoints.push({
 				start: start,
 				sliderMultiplier: sliderMultiplier,
-				measure: parseInt(values[this.osu.METER])
+				measure: parseInt(values[this.osu.METER]),
+				gogoTime: parseInt(values[this.osu.KIAIMODE])
 			})
 		}
 		return timingPoints
@@ -142,7 +143,7 @@ class ParseSong{
 					speed: this.timingPoints[i].sliderMultiplier
 				})
 				measureNumber++
-				if(measureNumber == this.timingPoints[i].measure + 1){
+				if(measureNumber === this.timingPoints[i].measure + 1){
 					measureNumber = 0
 				}
 			}
@@ -229,6 +230,7 @@ class ParseSong{
 			var emptyValue = false
 			var start = parseInt(values[this.osu.TIME])
 			var speed = this.difficulty.originalMultiplier
+			var gogoTime = false
 			var osuType = parseInt(values[this.osu.TYPE])
 			var hitSound = parseInt(values[this.osu.HITSOUND])
 			
@@ -237,6 +239,7 @@ class ParseSong{
 					break
 				}
 				speed = this.timingPoints[j].sliderMultiplier
+				gogoTime = this.timingPoints[j].gogoTime
 			}
 			
 			if(osuType & this.osu.SPINNER){
@@ -244,7 +247,16 @@ class ParseSong{
 				var endTime = parseInt(values[this.osu.ENDTIME])
 				var hitMultiplier = this.difficultyRange(this.difficulty.overallDifficulty, 3, 5, 7.5) * 1.65
 				var requiredHits = Math.floor(Math.max(1, (endTime - start) / 1000 * hitMultiplier))
-				circles.push(new Circle(circleID, start, "balloon", "ふうせん", speed, endTime, requiredHits))
+				circles.push(new Circle({
+					id: circleID,
+					start: start,
+					type: "balloon",
+					txt: "ふうせん",
+					speed: speed,
+					endTime: endTime,
+					requiredHits: requiredHits,
+					gogoTime: gogoTime
+				}))
 				
 			}else if(osuType & this.osu.SLIDER){
 				
@@ -258,7 +270,15 @@ class ParseSong{
 					type = "drumroll"
 					txt = "連打ーっ!!"
 				}
-				circles.push(new Circle(circleID, start, type, txt, speed, endTime))
+				circles.push(new Circle({
+					id: circleID,
+					start: start,
+					type: type,
+					txt: txt,
+					speed: speed,
+					endTime: endTime,
+					gogoTime: gogoTime
+				}))
 				
 			}else if(osuType & this.osu.CIRCLE){
 				var type
@@ -284,7 +304,14 @@ class ParseSong{
 					emptyValue = true
 				}
 				if(!emptyValue){
-					circles.push(new Circle(circleID, start, type, txt, speed))
+					circles.push(new Circle({
+						id: circleID,
+						start: start,
+						type: type,
+						txt: txt,
+						speed: speed,
+						gogoTime: gogoTime
+					}))
 				}
 			}else{
 				emptyValue = true
