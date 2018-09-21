@@ -1,5 +1,8 @@
 class Gamepad{
 	constructor(keyboard){
+		this.keyboard = keyboard
+		this.game = this.keyboard.controller.game
+		
 		var kbd = keyboard.getBindings()
 		this.gameBtn = {}
 		this.gameBtn[kbd["don_l"]] = ["u", "d", "l", "r"]
@@ -28,9 +31,9 @@ class Gamepad{
 			"guide": 16
 		}
 		this.btn = {}
-		this.keyboard = keyboard
 	}
 	play(menuPlay){
+		var ms = this.game.getAccurateTime()
 		if("getGamepads" in navigator){
 			var gamepads = navigator.getGamepads()
 		}else{
@@ -48,7 +51,7 @@ class Gamepad{
 						for(var bind in bindings){
 							for(var name in bindings[bind]){
 								if(btnName === this.b[bindings[bind][name]]){
-									this.checkButton(gamepads, btnName, bind)
+									this.checkButton(gamepads, btnName, bind, ms)
 									break buttonSearch
 								}
 							}
@@ -59,8 +62,9 @@ class Gamepad{
 			}
 		}
 	}
-	checkButton(gamepads, btnName, keyCode){
+	checkButton(gamepads, btnName, keyCode, ms){
 		var button = false
+		
 		for(var i = 0; i < gamepads.length; i++){
 			if(gamepads[i]){
 				var btn = gamepads[i].buttons[btnName]
@@ -72,19 +76,24 @@ class Gamepad{
 				}
 			}
 		}
+		
+		var keys = this.keyboard.getKeys()
 		var pressed = !this.btn[btnName] && button
 		var released = this.btn[btnName] && !button
+		
 		if(pressed){
 			this.btn[btnName] = true
 		}else if(released){
 			delete this.btn[btnName]
 		}
+		
 		if(pressed){
-			if(this.keyboard.getKeys()[keyCode]){
+			if(keys[keyCode]){
 				this.keyboard.setKey(keyCode, false)
 			}
-			this.keyboard.setKey(keyCode, true)
-		}else if(!button && this.keyboard.getKeys()[keyCode]){
+			this.keyboard.setKey(keyCode, true, ms)
+			
+		}else if(!button && keys[keyCode]){
 			if(released){
 				this.toRelease[keyCode + "released"] = true
 			}

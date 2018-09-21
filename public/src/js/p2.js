@@ -116,7 +116,14 @@ class P2Connection{
 	play(circle, mekadon){
 		if(this.otherConnected || this.notes.length > 0){
 			var type = circle.getType()
-			if(type === "balloon"|| type === "drumroll" || type === "daiDrumroll"){
+			var drumrollNotes = type === "balloon" || type === "drumroll" || type === "daiDrumroll"
+			
+			if(drumrollNotes && mekadon.getMS() > circle.getEndTime()){
+				circle.played(-1, false)
+				mekadon.game.updateCurrentCircle()
+			}
+			
+			if(drumrollNotes){
 				mekadon.playDrumrollAt(circle, 0, this.drumrollPace)
 			}else if(this.notes.length === 0){
 				mekadon.play(circle)
