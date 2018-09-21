@@ -80,7 +80,10 @@ class Controller{
 				})
 			}
 			var ms = this.game.getElapsedTime().ms
+			
 			if(!this.game.isPaused()){
+				this.keyboard.checkGameKeys()
+				
 				if(ms >= 0 && !this.mainLoopStarted){
 					this.mainLoopStarted = true
 				}
@@ -95,7 +98,6 @@ class Controller{
 					this.game.playMainMusic()
 				}
 				this.view.refresh()
-				this.keyboard.checkGameKeys()
 			}
 			this.keyboard.checkMenuKeys()
 		}
@@ -156,8 +158,8 @@ class Controller{
 	getKeys(){
 		return this.keyboard.getKeys()
 	}
-	setKey(keyCode, down){
-		return this.keyboard.setKey(keyCode, down)
+	setKey(keyCode, down, ms){
+		return this.keyboard.setKey(keyCode, down, ms)
 	}
 	getBindings(){
 		return this.keyboard.getBindings()

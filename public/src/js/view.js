@@ -420,8 +420,8 @@ class View{
 			var startingTime = circle.getMS() - timeForDistance
 			var finishTime = circle.getEndTime() + this.posToMs(this.slotX - this.taikoSquareW + this.bigCircleSize * 3, speed)
 			
-			if(!circle.getPlayed() || circle.getScore() === 0){
-				if(ms >= startingTime && ms <= finishTime){
+			if(circle.getPlayed() <= 0 || circle.getScore() === 0){
+				if(ms >= startingTime && ms <= finishTime && circle.getPlayed() !== -1){
 					this.drawCircle(circle)
 				}
 			}else if(!circle.isAnimated()){

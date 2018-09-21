@@ -3,13 +3,11 @@ class Mekadon{
 		this.controller = controller
 		this.game = game
 		this.lr = false
-		this.keys = {}
 		this.lastHit = -Infinity
 	}
 	play(circle){
 		var type = circle.getType()
 		if((type === "balloon" || type === "drumroll" || type === "daiDrumroll") && this.getMS() > circle.getEndTime()){
-			circle.updateStatus(-1)
 			circle.played(0, false)
 			this.game.updateCurrentCircle()
 		}
@@ -48,21 +46,29 @@ class Mekadon{
 		var type = circle.getType()
 		var keyDai = false
 		var playDai = !dai || dai === 2
+		var drumrollNotes = type === "balloon" || type === "drumroll" || type === "daiDrumroll"
+		
+		if(drumrollNotes){
+			var ms = this.getMS()
+		}else{
+			var ms = circle.getMS()
+		}
+		
 		if(type == "daiDon" && playDai){
-			this.setKey(kbd["don_l"])
-			this.setKey(kbd["don_r"])
+			this.setKey(kbd["don_l"], ms)
+			this.setKey(kbd["don_r"], ms)
 			this.lr = false
 			keyDai = true
-		}else if(type == "don" || type == "daiDon" || type == "balloon" || type == "drumroll" || type == "daiDrumroll"){
-			this.setKey(this.lr ? kbd["don_l"] : kbd["don_r"])
+		}else if(type == "don" || type == "daiDon" || drumrollNotes){
+			this.setKey(this.lr ? kbd["don_l"] : kbd["don_r"], ms)
 			this.lr = !this.lr
 		}else if(type == "daiKa" && playDai){
-			this.setKey(kbd["ka_l"])
-			this.setKey(kbd["ka_r"])
+			this.setKey(kbd["ka_l"], ms)
+			this.setKey(kbd["ka_r"], ms)
 			this.lr = false
 			keyDai = true
 		}else if(type == "ka" || type == "daiKa"){
-			this.setKey(this.lr ? kbd["ka_l"] : kbd["ka_r"])
+			this.setKey(this.lr ? kbd["ka_l"] : kbd["ka_r"], ms)
 			this.lr = !this.lr
 		}
 		if(type === "balloon"){
@@ -73,36 +79,20 @@ class Mekadon{
 		}else if(type === "drumroll" || type === "daiDrumroll"){
 			this.game.checkDrumroll(circle)
 		}else{
-			if(typeof score == "undefined"){
-				score = this.game.checkScore(circle)
-			}else{
-				this.controller.displayScore(score)
-				this.game.updateCombo(score)
-				this.game.updateGlobalScore(score, keyDai ? 2 : 1, circle.gogoTime)
-				this.game.updateCurrentCircle()
-			}
-			circle.updateStatus(score)
+			this.controller.displayScore(score)
+			this.game.updateCombo(score)
+			this.game.updateGlobalScore(score, keyDai ? 2 : 1, circle.gogoTime)
+			this.game.updateCurrentCircle()
 			circle.played(score, keyDai)
 		}
-		this.lastHit = this.getMS()
+		this.lastHit = ms
 		return true
 	}
 	getMS(){
 		return this.controller.getElapsedTime().ms
 	}
-	setKey(keyCode){
-		var self = this
-		if(this.keys[keyCode]){
-			clearTimeout(this.keys[keyCode])
-			self.clearKey(keyCode)
-		}
-		this.controller.setKey(keyCode, true)
-		this.keys[keyCode] = setTimeout(function(){
-			self.clearKey(keyCode)
-		}, 100)
-	}
-	clearKey(keyCode){
+	setKey(keyCode, ms){
 		this.controller.setKey(keyCode, false)
-		delete this.keys[keyCode]
+		this.controller.setKey(keyCode, true, ms)
 	}
 }

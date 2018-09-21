@@ -6,14 +6,13 @@ class Circle{
 		this.type = config.type
 		this.text = config.txt
 		this.speed = config.speed
-		this.endTime = config.endTime || this.ms + 150
+		this.endTime = config.endTime || this.ms
 		this.isPlayed = 0
 		this.animating = false
 		this.animT = 0
 		this.score = 0
 		this.lastFrame = this.ms + 100
 		this.animationEnded = false
-		this.status = -1
 		this.timesHit = 0
 		this.requiredHits = config.requiredHits || 0
 		this.rendaPlayed = false
@@ -47,12 +46,6 @@ class Circle{
 	incAnimT(){
 		this.animT += 0.05
 	}
-	updateStatus(status){
-		this.status = status
-	}
-	getStatus(){
-		return this.status
-	}
 	getPlayed(){
 		return this.isPlayed
 	}
@@ -64,7 +57,7 @@ class Circle{
 	}
 	played(score, big){
 		this.score = score
-		this.isPlayed = big ? 2 : 1
+		this.isPlayed = score <= 0 ? score - 1 : (big ? 2 : 1)
 	}
 	hit(){
 		this.timesHit++
