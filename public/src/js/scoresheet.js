@@ -116,11 +116,11 @@ class Scoresheet{
 			code = event.keyCode
 		}
 		var selected = this.elem("selected", this.scoresheet)
-		if(code == 13){
-			// Enter
+		if(code == 13 || code == 32 || code == 86 || code == 66){
+			// Enter, Space, V, B
 			selected.click()
-		}else if(code == 37 || code == 39){
-			// Left, Right
+		}else if(code == 37 || code == 39 || code == 67 || code == 78){
+			// Left, Right, C, N
 			selected.classList.remove("selected")
 			var next = selected.nextElementSibling
 			if(!next){

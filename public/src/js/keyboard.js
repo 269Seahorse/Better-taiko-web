@@ -91,7 +91,7 @@ class Keyboard{
 			var ms = this.game.getAccurateTime()
 			this.gamepadMenu.play((pressed, keyCode) => {
 				if(pressed){
-					if(this.game.isPaused()){
+					if(paused){
 						if(keyCode === "cancel"){
 							return setTimeout(() => {
 								this.controller.togglePauseMenu()
@@ -110,17 +110,30 @@ class Keyboard{
 				this.controller.togglePauseMenu()
 			})
 			if(this.game.isPaused()){
-				this.checkKey(this.kbd["previous"], "menu", () => {
+				var moveMenuMinus = () => {
 					moveMenu = -1
-				})
-				this.checkKey(this.kbd["next"], "menu", () => {
+				}
+				var moveMenuPlus = () => {
 					moveMenu = 1
-				})
-				this.checkKey(this.kbd["confirm"], "menu", () => {
+				}
+				var moveMenuConfirm = () => {
 					setTimeout(() => {
-						document.getElementsByClassName("selected")[0].click()
+						var selected = document.getElementsByClassName("selected")[0]
+						if(selected){
+							selected.click()
+						}
 					}, 200)
-				})
+					for(var key in this.keyTime){
+						this.keyTime[key] = null
+					}
+				}
+				this.checkKey(this.kbd["previous"], "menu", moveMenuMinus)
+				this.checkKey(this.kbd["ka_l"], "menu", moveMenuMinus)
+				this.checkKey(this.kbd["next"], "menu", moveMenuPlus)
+				this.checkKey(this.kbd["ka_r"], "menu", moveMenuPlus)
+				this.checkKey(this.kbd["confirm"], "menu", moveMenuConfirm)
+				this.checkKey(this.kbd["don_l"], "menu", moveMenuConfirm)
+				this.checkKey(this.kbd["don_r"], "menu", moveMenuConfirm)
 			}
 			if(moveMenu){
 				assets.sounds["ka"].play()

@@ -91,6 +91,7 @@ var assets = {
 		"renda.ogg"
 	],
 	"audioMusic": [
+		"bgm_songsel.ogg",
 		"bgm_result.ogg",
 		"bgm_setsume.ogg"
 	],

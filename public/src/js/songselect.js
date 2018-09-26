@@ -177,7 +177,9 @@ class SongSelect{
 		
 		this.selectedSong = 0
 		this.selectedDiff = 0
-		if(fromTutorial){
+		assets.sounds["bgm_songsel"].playLoop(0.1, false, 0, 1.442, 3.506)
+		
+		if(fromTutorial || !"selectedSong" in localStorage){
 			this.selectedSong = this.songs.findIndex(song => song.action === "tutorial")
 		}else{
 			if("selectedSong" in localStorage){
@@ -636,8 +638,8 @@ class SongSelect{
 			if(this.previewing !== null){
 				this.endPreview()
 			}
-		}else if(screen !== "title"){
-			if(this.previewing !== this.selectedSong){
+		}else if(screen !== "title" && ms > this.state.moveMS + 100){
+			if(this.previewing !== this.selectedSong && "id" in this.songs[this.selectedSong]){
 				this.startPreview()
 			}
 		}
@@ -1478,7 +1480,7 @@ class SongSelect{
 		var currentSong = this.songs[this.selectedSong]
 		var id = currentSong.id
 		var prvTime = currentSong.preview
-		this.endPreview()
+		this.endPreview(true)
 		
 		if("id" in currentSong){
 			var startLoad = this.getMS()
@@ -1508,13 +1510,17 @@ class SongSelect{
 		}
 	}
 	previewLoaded(startLoad, prvtime){
+		snd.musicGain.fadeOut(0.4)
 		var endLoad = this.getMS()
 		var difference = endLoad - startLoad
 		var minDelay = 300
 		var delay = minDelay - Math.min(minDelay, difference)
 		this.preview.playLoop(delay / 1000, false, prvtime / 1000)
 	}
-	endPreview() {
+	endPreview(noFadeIn){
+		if(!noFadeIn){
+			snd.musicGain.fadeIn(0.4)
+		}
 		this.previewId++
 		this.previewing = null
 		if(this.preview){
@@ -1559,6 +1565,11 @@ class SongSelect{
 	}
 	
 	clean(){
+		assets.sounds["bgm_songsel"].stop()
+		snd.musicGain.fadeIn()
+		setTimeout(() => {
+			snd.musicGain.fadeIn()
+		}, 500)
 		this.redrawRunning = false
 		this.endPreview()
 		pageEvents.keyRemove(this, "all")
