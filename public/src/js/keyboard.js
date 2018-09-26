@@ -9,7 +9,10 @@ class Keyboard{
 			"ka_l": 67, // C
 			"ka_r": 78, // N
 			"pause": 81, // Q
-			"back": 8 // Backspace
+			"back": 8, // Backspace
+			"previous": 38, // Up
+			"next": 40, // Down
+			"confirm": 13 // Enter
 		}
 		this.keys = {}
 		this.waitKeyupScore = {}
@@ -19,7 +22,24 @@ class Keyboard{
 			"don": -Infinity,
 			"ka": -Infinity
 		}
-		this.gamepad = new Gamepad(this)
+		
+		var gameBtn = {}
+		gameBtn[this.kbd["don_l"]] = ["u", "d", "l", "r"]
+		gameBtn[this.kbd["don_r"]] = ["a", "b", "x", "y"]
+		gameBtn[this.kbd["ka_l"]] = ["lb", "lt"]
+		gameBtn[this.kbd["ka_r"]] = ["rb", "rt"]
+		this.gamepad = new Gamepad(gameBtn)
+		
+		var menuBtn = {
+			"cancel": ["a"],
+		}
+		menuBtn[this.kbd["confirm"]] = ["b"]
+		menuBtn[this.kbd["previous"]] = ["u", "l", "lb", "lt"],
+		menuBtn[this.kbd["next"]] = ["d", "r", "rb", "rt"]
+		menuBtn[this.kbd["pause"]] = ["start"]
+		this.gamepadMenu = new Gamepad(menuBtn)
+		
+		
 		pageEvents.keyAdd(this, "all", "both", event => {
 			if(event.keyCode === 8){
 				// Disable back navigation when pressing backspace
@@ -48,7 +68,17 @@ class Keyboard{
 	}
 	checkGameKeys(){
 		if(!this.controller.autoPlayEnabled){
-			this.gamepad.play()
+			var ms = this.game.getAccurateTime()
+			this.gamepad.play((pressed, keyCode) => {
+				if(pressed){
+					if(this.keys[keyCode]){
+						this.setKey(keyCode, false)
+					}
+					this.setKey(keyCode, true, ms)
+				}else{
+					this.setKey(keyCode, false)
+				}
+			})
 		}
 		this.checkKeySound(this.kbd["don_l"], "don")
 		this.checkKeySound(this.kbd["don_r"], "don")
@@ -57,10 +87,68 @@ class Keyboard{
 	}
 	checkMenuKeys(){
 		if(!this.controller.multiplayer){
-			this.gamepad.play(true)
+			var moveMenu = 0
+			var ms = this.game.getAccurateTime()
+			this.gamepadMenu.play((pressed, keyCode) => {
+				if(pressed){
+					if(this.game.isPaused()){
+						if(keyCode === "cancel"){
+							return setTimeout(() => {
+								this.controller.togglePauseMenu()
+							}, 200)
+						}
+					}
+					if(this.keys[keyCode]){
+						this.setKey(keyCode, false)
+					}
+					this.setKey(keyCode, true, ms)
+				}else{
+					this.setKey(keyCode, false)
+				}
+			})
 			this.checkKey(this.kbd["pause"], "menu", () => {
 				this.controller.togglePauseMenu()
+				for(var key in this.keyTime){
+					this.keys[key] = null
+					this.keyTime[key] = null
+				}
 			})
+			var moveMenuMinus = () => {
+				moveMenu = -1
+			}
+			var moveMenuPlus = () => {
+				moveMenu = 1
+			}
+			var moveMenuConfirm = () => {
+				if(this.game.isPaused()){
+					setTimeout(() => {
+						var selected = document.getElementsByClassName("selected")[0]
+						if(selected){
+							selected.click()
+						}
+					}, 200)
+					for(var key in this.keyTime){
+						this.keyTime[key] = null
+					}
+				}
+			}
+			this.checkKey(this.kbd["previous"], "menu", moveMenuMinus)
+			this.checkKey(this.kbd["ka_l"], "menu", moveMenuMinus)
+			this.checkKey(this.kbd["next"], "menu", moveMenuPlus)
+			this.checkKey(this.kbd["ka_r"], "menu", moveMenuPlus)
+			this.checkKey(this.kbd["confirm"], "menu", moveMenuConfirm)
+			this.checkKey(this.kbd["don_l"], "menu", moveMenuConfirm)
+			this.checkKey(this.kbd["don_r"], "menu", moveMenuConfirm)
+			if(moveMenu && this.game.isPaused()){
+				assets.sounds["ka"].play()
+				var selected = document.getElementsByClassName("selected")[0]
+				selected.classList.remove("selected")
+				var next = selected[(moveMenu === 1 ? "next" : "previous") + "ElementSibling"]
+				if(!next){
+					next = selected.parentNode[(moveMenu === 1 ? "first" : "last") + "ElementChild"]
+				}
+				next.classList.add("selected")
+			}
 		}
 		if(this.controller.multiplayer !== 2){
 			this.checkKey(this.kbd["back"], "menu", () => {

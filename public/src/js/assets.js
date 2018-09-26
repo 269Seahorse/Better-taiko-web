@@ -32,7 +32,6 @@ var assets = {
 		"don_anim_gogo.png",
 		"don_anim_gogostart.png",
 		"don_anim_clear.png",
-		"don_anim_endclear.png",
 		"fire_anim.png",
 		"fireworks_anim.png"
 	],

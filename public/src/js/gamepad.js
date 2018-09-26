@@ -1,16 +1,6 @@
 class Gamepad{
-	constructor(keyboard){
-		this.keyboard = keyboard
-		this.game = this.keyboard.controller.game
-		
-		var kbd = keyboard.getBindings()
-		this.gameBtn = {}
-		this.gameBtn[kbd["don_l"]] = ["u", "d", "l", "r"]
-		this.gameBtn[kbd["don_r"]] = ["a", "b", "x", "y"]
-		this.gameBtn[kbd["ka_l"]] = ["lb", "lt"]
-		this.gameBtn[kbd["ka_r"]] = ["rb", "rt"]
-		this.menuBtn = {}
-		this.menuBtn[kbd["pause"]] = ["start"]
+	constructor(bindings, callback){
+		this.bindings = bindings
 		this.b = {
 			"a": 0,
 			"b": 1,
@@ -31,15 +21,19 @@ class Gamepad{
 			"guide": 16
 		}
 		this.btn = {}
+		if(callback){
+			this.interval = setInterval(() => {
+				this.play(callback)
+			}, 100)
+		}
 	}
-	play(menuPlay){
-		var ms = this.game.getAccurateTime()
+	play(callback){
 		if("getGamepads" in navigator){
 			var gamepads = navigator.getGamepads()
 		}else{
 			return
 		}
-		var bindings = menuPlay ? this.menuBtn : this.gameBtn
+		var bindings = this.bindings
 		for(var i = 0; i < gamepads.length; i++){
 			if(gamepads[i]){
 				this.toRelease = {}
@@ -51,7 +45,7 @@ class Gamepad{
 						for(var bind in bindings){
 							for(var name in bindings[bind]){
 								if(btnName === this.b[bindings[bind][name]]){
-									this.checkButton(gamepads, btnName, bind, ms)
+									this.checkButton(gamepads, btnName, bind, callback)
 									break buttonSearch
 								}
 							}
@@ -62,7 +56,7 @@ class Gamepad{
 			}
 		}
 	}
-	checkButton(gamepads, btnName, keyCode, ms){
+	checkButton(gamepads, btnName, keyCode, callback){
 		var button = false
 		
 		for(var i = 0; i < gamepads.length; i++){
@@ -77,7 +71,6 @@ class Gamepad{
 			}
 		}
 		
-		var keys = this.keyboard.getKeys()
 		var pressed = !this.btn[btnName] && button
 		var released = this.btn[btnName] && !button
 		
@@ -88,19 +81,18 @@ class Gamepad{
 		}
 		
 		if(pressed){
-			if(keys[keyCode]){
-				this.keyboard.setKey(keyCode, false)
-			}
-			this.keyboard.setKey(keyCode, true, ms)
-			
-		}else if(!button && keys[keyCode]){
+			callback(true, keyCode)
+		}else if(!button){
 			if(released){
 				this.toRelease[keyCode + "released"] = true
 			}
 			this.toRelease[keyCode]--
 			if(this.toRelease[keyCode] === 0 && this.toRelease[keyCode + "released"]){
-				this.keyboard.setKey(keyCode, false)
+				callback(false, keyCode)
 			}
 		}
+	}
+	clean(){
+		clearInterval(this.interval)
 	}
 }

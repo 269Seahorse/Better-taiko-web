@@ -351,8 +351,12 @@ class Game{
 		}
 	}
 	getAccurateTime(){
-		var currentDate = new Date()
-		return currentDate.getTime() - this.startDate.getTime() - this.elapsedTimeSincePause
+		if(this.isPaused()){
+			return this.getElapsedTime().ms
+		}else{
+			var currentDate = new Date()
+			return currentDate.getTime() - this.startDate.getTime() - this.elapsedTimeSincePause
+		}
 	}
 	getCircles(){
 		return this.songData.circles

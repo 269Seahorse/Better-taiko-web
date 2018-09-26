@@ -777,18 +777,6 @@ class View{
 			don.setAnimationEnd(ms + length * don.speed, don.normalAnimation)
 		}
 	}
-	gameEnded(){
-		if(this.controller.getGlobalScore().hp >= 50){
-			var don = this.assets.don
-			don.setAnimation("endclear")
-			var ms = this.controller.getElapsedTime().ms
-			don.setAnimationStart(ms)
-			var length = don.getAnimationLength("normal")
-			don.setUpdateSpeed(this.beatInterval / (length / 4))
-			var length = don.getAnimationLength("endclear")
-			don.setAnimationEnd(ms + length * don.speed, don.normalAnimation)
-		}
-	}
 	onmousemove(event){
 		this.lastMousemove = this.controller.getElapsedTime().ms
 		this.cursorHidden = false

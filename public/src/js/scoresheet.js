@@ -81,7 +81,9 @@ class Scoresheet{
 		this.setResults(this.score, scoreCont)
 		this.altText(this.elem("result-song", this.scoresheet), this.score.song)
 		
-		pageEvents.once(this.elem("song-select", this.scoresheet), "click").then(() => {
+		this.songSelect = this.elem("song-select", this.scoresheet)
+		this.replay = this.elem("replay", this.scoresheet)
+		pageEvents.once(this.songSelect, "click").then(() => {
 			this.clean()
 			assets.sounds["don"].play()
 			this.controller.songSelection()
@@ -91,6 +93,16 @@ class Scoresheet{
 			assets.sounds["don"].play()
 			this.controller.restartSong()
 		})
+		pageEvents.keyAdd(this, "all", "down", this.keyDown.bind(this))
+		this.gamepad = new Gamepad({
+			"13": ["b", "start"],
+			"37": ["l", "r", "lb", "lt", "rb", "rt"]
+		}, (pressed, key) => {
+			if(pressed){
+				this.keyDown(false, key)
+			}
+		})
+		
 		if(this.multiplayer && p2.results){
 			var scoreCont2 = document.createElement("div")
 			scoreCont2.classList.add("score-cont")
@@ -99,8 +111,27 @@ class Scoresheet{
 			this.setResults(p2.results, scoreCont2)
 		}
 	}
+	keyDown(event, code){
+		if(!code){
+			code = event.keyCode
+		}
+		var selected = this.elem("selected", this.scoresheet)
+		if(code == 13 || code == 32 || code == 86 || code == 66){
+			// Enter, Space, V, B
+			selected.click()
+		}else if(code == 37 || code == 39 || code == 67 || code == 78){
+			// Left, Right, C, N
+			selected.classList.remove("selected")
+			var next = selected.nextElementSibling
+			if(!next){
+				next = selected.previousElementSibling
+			}
+			next.classList.add("selected")
+		}
+	}
 	clean(){
 		assets.sounds["bgm_result"].stop()
+		pageEvents.keyRemove(this, "all")
 		pageEvents.remove(window, "resize")
 	}
 }
