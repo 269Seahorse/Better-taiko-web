@@ -74,7 +74,7 @@ class SongSelect{
 				outline: "#656565"
 			}
 		}
-		this.font = "DFPKanTeiRyu-XB"
+		this.font = "TnT"
 		
 		this.songs = []
 		for(let song of assets.songs){
@@ -130,30 +130,30 @@ class SongSelect{
 		this.diffStar = new Path2D("M3 17 5 11 0 6h6l3-6 3 6h6l-5 5 2 6-6-3")
 		this.longVowelMark = new Path2D("m1 5c2 3 1 17 .5 25 0 5 6 5 6.5 0C9 22 9 6 7 3 4-2-1 2 1 5")
 		
-		this.diffIconPath = [[{w: 40, h: 33},{
+		this.diffIconPath = [[{w: 40, h: 33}, {
 			fill: "#ff2803",
 			d: new Path2D("m27 10c9-9 21 9 5 11 10 9-6 18-12 7C14 39-2 30 8 21-8 19 4 1 13 10 6-4 34-3 27 10Z")
-		},{
+		}, {
 			fill: "#ffb910",
 			noStroke: true,
 			d: new Path2D("m12 15c5 1 7 0 8-4 1 4 3 5 8 4-4 3-4 5-2 8-4-4-8-4-12 0 2.2-3 2-5-2-8")
-		}],[{w: 48, h: 31},{
+		}], [{w: 48, h: 31}, {
 			fill: "#8daf51",
 			d: new Path2D("m24 0c-3 0-4 3-5 6-2 6-2 11 0 17 0 0 1 4 5 8 4-4 5-8 5-8C31 17 31 12 29 6 28 3 27 0 24 0M37 2c4 3 7 6 8 8 2 4 3 6 2 13C43 21 39 18 39 18 35 15 32 12 30 8 27 0 32-2 37 2M11 2C7 5 4 8 3 10 1 14 0 16 1 23 5 21 9 18 9 18 13 15 16 12 18 8 21 0 16-2 11 2")
-		}],[{w: 56, h: 37},{
+		}], [{w: 56, h: 37}, {
 			fill: "#784439",
 			d: new Path2D("m26 34v-2c-10 1-12 0-12-7 4-3 8-5 14-5 6 0 10 2 14 5 0 7-2 8-12 7V34Z")
-		},{
+		}, {
 			fill: "#000",
 			noStroke: true,
 			d: new Path2D("m18 19v9h8v-9m4 9h8v-9h-8")
-		},{
+		}, {
 			fill: "#414b2b",
 			d: new Path2D("M8 26C3 26-3 21 2 11 6 5 11 4 18 10c0-6 4-10 10-10 6 0 10 4 10 10 7-6 12-5 16 1 5 10-1 15-6 15-5 0-10-7-20-7-10 0-15 7-20 7")
-		}],[{w: 29, h: 27},{
+		}], [{w: 29, h: 27}, {
 			fill: "#db1885",
 			d: new Path2D("m18 9c1 3 4 4 7 3 0 4 1 11 4 16H0c3-5 4-12 4-16 3 1 6 0 7-3z")
-		},{
+		}, {
 			fill: "#fff",
 			d: new Path2D("m6 0.5-2 11c4 1.5 6-0.5 6.5-3zm17 0-4.5 8C19 11 21 13 25 11.5ZM5.5 17.5C4.5 23.5 9 25 11 22Zm18 0L18 22c2 3 6.5 1.5 5.5-4.5z")
 		}]]
@@ -181,11 +181,14 @@ class SongSelect{
 		
 		if(fromTutorial || !"selectedSong" in localStorage){
 			this.selectedSong = this.songs.findIndex(song => song.action === "tutorial")
+			this.playBgm(true)
 		}else{
 			if("selectedSong" in localStorage){
 				this.selectedSong = Math.min(Math.max(0, localStorage["selectedSong"] |0), this.songs.length)
 			}
 			assets.sounds["song-select"].play()
+			snd.musicGain.fadeOut()
+			this.playBgm(false)
 		}
 		if("selectedDiff" in localStorage){
 			this.selectedDiff = Math.min(Math.max(0, localStorage["selectedDiff"] |0), 4)
@@ -610,6 +613,7 @@ class SongSelect{
 				if(elapsed < resize){
 					selectedWidth = this.songAsset.width + (((resize - elapsed) / resize) * (selectedWidth - this.songAsset.width))
 				}else if(elapsed > resize2){
+					this.playBgm(!this.songs[this.selectedSong].stars)
 					this.state.locked = 1
 					selectedWidth = this.songAsset.width + ((elapsed - resize2) / resize * (selectedWidth - this.songAsset.width))
 				}else{
@@ -1510,21 +1514,26 @@ class SongSelect{
 		}
 	}
 	previewLoaded(startLoad, prvtime){
-		snd.musicGain.fadeOut(0.4)
 		var endLoad = this.getMS()
 		var difference = endLoad - startLoad
 		var minDelay = 300
 		var delay = minDelay - Math.min(minDelay, difference)
 		this.preview.playLoop(delay / 1000, false, prvtime / 1000)
 	}
-	endPreview(noFadeIn){
-		if(!noFadeIn){
-			snd.musicGain.fadeIn(0.4)
-		}
+	endPreview(){
 		this.previewId++
 		this.previewing = null
 		if(this.preview){
 			this.preview.stop()
+		}
+	}
+	playBgm(enabled){
+		if(enabled && !this.bgmEnabled){
+			this.bgmEnabled = true
+			snd.musicGain.fadeIn(0.4)
+		}else if(!enabled && this.bgmEnabled){
+			this.bgmEnabled = false
+			snd.musicGain.fadeOut(0.4)
 		}
 	}
 	
@@ -1566,10 +1575,12 @@ class SongSelect{
 	
 	clean(){
 		assets.sounds["bgm_songsel"].stop()
-		snd.musicGain.fadeIn()
-		setTimeout(() => {
+		if(!this.bgmEnabled){
 			snd.musicGain.fadeIn()
-		}, 500)
+			setTimeout(() => {
+				snd.musicGain.fadeIn()
+			}, 500)
+		}
 		this.redrawRunning = false
 		this.endPreview()
 		pageEvents.keyRemove(this, "all")

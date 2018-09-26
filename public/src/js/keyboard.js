@@ -91,7 +91,7 @@ class Keyboard{
 			var ms = this.game.getAccurateTime()
 			this.gamepadMenu.play((pressed, keyCode) => {
 				if(pressed){
-					if(paused){
+					if(this.game.isPaused()){
 						if(keyCode === "cancel"){
 							return setTimeout(() => {
 								this.controller.togglePauseMenu()
@@ -108,15 +108,19 @@ class Keyboard{
 			})
 			this.checkKey(this.kbd["pause"], "menu", () => {
 				this.controller.togglePauseMenu()
+				for(var key in this.keyTime){
+					this.keys[key] = null
+					this.keyTime[key] = null
+				}
 			})
-			if(this.game.isPaused()){
-				var moveMenuMinus = () => {
-					moveMenu = -1
-				}
-				var moveMenuPlus = () => {
-					moveMenu = 1
-				}
-				var moveMenuConfirm = () => {
+			var moveMenuMinus = () => {
+				moveMenu = -1
+			}
+			var moveMenuPlus = () => {
+				moveMenu = 1
+			}
+			var moveMenuConfirm = () => {
+				if(this.game.isPaused()){
 					setTimeout(() => {
 						var selected = document.getElementsByClassName("selected")[0]
 						if(selected){
@@ -127,15 +131,15 @@ class Keyboard{
 						this.keyTime[key] = null
 					}
 				}
-				this.checkKey(this.kbd["previous"], "menu", moveMenuMinus)
-				this.checkKey(this.kbd["ka_l"], "menu", moveMenuMinus)
-				this.checkKey(this.kbd["next"], "menu", moveMenuPlus)
-				this.checkKey(this.kbd["ka_r"], "menu", moveMenuPlus)
-				this.checkKey(this.kbd["confirm"], "menu", moveMenuConfirm)
-				this.checkKey(this.kbd["don_l"], "menu", moveMenuConfirm)
-				this.checkKey(this.kbd["don_r"], "menu", moveMenuConfirm)
 			}
-			if(moveMenu){
+			this.checkKey(this.kbd["previous"], "menu", moveMenuMinus)
+			this.checkKey(this.kbd["ka_l"], "menu", moveMenuMinus)
+			this.checkKey(this.kbd["next"], "menu", moveMenuPlus)
+			this.checkKey(this.kbd["ka_r"], "menu", moveMenuPlus)
+			this.checkKey(this.kbd["confirm"], "menu", moveMenuConfirm)
+			this.checkKey(this.kbd["don_l"], "menu", moveMenuConfirm)
+			this.checkKey(this.kbd["don_r"], "menu", moveMenuConfirm)
+			if(moveMenu && this.game.isPaused()){
 				assets.sounds["ka"].play()
 				var selected = document.getElementsByClassName("selected")[0]
 				selected.classList.remove("selected")
