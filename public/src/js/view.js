@@ -749,7 +749,8 @@ class View{
 				})
 			}
 		}else{
-			if(this.assets.don.getAnimation() === "gogo"){
+			var animation = this.assets.don.getAnimation()
+			if(animation === "gogo" || this.controller.getGlobalScore().hp >= 50 && animation === "normal"){
 				this.assets.don.normalAnimation()
 			}
 			if(ms >= this.gogoTimeStarted + 100){
@@ -770,7 +771,21 @@ class View{
 			don.setAnimation("10combo")
 			var ms = this.controller.getElapsedTime().ms
 			don.setAnimationStart(ms)
+			var length = don.getAnimationLength("normal")
+			don.setUpdateSpeed(this.beatInterval / (length / 4))
 			var length = don.getAnimationLength("10combo")
+			don.setAnimationEnd(ms + length * don.speed, don.normalAnimation)
+		}
+	}
+	gameEnded(){
+		if(this.controller.getGlobalScore().hp >= 50){
+			var don = this.assets.don
+			don.setAnimation("endclear")
+			var ms = this.controller.getElapsedTime().ms
+			don.setAnimationStart(ms)
+			var length = don.getAnimationLength("normal")
+			don.setUpdateSpeed(this.beatInterval / (length / 4))
+			var length = don.getAnimationLength("endclear")
 			don.setAnimationEnd(ms + length * don.speed, don.normalAnimation)
 		}
 	}

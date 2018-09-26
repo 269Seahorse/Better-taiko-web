@@ -281,7 +281,7 @@ class Game{
 			var ms = this.getElapsedTime().ms
 			if(this.musicFadeOut === 0){
 				if(this.controller.multiplayer === 1){
-					p2.send("gameresults", this.controller.getGlobalScore())
+					p2.send("gameresults", this.getGlobalScore())
 				}
 				this.musicFadeOut++
 			}else if(this.musicFadeOut === 1 && ms >= started + 1600){
