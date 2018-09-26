@@ -42,12 +42,20 @@ class ViewAssets{
 				var length = this.don.getAnimationLength("gogo")
 				this.don.setUpdateSpeed(this.beatInterval / (length / 4))
 				this.don.setAnimation("gogo")
+			}else if(this.controller.getGlobalScore().hp >= 50){
+				this.don.setAnimationStart(0)
+				var length = this.don.getAnimationLength("clear")
+				this.don.setUpdateSpeed(this.beatInterval / (length / 2))
+				this.don.setAnimation("clear")
 			}else{
 				this.don.setAnimationStart(0)
-				this.don.setUpdateSpeed(this.beatInterval / 16)
+				var length = this.don.getAnimationLength("normal")
+				this.don.setUpdateSpeed(this.beatInterval / (length / 4))
 				this.don.setAnimation("normal")
 			}
 		}
+		this.don.addFrames("clear", 30, "don_anim_clear")
+		this.don.addFrames("endclear", 22, "don_anim_endclear")
 		this.don.normalAnimation()
 		this.fire = this.createAsset("bar", frame => {
 			var imgw = 360
