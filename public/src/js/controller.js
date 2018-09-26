@@ -107,7 +107,6 @@ class Controller{
 		this.view.togglePauseMenu()
 	}
 	gameEnded(){
-		this.view.gameEnded()
 		var score = this.getGlobalScore()
 		var vp
 		if(score.fail === 0){

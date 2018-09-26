@@ -55,7 +55,6 @@ class ViewAssets{
 			}
 		}
 		this.don.addFrames("clear", 30, "don_anim_clear")
-		this.don.addFrames("endclear", 22, "don_anim_endclear")
 		this.don.normalAnimation()
 		this.fire = this.createAsset("bar", frame => {
 			var imgw = 360
