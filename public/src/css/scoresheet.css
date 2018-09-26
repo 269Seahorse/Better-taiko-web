@@ -46,7 +46,8 @@
 	left:23%;
 }
 
-.scoresheet button:hover{
+.scoresheet button:hover,
+.scoresheet .bottom-part:not(:hover) button.selected{
 	border-color:#fa5d3a;
 	color:white;
 	background:#0c6577;

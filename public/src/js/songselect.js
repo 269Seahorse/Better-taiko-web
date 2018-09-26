@@ -211,7 +211,9 @@ class SongSelect{
 			"13": ["b", "start"],
 			"8": ["a"],
 			"37": ["l", "lb", "lt"],
-			"39": ["r", "rb", "rt"]
+			"39": ["r", "rb", "rt"],
+			"ctrl": ["y"],
+			"shift": ["x"]
 		})
 		
 		this.startP2()
@@ -224,8 +226,20 @@ class SongSelect{
 	}
 	
 	keyDown(event, code){
-		if(!code){
+		if(code){
+			var modifiers = {
+				shift: this.pressedKeys["shift"],
+				ctrl: this.pressedKeys["ctrl"]
+			}
+		}else{
 			code = event.keyCode
+			var modifiers = {
+				shift: event.shiftKey,
+				ctrl: event.ctrlKey
+			}
+		}
+		if(code === "ctrl" && code === "shift"){
+			return
 		}
 		var key = {
 			confirm: code == 13 || code == 32 || code == 86 || code == 66,
@@ -255,7 +269,7 @@ class SongSelect{
 				if(this.selectedDiff === 0){
 					this.toSongSelect()
 				}else{
-					this.toLoadSong(this.selectedDiff - 1, event.shiftKey, event.ctrlKey)
+					this.toLoadSong(this.selectedDiff - 1, modifiers.shift, modifiers.ctrl)
 				}
 			}else if(key.cancel){
 				this.toSongSelect()
@@ -431,7 +445,7 @@ class SongSelect{
 		assets.sounds["don"].play()
 		
 		localStorage["selectedSong"] = this.selectedSong
-		localStorage["selectedDiff"] = this.selectedDiff
+		localStorage["selectedDiff"] = difficulty + 1
 		
 		new loadSong({
 			"title": selectedSong.title,
@@ -473,7 +487,7 @@ class SongSelect{
 		})
 		for(var key in this.pressedKeys){
 			if(this.pressedKeys[key]){
-				if(ms >= this.pressedKeys[key] + 100){
+				if(ms >= this.pressedKeys[key] + 50){
 					this.keyDown(false, key)
 					this.pressedKeys[key] = ms
 				}
@@ -619,7 +633,7 @@ class SongSelect{
 		}
 		
 		if(songSelMoving){
-			if(this.previewing){
+			if(this.previewing !== null){
 				this.endPreview()
 			}
 		}else if(screen !== "title"){
@@ -770,10 +784,12 @@ class SongSelect{
 							opacity: highlight === 2 ? 0.8 : 1,
 							radius: 24
 						})
-						this.drawDiffCursor({
-							x: _x,
-							y: _y - 45
-						})
+						if(this.selectedDiff === 0){
+							this.drawDiffCursor({
+								x: _x,
+								y: _y - 45
+							})
+						}
 					}
 				}
 				for(var i = 0; currentSong.stars && i < 4; i++){

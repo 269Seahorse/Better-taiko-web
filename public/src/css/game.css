@@ -32,13 +32,12 @@
 	font-family: TnT;
 	font-size: 3.5vmin;
 	border-radius: 1.5vmin;
+	outline: none;
 }
 #pause-menu button:hover,
-#pause-menu button.selected{
+#pause-menu .window:not(:hover) button.selected{
 	color:white;
 	background:#0c6577;
-}
-#pause-menu button:hover{
 	border-color:#fa5d3a;
 }
 #cursor{
