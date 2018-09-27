@@ -122,7 +122,8 @@ class ParseSong{
 				start: start,
 				sliderMultiplier: sliderMultiplier,
 				measure: parseInt(values[this.osu.METER]),
-				gogoTime: parseInt(values[this.osu.KIAIMODE])
+				gogoTime: parseInt(values[this.osu.KIAIMODE]),
+				beatLength: msOrPercent
 			})
 		}
 		return timingPoints
@@ -233,12 +234,14 @@ class ParseSong{
 			var gogoTime = false
 			var osuType = parseInt(values[this.osu.TYPE])
 			var hitSound = parseInt(values[this.osu.HITSOUND])
+			var beatLength = speed
 			
 			for(var j = 0; j < this.timingPoints.length; j++){
 				if(this.timingPoints[j].start > start){
 					break
 				}
 				speed = this.timingPoints[j].sliderMultiplier
+				beatLength = this.timingPoints[j].beatLength
 				gogoTime = this.timingPoints[j].gogoTime
 			}
 			
@@ -261,8 +264,14 @@ class ParseSong{
 			}else if(osuType & this.osu.SLIDER){
 				
 				var extras = values.slice(this.osu.EXTRAS)
-				var pixelLength = parseFloat(extras[this.osu.PIXELLENGTH])
-				var endTime = start + pixelLength / (speed * 100) * this.beatInfo.beatInterval
+				var distance = parseFloat(extras[this.osu.PIXELLENGTH])
+				
+				var speedMultiplier = beatLength < 0 ? 100.0 / -beatLength : 1
+				var speedAdjustedBeatLength = this.beatInfo.beatInterval / speedMultiplier
+				var taikoVelocity = 100 * this.difficulty.sliderMultiplier / speedAdjustedBeatLength
+				var taikoDuration = distance / taikoVelocity
+				var endTime = start + taikoDuration
+				
 				if(hitSound & this.osu.FINISH){
 					type = "daiDrumroll"
 					txt = "連打(大)ーっ!!"

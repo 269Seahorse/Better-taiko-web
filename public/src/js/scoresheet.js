@@ -121,6 +121,7 @@ class Scoresheet{
 			selected.click()
 		}else if(code == 37 || code == 39 || code == 67 || code == 78){
 			// Left, Right, C, N
+			assets.sounds["ka"].play()
 			selected.classList.remove("selected")
 			var next = selected.nextElementSibling
 			if(!next){
@@ -130,6 +131,7 @@ class Scoresheet{
 		}
 	}
 	clean(){
+		this.gamepad.clean()
 		assets.sounds["bgm_result"].stop()
 		pageEvents.keyRemove(this, "all")
 		pageEvents.remove(window, "resize")
