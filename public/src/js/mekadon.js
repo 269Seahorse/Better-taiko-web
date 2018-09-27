@@ -8,7 +8,7 @@ class Mekadon{
 	play(circle){
 		var type = circle.getType()
 		if((type === "balloon" || type === "drumroll" || type === "daiDrumroll") && this.getMS() > circle.getEndTime()){
-			circle.played(0, false)
+			circle.played(-1, false)
 			this.game.updateCurrentCircle()
 		}
 		type = circle.getType()

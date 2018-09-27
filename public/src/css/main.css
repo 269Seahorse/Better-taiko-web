@@ -190,17 +190,18 @@ kbd{
 }
 @keyframes bgscroll{
 	from{
-		background-position: 0 0;
+		background-position: 0 center;
 	}
 	to{
-		background-position: calc(-100vh / 720 * 512) 0;
+		background-position: calc(-100vh / 720 * 512) center;
 	}
 }
 #song-select{
 	width: 100%;
 	height: 100%;
 	background-image: url("/assets/img/bg_genre_0.png");
-	background-size: contain;
+	background-size: calc(100vh / 720 * 512);
+	background-repeat: repeat no-repeat;
 	animation: bgscroll 16s infinite linear;
 	white-space: nowrap;
 	transition: background-image 0.5s;

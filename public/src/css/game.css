@@ -5,7 +5,7 @@
 	background-size: cover;
 }
 #game.default-bg{
-	background-size: contain;
+	background-size: calc(100vh / 720 * 512);
 }
 #canvas{
 	position: relative;
