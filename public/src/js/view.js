@@ -65,7 +65,26 @@ class View{
 		this.refresh()
 	}
 	setBackground(){
-		document.getElementById("game").style.backgroundImage = "url('" + this.bg + "')"
+		var gameDiv = document.getElementById("game")
+		var selectedSong = this.controller.selectedSong
+		if(selectedSong.defaultBg){
+			var categories = {
+				"J-POP": 0,
+				"アニメ": 1,
+				"ボーカロイド™曲": 2,
+				"バラエティ": 3,
+				"クラシック": 4,
+				"ゲームミュージック": 5,
+				"ナムコオリジナル": 6
+			}
+			var catId = 7
+			if(selectedSong.category in categories){
+				catId = categories[selectedSong.category]
+			}
+			this.bg = assets.image["bg_genre_" + catId].src
+			gameDiv.classList.add("default-bg")
+		}
+		gameDiv.style.backgroundImage = "url('" + this.bg + "')"
 	}
 	positionning(){
 		var docW = document.body.offsetWidth

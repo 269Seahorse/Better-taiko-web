@@ -4,6 +4,9 @@
 	overflow: hidden;
 	background-size: cover;
 }
+#game.default-bg{
+	background-size: contain;
+}
 #canvas{
 	position: relative;
 	z-index: 1;
