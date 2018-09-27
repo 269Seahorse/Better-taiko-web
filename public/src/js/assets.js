@@ -33,7 +33,15 @@ var assets = {
 		"don_anim_gogostart.png",
 		"don_anim_clear.png",
 		"fire_anim.png",
-		"fireworks_anim.png"
+		"fireworks_anim.png",
+		"bg_genre_0.png",
+		"bg_genre_1.png",
+		"bg_genre_2.png",
+		"bg_genre_3.png",
+		"bg_genre_4.png",
+		"bg_genre_5.png",
+		"bg_genre_6.png",
+		"bg_genre_7.png"
 	],
 	"audioSfx": [
 		"start.wav",

@@ -11,11 +11,16 @@ class loadSong{
 		var promises = []
 		assets.sounds["start"].play()
 		
-		var img = document.createElement("img")
-		promises.push(pageEvents.load(img))
-		img.id = "music-bg"
-		img.src = "/songs/" + id + "/bg.png"
-		document.getElementById("assets").appendChild(img)
+		promises.push(new Promise((resolve, reject) => {
+			var img = document.createElement("img")
+			pageEvents.load(img).then(resolve, () => {
+				this.selectedSong.defaultBg = true
+				resolve()
+			})
+			img.id = "music-bg"
+			img.src = "/songs/" + id + "/bg.png"
+			document.getElementById("assets").appendChild(img)
+		}))
 		
 		promises.push(new Promise((resolve, reject) => {
 			var songObj

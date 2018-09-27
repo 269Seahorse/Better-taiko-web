@@ -16,11 +16,13 @@ class SongSelect{
 				outline: "#ad7723"
 			},
 			"random": {
+				sort: 7,
 				background: "#fa91ff",
 				border: ["#ffdfff", "#b068b2"],
 				outline: "#b221bb"
 			},
 			"tutorial": {
+				sort: 7,
 				background: "#9afbe1",
 				border: ["#d6ffff", "#6bae9c"],
 				outline: "#31ae94"
@@ -37,7 +39,7 @@ class SongSelect{
 				border: ["#ffdb8c", "#e75500"],
 				outline: "#9c4100"
 			},
-			"ボーカロイド": {
+			"ボーカロイド™曲": {
 				sort: 2,
 				background: "#def2ef",
 				border: ["#f7fbff", "#79919f"],
@@ -104,12 +106,14 @@ class SongSelect{
 		this.songs.push({
 			title: "ランダムに曲をえらぶ",
 			skin: this.songSkin.random,
-			action: "random"
+			action: "random",
+			category: "ランダム"
 		})
 		this.songs.push({
 			title: "あそびかた説明",
 			skin: this.songSkin.tutorial,
-			action: "tutorial"
+			action: "tutorial",
+			category: "ランダム"
 		})
 		this.songs.push({
 			title: "もどる",
@@ -179,7 +183,7 @@ class SongSelect{
 		this.selectedDiff = 0
 		assets.sounds["bgm_songsel"].playLoop(0.1, false, 0, 1.442, 3.506)
 		
-		if(fromTutorial || !"selectedSong" in localStorage){
+		if(fromTutorial || !("selectedSong" in localStorage)){
 			this.selectedSong = this.songs.findIndex(song => song.action === "tutorial")
 			this.playBgm(true)
 		}else{
@@ -193,6 +197,11 @@ class SongSelect{
 		if("selectedDiff" in localStorage){
 			this.selectedDiff = Math.min(Math.max(0, localStorage["selectedDiff"] |0), 4)
 		}
+		
+		this.songSelect = document.getElementById("song-select")
+		var cat = this.songs[this.selectedSong].category
+		var sort = cat in this.songSkin ? this.songSkin[cat].sort : 7
+		this.songSelect.style.backgroundImage = "url('" + assets.image["bg_genre_" + sort].src + "')"
 		
 		this.previewId = 0
 		this.state = {
@@ -222,6 +231,7 @@ class SongSelect{
 		})
 		
 		this.startP2()
+		
 		this.redrawRunning = true
 		this.redrawBind = this.redraw.bind(this)
 		this.redraw()
@@ -455,7 +465,8 @@ class SongSelect{
 		new loadSong({
 			"title": selectedSong.title,
 			"folder": selectedSong.id,
-			"difficulty": this.difficultyId[difficulty]
+			"difficulty": this.difficultyId[difficulty],
+			"category": selectedSong.category
 		}, shift, ctrl)
 	}
 	toTitleScreen(){
@@ -606,6 +617,12 @@ class SongSelect{
 				this.selectedSong = this.mod(this.songs.length, this.selectedSong + this.state.move)
 				this.state.move = 0
 				this.state.locked = 2
+				
+				if(this.songs[this.selectedSong].action !== "back"){
+					var cat = this.songs[this.selectedSong].category
+					var sort = cat in this.songSkin ? this.songSkin[cat].sort : 7
+					this.songSelect.style.backgroundImage = "url('" + assets.image["bg_genre_" + sort].src + "')"
+				}
 			}
 			if(this.state.moveMS && ms < this.state.moveMS + changeSpeed){
 				xOffset = Math.min(scroll, Math.max(0, elapsed - resize - scrollDelay)) / scroll * (this.songAsset.width + this.songAsset.marginLeft)
@@ -1285,6 +1302,8 @@ class SongSelect{
 		for(let symbol of string){
 			if(symbol === "-"){
 				drawn.push({text: symbol, x: -4, y: 0, w: 28, scale: [0.8, 1]})
+			}else if(symbol === "™"){
+				drawn.push({text: symbol, x: -2, y: 0, w: 20, scale: [0.6, 0.5]})
 			}else if(r.latin.test(symbol)){
 				// Latin script
 				drawn.push({text: symbol, x: 0, y: 0, w: 32})
@@ -1353,6 +1372,7 @@ class SongSelect{
 					ctx.scale(symbol.scale[0], symbol.scale[1])
 					currentX = 0
 					currentY = 0
+					ctx.lineWidth /= symbol.scale[0]
 				}
 				ctx[action](symbol.text, currentX, currentY)
 				if(saved){
