@@ -1,6 +1,5 @@
 class ParseSong{
 	constructor(fileContent){
-		this.data = fileContent
 		this.osu = {
 			OFFSET: 0,
 			MSPERBEAT: 1,
@@ -35,8 +34,16 @@ class ParseSong{
 			EDGEHITSOUNDS: 3,
 			EDGEADDITIONS: 4
 		}
+		this.data = []
+		for(let line of fileContent){
+			line = line.trim().replace(/\/\/.*/, "")
+			if(line !== ""){
+				this.data.push(line)
+			}
+		}
 		this.beatInfo = {
 			beatInterval: 0,
+			lastBeatInterval: 0,
 			bpm: 0
 		}
 		this.generalInfo = this.parseGeneralInfo()
@@ -53,7 +60,7 @@ class ParseSong{
 			end: 0
 		}
 		while(indexes.start < this.data.length){
-			if(this.data[indexes.start].match(type)){
+			if(this.data[indexes.start] === "[" + type + "]"){
 				break
 			}
 			indexes.start++
@@ -61,7 +68,7 @@ class ParseSong{
 		indexes.start++
 		indexes.end = indexes.start
 		while(indexes.end < this.data.length){
-			if(this.data[indexes.end].match(/^\s*$/)){
+			if(this.data[indexes.end].match(/^\[\w+\]$/)){
 				break
 			}
 			indexes.end++
@@ -122,8 +129,7 @@ class ParseSong{
 				start: start,
 				sliderMultiplier: sliderMultiplier,
 				measure: parseInt(values[this.osu.METER]),
-				gogoTime: parseInt(values[this.osu.KIAIMODE]),
-				beatLength: msOrPercent
+				gogoTime: parseInt(values[this.osu.KIAIMODE])
 			})
 		}
 		return timingPoints
@@ -235,13 +241,13 @@ class ParseSong{
 			var osuType = parseInt(values[this.osu.TYPE])
 			var hitSound = parseInt(values[this.osu.HITSOUND])
 			var beatLength = speed
+			var lastMultiplier = this.difficulty.lastMultiplier
 			
 			for(var j = 0; j < this.timingPoints.length; j++){
 				if(this.timingPoints[j].start > start){
 					break
 				}
 				speed = this.timingPoints[j].sliderMultiplier
-				beatLength = this.timingPoints[j].beatLength
 				gogoTime = this.timingPoints[j].gogoTime
 			}
 			
@@ -264,13 +270,10 @@ class ParseSong{
 			}else if(osuType & this.osu.SLIDER){
 				
 				var extras = values.slice(this.osu.EXTRAS)
-				var distance = parseFloat(extras[this.osu.PIXELLENGTH])
 				
-				var speedMultiplier = beatLength < 0 ? 100.0 / -beatLength : 1
-				var speedAdjustedBeatLength = this.beatInfo.beatInterval / speedMultiplier
-				var taikoVelocity = 100 * this.difficulty.sliderMultiplier / speedAdjustedBeatLength
-				var taikoDuration = distance / taikoVelocity
-				var endTime = start + taikoDuration
+				var distance = parseFloat(extras[this.osu.PIXELLENGTH])
+				var velocity = this.difficulty.sliderMultiplier * speed / 10
+				var endTime = start + distance / velocity
 				
 				if(hitSound & this.osu.FINISH){
 					type = "daiDrumroll"

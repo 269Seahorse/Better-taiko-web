@@ -83,19 +83,19 @@ class SongSelect{
 			this.songs.push({
 				id: song.id,
 				title: song.title,
-				skin: this.songSkin[song.category || "default"],
+				skin: song.category in this.songSkin ? this.songSkin[song.category] : this.songSkin.default,
 				stars: song.stars,
 				category: song.category,
 				preview: song.preview || 0
 			})
 		}
 		this.songs.sort((a, b) => {
-			var sortA = this.songSkin[a.category || "default"].sort
-			var sortB = this.songSkin[b.category || "default"].sort
-			if(sortA === sortB){
+			var catA = a.category in this.songSkin ? this.songSkin[a.category] : this.songSkin.default
+			var catB = b.category in this.songSkin ? this.songSkin[b.category] : this.songSkin.default
+			if(catA.sort === catB.sort){
 				return a.id > b.id ? 1 : -1
 			}else{
-				return sortA > sortB ? 1 : -1
+				return catA.sort > catB.sort ? 1 : -1
 			}
 		})
 		this.songs.push({
