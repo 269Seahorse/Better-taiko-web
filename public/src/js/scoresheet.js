@@ -132,7 +132,7 @@ class Scoresheet{
 		var frameTop = winH / 2 - 720 / 2
 		var frameLeft = winW / 2 - 1280 / 2
 		
-		var players = this.multiplayer ? 2 : 1
+		var players = p2.results ? 2 : 1
 		var p2Offset = 298
 		
 		var bgOffset = 0
