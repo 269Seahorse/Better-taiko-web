@@ -168,7 +168,8 @@ class SongSelect{
 			move: 0,
 			moveMS: 0,
 			moveHover: null,
-			locked: true
+			locked: true,
+			hasPointer: false
 		}
 		this.songSelecting = {
 			speed: 800,
@@ -281,6 +282,7 @@ class SongSelect{
 	}
 	mouseMove(event){
 		var mouse = this.mouseOffset(event)
+		var moveTo = null
 		if(this.state.screen === "song"){
 			var moveTo = this.songSelMouse(mouse.x, mouse.y)
 			if(moveTo === null && this.state.moveHover === 0 && !this.songs[this.selectedSong].stars){
@@ -294,11 +296,21 @@ class SongSelect{
 			}
 			this.state.moveHover = moveTo
 		}
+		this.pointer(moveTo !== null)
 	}
 	mouseOffset(event){
 		return {
 			x: (event.offsetX * this.pixelRatio - this.winW / 2) / this.ratio + 1024 / 2,
 			y: (event.offsetY * this.pixelRatio - this.winH / 2) / this.ratio + 720 / 2
+		}
+	}
+	pointer(enabled){
+		if(enabled && this.state.hasPointer === false){
+			this.canvas.style.cursor = "pointer"
+			this.state.hasPointer = true
+		}else if(!enabled && this.state.hasPointer === true){
+			this.canvas.style.cursor = ""
+			this.state.hasPointer = false
 		}
 	}
 	
@@ -360,6 +372,7 @@ class SongSelect{
 			for(var i = 0; i < Math.abs(moveBy) - 1; i++){
 				assets.sounds["ka"].play((resize + i * soundsDelay) / 1000)
 			}
+			this.pointer(false)
 		}
 	}
 	moveToDiff(moveBy){
@@ -398,6 +411,7 @@ class SongSelect{
 			}else if(currentSong.action === "tutorial"){
 				this.toTutorial()
 			}
+			this.pointer(false)
 		}
 	}
 	toSongSelect(){
@@ -491,6 +505,7 @@ class SongSelect{
 			this.canvas.style.width = (winW / this.pixelRatio) + "px"
 			this.canvas.style.height = (winH / this.pixelRatio) + "px"
 		}else if(!document.hasFocus()){
+			this.pointer(false)
 			return
 		}else{
 			ctx.clearRect(0, 0, winW / ratio, winH / ratio)

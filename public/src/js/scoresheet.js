@@ -11,7 +11,8 @@ class Scoresheet{
 		this.state = {
 			screen: "fadeIn",
 			screenMS: this.getMS(),
-			startDelay: 3300
+			startDelay: 3300,
+			hasPointer: 0
 		}
 		this.draw = new CanvasDraw()
 		
@@ -138,7 +139,7 @@ class Scoresheet{
 		var bgOffset = 0
 		var elapsed = ms - this.state.screenMS
 		if(this.state.screen === "fadeIn" && elapsed < 1000){
-			bgOffset = (1 - elapsed / 1000) * (winH / 2)
+			bgOffset = Math.min(1, this.draw.easeIn(1 - elapsed / 1000)) * (winH / 2)
 		}
 		
 		if(bgOffset){
@@ -202,6 +203,10 @@ class Scoresheet{
 		}
 		
 		if(elapsed >= 0){
+			if(this.state.hasPointer === 0){
+				this.state.hasPointer = 1
+				this.canvas.style.cursor = "pointer"
+			}
 			ctx.save()
 			ctx.setTransform(1, 0, 0, 1, 0, 0)
 			this.draw.alpha(Math.min(1, elapsed / 400), ctx, ctx => {
@@ -484,6 +489,10 @@ class Scoresheet{
 		
 		if(this.state.screen === "fadeOut"){
 			ctx.save()
+			if(this.state.hasPointer === 1){
+				this.state.hasPointer = 2
+				this.canvas.style.cursor = ""
+			}
 			
 			var elapsed = ms - this.state.screenMS
 			ctx.globalAlpha = Math.max(0, Math.min(1, elapsed / 1000))

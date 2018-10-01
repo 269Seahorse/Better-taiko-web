@@ -200,6 +200,9 @@
 		}
 		return (1 - Math.cos(Math.PI * pos * 2)) / 2
 	}
+	easeIn(pos){
+		return 1 - Math.cos(Math.PI / 2 * pos)
+	}
 	
 	verticalText(config){
 		var ctx = config.ctx
