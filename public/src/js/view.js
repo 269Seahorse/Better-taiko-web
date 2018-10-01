@@ -820,6 +820,7 @@ class View{
 		if(this.controller.multiplayer === 2){
 			this.canvas.canvas.parentNode.removeChild(this.canvas.canvas)
 		}
+		this.cursor.parentNode.removeChild(this.cursor)
 		delete this.pauseMenu
 		delete this.cursor
 		delete this.canvas

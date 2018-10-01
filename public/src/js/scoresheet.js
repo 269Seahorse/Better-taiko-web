@@ -132,7 +132,7 @@ class Scoresheet{
 		var frameTop = winH / 2 - 720 / 2
 		var frameLeft = winW / 2 - 1280 / 2
 		
-		var players = p2.results ? 2 : 1
+		var players = this.multiplayer && p2.results ? 2 : 1
 		var p2Offset = 298
 		
 		var bgOffset = 0
@@ -372,10 +372,12 @@ class Scoresheet{
 					552, 120, 688, 48
 				)
 				var gauge = results.gauge / 100
-				ctx.drawImage(assets.image["hp-bar-colour"],
-					0, 0, 650 * gauge, 40,
-					557, 127, 635 * gauge, 37,
-				)
+				if(gauge > 0){
+					ctx.drawImage(assets.image["hp-bar-colour"],
+						0, 0, 650 * gauge, 40,
+						557, 127, 635 * gauge, 37,
+					)
+				}
 			}
 			ctx.restore()
 		}

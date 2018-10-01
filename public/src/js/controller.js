@@ -132,7 +132,9 @@ class Controller{
 		this.view.displayScore(score, notPlayed)
 	}
 	songSelection(fadeIn){
-		this.clean()
+		if(!fadeIn){
+			this.clean()
+		}
 		new SongSelect(false, fadeIn)
 	}
 	restartSong(){
