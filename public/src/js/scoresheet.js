@@ -115,7 +115,7 @@ class Scoresheet{
 				ctx.scale(ratio, ratio)
 				this.canvas.style.width = (winW / this.pixelRatio) + "px"
 				this.canvas.style.height = (winH / this.pixelRatio) + "px"
-			}else if(!document.hasFocus()){
+			}else if(!document.hasFocus() && ms - this.state.screenMS - this.state.startDelay > 2400){
 				return
 			}else{
 				ctx.clearRect(0, 0, winW / ratio, winH / ratio)
