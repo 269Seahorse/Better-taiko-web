@@ -42,7 +42,7 @@ class ViewAssets{
 				var length = this.don.getAnimationLength("gogo")
 				this.don.setUpdateSpeed(this.beatInterval / (length / 4))
 				this.don.setAnimation("gogo")
-			}else if(this.controller.getGlobalScore().hp >= 50){
+			}else if(this.controller.getGlobalScore().gauge >= 50){
 				this.don.setAnimationStart(0)
 				var length = this.don.getAnimationLength("clear")
 				this.don.setUpdateSpeed(this.beatInterval / (length / 2))
