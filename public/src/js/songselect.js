@@ -1,5 +1,5 @@
 class SongSelect{
-	constructor(fromTutorial){
+	constructor(fromTutorial, fadeIn){
 		loader.changePage("songselect")
 		this.canvas = document.getElementById("song-sel-canvas")
 		this.ctx = this.canvas.getContext("2d")
@@ -131,50 +131,8 @@ class SongSelect{
 			innerBorder: 8,
 			letterBorder: 12
 		}
-		this.diffStar = new Path2D("M3 17 5 11 0 6h6l3-6 3 6h6l-5 5 2 6-6-3")
-		this.longVowelMark = new Path2D("m1 5c2 3 1 17 .5 25 0 5 6 5 6.5 0C9 22 9 6 7 3 4-2-1 2 1 5")
 		
-		this.diffIconPath = [[{w: 40, h: 33}, {
-			fill: "#ff2803",
-			d: new Path2D("m27 10c9-9 21 9 5 11 10 9-6 18-12 7C14 39-2 30 8 21-8 19 4 1 13 10 6-4 34-3 27 10Z")
-		}, {
-			fill: "#ffb910",
-			noStroke: true,
-			d: new Path2D("m12 15c5 1 7 0 8-4 1 4 3 5 8 4-4 3-4 5-2 8-4-4-8-4-12 0 2.2-3 2-5-2-8")
-		}], [{w: 48, h: 31}, {
-			fill: "#8daf51",
-			d: new Path2D("m24 0c-3 0-4 3-5 6-2 6-2 11 0 17 0 0 1 4 5 8 4-4 5-8 5-8C31 17 31 12 29 6 28 3 27 0 24 0M37 2c4 3 7 6 8 8 2 4 3 6 2 13C43 21 39 18 39 18 35 15 32 12 30 8 27 0 32-2 37 2M11 2C7 5 4 8 3 10 1 14 0 16 1 23 5 21 9 18 9 18 13 15 16 12 18 8 21 0 16-2 11 2")
-		}], [{w: 56, h: 37}, {
-			fill: "#784439",
-			d: new Path2D("m26 34v-2c-10 1-12 0-12-7 4-3 8-5 14-5 6 0 10 2 14 5 0 7-2 8-12 7V34Z")
-		}, {
-			fill: "#000",
-			noStroke: true,
-			d: new Path2D("m18 19v9h8v-9m4 9h8v-9h-8")
-		}, {
-			fill: "#414b2b",
-			d: new Path2D("M8 26C3 26-3 21 2 11 6 5 11 4 18 10c0-6 4-10 10-10 6 0 10 4 10 10 7-6 12-5 16 1 5 10-1 15-6 15-5 0-10-7-20-7-10 0-15 7-20 7")
-		}], [{w: 29, h: 27}, {
-			fill: "#db1885",
-			d: new Path2D("m18 9c1 3 4 4 7 3 0 4 1 11 4 16H0c3-5 4-12 4-16 3 1 6 0 7-3z")
-		}, {
-			fill: "#fff",
-			d: new Path2D("m6 0.5-2 11c4 1.5 6-0.5 6.5-3zm17 0-4.5 8C19 11 21 13 25 11.5ZM5.5 17.5C4.5 23.5 9 25 11 22Zm18 0L18 22c2 3 6.5 1.5 5.5-4.5z")
-		}]]
-		this.regex = {
-			comma: /[,.]/,
-			ideographicComma: /[、。]/,
-			apostrophe: /['＇]/,
-			brackets: /[\(（\)）「」『』]/,
-			tilde: /[\-－~～]/,
-			tall: /[bｂdｄfｆh-lｈ-ｌtｔ0-9０-９]/,
-			uppercase: /[A-ZＡ-Ｚ!！]/,
-			lowercase: /[a-zａ-ｚ･]/,
-			latin: /[A-ZＡ-Ｚ!！a-zａ-ｚ･]/,
-			smallHiragana: /[ぁぃぅぇぉっゃゅょァィゥェォッャュョ]/,
-			hiragana: /[\u3040-\u30ff]/,
-			todo: /[トド]/
-		}
+		this.draw = new CanvasDraw()
 		
 		this.difficulty = ["かんたん", "ふつう", "むずかしい", "おに"]
 		this.difficultyId = ["easy", "normal", "hard", "oni"]
@@ -205,7 +163,7 @@ class SongSelect{
 		
 		this.previewId = 0
 		this.state = {
-			screen: fromTutorial ? "song" : "title",
+			screen: fromTutorial ? "song" : (fadeIn ? "titleFadeIn" : "title"),
 			screenMS: this.getMS(),
 			move: 0,
 			moveMS: 0,
@@ -253,7 +211,7 @@ class SongSelect{
 				ctrl: event.ctrlKey
 			}
 		}
-		if(code === "ctrl" && code === "shift"){
+		if(code === "ctrl" || code === "shift"){
 			return
 		}
 		var key = {
@@ -519,8 +477,6 @@ class SongSelect{
 		var winH = innerHeight
 		if(winW / 32 > winH / 9){
 			winW = winH / 9 * 32
-		}else if(winH / 9 > winW / 16){
-			winH = winW / 16 * 9
 		}
 		this.pixelRatio = window.devicePixelRatio || 1
 		winW *= this.pixelRatio
@@ -553,7 +509,7 @@ class SongSelect{
 		var screen = this.state.screen
 		var selectedWidth = this.songAsset.width
 		
-		if(screen === "title"){
+		if(screen === "title" || screen === "titleFadeIn"){
 			if(ms > this.state.screenMS + 1000){
 				this.state.screen = "song"
 				this.state.screenMS = ms + (ms - this.state.screenMS - 1000)
@@ -563,10 +519,15 @@ class SongSelect{
 			}else{
 				this.state.moveMS = ms - this.songSelecting.speed * this.songSelecting.resize + (ms - this.state.screenMS - 1000)
 			}
+			if(ms > this.state.screenMS + 500){
+				this.state.screen = "title"
+				screen = "title"
+			}
 		}
 		
-		if(screen === "title" || screen === "song"){
-			this.drawLayeredText({
+		if(screen === "title" || screen === "titleFadeIn" || screen === "song"){
+			this.draw.layeredText({
+				ctx: ctx,
 				text: "曲をえらぶ",
 				fontSize: 48,
 				fontFamily: this.font,
@@ -576,25 +537,26 @@ class SongSelect{
 			}, [
 				{x: -2, y: -2, outline: "#000", letterBorder: 22},
 				{},
-				{x: 2, y: 2, shadow: true},
-				{x: -2, y: -2, outline: "#ff797b", letterBorder: 10},
-				{x: 2, y: 2, outline: "#ad1516"},
+				{x: 2, y: 2, shadow: [3, 3, 3]},
+				{x: 2, y: 2, outline: "#ad1516", letterBorder: 10},
+				{x: -2, y: -2, outline: "#ff797b"},
 				{outline: "#f70808"},
-				{fill: "#fff"}
+				{fill: "#fff", shadow: [-1, 1, 3, 1.5]}
 			])
 			
 			var category = this.songs[this.selectedSong].category
 			if(category){
-				this.drawLayeredText({
+				this.draw.layeredText({
+					ctx: ctx,
 					text: category,
 					fontSize: 40,
 					fontFamily: this.font,
 					x: winW / 2,
 					y: frameTop + 38,
 					width: 255,
-					center: true
+					align: "center"
 				}, [
-					{outline: this.songs[this.selectedSong].skin.outline, letterBorder: 12, shadow: true},
+					{outline: this.songs[this.selectedSong].skin.outline, letterBorder: 12, shadow: [3, 3, 3]},
 					{fill: "#fff"}
 				])
 			}
@@ -659,13 +621,13 @@ class SongSelect{
 			if(this.previewing !== null){
 				this.endPreview()
 			}
-		}else if(screen !== "title" && ms > this.state.moveMS + 100){
+		}else if(screen !== "title" && screen !== "titleFadeIn" && ms > this.state.moveMS + 100){
 			if(this.previewing !== this.selectedSong && "id" in this.songs[this.selectedSong]){
 				this.startPreview()
 			}
 		}
 		
-		if(screen === "title" || screen === "song"){
+		if(screen === "title" || screen === "titleFadeIn" || screen === "song"){
 			for(var i = this.selectedSong - 1; ; i--){
 				var highlight = 0
 				if(i - this.selectedSong === this.state.moveHover){
@@ -677,6 +639,7 @@ class SongSelect{
 					break
 				}
 				this.drawClosedSong({
+					ctx: ctx,
 					x: _x,
 					y: songTop,
 					song: this.songs[index],
@@ -695,6 +658,7 @@ class SongSelect{
 					break
 				}
 				this.drawClosedSong({
+					ctx: ctx,
 					x: _x,
 					y: songTop,
 					song: this.songs[index],
@@ -712,7 +676,7 @@ class SongSelect{
 			highlight = 1
 		}
 		var selectedSkin = this.songSkin.selected
-		if(screen === "title" || this.state.locked === 3){
+		if(screen === "title" || screen === "titleFadeIn" || this.state.locked === 3){
 			selectedSkin = currentSong.skin
 			highlight = 2
 		}else if(songSelMoving){
@@ -726,22 +690,27 @@ class SongSelect{
 			highlight = 0
 		}
 		
-		this.drawSongFrame({
+		this.draw.songFrame({
+			ctx: ctx,
 			x: winW / 2 - selectedWidth / 2 + xOffset,
 			y: songTop + this.songAsset.height - selectedHeight,
 			width: selectedWidth,
 			height: selectedHeight,
+			border: this.songAsset.border,
+			innerBorder: this.songAsset.innerBorder,
 			background: selectedSkin.background,
-			border: selectedSkin.border,
+			borderStyle: selectedSkin.border,
 			highlight: highlight,
 			noCrop: screen === "difficulty",
+			animateMS: this.state.moveMS,
 			innerContent: (x, y, w, h) => {
 				ctx.strokeStyle = "#000"
-				if(screen === "title" || screen === "song"){
+				if(screen === "title" || screen === "titleFadeIn" || screen === "song"){
 					var opened = ((selectedWidth - this.songAsset.width) / (this.songAsset.selectedWidth - this.songAsset.width))
 					var songSel = true
 				}else{
-					this.drawLayeredText({
+					this.draw.layeredText({
+						ctx: ctx,
 						text: "むずかしさをえらぶ",
 						fontSize: 46,
 						fontFamily: this.font,
@@ -750,12 +719,12 @@ class SongSelect{
 						width: 280
 					}, [
 						{x: -2, y: -2, outline: "#000", letterBorder: 23},
-						{shadow: true},
+						{shadow: [3, 3, 3]},
 						{x: 2, y: 2},
-						{x: -2, y: -2, outline: "#ff797b", letterBorder: 12},
-						{x: 2, y: 2, outline: "#ad1516"},
+						{x: 2, y: 2, outline: "#ad1516", letterBorder: 10},
+						{x: -2, y: -2, outline: "#ff797b"},
 						{outline: "#f70808"},
-						{fill: "#fff"}
+						{fill: "#fff", shadow: [-1, 1, 3, 1.5]}
 					])
 					var opened = 1
 					var songSel = false
@@ -763,7 +732,8 @@ class SongSelect{
 					var _y = y + 67
 					ctx.fillStyle = "#efb058"
 					ctx.lineWidth = 5
-					this.drawRoundedRect({
+					this.draw.roundedRect({
+						ctx: ctx,
 						x: _x - 28,
 						y: _y,
 						w: 56,
@@ -776,9 +746,14 @@ class SongSelect{
 					ctx.beginPath()
 					ctx.arc(_x, _y + 28, 20, 0, Math.PI * 2)
 					ctx.fill()
-					this.drawDiffOptionsIcon({x: _x, y: _y + 28})
+					this.draw.diffOptionsIcon({
+						ctx: ctx,
+						x: _x,
+						y: _y + 28
+					})
 					
-					this.drawVerticalText({
+					this.draw.verticalText({
+						ctx: ctx,
 						text: "もどる",
 						x: _x,
 						y: _y + 57,
@@ -786,6 +761,7 @@ class SongSelect{
 						height: 220,
 						fill: "#fff",
 						outline: "#000",
+						outlineSize: this.songAsset.letterBorder,
 						letterBorder: 4,
 						fontSize: 28,
 						fontFamily: this.font,
@@ -798,17 +774,21 @@ class SongSelect{
 						highlight = 1
 					}
 					if(highlight){
-						this.drawHighlight({
+						this.draw.highlight({
+							ctx: ctx,
 							x: _x - 32,
 							y: _y - 3,
 							w: 64,
 							h: 304,
 							animate: highlight === 1,
+							animateMS: this.state.moveMS,
 							opacity: highlight === 2 ? 0.8 : 1,
 							radius: 24
 						})
 						if(this.selectedDiff === 0){
-							this.drawDiffCursor({
+							this.draw.diffCursor({
+								ctx: ctx,
+								font: this.font,
 								x: _x,
 								y: _y - 45
 							})
@@ -825,7 +805,8 @@ class SongSelect{
 							ctx.arc(_x, _y + 22, 22, -Math.PI, 0)
 							ctx.arc(_x, _y + 266, 22, 0, Math.PI)
 							ctx.fill()
-							this.drawDiffIcon({
+							this.draw.diffIcon({
+								ctx: ctx,
 								diff: i,
 								x: _x,
 								y: _y - 8,
@@ -835,7 +816,8 @@ class SongSelect{
 						}else{
 							var _x = x + 402 + i * 100
 							var _y = y + 87
-							this.drawDiffIcon({
+							this.draw.diffIcon({
+								ctx: ctx,
 								diff: i,
 								x: _x,
 								y: _y - 12,
@@ -851,7 +833,8 @@ class SongSelect{
 							ctx.lineWidth = 2.5
 							ctx.fillRect(_x - 28, _y + 19, 56, 351)
 							ctx.strokeRect(_x - 28, _y + 19, 56, 351)
-							this.drawDiffIcon({
+							this.draw.diffIcon({
+								ctx: ctx,
 								diff: i,
 								x: _x,
 								y: _y - 12,
@@ -859,7 +842,8 @@ class SongSelect{
 								border: 4.5
 							})
 						}
-						this.drawVerticalText({
+						this.draw.verticalText({
+							ctx: ctx,
 							text: this.difficulty[i],
 							x: _x,
 							y: songSel ? _y + 10 : _y + 23,
@@ -881,22 +865,18 @@ class SongSelect{
 								ctx.arc(_x, yPos, songSel ? 4.5 : 5, 0, Math.PI * 2)
 								ctx.fill()
 							}else{
-								ctx.save()
-								ctx.fillStyle = songSel ? "#fff" : "#f72568"
-								if(songSel){
-									ctx.shadowColor = "#fff"
-									ctx.shadowBlur = 10
-									ctx.translate(_x - 9, yPos - 9)
-								}else{
-									ctx.translate(_x - 10.5, yPos - 9.5)
-									ctx.scale(1.1, 1.1)
-								}
-								ctx.fill(this.diffStar)
-								ctx.restore()
+								this.draw.diffStar({
+									ctx: ctx,
+									songSel: songSel,
+									x: _x,
+									y: yPos
+								})
 							}
 						}
 						if(i === currentSong.p2Cursor){
-							this.drawDiffCursor({
+							this.draw.diffCursor({
+								ctx: ctx,
+								font: this.font,
 								x: _x,
 								y: _y - (songSel ? 45 : 65),
 								two: true,
@@ -913,19 +893,23 @@ class SongSelect{
 								highlight = 1
 							}
 							if(currentDiff === i){
-								this.drawDiffCursor({
+								this.draw.diffCursor({
+									ctx: ctx,
+									font: this.font,
 									x: _x,
 									y: _y - 65,
 									side: currentSong.p2Cursor === currentDiff
 								})
 							}
 							if(highlight){
-								this.drawHighlight({
+								this.draw.highlight({
+									ctx: ctx,
 									x: _x - 32,
 									y: _y + 14,
 									w: 64,
 									h: 362,
 									animate: highlight === 1,
+									animateMS: this.state.moveMS,
 									opacity: highlight === 2 ? 0.8 : 1
 								})
 							}
@@ -938,7 +922,8 @@ class SongSelect{
 				ctx.globalAlpha = 1
 				var textX = Math.max(w - 37, w / 2)
 				var textY = opened * 12 + (1 - opened) * 7
-				this.drawVerticalText({
+				this.draw.verticalText({
+					ctx: ctx,
 					text: currentSong.title,
 					x: x + textX,
 					y: y + textY,
@@ -946,6 +931,7 @@ class SongSelect{
 					height: h - 35,
 					fill: "#fff",
 					outline: selectedSkin.outline,
+					outlineSize: this.songAsset.letterBorder,
 					fontSize: 40,
 					fontFamily: this.font
 				})
@@ -953,7 +939,8 @@ class SongSelect{
 		})
 		
 		if(songSelMoving){
-			this.drawHighlight({
+			this.draw.highlight({
+				ctx: ctx,
 				x: winW / 2 - selectedWidth / 2,
 				y: songTop,
 				w: selectedWidth,
@@ -961,32 +948,34 @@ class SongSelect{
 				opacity: 0.8
 			})
 		}
-	}
-	
-	drawRoundedRect(config){
-		var ctx = this.ctx
-		var x = config.x
-		var y = config.y
-		var w = config.w
-		var h = config.h
-		var r = config.radius
-		ctx.beginPath()
-		ctx.arc(x + r, y + r, r, Math.PI, Math.PI * 1.5)
-		ctx.arc(x + w - r, y + r, r, Math.PI * 1.5, 0)
-		ctx.arc(x + w - r, y + h - r, r, 0, Math.PI / 2)
-		ctx.arc(x + r, y + h - r, r, Math.PI / 2, Math.PI)
-		ctx.lineTo(x, y + r)
+		
+		if(screen === "titleFadeIn"){
+			ctx.save()
+			
+			var elapsed = ms - this.state.screenMS
+			ctx.globalAlpha = Math.max(0, 1 - elapsed / 500)
+			ctx.fillStyle = "#000"
+			ctx.fillRect(0, 0, winW, winH)
+			
+			ctx.restore()
+		}
 	}
 	
 	drawClosedSong(config){
+		var ctx = config.ctx
+		
 		config.width = this.songAsset.width
 		config.height = this.songAsset.height
+		config.border = this.songAsset.border
+		config.innerBorder = this.songAsset.innerBorder
 		config.background = config.song.skin.background
-		config.border = config.song.skin.border
+		config.borderStyle = config.song.skin.border
 		config.outline = config.song.skin.outline
 		config.text = config.song.title
+		config.animateMS = this.state.moveMS
 		config.innerContent = (x, y, w, h) => {
-			this.drawVerticalText({
+			this.draw.verticalText({
+				ctx: ctx,
 				text: config.text,
 				x: x + w / 2,
 				y: y + 7,
@@ -994,13 +983,16 @@ class SongSelect{
 				height: h - 35,
 				fill: "#fff",
 				outline: config.outline,
+				outlineSize: this.songAsset.letterBorder,
 				fontSize: 40,
 				fontFamily: this.font
 			})
 		}
-		this.drawSongFrame(config)
+		this.draw.songFrame(config)
 		if(config.song.p2Cursor){
-			this.drawDiffCursor({
+			this.draw.diffCursor({
+				ctx: ctx,
+				font: this.font,
 				x: config.x + 48,
 				y: config.y - 27,
 				two: true,
@@ -1008,496 +1000,6 @@ class SongSelect{
 				side: true
 			})
 		}
-	}
-	
-	drawSongFrame(config){
-		var ctx = this.ctx
-		var x = config.x
-		var y = config.y
-		var w = config.width
-		var h = config.height
-		var border = this.songAsset.border
-		var innerBorder = this.songAsset.innerBorder
-		var allBorders = border + innerBorder
-		var innerX = x + allBorders
-		var innerY = y + allBorders
-		var innerW = w - allBorders * 2
-		var innerH = h - allBorders * 2
-		
-		ctx.save()
-		
-		ctx.shadowColor = "rgba(0, 0, 0, 0.5)"
-		ctx.shadowBlur = 10
-		ctx.shadowOffsetX = 5
-		ctx.shadowOffsetY = 5
-		ctx.fillStyle = "#000"
-		ctx.fillRect(x, y, w, h)
-		
-		ctx.restore()
-		ctx.save()
-		
-		{
-			let _x = x + border
-			let _y = y + border
-			let _w = w - border * 2
-			let _h = h - border * 2
-			ctx.fillStyle = config.border[1]
-			ctx.fillRect(_x, _y, _w, _h)
-			ctx.fillStyle = config.border[0]
-			ctx.beginPath()
-			ctx.moveTo(_x, _y)
-			ctx.lineTo(_x + _w, _y)
-			ctx.lineTo(_x + _w - innerBorder, _y + innerBorder)
-			ctx.lineTo(_x + innerBorder, _y + _h - innerBorder)
-			ctx.lineTo(_x, _y + _h)
-			ctx.fill()
-		}
-		ctx.fillStyle = config.background
-		ctx.fillRect(innerX, innerY, innerW, innerH)
-		
-		ctx.save()
-		
-		ctx.strokeStyle = "rgba(255, 255, 255, 0.3)"
-		ctx.lineWidth = 3
-		ctx.strokeRect(innerX, innerY, innerW, innerH)
-		if(!config.noCrop){
-			ctx.beginPath()
-			ctx.rect(innerX, innerY, innerW, innerH)
-			ctx.clip()
-		}
-		
-		config.innerContent(innerX, innerY, innerW, innerH)
-		
-		ctx.restore()
-		
-		if(config.highlight){
-			this.drawHighlight({
-				x: x,
-				y: y,
-				w: w,
-				h: h,
-				animate: config.highlight === 2,
-				opacity: config.highlight === 1 ? 0.8 : 1
-			})
-		}
-		
-		ctx.restore()
-	}
-	
-	drawHighlight(config){
-		var ctx = this.ctx
-		ctx.save()
-		var _x = config.x + 3.5
-		var _y = config.y + 3.5
-		var _w = config.w - 7
-		var _h = config.h - 7
-		var rect = () => {
-			if(config.radius){
-				this.drawRoundedRect({x: _x, y: _y, w: _w, h: _h, radius: config.radius})
-				ctx.stroke()
-			}else{
-				ctx.strokeRect(_x, _y, _w, _h)
-			}
-		}
-		if(config.animate){
-			ctx.globalAlpha = this.fade((this.getMS() - this.state.moveMS) % 2000 / 2000)
-		}else if(config.opacity){
-			ctx.globalAlpha = config.opacity
-		}
-		ctx.strokeStyle = "rgba(255, 249, 1, 0.45)"
-		ctx.lineWidth = 14
-		rect()
-		ctx.strokeStyle = "rgba(255, 249, 1, .8)"
-		ctx.lineWidth = 8
-		rect()
-		ctx.strokeStyle = "#fff"
-		ctx.lineWidth = 6
-		rect()
-		
-		ctx.restore()
-	}
-	fade(pos){
-		if(pos < 0.5){
-			pos = 1 - pos
-		}
-		return (1 - Math.cos(Math.PI * pos * 2)) / 2
-	}
-	
-	drawVerticalText(config){
-		var ctx = this.ctx
-		var inputText = config.text
-		var mul = config.fontSize / 40
-		var ura = false
-		
-		if(inputText.endsWith(" (裏)")){
-			inputText = inputText.slice(0, -4)
-			ura = true
-		}else if(inputText.endsWith("（裏）")){
-			inputText = inputText.slice(0, -3)
-			ura = true
-		}
-		var string = inputText.split("")
-		var drawn = []
-		
-		var r = this.regex
-		for(let symbol of string){
-			if(symbol === " "){
-				// Space
-				drawn.push({text: symbol, x: 0, y: 0, h: 18})
-			}else if(symbol === "ー"){
-				// Long-vowel mark
-				drawn.push({svg: this.longVowelMark, x: -4, y: 5, h: 33, scale: [mul, mul]})
-			}else if(r.comma.test(symbol)){
-				// Comma, full stop
-				drawn.push({text: symbol, x: 16, y: -7, h: 0, scale: [1.2, 0.7]})
-			}else if(r.ideographicComma.test(symbol)){
-				// Ideographic comma, full stop
-				drawn.push({text: symbol, x: 16, y: -16, h: 18})
-			}else if(r.apostrophe.test(symbol)){
-				// Apostrophe
-				drawn.push({text: ",", x: 20, y: -39, h: 0, scale: [1.2, 0.7]})
-			}else if(r.brackets.test(symbol)){
-				// Rotated brackets
-				drawn.push({text: symbol, x: 0, y: -5, h: 25, rotate: true})
-			}else if(r.tilde.test(symbol)){
-				// Rotated hyphen, tilde
-				if(symbol === "~"){
-					symbol = "～"
-				}
-				drawn.push({text: symbol, x: 0, y: 2, h: 35, rotate: true})
-			}else if(r.tall.test(symbol)){
-				// Tall latin script lowercase, numbers
-				drawn.push({text: symbol, x: 0, y: 4, h: 34, scale: [1.05, 0.9]})
-			}else if(r.uppercase.test(symbol)){
-				// Latin script upper case
-				drawn.push({text: symbol, x: 0, y: 1, h: 31.5})
-			}else if(r.lowercase.test(symbol)){
-				// Latin script lower case
-				drawn.push({text: symbol, x: 0, y: -1, h: 28, scale: [1.05, 0.9]})
-			}else if(r.smallHiragana.test(symbol)){
-				// Small hiragana, small katakana
-				drawn.push({text: symbol, x: 0, y: -8, h: 25, right: true})
-			}else if(r.hiragana.test(symbol)){
-				// Hiragana, katakana
-				drawn.push({text: symbol, x: 0, y: 5, h: 38, right: r.todo.test(symbol)})
-			}else{
-				// Kanji, other
-				drawn.push({text: symbol, x: 0, y: 3, h: 39, right: true})
-			}
-		}
-		
-		var drawnHeight = 0
-		for(let symbol of drawn){
-			if(config.letterSpacing){
-				symbol.h += config.letterSpacing
-			}
-			drawnHeight += symbol.h * mul
-		}
-		
-		ctx.save()
-		ctx.translate(config.x, config.y)
-		
-		var scale = 1
-		if(config.height){
-			var height = config.height - (ura ? 52 * mul : 0)
-			if(drawnHeight > height){
-				scale = height / drawnHeight
-				ctx.scale(1, scale)
-			}
-		}
-		
-		if(ura){
-			// Circled ura
-			drawn.push({text: "裏", x: 0, y: 18, h: 52, ura: true, scale: [1, 1 / scale]})
-		}
-		
-		var actions = []
-		if(config.outline){
-			actions.push("stroke")
-		}
-		if(config.fill){
-			actions.push("fill")
-		}
-		for(let action of actions){
-			ctx.font = config.fontSize + "px " + config.fontFamily
-			ctx.textBaseline = "top"
-			if(action === "stroke"){
-				ctx.strokeStyle = config.outline
-				ctx.lineWidth = this.songAsset.letterBorder * mul
-				ctx.lineJoin = "round"
-				ctx.miterLimit = 1
-			}else if(action === "fill"){
-				ctx.fillStyle = config.fill
-			}
-			var offsetY = 0
-			
-			for(let symbol of drawn){
-				var saved = false
-				var currentX = symbol.x
-				if(symbol.right){
-					currentX += 20 * mul
-				}
-				var currentY = offsetY + symbol.y * mul
-				if(symbol.rotate || symbol.scale || symbol.svg || symbol.ura){
-					saved = true
-					ctx.save()
-					
-					if(symbol.rotate){
-						ctx.translate(currentX + 20 * mul, currentY + 20 * mul)
-						ctx.rotate(Math.PI / 2)
-					}else{
-						ctx.translate(currentX, currentY)
-					}
-					if(symbol.scale){
-						ctx.scale(symbol.scale[0], symbol.scale[1])
-						ctx.lineWidth = ctx.lineWidth / symbol.scale[0]
-					}
-					currentX = 0
-					currentY = 0
-				}
-				if(symbol.svg){
-					ctx[action](symbol.svg)
-				}else{
-					if(symbol.right){
-						ctx.textAlign = "right"
-					}else{
-						ctx.textAlign = "center"
-					}
-					if(symbol.ura){
-						ctx.font = (30 * mul) + "px Meiryo"
-						ctx.textBaseline = "center"
-						ctx.beginPath()
-						ctx.arc(currentX, currentY + (21.5 * mul), (18 * mul), 0, Math.PI * 2)
-						if(action === "stroke"){
-							ctx.fillStyle = config.outline
-							ctx.fill()
-						}else if(action === "fill"){
-							ctx.strokeStyle = config.fill
-							ctx.lineWidth = 2.5 * mul
-							ctx.fillText(symbol.text, currentX, currentY)
-						}
-						ctx.stroke()
-					}else{
-						ctx[action + "Text"](symbol.text, currentX, currentY)
-					}
-				}
-				offsetY += symbol.h * mul
-				if(saved){
-					ctx.restore()
-				}
-			}
-		}
-		ctx.restore()
-	}
-	
-	drawLayeredText(config, layers){
-		var ctx = this.ctx
-		var mul = config.fontSize / 40
-		ctx.save()
-		
-		var string = config.text.split("")
-		var drawn = []
-		
-		var r = this.regex
-		for(let symbol of string){
-			if(symbol === "-"){
-				drawn.push({text: symbol, x: -4, y: 0, w: 28, scale: [0.8, 1]})
-			}else if(symbol === "™"){
-				drawn.push({text: symbol, x: -2, y: 0, w: 20, scale: [0.6, 0.5]})
-			}else if(r.latin.test(symbol)){
-				// Latin script
-				drawn.push({text: symbol, x: 0, y: 0, w: 32})
-			}else if(r.smallHiragana.test(symbol)){
-				// Small hiragana, small katakana
-				drawn.push({text: symbol, x: 0, y: 0, w: 30})
-			}else if(r.hiragana.test(symbol)){
-				// Hiragana, katakana
-				drawn.push({text: symbol, x: 0, y: 0, w: 35})
-			}else{
-				drawn.push({text: symbol, x: 0, y: 0, w: 39})
-			}
-		}
-		
-		var drawnWidth = 0
-		for(let symbol of drawn){
-			if(config.letterSpacing){
-				symbol.w += config.letterSpacing
-			}
-			drawnWidth += symbol.w
-		}
-		
-		ctx.translate(config.x, config.y)
-		var scale = 1
-		if(config.width && drawnWidth > config.width){
-			scale = config.width / drawnWidth
-			ctx.scale(scale, 1)
-		}
-		ctx.font = config.fontSize + "px " + config.fontFamily
-		ctx.textBaseline = "top"
-		ctx.textAlign = "center"
-		
-		for(let layer of layers){
-			var action = "strokeText"
-			if(layer.outline){
-				ctx.strokeStyle = layer.outline
-				ctx.lineJoin = "round"
-				ctx.miterLimit = 1
-			}
-			if(layer.letterBorder){
-				ctx.lineWidth = layer.letterBorder
-			}
-			if(layer.fill){
-				ctx.fillStyle = layer.fill
-				action = "fillText"
-			}
-			if(layer.shadow){
-				ctx.save()
-				ctx.shadowColor = "rgba(0, 0, 0, 0.5)"
-				ctx.shadowBlur = 3
-				ctx.shadowOffsetX = 3
-				ctx.shadowOffsetY = 3
-			}
-			var offsetX = 0
-			for(let symbol of drawn){
-				var saved = false
-				var currentX = offsetX + symbol.x + (layer.x || 0) + symbol.w / 2
-				var currentY = symbol.y + (layer.y || 0)
-				if(config.center){
-					currentX -= drawnWidth / 2
-				}
-				if(symbol.scale){
-					saved = true
-					ctx.save()
-					ctx.translate(currentX, currentY)
-					ctx.scale(symbol.scale[0], symbol.scale[1])
-					currentX = 0
-					currentY = 0
-					ctx.lineWidth /= symbol.scale[0]
-				}
-				ctx[action](symbol.text, currentX, currentY)
-				if(saved){
-					ctx.restore()
-				}
-				offsetX += symbol.w * mul
-			}
-			if(layer.shadow){
-				ctx.restore()
-			}
-		}
-		ctx.restore()
-	}
-	
-	drawDiffIcon(config){
-		var ctx = this.ctx
-		var scale = config.scale
-		ctx.save()
-		ctx.lineWidth = config.border
-		ctx.strokeStyle = "#000"
-		var icon = this.diffIconPath[config.diff]
-		ctx.translate(config.x - icon[0].w * scale / 2, config.y - icon[0].h * scale / 2)
-		ctx.scale(scale, scale)
-		for(var i = 1; i < icon.length; i++){
-			if(!icon[i].noStroke){
-				ctx.stroke(icon[i].d)
-			}
-		}
-		if(!config.noFill){
-			for(var i = 1; i < icon.length; i++){
-				ctx.fillStyle = icon[i].fill
-				ctx.fill(icon[i].d)
-			}
-		}
-		ctx.restore()
-	}
-	
-	drawDiffOptionsIcon(config){
-		var ctx = this.ctx
-		ctx.save()
-		ctx.translate(config.x - 21, config.y - 21)
-		
-		var drawLine = y => {
-			ctx.beginPath()
-			ctx.moveTo(12, y)
-			ctx.arc(20.5, 25, 8.5, Math.PI, Math.PI * 2, true)
-			ctx.lineTo(29, 18)
-			ctx.stroke()
-		}
-		var drawTriangle = noFill => {
-			ctx.beginPath()
-			ctx.moveTo(29, 5)
-			ctx.lineTo(21, 19)
-			ctx.lineTo(37, 19)
-			ctx.closePath()
-			if(!noFill){
-				ctx.fill()
-			}
-		}
-		ctx.strokeStyle = "#000"
-		ctx.lineWidth = 12
-		drawLine(9)
-		ctx.lineWidth = 5
-		drawTriangle(true)
-		ctx.stroke()
-		ctx.lineWidth = 7
-		ctx.fillStyle = "#fff"
-		ctx.strokeStyle = "#fff"
-		drawLine(11)
-		drawTriangle()
-		ctx.translate(-1.5, -0.5)
-		ctx.fillStyle = "#23a6e1"
-		ctx.strokeStyle = "#23a6e1"
-		ctx.globalCompositeOperation = "darken"
-		drawLine(11)
-		drawTriangle()
-		
-		ctx.restore()
-	}
-	
-	drawDiffCursor(config){
-		var ctx = this.ctx
-		ctx.save()
-		if(config.scale){
-			ctx.translate(config.x, config.y)
-			ctx.scale(config.scale, config.scale)
-			ctx.translate(-48, -64)
-		}else{
-			ctx.translate(config.x - 48, config.y - 64)
-		}
-		
-		ctx.fillStyle = config.two ? "#65cdcd" : "#ff411c"
-		ctx.strokeStyle = "#000"
-		ctx.lineWidth = 6
-		ctx.beginPath()
-		if(!config.side){
-			var textX = config.two ? 20 : 17
-			ctx.moveTo(48, 120)
-			ctx.arc(48, 48.5, 45, Math.PI * 0.58, Math.PI * 0.42)
-		}else if(config.two){
-			var textX = 70
-			ctx.moveTo(56, 115)
-			ctx.arc(98, 48.5, 45, Math.PI * 0.75, Math.PI * 0.59)
-		}else{
-			var textX = -33
-			ctx.moveTo(39, 115)
-			ctx.arc(-2, 48.5, 45, Math.PI * 0.41, Math.PI * 0.25)
-		}
-		ctx.closePath()
-		ctx.fill()
-		ctx.stroke()
-		this.drawLayeredText({
-			text: config.two ? "2P" : "1P",
-			fontSize: 43,
-			fontFamily: this.font,
-			x: textX,
-			y: 26,
-			width: 54,
-			letterSpacing: -4
-		}, [
-			{outline: "#fff", letterBorder: 11},
-			{fill: "#000"}
-		])
-		
-		ctx.restore()
 	}
 	
 	startPreview(loadOnly){

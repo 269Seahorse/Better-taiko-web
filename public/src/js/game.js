@@ -6,15 +6,17 @@ class Game{
 		this.elapsedTime = {}
 		this.currentCircle = 0
 		this.combo = 0
+		this.rules = new GameRules(this)
 		this.globalScore = {
 			points: 0,
-			great: 0,
 			good: 0,
-			fail: 0,
+			ok: 0,
+			bad: 0,
 			maxCombo: 0,
 			drumroll: 0,
-			hp: 0,
-			song: selectedSong.title
+			gauge: 0,
+			title: selectedSong.title,
+			difficulty: this.rules.difficulty
 		}
 		this.HPGain = 100 / this.songData.circles.filter(circle => {
 			var type = circle.getType()
@@ -28,7 +30,6 @@ class Game{
 		this.fadeOutStarted = false
 		this.currentTimingPoint = 0
 		this.offsetTime = 0
-		this.rules = new GameRules(this)
 		
 		assets.songs.forEach(song => {
 			if(song.id == selectedSong.folder){
@@ -291,6 +292,11 @@ class Game{
 			}else if(this.musicFadeOut === 2 && (ms >= started + 8600 && ms >= this.controller.mainAsset.duration * 1000 + 250)){
 				this.controller.displayResults()
 				this.musicFadeOut++
+			}else if(this.musicFadeOut === 3 && (ms >= started + 9600 && ms >= this.controller.mainAsset.duration * 1000 + 1250)){
+				if(this.controller.scoresheet){
+					this.controller.scoresheet.startRedraw()
+				}
+				this.controller.clean()
 			}
 		}
 	}
@@ -394,22 +400,22 @@ class Game{
 		// Circle score
 		switch(score){
 			case 450:
-				this.globalScore.great++
-				break
-			case 230:
 				this.globalScore.good++
 				break
+			case 230:
+				this.globalScore.ok++
+				break
 			case 0:
-				this.globalScore.fail++
+				this.globalScore.bad++
 				break
 		}
-		// HP Update
+		// Gauge update
 		if(score !== 0){
-			this.globalScore.hp += this.HPGain
-		}else if(this.globalScore.hp - this.HPGain > 0){
-			this.globalScore.hp -= this.HPGain
+			this.globalScore.gauge += this.HPGain
+		}else if(this.globalScore.gauge - this.HPGain > 0){
+			this.globalScore.gauge -= this.HPGain
 		}else{
-			this.globalScore.hp = 0
+			this.globalScore.gauge = 0
 		}
 		// Points update
 		score += Math.max(0, Math.floor((Math.min(this.combo, 100) - 1) / 10) * 100)

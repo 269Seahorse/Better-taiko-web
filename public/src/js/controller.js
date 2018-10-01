@@ -100,6 +100,10 @@ class Controller{
 				this.view.refresh()
 			}
 			this.keyboard.checkMenuKeys()
+			
+			if(this.scoresheet){
+				this.scoresheet.redraw()
+			}
 		}
 	}
 	togglePauseMenu(){
@@ -109,10 +113,10 @@ class Controller{
 	gameEnded(){
 		var score = this.getGlobalScore()
 		var vp
-		if(score.fail === 0){
+		if(score.bad === 0){
 			vp = "fullcombo"
 			this.playSoundMeka("fullcombo", 1.350)
-		}else if(score.hp >= 50){
+		}else if(score.gauge >= 50){
 			vp = "clear"
 		}else{
 			vp = "fail"
@@ -120,17 +124,16 @@ class Controller{
 		assets.sounds["game" + vp].play()
 	}
 	displayResults(){
-		this.clean()
 		if(this.multiplayer !== 2){
-			new Scoresheet(this, this.getGlobalScore(), this.multiplayer)
+			this.scoresheet = new Scoresheet(this, this.getGlobalScore(), this.multiplayer)
 		}
 	}
 	displayScore(score, notPlayed){
 		this.view.displayScore(score, notPlayed)
 	}
-	songSelection(){
+	songSelection(fadeIn){
 		this.clean()
-		new SongSelect()
+		new SongSelect(false, fadeIn)
 	}
 	restartSong(){
 		this.clean()

@@ -1,6 +1,5 @@
 var assets = {
 	"img": [
-		"background.png",
 		"title-screen.png",
 		"logo-big.png",
 		"don-0.png",
@@ -18,11 +17,7 @@ var assets = {
 		"score-230.png",
 		"score-450.png",
 		"dancing-don.gif",
-		"scoresheet.jpg",
 		"bg-pattern-1.png",
-		"bg-pattern-2.png",
-		"ranking-S.png",
-		"ranking-X.png",
 		"muzu_easy.png",
 		"muzu_normal.png",
 		"muzu_hard.png",
@@ -41,7 +36,9 @@ var assets = {
 		"bg_genre_4.png",
 		"bg_genre_5.png",
 		"bg_genre_6.png",
-		"bg_genre_7.png"
+		"bg_genre_7.png",
+		"bg_score_p1.png",
+		"bg_score_p2.png"
 	],
 	"audioSfx": [
 		"start.wav",
@@ -86,7 +83,7 @@ var assets = {
 		"title.ogg",
 		"pause.wav",
 		"cancel.wav",
-		"results.wav",
+		"results.ogg",
 		"diffsel.wav",
 		
 		"gamefullcombo.wav",
@@ -110,7 +107,6 @@ var assets = {
 	"views": [
 		"game.html",
 		"loadsong.html",
-		"scoresheet.html",
 		"songselect.html",
 		"titlescreen.html",
 		"tutorial.html"

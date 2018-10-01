@@ -90,13 +90,13 @@ class View{
 		var docW = document.body.offsetWidth
 		var docH = document.body.offsetHeight
 		this.canvas.rescale()
-		if(this.controller.multiplayer == 2){
+		if(this.controller.multiplayer === 2){
 			docH = docH / 3 * 2
 		}
 		this.canvas.resize(docW, docH)
 		this.winW = this.canvas.scaledWidth
 		this.winH = this.canvas.scaledHeight
-		if(this.controller.multiplayer == 2){
+		if(this.controller.multiplayer === 2){
 			this.winH = this.winH / 2 * 3
 		}
 		this.barY = 0.25 * this.winH
@@ -227,8 +227,8 @@ class View{
 	getHP(){
 		var circles = this.controller.getCircles()
 		var currentCircle = this.controller.getCurrentCircle()
-		var hp = this.controller.getGlobalScore().hp
-		var width = Math.floor(hp * 650 / 1000) * 10
+		var gauge = this.controller.getGlobalScore().gauge
+		var width = Math.floor(gauge * 650 / 1000) * 10
 		return {
 			imgW: width,
 			canvasW: width / 650 * this.HPBarColMaxW
@@ -769,7 +769,7 @@ class View{
 			}
 		}else{
 			var animation = this.assets.don.getAnimation()
-			if(animation === "gogo" || this.controller.getGlobalScore().hp >= 50 && animation === "normal"){
+			if(animation === "gogo" || this.controller.getGlobalScore().gauge >= 50 && animation === "normal"){
 				this.assets.don.normalAnimation()
 			}
 			if(ms >= this.gogoTimeStarted + 100){
@@ -817,6 +817,9 @@ class View{
 	}
 	clean(){
 		pageEvents.mouseRemove(this)
+		if(this.controller.multiplayer === 2){
+			this.canvas.canvas.parentNode.removeChild(this.canvas.canvas)
+		}
 		delete this.pauseMenu
 		delete this.cursor
 		delete this.canvas
