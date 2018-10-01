@@ -404,7 +404,7 @@ class Scoresheet{
 				}
 				if(crownType !== null){
 					var amount = Math.min(1, (elapsed - 1200) / 450)
-					this.draw.alpha(amount, ctx, ctx => {
+					this.draw.alpha(this.draw.easeIn(amount), ctx, ctx => {
 						ctx.save()
 						ctx.scale(ratio, ratio)
 						ctx.translate(frameLeft, frameTop)
