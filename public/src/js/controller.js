@@ -4,6 +4,7 @@ class Controller{
 		this.songData = songData
 		this.autoPlayEnabled = autoPlayEnabled
 		this.multiplayer = multiplayer
+		this.snd = this.multiplayer ? "_p" + this.multiplayer : ""
 		
 		var backgroundURL = "/songs/" + this.selectedSong.folder + "/bg.png"
 		var songParser = new ParseSong(songData)
@@ -26,15 +27,9 @@ class Controller{
 		this.view.run()
 		this.startMainLoop()
 		if(syncWith){
-			syncWith.game.getElapsedTime = () => {
-				return this.game.elapsedTime
-			}
-			this.game.setElapsedTime =
-			syncWith.game.setElapsedTime = time => {
-				this.game.elapsedTime.ms = time
-				syncWith.game.elapsedTime.ms = time
-			}
 			syncWith.run()
+			syncWith.elapsedTime = this.game.elapsedTime
+			syncWith.startDate = this.game.startDate
 			this.syncWith = syncWith
 		}
 	}
@@ -71,7 +66,7 @@ class Controller{
 			if(this.multiplayer !== 2){
 				requestAnimationFrame(() => {
 					if(this.syncWith){
-						this.syncWith.game.elapsedTime.ms = this.game.elapsedTime.ms
+						this.syncWith.game.elapsedTime = this.game.elapsedTime
 					}
 					this.mainLoop()
 					if(this.syncWith){
@@ -79,7 +74,7 @@ class Controller{
 					}
 				})
 			}
-			var ms = this.game.getElapsedTime().ms
+			var ms = this.game.elapsedTime
 			
 			if(!this.game.isPaused()){
 				this.keyboard.checkGameKeys()
@@ -121,7 +116,7 @@ class Controller{
 		}else{
 			vp = "fail"
 		}
-		assets.sounds["game" + vp].play()
+		this.playSound("game" + vp)
 	}
 	displayResults(){
 		if(this.multiplayer !== 2){
@@ -147,12 +142,15 @@ class Controller{
 			taikoGame.run()
 		}
 	}
+	playSound(id, time){
+		assets.sounds[id + this.snd].play(time)
+	}
 	playSoundMeka(soundID, time){
 		var meka = ""
 		if(this.autoPlayEnabled && !this.multiplayer){
 			meka = "-meka"
 		}
-		assets.sounds[soundID + meka].play(time)
+		this.playSound(soundID + meka, time)
 	}
 	togglePause(){
 		if(this.syncWith){
@@ -173,7 +171,7 @@ class Controller{
 		return this.game.getSongData()
 	}
 	getElapsedTime(){
-		return this.game.getElapsedTime()
+		return this.game.elapsedTime
 	}
 	getCircles(){
 		return this.game.getCircles()

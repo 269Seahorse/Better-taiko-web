@@ -36,15 +36,27 @@ class Loader{
 		snd.buffer = new SoundBuffer()
 		snd.musicGain = snd.buffer.createGain()
 		snd.sfxGain = snd.buffer.createGain()
-		snd.buffer.setCrossfade(snd.musicGain, snd.sfxGain, 0.5)
 		snd.previewGain = snd.buffer.createGain()
-		snd.previewGain.setVolume(0.5)
+		snd.sfxGainL = snd.buffer.createGain("left")
+		snd.sfxGainR = snd.buffer.createGain("right")
+		snd.buffer.setCrossfade(
+			[snd.musicGain, snd.previewGain],
+			[snd.sfxGain, snd.sfxGainL, snd.sfxGainR],
+			0.5
+		)
 		
 		assets.audioSfx.forEach(name => {
 			this.promises.push(this.loadSound(name, snd.sfxGain))
 		})
 		assets.audioMusic.forEach(name => {
 			this.promises.push(this.loadSound(name, snd.musicGain))
+		})
+		assets.audioSfxLR.forEach(name => {
+			this.promises.push(this.loadSound(name, snd.sfxGain).then(sound => {
+				var id = this.getFilename(name)
+				assets.sounds[id + "_p1"] = assets.sounds[id].copy(snd.sfxGainL)
+				assets.sounds[id + "_p2"] = assets.sounds[id].copy(snd.sfxGainR)
+			}))
 		})
 		
 		p2 = new P2Connection()

@@ -41,26 +41,9 @@ var assets = {
 		"bg_score_p2.png"
 	],
 	"audioSfx": [
-		"start.wav",
 		"don.wav",
 		"ka.wav",
-		
-		"combo-50.wav",
-		"combo-100.wav",
-		"combo-200.wav",
-		"combo-300.wav",
-		"combo-400.wav",
-		"combo-500.wav",
-		"combo-600.wav",
-		"combo-700.wav",
-		"combo-800.wav",
-		"combo-900.wav",
-		"combo-1000.wav",
-		"combo-1100.wav",
-		"combo-1200.wav",
-		"combo-1300.wav",
-		"combo-1400.wav",
-		"fullcombo.wav",
+		"start.wav",
 		
 		"combo-50-meka.wav",
 		"combo-100-meka.wav",
@@ -84,16 +67,39 @@ var assets = {
 		"pause.wav",
 		"cancel.wav",
 		"results.ogg",
-		"diffsel.wav",
+		"diffsel.wav"
+	],
+	"audioSfxLR": [
+		"note_don.ogg",
+		"note_ka.ogg",
+		"balloon.ogg",
+		"renda.ogg",
 		
+		"combo-50.wav",
+		"combo-100.wav",
+		"combo-200.wav",
+		"combo-300.wav",
+		"combo-400.wav",
+		"combo-500.wav",
+		"combo-600.wav",
+		"combo-700.wav",
+		"combo-800.wav",
+		"combo-900.wav",
+		"combo-1000.wav",
+		"combo-1100.wav",
+		"combo-1200.wav",
+		"combo-1300.wav",
+		"combo-1400.wav",
+		
+		"fullcombo.wav",
 		"gamefullcombo.wav",
 		"gameclear.wav",
 		"gamefail.wav",
 		
-		"note_don.ogg",
-		"note_ka.ogg",
-		"balloon.ogg",
-		"renda.ogg"
+		"results_fullcombo.ogg",
+		"results_fullcombo2.ogg",
+		"results_crown.ogg",
+		"results_countup.wav"
 	],
 	"audioMusic": [
 		"bgm_songsel.ogg",

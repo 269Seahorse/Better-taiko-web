@@ -12,7 +12,7 @@ class CanvasAsset{
 		if(this.animation){
 			var u = (a, b) => typeof a === "undefined" ? b : a
 			var frame = 0
-			var ms = this.controller.getElapsedTime().ms
+			var ms = this.controller.getElapsedTime()
 			if(this.animationEnd){
 				if(ms > this.animationEnd.ms){
 					this.animationEnd.callback()

@@ -390,6 +390,8 @@
 				drawn.push({text: symbol, x: -2, y: 0, w: 20, scale: [0.6, 0.5]})
 			}else if(symbol === " "){
 				drawn.push({text: symbol, x: 0, y: 0, w: 10})
+			}else if(symbol === "'"){
+				drawn.push({text: ",", x: 0, y: -15, w: 7, scale: [1, 0.7]})
 			}else if(r.en.test(symbol)){
 				// n-width
 				drawn.push({text: symbol, x: 0, y: 0, w: 28, scale: [1, 0.95]})

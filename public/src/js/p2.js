@@ -100,7 +100,10 @@ class P2Connection{
 				this.otherConnected = false
 				break
 			case "gameresults":
-				this.results = response.value
+				this.results = {}
+				for(var i in response.value){
+					this.results[i] = response.value[i].toString()
+				}
 				break
 			case "note":
 				this.notes.push(response.value)

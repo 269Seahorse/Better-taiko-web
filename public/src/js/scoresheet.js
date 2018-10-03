@@ -1,7 +1,10 @@
 class Scoresheet{
 	constructor(controller, results, multiplayer){
 		this.controller = controller
-		this.results = results
+		this.results = {}
+		for(var i in results){
+			this.results[i] = results[i].toString()
+		}
 		this.multiplayer = multiplayer
 		
 		this.canvas = document.getElementById("canvas")
@@ -14,6 +17,9 @@ class Scoresheet{
 			startDelay: 3300,
 			hasPointer: 0
 		}
+		this.frame = 1000 / 60
+		this.numbers = "001122334455667788900112233445".split("")
+		
 		this.draw = new CanvasDraw()
 		
 		this.gamepad = new Gamepad({
@@ -57,17 +63,16 @@ class Scoresheet{
 	}
 	toNext(){
 		var ms = this.getMS()
-		var elapsed = ms - this.state.screenMS - this.state.startDelay
-		if(this.state.screen === "fadeIn"){
-			if(elapsed >= 3400){
-				snd.musicGain.fadeOut(0.5)
-				this.state.screen = "fadeOut"
-				this.state.screenMS = ms
-				assets.sounds["don"].play()
-			}else if(elapsed >= 0 && elapsed <= 2400){
-				this.state.screenMS = ms - 2400 - this.state.startDelay
-				assets.sounds["don"].play()
-			}
+		var elapsed = ms - this.state.screenMS
+		if(this.state.screen === "fadeIn" && elapsed >= this.state.startDelay){
+			this.state.screen = "scoresShown"
+			this.state.screenMS = ms
+			assets.sounds["note_don"].play()
+		}else if(this.state.screen === "scoresShown" && elapsed >= 1000){
+			snd.musicGain.fadeOut(0.5)
+			this.state.screen = "fadeOut"
+			this.state.screenMS = ms
+			assets.sounds["note_don"].play()
 		}
 	}
 	
@@ -116,7 +121,7 @@ class Scoresheet{
 				ctx.scale(ratio, ratio)
 				this.canvas.style.width = (winW / this.pixelRatio) + "px"
 				this.canvas.style.height = (winH / this.pixelRatio) + "px"
-			}else if(!document.hasFocus() && ms - this.state.screenMS - this.state.startDelay > 2400){
+			}else if(!document.hasFocus() && this.state.screen === "scoresShown"){
 				return
 			}else{
 				ctx.clearRect(0, 0, winW / ratio, winH / ratio)
@@ -158,8 +163,12 @@ class Scoresheet{
 		})
 		ctx.fillStyle = "rgba(127, 28, 12, 0.5)"
 		ctx.fillRect(0, winH / 2 - 12, winW, 12)
-		ctx.fillStyle = "#000"
-		ctx.fillRect(0, winH / 2 - 2, winW, 3)
+		ctx.fillStyle = "rgba(0, 0, 0, 0.25)"
+		ctx.fillRect(0, winH / 2, winW, 20)
+		if(bgOffset !== 0){
+			ctx.fillStyle = "#000"
+			ctx.fillRect(0, winH / 2 - 2, winW, 2)
+		}
 		ctx.fillStyle = "#fa4529"
 		ctx.fillRect(0, 0, winW, frameTop + 64)
 		ctx.fillStyle = "#bf2900"
@@ -184,7 +193,11 @@ class Scoresheet{
 		ctx.fillStyle = this.multiplayer ? "rgba(138, 245, 247, 0.5)" : "rgba(249, 163, 149, 0.5)"
 		ctx.fillRect(0, winH / 2, winW, 12)
 		ctx.fillStyle = "#000"
-		ctx.fillRect(0, winH / 2 - 1, winW, 3)
+		if(bgOffset === 0){
+			ctx.fillRect(0, winH / 2 - 2, winW, 4)
+		}else{
+			ctx.fillRect(0, winH / 2, winW, 2)
+		}
 		ctx.fillStyle = this.multiplayer ? "#6bbec0" : "#fa4529"
 		ctx.fillRect(0, winH - frameTop - 64, winW, frameTop + 64)
 		ctx.fillStyle = this.multiplayer ? "rgba(160, 228, 229, 0.8)" : "rgba(255, 144, 116, 0.8)"
@@ -196,8 +209,8 @@ class Scoresheet{
 			ctx.restore()
 		}
 		
-		if(this.state.screen === "fadeOut"){
-			var elapsed = 2400
+		if(this.state.screen === "scoresShown" || this.state.screen === "fadeOut"){
+			var elapsed = Infinity
 		}else{
 			var elapsed = ms - this.state.screenMS - this.state.startDelay
 		}
@@ -331,12 +344,12 @@ class Scoresheet{
 					this.draw.layeredText({
 						ctx: ctx,
 						text: "最大コンボ数",
-						x: 1150,
+						x: 1149,
 						y: 193,
 						fontSize: 29,
 						fontFamily: this.font,
 						align: "right",
-						width: 216,
+						width: 215,
 						letterSpacing: 1
 					}, [
 						{outline: "#000", letterBorder: 8},
@@ -397,7 +410,7 @@ class Scoresheet{
 					results = p2.results
 				}
 				var crownType = null
-				if(results.bad === 0){
+				if(results.bad === "0"){
 					crownType = "gold"
 				}else if(results.gauge >= 50){
 					crownType = "silver"
@@ -424,6 +437,16 @@ class Scoresheet{
 								shine = 2 - shine
 							}
 						}
+						if(this.state.screen === "fadeIn" && elapsed >= 1200 && !this.state["fullcomboPlayed" + p]){
+							this.state["fullcomboPlayed" + p] = true
+							if(crownType === "gold" && !this.controller.autoPlayEnabled){
+								this.playSound("results_fullcombo" + (p === 1 ? "2" : ""), p)
+							}
+						}
+						if(this.state.screen === "fadeIn" && elapsed >= 1650 && !this.state["crownPlayed" + p]){
+							this.state["crownPlayed" + p] = true
+							this.playSound("results_crown", p)
+						}
 						this.draw.crown({
 							ctx: ctx,
 							type: crownType,
@@ -444,6 +467,35 @@ class Scoresheet{
 			ctx.save()
 			ctx.translate(frameLeft, frameTop)
 			
+			var printNumbers = ["good", "ok", "bad", "maxCombo", "drumroll"]
+			if(!this.state["countupTime0"]){
+				var times = {}
+				var lastTime = 0
+				for(var p = 0; p < players; p++){
+					var results = p === 0 ? this.results : p2.results
+					var currentTime = 3100 + results.points.length * 30 * this.frame + 1000
+					if(currentTime > lastTime){
+						lastTime = currentTime
+					}
+				}
+				for(var i in printNumbers){
+					var largestTime = 0
+					for(var p = 0; p < players; p++){
+						var results = p === 0 ? this.results : p2.results
+						times[printNumbers[i]] = lastTime + 500
+						var currentTime = lastTime + 500 + results[printNumbers[i]].length * 30 * this.frame
+						if(currentTime > largestTime){
+							largestTime = currentTime
+						}
+					}
+					lastTime = largestTime
+				}
+				this.state.fadeInEnd = lastTime
+				for(var p = 0; p < players; p++){
+					this.state["countupTime" + p] = times
+				}
+			}
+			
 			for(var p = 0; p < players; p++){
 				var results = this.results
 				if(p === 1){
@@ -451,9 +503,12 @@ class Scoresheet{
 					ctx.translate(0, p2Offset)
 				}
 				ctx.save()
-				var points = results.points.toString()
+				
+				this.state.countupShown = false
+				
+				var points = this.getNumber(results.points, 3100, elapsed)
 				var scale = 1.3
-				ctx.font = "36px " + this.font
+				ctx.font = "35px " + this.font
 				ctx.translate(760, 286)
 				ctx.scale(1 / scale, 1 * 1.1)
 				ctx.textAlign = "center"
@@ -461,27 +516,55 @@ class Scoresheet{
 				ctx.strokeStyle = "#fff"
 				ctx.lineWidth = 0.5
 				for(var i = 0; i < points.length; i++){
-					ctx.translate(-23 * scale, 0)
+					ctx.translate(-23.3 * scale, 0)
 					ctx.fillText(points[points.length - i - 1], 0, 0)
 					ctx.strokeText(points[points.length - i - 1], 0, 0)
 				}
 				ctx.restore()
 				
-				var printNumbers = ["good", "ok", "bad", "maxCombo", "drumroll"]
+				if(!this.state["countupTime" + p]){
+					var times = {}
+					var lastTime = 3100 + results.points.length * 30 * this.frame + 1000
+					for(var i in printNumbers){
+						times[printNumbers[i]] = lastTime + 500
+						lastTime = lastTime + 500 + results[printNumbers[i]].length * 30 * this.frame
+					}
+					this.state["countupTime" + p] = times
+				}
+				
 				for(var i in printNumbers){
+					var start = this.state["countupTime" + p][printNumbers[i]]
 					this.draw.layeredText({
 						ctx: ctx,
-						text: results[printNumbers[i]].toString(),
+						text: this.getNumber(results[printNumbers[i]], start, elapsed),
 						x: 971 + 270 * Math.floor(i / 3),
-						y: 194 + (40 * (i % 3)),
-						fontSize: 27,
+						y: 196 + (40 * (i % 3)),
+						fontSize: 26,
 						fontFamily: this.font,
-						letterSpacing: 4,
+						letterSpacing: 1,
 						align: "right"
 					}, [
 						{outline: "#000", letterBorder: 9},
 						{fill: "#fff"}
 					])
+				}
+				
+				if(this.state.countupShown){
+					if(!this.state["countup" + p]){
+						this.state["countup" + p] = true
+						this.loopSound("results_countup", p, [0.1, false, 0, 0, 0.07])
+					}
+				}else if(this.state["countup" + p]){
+					this.state["countup" + p] = false
+					this.stopSound("results_countup", p)
+					if(this.state.screen === "fadeIn"){
+						this.playSound("note_don", p)
+					}
+				}
+				
+				if(this.state.screen === "fadeIn" && elapsed >= this.state.fadeInEnd){
+					this.state.screen = "scoresShown"
+					this.state.screenMS = this.getMS()
 				}
 			}
 			ctx.restore()
@@ -508,6 +591,36 @@ class Scoresheet{
 		}
 		
 		ctx.restore()
+	}
+	
+	getNumber(score, start, elapsed){
+		var numberPos = Math.floor((elapsed - start) / this.frame)
+		if(numberPos < 0){
+			return ""
+		}
+		var output = ""
+		for(var i = 0; i < score.length; i++){
+			if(numberPos < 30 * (i + 1)){
+				this.state.countupShown = true
+				return this.numbers[numberPos % 30] + output
+			}else{
+				output = score[score.length - i - 1] + output
+			}
+		}
+		return output
+	}
+	
+	getSound(id, p){
+		return assets.sounds[id + (this.multiplayer ? "_p" + (p + 1) : "")]
+	}
+	playSound(id, p){
+		this.getSound(id, p).play()
+	}
+	loopSound(id, p, args){
+		this.getSound(id, p).playLoop(...args)
+	}
+	stopSound(id, p){
+		this.getSound(id, p).stop()
 	}
 	
 	mod(length, index){
