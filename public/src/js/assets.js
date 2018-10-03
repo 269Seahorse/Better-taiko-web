@@ -38,7 +38,8 @@ var assets = {
 		"bg_genre_6.png",
 		"bg_genre_7.png",
 		"bg_score_p1.png",
-		"bg_score_p2.png"
+		"bg_score_p2.png",
+		"badge_auto.png"
 	],
 	"audioSfx": [
 		"don.wav",
@@ -66,8 +67,7 @@ var assets = {
 		"title.ogg",
 		"pause.wav",
 		"cancel.wav",
-		"results.ogg",
-		"diffsel.wav"
+		"results.ogg"
 	],
 	"audioSfxLR": [
 		"note_don.ogg",
@@ -100,6 +100,9 @@ var assets = {
 		"results_fullcombo2.ogg",
 		"results_crown.ogg",
 		"results_countup.wav"
+	],
+	"audioSfxLoud": [
+		"diffsel.wav"
 	],
 	"audioMusic": [
 		"bgm_songsel.ogg",

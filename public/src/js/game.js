@@ -25,7 +25,6 @@ class Game{
 		this.paused = false
 		this.started = false
 		this.mainMusicPlaying = false
-		this.elapsedTimeSincePause = 0
 		this.musicFadeOut = 0
 		this.fadeOutStarted = false
 		this.currentTimingPoint = 0
@@ -45,7 +44,7 @@ class Game{
 		var offsetTime = Math.max(0, this.timeForDistanceCircle - this.songData.circles[0].ms) |0
 		this.elapsedTime = -offsetTime
 		// The real start for the game will start when chrono will reach 0
-		this.startDate = snd.buffer.getTime() * 1000 + offsetTime
+		this.startDate = +(new Date) + offsetTime
 	}
 	update(){
 		// Main operations
@@ -317,14 +316,15 @@ class Game{
 		if(!this.paused){
 			assets.sounds["pause"].play()
 			this.paused = true
-			this.latestDate = snd.buffer.getTime() * 1000
+			this.latestDate = +new Date
 			this.mainAsset.stop()
 			this.mainMusicPlaying = false
 		}else{
 			assets.sounds["cancel"].play()
 			this.paused = false
-			var currentDate = snd.buffer.getTime() * 1000
-			this.elapsedTimeSincePause = this.elapsedTimeSincePause + currentDate - this.latestDate
+			var currentDate = +new Date
+			this.startDate += currentDate - this.latestDate
+			this.sndTime = currentDate - snd.buffer.getTime() * 1000
 		}
 	}
 	isPaused(){
@@ -334,20 +334,26 @@ class Game{
 		// Refreshed date
 		var ms = this.elapsedTime
 		if(ms >= 0 && !this.started){
-			this.startDate = snd.buffer.getTime() * 1000
-			this.elapsedTimeSincePause = 0
+			this.startDate = +new Date
 			this.elapsedTime = this.getAccurateTime()
 			this.started = true
+			this.sndTime = this.startDate - snd.buffer.getTime() * 1000
 		}else if(ms < 0 || ms >= 0 && this.started){
-			this.elapsedTime = this.getAccurateTime()
+			this.elapsedTime = this.getAccurateTime(ms >= 0)
 		}
 	}
 	getAccurateTime(){
 		if(this.isPaused()){
 			return this.elapsedTime
 		}else{
-			var currentDate = snd.buffer.getTime() * 1000
-			return currentDate - this.startDate - this.elapsedTimeSincePause
+			var currentDate = +new Date
+			var sndTime = currentDate - snd.buffer.getTime() * 1000
+			var lag = sndTime - this.sndTime
+			if(Math.abs(lag) >= 50){
+				this.startDate += lag
+				this.sndTime = sndTime
+			}
+			return currentDate - this.startDate
 		}
 	}
 	getCircles(){

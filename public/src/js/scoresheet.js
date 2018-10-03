@@ -270,6 +270,12 @@ class Scoresheet{
 						276, 150, imgScale * 176, imgScale * 120
 					)
 					
+					if(this.controller.autoPlayEnabled){
+						ctx.drawImage(assets.image["badge_auto"],
+							431, 311, 34, 34
+						)
+					}
+					
 					this.draw.roundedRect({
 						ctx: ctx,
 						x: 532,
@@ -439,7 +445,7 @@ class Scoresheet{
 						}
 						if(this.state.screen === "fadeIn" && elapsed >= 1200 && !this.state["fullcomboPlayed" + p]){
 							this.state["fullcomboPlayed" + p] = true
-							if(crownType === "gold" && !this.controller.autoPlayEnabled){
+							if(crownType === "gold"){
 								this.playSound("results_fullcombo" + (p === 1 ? "2" : ""), p)
 							}
 						}
@@ -473,7 +479,7 @@ class Scoresheet{
 				var lastTime = 0
 				for(var p = 0; p < players; p++){
 					var results = p === 0 ? this.results : p2.results
-					var currentTime = 3100 + results.points.length * 30 * this.frame + 1000
+					var currentTime = 3100 + results.points.length * 30 * this.frame
 					if(currentTime > lastTime){
 						lastTime = currentTime
 					}

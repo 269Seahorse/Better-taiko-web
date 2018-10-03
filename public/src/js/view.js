@@ -619,6 +619,12 @@ class View{
 			this.diffX, this.diffY,
 			this.diffW, this.diffH
 		)
+		if(this.controller.autoPlayEnabled){
+			this.ctx.drawImage(assets.image["badge_auto"],
+				this.diffX + this.diffW * 0.71, this.diffY + this.diffH * 0.01,
+				this.diffH * 0.3, this.diffH * 0.3
+			)
+		}
 		this.ctx.drawImage(assets.image.taiko,
 			this.taikoX, this.taikoY,
 			this.taikoW, this.taikoH

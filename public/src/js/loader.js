@@ -39,11 +39,13 @@ class Loader{
 		snd.previewGain = snd.buffer.createGain()
 		snd.sfxGainL = snd.buffer.createGain("left")
 		snd.sfxGainR = snd.buffer.createGain("right")
+		snd.sfxLoudGain = snd.buffer.createGain()
 		snd.buffer.setCrossfade(
 			[snd.musicGain, snd.previewGain],
 			[snd.sfxGain, snd.sfxGainL, snd.sfxGainR],
 			0.5
 		)
+		snd.sfxLoudGain.setVolume(1.2)
 		
 		assets.audioSfx.forEach(name => {
 			this.promises.push(this.loadSound(name, snd.sfxGain))
@@ -57,6 +59,9 @@ class Loader{
 				assets.sounds[id + "_p1"] = assets.sounds[id].copy(snd.sfxGainL)
 				assets.sounds[id + "_p2"] = assets.sounds[id].copy(snd.sfxGainR)
 			}))
+		})
+		assets.audioSfxLoud.forEach(name => {
+			this.promises.push(this.loadSound(name, snd.sfxLoudGain))
 		})
 		
 		p2 = new P2Connection()
