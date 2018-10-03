@@ -89,7 +89,7 @@ class Mekadon{
 		return true
 	}
 	getMS(){
-		return this.controller.getElapsedTime().ms
+		return this.controller.getElapsedTime()
 	}
 	setKey(keyCode, ms){
 		this.controller.setKey(keyCode, false)

@@ -177,9 +177,9 @@ class Keyboard{
 				&& circle.getType() === "balloon"
 				&& circle.requiredHits - circle.timesHit <= 1
 			){
-				assets.sounds["balloon"].play()
+				this.controller.playSound("balloon")
 			}else{
-				assets.sounds["note_" + sound].play()
+				this.controller.playSound("note_" + sound)
 			}
 			this.keyTime[sound] = this.keyTime[keyCode]
 		})

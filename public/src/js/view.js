@@ -59,7 +59,7 @@ class View{
 			gameSong.appendChild(document.createTextNode(this.songTitle))
 			gameSong.setAttribute("alt", this.songTitle)
 		}
-		this.lastMousemove = this.controller.getElapsedTime().ms
+		this.lastMousemove = this.controller.getElapsedTime()
 		pageEvents.mouseAdd(this, this.onmousemove.bind(this))
 		
 		this.refresh()
@@ -162,7 +162,7 @@ class View{
 		//this.drawTime()
 	}
 	updateDonFaces(){
-		if(this.controller.getElapsedTime().ms >= this.nextBeat){
+		if(this.controller.getElapsedTime() >= this.nextBeat){
 			this.nextBeat += this.beatInterval
 			if(this.controller.getCombo() >= 50){
 				this.currentBigDonFace = (this.currentBigDonFace + 1) % 2
@@ -236,7 +236,7 @@ class View{
 	}
 	drawMeasures(){
 		var measures = this.controller.getSongData().measures
-		var currentTime = this.controller.getElapsedTime().ms
+		var currentTime = this.controller.getElapsedTime()
 		
 		measures.forEach((measure, index)=>{
 			var timeForDistance = this.posToMs(this.distanceForCircle, measure.speed)
@@ -251,7 +251,7 @@ class View{
 	}
 	drawMeasure(measure){
 		var z = this.canvas.scale
-		var currentTime = this.controller.getElapsedTime().ms
+		var currentTime = this.controller.getElapsedTime()
 		var measureX = this.slotX + this.msToPos(measure.ms - currentTime, measure.speed)
 		this.ctx.strokeStyle = "#bab8b8"
 		this.ctx.lineWidth = 2
@@ -348,7 +348,7 @@ class View{
 		}
 	}
 	drawPressedKeys(){
-		var ms = this.controller.getElapsedTime().ms
+		var ms = this.controller.getElapsedTime()
 		var keyTime = this.controller.getKeyTime()
 		var kbd = this.controller.getBindings()
 		
@@ -432,7 +432,7 @@ class View{
 	drawCircles(circles){
 		for(var i = circles.length; i--;){
 			var circle = circles[i]
-			var ms = this.controller.getElapsedTime().ms
+			var ms = this.controller.getElapsedTime()
 			var speed = circle.getSpeed()
 			
 			var timeForDistance = this.posToMs(this.distanceForCircle + this.bigCircleSize / 2, speed)
@@ -499,7 +499,7 @@ class View{
 		var z = this.canvas.scale
 		var fill, size, faceID
 		var type = circle.getType()
-		var ms = this.controller.getElapsedTime().ms
+		var ms = this.controller.getElapsedTime()
 		var circleMs = circle.getMS()
 		var endTime = circle.getEndTime()
 		var animated = circle.isAnimated()
@@ -607,7 +607,7 @@ class View{
 	togglePauseMenu(){
 		if(this.controller.game.isPaused()){
 			this.pauseMenu.style.display = "block"
-			this.lastMousemove = this.controller.getElapsedTime().ms
+			this.lastMousemove = this.controller.getElapsedTime()
 			this.cursorHidden = false
 			this.mouseIdle()
 		}else{
@@ -619,6 +619,12 @@ class View{
 			this.diffX, this.diffY,
 			this.diffW, this.diffH
 		)
+		if(this.controller.autoPlayEnabled){
+			this.ctx.drawImage(assets.image["badge_auto"],
+				this.diffX + this.diffW * 0.71, this.diffY + this.diffH * 0.01,
+				this.diffH * 0.3, this.diffH * 0.3
+			)
+		}
 		this.ctx.drawImage(assets.image.taiko,
 			this.taikoX, this.taikoY,
 			this.taikoW, this.taikoH
@@ -626,7 +632,14 @@ class View{
 	}
 	drawTime(){
 		var z = this.canvas.scale
-		var time = this.controller.getElapsedTime()
+		var ms = this.controller.getElapsedTime()
+		var sign = Math.sign(ms) < 0 ? "-" : ""
+		ms = Math.abs(ms) + (sign === "-" ? 1000 : 0)
+		var time = {
+			sec: Math.floor(ms / 1000) % 60,
+			min: Math.floor(ms / 1000 / 60) % 60,
+			hour: Math.floor(ms / 1000 / 60 / 60) % 60
+		}
 		
 		this.ctx.globalAlpha = 0.7
 		this.ctx.fillStyle = "#000"
@@ -641,10 +654,10 @@ class View{
 		
 		this.ctx.font = "normal " + (this.barH / 12) + "px Kozuka"
 		this.ctx.textAlign = "right"
-		this.ctx.fillText(formatedH + ":" + formatedM + ":" + formatedS,
+		this.ctx.fillText(sign + formatedH + ":" + formatedM + ":" + formatedS,
 			this.winW - 10 * z, this.winH - 30 * z
 		)
-		this.ctx.fillText(time.ms, this.winW - 10 * z, this.winH - 10 * z)
+		this.ctx.fillText(sign + Math.floor(ms), this.winW - 10 * z, this.winH - 10 * z)
 	}
 	drawBar(){
 		this.ctx.strokeStyle = "#000"
@@ -655,7 +668,7 @@ class View{
 		this.ctx.closePath()
 		this.ctx.fill()
 		
-		var ms = this.controller.getElapsedTime().ms
+		var ms = this.controller.getElapsedTime()
 		var keyTime = this.controller.getKeyTime()
 		var sound = keyTime["don"] > keyTime["ka"] ? "don" : "ka"
 		if(this.gogoTime || ms <= this.gogoTimeStarted + 100){
@@ -666,7 +679,7 @@ class View{
 			grd.addColorStop(1, "#2c2a2c")
 			this.ctx.fillStyle = grd
 			this.ctx.rect(0, this.barY, this.winW, this.barH)
-			var alpha = Math.min(100, this.controller.getElapsedTime().ms - this.gogoTimeStarted) / 100
+			var alpha = Math.min(100, this.controller.getElapsedTime() - this.gogoTimeStarted) / 100
 			if(!this.gogoTime){
 				alpha = 1 - alpha
 			}
@@ -755,7 +768,7 @@ class View{
 		}
 	}
 	drawGogoTime(){
-		var ms = this.controller.getElapsedTime().ms
+		var ms = this.controller.getElapsedTime()
 		
 		if(this.gogoTime){
 			var circles = this.controller.parsedSongData.circles
@@ -788,7 +801,7 @@ class View{
 			&& animation !== "gogo"
 		){
 			don.setAnimation("10combo")
-			var ms = this.controller.getElapsedTime().ms
+			var ms = this.controller.getElapsedTime()
 			don.setAnimationStart(ms)
 			var length = don.getAnimationLength("normal")
 			don.setUpdateSpeed(this.beatInterval / (length / 4))
@@ -797,13 +810,13 @@ class View{
 		}
 	}
 	onmousemove(event){
-		this.lastMousemove = this.controller.getElapsedTime().ms
+		this.lastMousemove = this.controller.getElapsedTime()
 		this.cursorHidden = false
 	}
 	mouseIdle(){
 		var lastMouse = pageEvents.getMouse()
 		if(lastMouse && !this.cursorHidden){
-			if(this.controller.getElapsedTime().ms >= this.lastMousemove + 2000){
+			if(this.controller.getElapsedTime() >= this.lastMousemove + 2000){
 				this.cursor.style.top = lastMouse.clientY + "px"
 				this.cursor.style.left = lastMouse.clientX + "px"
 				this.cursor.style.pointerEvents = "auto"

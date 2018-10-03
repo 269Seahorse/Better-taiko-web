@@ -25,11 +25,9 @@ class Game{
 		this.paused = false
 		this.started = false
 		this.mainMusicPlaying = false
-		this.elapsedTimeSincePause = 0
 		this.musicFadeOut = 0
 		this.fadeOutStarted = false
 		this.currentTimingPoint = 0
-		this.offsetTime = 0
 		
 		assets.songs.forEach(song => {
 			if(song.id == selectedSong.folder){
@@ -43,12 +41,10 @@ class Game{
 	}
 	initTiming(){
 		// Date when the chrono is started (before the game begins)
-		this.offsetDate = new Date()
-		this.offsetTime = Math.max(0, this.timeForDistanceCircle - this.songData.circles[0].ms) |0
-		this.setElapsedTime(-this.offsetTime)
+		var offsetTime = Math.max(0, this.timeForDistanceCircle - this.songData.circles[0].ms) |0
+		this.elapsedTime = -offsetTime
 		// The real start for the game will start when chrono will reach 0
-		this.startDate = new Date()
-		this.startDate.setMilliseconds(this.startDate.getMilliseconds() + this.offsetTime)
+		this.startDate = +(new Date) + offsetTime
 	}
 	update(){
 		// Main operations
@@ -67,7 +63,7 @@ class Game{
 		var circles = this.songData.circles
 		circles.forEach(circle => {
 			if(!circle.getPlayed()){
-				var ms = this.getElapsedTime().ms
+				var ms = this.elapsedTime
 				var type = circle.getType()
 				var drumrollNotes = type === "balloon" || type === "drumroll" || type === "daiDrumroll"
 				var endTime = circle.getEndTime() + (drumrollNotes ? 0 : this.rules.bad)
@@ -76,8 +72,8 @@ class Game{
 					if(drumrollNotes && !circle.rendaPlayed){
 						circle.rendaPlayed = true
 						if(this.rules.difficulty === "easy"){
-							assets.sounds["renda"].stop()
-							assets.sounds["renda"].play()
+							assets.sounds["renda" + this.controller.snd].stop()
+							this.controller.playSound("renda")
 						}
 					}
 				}
@@ -153,7 +149,7 @@ class Game{
 		})
 	}
 	checkScore(circle, check){
-		var ms = this.getElapsedTime().ms
+		var ms = this.elapsedTime
 		var type = circle.getType()
 		
 		var keysDon = check === "don" || check === "daiDon"
@@ -234,7 +230,7 @@ class Game{
 			circle.played(score)
 			if(this.controller.multiplayer == 1){
 				p2.send("drumroll", {
-					pace: (this.getElapsedTime().ms - circle.getMS()) / circle.timesHit
+					pace: (this.elapsedTime - circle.getMS()) / circle.timesHit
 				})
 			}
 		}else{
@@ -256,7 +252,7 @@ class Game{
 		}
 		var circleAnim = new Circle({
 			id: 0,
-			start: this.getElapsedTime().ms,
+			start: this.elapsedTime,
 			type: sound,
 			txt: "",
 			speed: circle.speed,
@@ -271,7 +267,7 @@ class Game{
 	whenLastCirclePlayed(){
 		var circles = this.songData.circles
 		var lastCircle = circles[circles.length - 1]
-		var ms = this.getElapsedTime().ms
+		var ms = this.elapsedTime
 		if(!this.fadeOutStarted && ms >= lastCircle.getEndTime() + 2000){
 			this.fadeOutStarted = ms
 		}
@@ -279,7 +275,7 @@ class Game{
 	whenFadeoutMusic(){
 		var started = this.fadeOutStarted
 		if(started){
-			var ms = this.getElapsedTime().ms
+			var ms = this.elapsedTime
 			if(this.musicFadeOut === 0){
 				if(this.controller.multiplayer === 1){
 					p2.send("gameresults", this.getGlobalScore())
@@ -302,13 +298,13 @@ class Game{
 	}
 	checkTiming(){
 		if(this.songData.timingPoints[this.currentTimingPoint + 1]){
-			if(this.getElapsedTime().ms >= this.songData.timingPoints[this.currentTimingPoint + 1].start){
+			if(this.elapsedTime >= this.songData.timingPoints[this.currentTimingPoint + 1].start){
 				this.currentTimingPoint++
 			}
 		}
 	}
 	playMainMusic(){
-		var ms = this.getElapsedTime().ms
+		var ms = this.elapsedTime
 		if(!this.mainMusicPlaying && (!this.fadeOutStarted || ms<this.fadeOutStarted + 1600)){
 			if(this.controller.multiplayer !== 2){
 				this.mainAsset.play((ms < 0 ? -ms : 0) / 1000, false, Math.max(0, ms / 1000))
@@ -320,48 +316,44 @@ class Game{
 		if(!this.paused){
 			assets.sounds["pause"].play()
 			this.paused = true
-			this.latestDate = new Date()
+			this.latestDate = +new Date
 			this.mainAsset.stop()
 			this.mainMusicPlaying = false
 		}else{
 			assets.sounds["cancel"].play()
 			this.paused = false
-			var currentDate = new Date()
-			this.elapsedTimeSincePause = this.elapsedTimeSincePause + currentDate.getTime() - this.latestDate.getTime()
+			var currentDate = +new Date
+			this.startDate += currentDate - this.latestDate
+			this.sndTime = currentDate - snd.buffer.getTime() * 1000
 		}
 	}
 	isPaused(){
 		return this.paused
 	}
-	getElapsedTime(){
-		// Current time in ms from the beginning of the song
-		return this.elapsedTime
-	}
-	setElapsedTime(time){
-		this.elapsedTime.ms = time
-		this.elapsedTime.sec = (this.elapsedTime.ms / 1000 |0) % 60
-		this.elapsedTime.min = (this.elapsedTime.ms / 1000 / 60 |0) % 60
-		this.elapsedTime.hour = (this.elapsedTime.ms / 1000 / 60 / 60 |0) % 60
-	}
 	updateTime(){
 		// Refreshed date
-		var currentDate = new Date()
-		var ms = this.getElapsedTime().ms
+		var ms = this.elapsedTime
 		if(ms >= 0 && !this.started){
-			this.startDate = new Date()
-			this.elapsedTimeSincePause = 0
-			this.setElapsedTime(this.getAccurateTime())
+			this.startDate = +new Date
+			this.elapsedTime = this.getAccurateTime()
 			this.started = true
+			this.sndTime = this.startDate - snd.buffer.getTime() * 1000
 		}else if(ms < 0 || ms >= 0 && this.started){
-			this.setElapsedTime(this.getAccurateTime())
+			this.elapsedTime = this.getAccurateTime(ms >= 0)
 		}
 	}
 	getAccurateTime(){
 		if(this.isPaused()){
-			return this.getElapsedTime().ms
+			return this.elapsedTime
 		}else{
-			var currentDate = new Date()
-			return currentDate.getTime() - this.startDate.getTime() - this.elapsedTimeSincePause
+			var currentDate = +new Date
+			var sndTime = currentDate - snd.buffer.getTime() * 1000
+			var lag = sndTime - this.sndTime
+			if(Math.abs(lag) >= 50){
+				this.startDate += lag
+				this.sndTime = sndTime
+			}
+			return currentDate - this.startDate
 		}
 	}
 	getCircles(){

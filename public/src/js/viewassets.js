@@ -60,7 +60,7 @@ class ViewAssets{
 			var imgw = 360
 			var imgh = 370
 			var scale = 175
-			var ms = this.controller.getElapsedTime().ms
+			var ms = this.controller.getElapsedTime()
 			var elapsed = ms - this.view.gogoTimeStarted
 			if(this.view.gogoTime){
 				var grow = 3 - Math.min(200, elapsed) / 100

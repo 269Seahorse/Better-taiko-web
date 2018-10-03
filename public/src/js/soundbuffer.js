@@ -16,12 +16,18 @@
 			return new Sound(gain || {soundBuffer: this}, buffer)
 		})
 	}
-	createGain(){
-		return new SoundGain(this)
+	createGain(channel){
+		return new SoundGain(this, channel)
 	}
 	setCrossfade(gain1, gain2, median){
-		gain1.setCrossfade(1 - median)
-		gain2.setCrossfade(median)
+		if(!Array.isArray(gain1)){
+			gain1 = [gain1]
+		}
+		if(!Array.isArray(gain2)){
+			gain2 = [gain2]
+		}
+		gain1.forEach(gain => gain.setCrossfade(1 - median))
+		gain2.forEach(gain => gain.setCrossfade(median))
 	}
 	getTime(){
 		return this.context.currentTime
@@ -41,10 +47,17 @@
 	}
 }
 class SoundGain{
-	constructor(soundBuffer){
+	constructor(soundBuffer, channel){
 		this.soundBuffer = soundBuffer
 		this.gainNode = soundBuffer.context.createGain()
-		this.gainNode.connect(soundBuffer.context.destination)
+		if(channel){
+			var index = channel === "left" ? 0 : 1
+			this.merger = soundBuffer.context.createChannelMerger(2)
+			this.merger.connect(soundBuffer.context.destination)
+			this.gainNode.connect(this.merger, 0, index)
+		}else{
+			this.gainNode.connect(soundBuffer.context.destination)
+		}
 		this.setVolume(1)
 	}
 	load(url){
@@ -86,6 +99,9 @@ class Sound{
 		this.duration = buffer.duration
 		this.timeouts = new Set()
 		this.sources = new Set()
+	}
+	copy(gain){
+		return new Sound(gain, this.buffer)
 	}
 	getTime(){
 		return this.soundBuffer.getTime()
@@ -132,7 +148,7 @@ class Sound{
 		}, 100)
 	}
 	addLoop(){
-		if(this.getTime() > this.loop.started - 1){
+		while(this.getTime() > this.loop.started - 1){
 			this.play(this.loop.started, true, this.loop.seek, this.loop.until)
 			this.loop.started += this.loop.until - this.loop.seek
 		}
