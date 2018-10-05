@@ -136,10 +136,10 @@ class Controller{
 	restartSong(){
 		this.clean()
 		if(this.multiplayer){
-			new loadSong(this.selectedSong, false, true)
+			new loadSong(this.selectedSong, false, true, this.touchEnabled)
 		}else{
 			loader.changePage("game")
-			var taikoGame = new Controller(this.selectedSong, this.songData, this.autoPlayEnabled)
+			var taikoGame = new Controller(this.selectedSong, this.songData, this.autoPlayEnabled, false, this.touchEnabled)
 			taikoGame.run()
 		}
 	}

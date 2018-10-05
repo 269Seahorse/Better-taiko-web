@@ -933,7 +933,7 @@ class View{
 		}
 	}
 	ontouch(event){
-		for(let touch of event.touches){
+		for(let touch of event.changedTouches){
 			event.preventDefault()
 			var scale = this.canvas.scale
 			var pageX = touch.pageX * scale
