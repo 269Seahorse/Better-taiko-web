@@ -289,10 +289,10 @@ class Game{
 				this.controller.displayResults()
 				this.musicFadeOut++
 			}else if(this.musicFadeOut === 3 && (ms >= started + 9600 && ms >= this.controller.mainAsset.duration * 1000 + 1250)){
+				this.controller.clean()
 				if(this.controller.scoresheet){
 					this.controller.scoresheet.startRedraw()
 				}
-				this.controller.clean()
 			}
 		}
 	}

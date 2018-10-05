@@ -197,6 +197,7 @@ class SongSelect{
 		pageEvents.keyAdd(this, "all", "down", this.keyDown.bind(this))
 		pageEvents.add(this.canvas, "mousemove", this.mouseMove.bind(this))
 		pageEvents.add(this.canvas, "mousedown", this.mouseDown.bind(this))
+		pageEvents.add(this.canvas, "touchstart", this.mouseDown.bind(this))
 	}
 	
 	keyDown(event, code){
@@ -256,10 +257,21 @@ class SongSelect{
 	}
 	
 	mouseDown(event){
-		if(event.which !== 1){
-			return
+		if(event.type === "mousedown"){
+			if(event.which !== 1){
+				return
+			}
+			var mouse = this.mouseOffset(event.offsetX, event.offsetY)
+			var shift = event.shiftKey
+			var ctrl = event.ctrlKey
+			var touch = false
+		}else{
+			event.preventDefault()
+			var mouse = this.mouseOffset(event.touches[0].pageX, event.touches[0].pageY)
+			var shift = false
+			var ctrl = false
+			var touch = true
 		}
-		var mouse = this.mouseOffset(event)
 		if(this.state.screen === "song"){
 			var moveBy = this.songSelMouse(mouse.x, mouse.y)
 			if(moveBy === 0){
@@ -276,12 +288,12 @@ class SongSelect{
 			){
 				this.toSongSelect()
 			}else if(moveBy !== null){
-				this.toLoadSong(moveBy - 1, event.shiftKey, event.ctrlKey)
+				this.toLoadSong(moveBy - 1, shift, ctrl, touch)
 			}
 		}
 	}
 	mouseMove(event){
-		var mouse = this.mouseOffset(event)
+		var mouse = this.mouseOffset(event.offsetX, event.offsetY)
 		var moveTo = null
 		if(this.state.screen === "song"){
 			var moveTo = this.songSelMouse(mouse.x, mouse.y)
@@ -298,10 +310,10 @@ class SongSelect{
 		}
 		this.pointer(moveTo !== null)
 	}
-	mouseOffset(event){
+	mouseOffset(offsetX, offsetY){
 		return {
-			x: (event.offsetX * this.pixelRatio - this.winW / 2) / this.ratio + 1024 / 2,
-			y: (event.offsetY * this.pixelRatio - this.winH / 2) / this.ratio + 720 / 2
+			x: (offsetX * this.pixelRatio - this.winW / 2) / this.ratio + 1024 / 2,
+			y: (offsetY * this.pixelRatio - this.winH / 2) / this.ratio + 720 / 2
 		}
 	}
 	pointer(enabled){
@@ -425,7 +437,7 @@ class SongSelect{
 			assets.sounds["cancel"].play()
 		}
 	}
-	toLoadSong(difficulty, shift, ctrl){
+	toLoadSong(difficulty, shift, ctrl, touch){
 		this.clean()
 		var selectedSong = this.songs[this.selectedSong]
 		assets.sounds["diffsel"].stop()
@@ -439,7 +451,7 @@ class SongSelect{
 			"folder": selectedSong.id,
 			"difficulty": this.difficultyId[difficulty],
 			"category": selectedSong.category
-		}, shift, ctrl)
+		}, shift, ctrl, touch)
 	}
 	toTitleScreen(){
 		assets.sounds["cancel"].play()

@@ -79,11 +79,12 @@ class Keyboard{
 					this.setKey(keyCode, false)
 				}
 			})
+		}else{
+			this.checkKeySound(this.kbd["don_l"], "don")
+			this.checkKeySound(this.kbd["don_r"], "don")
+			this.checkKeySound(this.kbd["ka_l"], "ka")
+			this.checkKeySound(this.kbd["ka_r"], "ka")
 		}
-		this.checkKeySound(this.kbd["don_l"], "don")
-		this.checkKeySound(this.kbd["don_r"], "don")
-		this.checkKeySound(this.kbd["ka_l"], "ka")
-		this.checkKeySound(this.kbd["ka_r"], "ka")
 	}
 	checkMenuKeys(){
 		if(!this.controller.multiplayer){
@@ -171,7 +172,7 @@ class Keyboard{
 			var circles = this.controller.getCircles()
 			var circle = circles[this.controller.getCurrentCircle()]
 			if(
-				(keyCode === this.kbd["don_l"] || keyCode === this.kbd["don_r"])
+				sound === "don"
 				&& circle
 				&& !circle.getPlayed()
 				&& circle.getType() === "balloon"
@@ -191,6 +192,11 @@ class Keyboard{
 		if(down){
 			this.keys[keyCode] = true
 			this.keyTime[keyCode] = ms
+			if(keyCode == this.kbd.don_l || keyCode == this.kbd.don_r){
+				this.checkKeySound(keyCode, "don")
+			}else if(keyCode == this.kbd.ka_l || keyCode == this.kbd.ka_r){
+				this.checkKeySound(keyCode, "ka")
+			}
 		}else{
 			this.keys[keyCode] = false
 			this.waitKeyupScore[keyCode] = false

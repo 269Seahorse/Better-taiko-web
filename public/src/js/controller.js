@@ -1,9 +1,10 @@
 class Controller{
-	constructor(selectedSong, songData, autoPlayEnabled, multiplayer){
+	constructor(selectedSong, songData, autoPlayEnabled, multiplayer, touchEnabled){
 		this.selectedSong = selectedSong
 		this.songData = songData
 		this.autoPlayEnabled = autoPlayEnabled
 		this.multiplayer = multiplayer
+		this.touchEnabled = touchEnabled
 		this.snd = this.multiplayer ? "_p" + this.multiplayer : ""
 		
 		var backgroundURL = "/songs/" + this.selectedSong.folder + "/bg.png"
@@ -202,6 +203,9 @@ class Controller{
 		}
 	}
 	clean(){
+		if(this.syncWith){
+			this.syncWith.clean()
+		}
 		this.stopMainLoop()
 		this.keyboard.clean()
 		this.view.clean()
