@@ -1,5 +1,6 @@
 ﻿class SoundBuffer{
 	constructor(){
+		var AudioContext = window.AudioContext || window.webkitAudioContext
 		this.context = new AudioContext()
 		pageEvents.once(window, "click").then(() => {
 			if(this.context.state == "suspended"){
