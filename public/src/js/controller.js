@@ -1,9 +1,10 @@
 class Controller{
-	constructor(selectedSong, songData, autoPlayEnabled, multiplayer){
+	constructor(selectedSong, songData, autoPlayEnabled, multiplayer, touchEnabled){
 		this.selectedSong = selectedSong
 		this.songData = songData
 		this.autoPlayEnabled = autoPlayEnabled
 		this.multiplayer = multiplayer
+		this.touchEnabled = touchEnabled
 		this.snd = this.multiplayer ? "_p" + this.multiplayer : ""
 		
 		var backgroundURL = "/songs/" + this.selectedSong.folder + "/bg.png"
@@ -130,15 +131,15 @@ class Controller{
 		if(!fadeIn){
 			this.clean()
 		}
-		new SongSelect(false, fadeIn)
+		new SongSelect(false, fadeIn, this.touchEnabled)
 	}
 	restartSong(){
 		this.clean()
 		if(this.multiplayer){
-			new loadSong(this.selectedSong, false, true)
+			new loadSong(this.selectedSong, false, true, this.touchEnabled)
 		}else{
 			loader.changePage("game")
-			var taikoGame = new Controller(this.selectedSong, this.songData, this.autoPlayEnabled)
+			var taikoGame = new Controller(this.selectedSong, this.songData, this.autoPlayEnabled, false, this.touchEnabled)
 			taikoGame.run()
 		}
 	}
@@ -202,6 +203,9 @@ class Controller{
 		}
 	}
 	clean(){
+		if(this.syncWith){
+			this.syncWith.clean()
+		}
 		this.stopMainLoop()
 		this.keyboard.clean()
 		this.view.clean()

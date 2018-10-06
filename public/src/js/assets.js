@@ -39,7 +39,10 @@ var assets = {
 		"bg_genre_7.png",
 		"bg_score_p1.png",
 		"bg_score_p2.png",
-		"badge_auto.png"
+		"badge_auto.png",
+		"touch_drum.png",
+		"touch_pause.png",
+		"touch_fullscreen.png"
 	],
 	"audioSfx": [
 		"don.wav",

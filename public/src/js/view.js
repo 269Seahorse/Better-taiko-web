@@ -7,6 +7,7 @@ class View{
 		
 		this.pauseMenu = document.getElementById("pause-menu")
 		this.cursor = document.getElementById("cursor")
+		this.gameDiv = document.getElementById("game")
 		
 		var docW = document.body.offsetWidth
 		var docH = document.body.offsetHeight
@@ -14,7 +15,7 @@ class View{
 			this.canvas = new ScalableCanvas("canvas-p2", docW, docH / 3 * 2)
 			this.canvas.canvas.style.position = "absolute"
 			this.canvas.canvas.style.top = "33%"
-			document.getElementById("game").appendChild(this.canvas.canvas)
+			this.gameDiv.appendChild(this.canvas.canvas)
 		}else{
 			this.canvas = new ScalableCanvas("canvas", docW, docH)
 		}
@@ -49,6 +50,26 @@ class View{
 		
 		this.beatInterval = this.controller.getSongData().beatInfo.beatInterval
 		this.assets = new ViewAssets(this)
+		
+		this.touch = -Infinity
+		
+		if(this.controller.touchEnabled){
+			this.touchEnabled = true
+			
+			this.touchDrumDiv = document.getElementById("touch-drum")
+			this.touchDrumImg = document.getElementById("touch-drum-img")
+			this.gameDiv.classList.add("touch-visible")
+			
+			pageEvents.add(this.canvas.canvas, "touchstart", this.ontouch.bind(this))
+			
+			this.touchFullBtn = document.getElementById("touch-full-btn")
+			pageEvents.add(this.touchFullBtn, "click", toggleFullscreen)
+			
+			this.touchPauseBtn = document.getElementById("touch-pause-btn")
+			pageEvents.add(this.touchPauseBtn, "click", () => {
+				this.controller.togglePauseMenu()
+			})
+		}
 	}
 	run(){
 		this.ctx.font = "normal 14pt TnT"
@@ -133,6 +154,35 @@ class View{
 		this.diffW = this.diffH * diffRatio
 		this.diffX = this.taikoX * 0.10
 		this.diffY = this.taikoY * 1.05 + this.taikoH * 0.19
+		this.touchDrum = (() => {
+			var sw = 842
+			var sh = 340
+			var x = 0
+			var y = this.barY + this.barH + 5
+			var paddingTop = this.barH * 0.1
+			var w = this.winW
+			var maxH = this.winH - (this.barY + this.barH + 5)
+			var h = maxH - paddingTop
+			if(w / h >= sw / sh){
+				w = h / sh * sw
+				x = (this.winW - w) / 2
+				y += paddingTop
+			}else{
+				h = w / sw * sh
+				y = y + (maxH - h)
+			}
+			return {
+				x: x, y: y, w: w, h: h
+			}
+		})()
+		this.touchCircle = (() => {
+			return {
+				x: this.winW / 2,
+				y: this.winH + this.touchDrum.h * 0.1,
+				rx: this.touchDrum.w / 2 - this.touchDrum.h * 0.03,
+				ry: this.touchDrum.h * 1.07
+			}
+		})()
 	}
 	refresh(){
 		this.positionning()
@@ -158,7 +208,10 @@ class View{
 		this.updateDonFaces()
 		this.drawGogoTime()
 		this.mouseIdle()
-		this.assets.drawAssets("foreground")
+		if(!this.touchEnabled){
+			this.assets.drawAssets("foreground")
+		}
+		this.drawTouch()
 		//this.drawTime()
 	}
 	updateDonFaces(){
@@ -809,6 +862,66 @@ class View{
 			don.setAnimationEnd(ms + length * don.speed, don.normalAnimation)
 		}
 	}
+	drawTouch(){
+		if(this.touchEnabled){
+			var ms = this.controller.getElapsedTime()
+			
+			var drumWidth = this.touchDrum.w / this.canvas.scale
+			var drumHeight = this.touchDrum.h / this.canvas.scale
+			if(drumHeight !== this.touchDrumHeight || drumWidth !== this.touchDrumWidth){
+				this.touchDrumWidth = drumWidth
+				this.touchDrumHeight = drumHeight
+				this.touchDrumDiv.style.width = drumWidth + "px"
+				this.touchDrumDiv.style.height = drumHeight + "px"
+			}
+			if(this.touch > ms - 100){
+				if(!this.drumPadding){
+					this.drumPadding = true
+					this.touchDrumImg.style.paddingTop = "1%"
+				}
+			}else if(this.drumPadding){
+				this.drumPadding = false
+				this.touchDrumImg.style.paddingTop = ""
+			}
+		}
+	}
+	ontouch(event){
+		for(let touch of event.changedTouches){
+			event.preventDefault()
+			var scale = this.canvas.scale
+			var pageX = touch.pageX * scale
+			var pageY = touch.pageY * scale
+			
+			var c = this.touchCircle
+			var pi = Math.PI
+			var inPath = () => this.ctx.isPointInPath(pageX, pageY)
+			
+			this.ctx.beginPath()
+			this.ctx.ellipse(c.x, c.y, c.rx, c.ry, 0, pi, 0)
+			
+			if(inPath()){
+				if(pageX < this.winW / 2){
+					this.touchNote("don_l")
+				}else{
+					this.touchNote("don_r")
+				}
+			}else{
+				if(pageX < this.winW / 2){
+					this.touchNote("ka_l")
+				}else{
+					this.touchNote("ka_r")
+				}
+			}
+		}
+	}
+	touchNote(note){
+		var keyboard = this.controller.keyboard
+		var kbd = keyboard.getBindings()
+		var ms = this.controller.game.getAccurateTime()
+		this.touch = ms
+		keyboard.setKey(kbd[note], false)
+		keyboard.setKey(kbd[note], true, ms)
+	}
 	onmousemove(event){
 		this.lastMousemove = this.controller.getElapsedTime()
 		this.cursorHidden = false
@@ -832,10 +945,22 @@ class View{
 		pageEvents.mouseRemove(this)
 		if(this.controller.multiplayer === 2){
 			this.canvas.canvas.parentNode.removeChild(this.canvas.canvas)
+		}else{
+			this.cursor.parentNode.removeChild(this.cursor)
 		}
-		this.cursor.parentNode.removeChild(this.cursor)
+		if(this.touchEnabled){
+			pageEvents.remove(this.canvas.canvas, "touchstart")
+			pageEvents.remove(this.touchFullBtn, "click")
+			pageEvents.remove(this.touchPauseBtn, "click")
+			this.gameDiv.classList.remove("touch-visible")
+			delete this.touchDrumDiv
+			delete this.touchDrumImg
+			delete this.touchFullBtn
+			delete this.touchPauseBtn
+		}
 		delete this.pauseMenu
 		delete this.cursor
+		delete this.gameDiv
 		delete this.canvas
 		delete this.ctx
 	}

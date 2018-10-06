@@ -1,5 +1,7 @@
 class SongSelect{
-	constructor(fromTutorial, fadeIn){
+	constructor(fromTutorial, fadeIn, touchEnabled){
+		this.touchEnabled = touchEnabled
+		
 		loader.changePage("songselect")
 		this.canvas = document.getElementById("song-sel-canvas")
 		this.ctx = this.canvas.getContext("2d")
@@ -109,12 +111,16 @@ class SongSelect{
 			action: "random",
 			category: "ランダム"
 		})
-		this.songs.push({
-			title: "あそびかた説明",
-			skin: this.songSkin.tutorial,
-			action: "tutorial",
-			category: "ランダム"
-		})
+		if(touchEnabled){
+			fromTutorial = false
+		}else{
+			this.songs.push({
+				title: "あそびかた説明",
+				skin: this.songSkin.tutorial,
+				action: "tutorial",
+				category: "ランダム"
+			})
+		}
 		this.songs.push({
 			title: "もどる",
 			skin: this.songSkin.back,
@@ -141,16 +147,16 @@ class SongSelect{
 		this.selectedDiff = 0
 		assets.sounds["bgm_songsel"].playLoop(0.1, false, 0, 1.442, 3.506)
 		
-		if(fromTutorial || !("selectedSong" in localStorage)){
-			this.selectedSong = this.songs.findIndex(song => song.action === "tutorial")
-			this.playBgm(true)
-		}else{
+		if(touchEnabled || !fromTutorial && "selectedSong" in localStorage){
 			if("selectedSong" in localStorage){
 				this.selectedSong = Math.min(Math.max(0, localStorage["selectedSong"] |0), this.songs.length)
 			}
 			assets.sounds["song-select"].play()
 			snd.musicGain.fadeOut()
 			this.playBgm(false)
+		}else{
+			this.selectedSong = this.songs.findIndex(song => song.action === "tutorial")
+			this.playBgm(true)
 		}
 		if("selectedDiff" in localStorage){
 			this.selectedDiff = Math.min(Math.max(0, localStorage["selectedDiff"] |0), 4)
@@ -197,6 +203,12 @@ class SongSelect{
 		pageEvents.keyAdd(this, "all", "down", this.keyDown.bind(this))
 		pageEvents.add(this.canvas, "mousemove", this.mouseMove.bind(this))
 		pageEvents.add(this.canvas, "mousedown", this.mouseDown.bind(this))
+		pageEvents.add(this.canvas, "touchstart", this.mouseDown.bind(this))
+		if(touchEnabled){
+			this.touchFullBtn = document.getElementById("touch-full-btn")
+			this.touchFullBtn.style.display = "block"
+			pageEvents.add(this.touchFullBtn, "click", toggleFullscreen)
+		}
 	}
 	
 	keyDown(event, code){
@@ -256,10 +268,21 @@ class SongSelect{
 	}
 	
 	mouseDown(event){
-		if(event.which !== 1){
-			return
+		if(event.type === "mousedown"){
+			if(event.which !== 1){
+				return
+			}
+			var mouse = this.mouseOffset(event.offsetX, event.offsetY)
+			var shift = event.shiftKey
+			var ctrl = event.ctrlKey
+			var touch = false
+		}else{
+			event.preventDefault()
+			var mouse = this.mouseOffset(event.touches[0].pageX, event.touches[0].pageY)
+			var shift = false
+			var ctrl = false
+			var touch = true
 		}
-		var mouse = this.mouseOffset(event)
 		if(this.state.screen === "song"){
 			var moveBy = this.songSelMouse(mouse.x, mouse.y)
 			if(moveBy === 0){
@@ -276,12 +299,12 @@ class SongSelect{
 			){
 				this.toSongSelect()
 			}else if(moveBy !== null){
-				this.toLoadSong(moveBy - 1, event.shiftKey, event.ctrlKey)
+				this.toLoadSong(moveBy - 1, shift, ctrl, touch)
 			}
 		}
 	}
 	mouseMove(event){
-		var mouse = this.mouseOffset(event)
+		var mouse = this.mouseOffset(event.offsetX, event.offsetY)
 		var moveTo = null
 		if(this.state.screen === "song"){
 			var moveTo = this.songSelMouse(mouse.x, mouse.y)
@@ -298,13 +321,16 @@ class SongSelect{
 		}
 		this.pointer(moveTo !== null)
 	}
-	mouseOffset(event){
+	mouseOffset(offsetX, offsetY){
 		return {
-			x: (event.offsetX * this.pixelRatio - this.winW / 2) / this.ratio + 1024 / 2,
-			y: (event.offsetY * this.pixelRatio - this.winH / 2) / this.ratio + 720 / 2
+			x: (offsetX * this.pixelRatio - this.winW / 2) / this.ratio + 1024 / 2,
+			y: (offsetY * this.pixelRatio - this.winH / 2) / this.ratio + 720 / 2
 		}
 	}
 	pointer(enabled){
+		if(!this.canvas){
+			return
+		}
 		if(enabled && this.state.hasPointer === false){
 			this.canvas.style.cursor = "pointer"
 			this.state.hasPointer = true
@@ -425,7 +451,7 @@ class SongSelect{
 			assets.sounds["cancel"].play()
 		}
 	}
-	toLoadSong(difficulty, shift, ctrl){
+	toLoadSong(difficulty, shift, ctrl, touch){
 		this.clean()
 		var selectedSong = this.songs[this.selectedSong]
 		assets.sounds["diffsel"].stop()
@@ -439,7 +465,7 @@ class SongSelect{
 			"folder": selectedSong.id,
 			"difficulty": this.difficultyId[difficulty],
 			"category": selectedSong.category
-		}, shift, ctrl)
+		}, shift, ctrl, touch)
 	}
 	toTitleScreen(){
 		assets.sounds["cancel"].play()
@@ -1123,6 +1149,11 @@ class SongSelect{
 		pageEvents.keyRemove(this, "all")
 		pageEvents.remove(this.canvas, "mousemove")
 		pageEvents.remove(this.canvas, "mousedown")
+		pageEvents.remove(this.canvas, "touchstart")
+		if(this.touchEnabled){
+			pageEvents.remove(this.touchFullBtn, "click")
+			delete this.touchFullBtn
+		}
 		delete this.ctx
 		delete this.canvas
 	}

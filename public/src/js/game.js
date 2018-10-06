@@ -289,10 +289,10 @@ class Game{
 				this.controller.displayResults()
 				this.musicFadeOut++
 			}else if(this.musicFadeOut === 3 && (ms >= started + 9600 && ms >= this.controller.mainAsset.duration * 1000 + 1250)){
+				this.controller.clean()
 				if(this.controller.scoresheet){
 					this.controller.scoresheet.startRedraw()
 				}
-				this.controller.clean()
 			}
 		}
 	}
@@ -339,21 +339,23 @@ class Game{
 			this.started = true
 			this.sndTime = this.startDate - snd.buffer.getTime() * 1000
 		}else if(ms < 0 || ms >= 0 && this.started){
-			this.elapsedTime = this.getAccurateTime(ms >= 0)
+			var currentDate = +new Date
+			if(!this.controller.touchEnabled){
+				var sndTime = currentDate - snd.buffer.getTime() * 1000
+				var lag = sndTime - this.sndTime
+				if(Math.abs(lag) >= 50){
+					this.startDate += lag
+					this.sndTime = sndTime
+				}
+			}
+			this.elapsedTime = currentDate - this.startDate
 		}
 	}
 	getAccurateTime(){
 		if(this.isPaused()){
 			return this.elapsedTime
 		}else{
-			var currentDate = +new Date
-			var sndTime = currentDate - snd.buffer.getTime() * 1000
-			var lag = sndTime - this.sndTime
-			if(Math.abs(lag) >= 50){
-				this.startDate += lag
-				this.sndTime = sndTime
-			}
-			return currentDate - this.startDate
+			return (+new Date) - this.startDate
 		}
 	}
 	getCircles(){

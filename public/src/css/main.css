@@ -137,8 +137,9 @@ body{
 	border: 5px black solid;
 	border-radius: 10px;
 	height: 65%;
-	width: 50%;
+	max-width: 800px;
 	padding: 20px;
+	margin: 8px;
 	font-size: 16pt;
 	position: relative;
 }
@@ -213,4 +214,13 @@ kbd{
 	bottom: 0;
 	left: 0;
 	margin: auto;
+}
+#song-select #touch-full-btn{
+	display: none;
+	position: absolute;
+	top: 0;
+	right: 0;
+	width: 12.5vmin;
+	height: 12.5vmin;
+	opacity: 0.5;
 }

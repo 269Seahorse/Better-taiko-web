@@ -51,3 +51,45 @@
 	pointer-events: none;
 	z-index: 1;
 }
+#touch-drum{
+	display: none;
+	position: absolute;
+	right: 0;
+	bottom: 0;
+	left: 0;
+	width: 50%;
+	height: 50%;
+	text-align: center;
+	margin: auto;
+}
+#touch-drum-img{
+	width: 100%;
+}
+#touch-buttons{
+	display: none;
+	position: absolute;
+	top: 6.5vh;
+	right: 2vh;
+	opacity: 0.5;
+	z-index: 5;
+}
+#touch-buttons img{
+	width: 12.5vmin;
+	height: 12.5vmin;
+}
+.touch-visible #touch-drum,
+.touch-visible #touch-buttons{
+	display: block;
+}
+.touch-visible .window{
+	width: 80vmin;
+	height: 53vmin;
+}
+.touch-visible #pause-menu .window button{
+	font-size: 5vmin;
+}
+.touch-visible #pause-menu .window button.selected{
+	color: #000;
+	background: #fff;
+	border-color: #ae7a26;
+}

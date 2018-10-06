@@ -29,8 +29,6 @@ class Scoresheet{
 		this.redrawRunning = true
 		this.redrawBind = this.redraw.bind(this)
 		this.redraw()
-		pageEvents.keyAdd(this, "all", "down", this.keyDown.bind(this))
-		pageEvents.add(this.canvas, "mousedown", this.mouseDown.bind(this))
 		
 		assets.sounds["results"].play()
 		assets.sounds["bgm_result"].playLoop(3, false, 0, 0.847, 17.689)
@@ -56,8 +54,15 @@ class Scoresheet{
 		}
 	}
 	mouseDown(event){
-		if(event.which !== 1){
-			return
+		if(event.type === "touchstart"){
+			event.preventDefault()
+			this.canvas.style.cursor = ""
+			this.state.pointerLocked = true
+		}else{
+			this.state.pointerLocked = false
+			if(event.which !== 1){
+				return
+			}
 		}
 		this.toNext()
 	}
@@ -81,6 +86,10 @@ class Scoresheet{
 		requestAnimationFrame(this.redrawBind)
 		this.winW = null
 		this.winH = null
+		
+		pageEvents.keyAdd(this, "all", "down", this.keyDown.bind(this))
+		pageEvents.add(this.canvas, "mousedown", this.mouseDown.bind(this))
+		pageEvents.add(this.canvas, "touchstart", this.mouseDown.bind(this))
 	}
 	
 	redraw(){
@@ -218,7 +227,9 @@ class Scoresheet{
 		if(elapsed >= 0){
 			if(this.state.hasPointer === 0){
 				this.state.hasPointer = 1
-				this.canvas.style.cursor = "pointer"
+				if(!this.state.pointerLocked){
+					this.canvas.style.cursor = "pointer"
+				}
 			}
 			ctx.save()
 			ctx.setTransform(1, 0, 0, 1, 0, 0)
@@ -592,7 +603,7 @@ class Scoresheet{
 			
 			if(elapsed >= 1000){
 				this.clean()
-				this.controller.songSelection(true)
+				this.controller.songSelection(true, false, this.state.pointerLocked)
 			}
 		}
 		
@@ -643,6 +654,7 @@ class Scoresheet{
 		this.redrawRunning = false
 		pageEvents.keyRemove(this, "all")
 		pageEvents.remove(this.canvas, "mousedown")
+		pageEvents.remove(this.canvas, "touchstart")
 		delete this.ctx
 		delete this.canvas
 	}

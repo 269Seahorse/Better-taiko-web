@@ -4,18 +4,26 @@ class Tutorial{
 		loader.changePage("tutorial")
 		assets.sounds["bgm_setsume"].playLoop(0.1, false, 0, 1.054, 16.054)
 		this.endButton = document.getElementById("tutorial-end-button")
-		pageEvents.once(this.endButton, "click").then(this.onEnd.bind(this))
+		
+		pageEvents.once(this.endButton, "mousedown").then(this.onEnd.bind(this))
+		pageEvents.once(this.endButton, "touchstart").then(this.onEnd.bind(this))
 		pageEvents.keyOnce(this, 13, "down").then(this.onEnd.bind(this))
+		
 		this.gamepad = new Gamepad({
 			"confirm": ["start", "b"]
 		}, this.onEnd.bind(this))
 	}
-	onEnd(){
+	onEnd(event){
+		var touched = false
+		if(event && event.type === "touchstart"){
+			event.preventDefault()
+			touched = true
+		}
 		this.clean()
 		assets.sounds["don"].play()
 		localStorage.setItem("tutorial", "true")
 		setTimeout(() => {
-			new SongSelect(this.fromSongSel)
+			new SongSelect(this.fromSongSel, false, touched)
 		}, 500)
 	}
 	clean(){

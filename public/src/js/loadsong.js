@@ -1,8 +1,9 @@
 class loadSong{
-	constructor(selectedSong, autoPlayEnabled, multiplayer){
+	constructor(selectedSong, autoPlayEnabled, multiplayer, touchEnabled){
 		this.selectedSong = selectedSong
-		this.multiplayer = multiplayer
 		this.autoPlayEnabled = autoPlayEnabled
+		this.multiplayer = multiplayer
+		this.touchEnabled = touchEnabled
 		loader.changePage("loadsong")
 		this.run()
 	}
@@ -81,7 +82,7 @@ class loadSong{
 				}else if(event.type === "gamestart"){
 					this.clean()
 					loader.changePage("game")
-					var taikoGame1 = new Controller(this.selectedSong, this.songData, false, 1)
+					var taikoGame1 = new Controller(this.selectedSong, this.songData, false, 1, this.touchEnabled)
 					var taikoGame2 = new Controller(this.selectedSong2, this.song2Data, true, 2)
 					taikoGame1.run(taikoGame2)
 				}
@@ -93,7 +94,7 @@ class loadSong{
 		}else{
 			this.clean()
 			loader.changePage("game")
-			var taikoGame = new Controller(this.selectedSong, this.songData, this.autoPlayEnabled)
+			var taikoGame = new Controller(this.selectedSong, this.songData, this.autoPlayEnabled, false, this.touchEnabled)
 			taikoGame.run()
 		}
 	}
