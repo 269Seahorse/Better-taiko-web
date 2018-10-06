@@ -874,7 +874,7 @@ class View{
 				this.touchDrumDiv.style.width = drumWidth + "px"
 				this.touchDrumDiv.style.height = drumHeight + "px"
 			}
-			if(this.touch > ms - 150){
+			if(this.touch > ms - 100){
 				if(!this.drumPadding){
 					this.drumPadding = true
 					this.touchDrumImg.style.paddingTop = "1%"
