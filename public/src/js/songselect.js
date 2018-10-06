@@ -1,5 +1,7 @@
 class SongSelect{
-	constructor(fromTutorial, fadeIn){
+	constructor(fromTutorial, fadeIn, touchEnabled){
+		this.touchEnabled = touchEnabled
+		
 		loader.changePage("songselect")
 		this.canvas = document.getElementById("song-sel-canvas")
 		this.ctx = this.canvas.getContext("2d")
@@ -198,6 +200,11 @@ class SongSelect{
 		pageEvents.add(this.canvas, "mousemove", this.mouseMove.bind(this))
 		pageEvents.add(this.canvas, "mousedown", this.mouseDown.bind(this))
 		pageEvents.add(this.canvas, "touchstart", this.mouseDown.bind(this))
+		if(touchEnabled){
+			this.touchFullBtn = document.getElementById("touch-full-btn")
+			this.touchFullBtn.style.display = "block"
+			pageEvents.add(this.touchFullBtn, "click", toggleFullscreen)
+		}
 	}
 	
 	keyDown(event, code){
@@ -1135,6 +1142,11 @@ class SongSelect{
 		pageEvents.keyRemove(this, "all")
 		pageEvents.remove(this.canvas, "mousemove")
 		pageEvents.remove(this.canvas, "mousedown")
+		pageEvents.remove(this.canvas, "touchstart")
+		if(this.touchEnabled){
+			pageEvents.remove(this.touchFullBtn, "click")
+			delete this.touchFullBtn
+		}
 		delete this.ctx
 		delete this.canvas
 	}

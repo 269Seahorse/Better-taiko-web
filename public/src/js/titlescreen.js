@@ -15,7 +15,11 @@ class Titlescreen{
 			}
 		})
 	}
-	onPressed(){
+	onPressed(event){
+		if(event && event.type === "touchstart"){
+			event.preventDefault()
+			this.touched = true
+		}
 		this.titleScreen.style.cursor = "auto"
 		this.clean()
 		assets.sounds["don"].play()
@@ -25,7 +29,7 @@ class Titlescreen{
 		if(localStorage.getItem("tutorial") !== "true"){
 			new Tutorial()
 		}else{
-			new SongSelect()
+			new SongSelect(false, false, this.touched)
 		}
 	}
 	clean(){

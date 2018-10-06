@@ -58,8 +58,11 @@ class Scoresheet{
 			event.preventDefault()
 			this.canvas.style.cursor = ""
 			this.state.pointerLocked = true
-		}else if(event.which !== 1){
-			return
+		}else{
+			this.state.pointerLocked = false
+			if(event.which !== 1){
+				return
+			}
 		}
 		this.toNext()
 	}
@@ -600,7 +603,7 @@ class Scoresheet{
 			
 			if(elapsed >= 1000){
 				this.clean()
-				this.controller.songSelection(true)
+				this.controller.songSelection(true, false, this.state.pointerLocked)
 			}
 		}
 		

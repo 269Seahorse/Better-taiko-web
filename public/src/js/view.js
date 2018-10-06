@@ -51,32 +51,19 @@ class View{
 		this.beatInterval = this.controller.getSongData().beatInfo.beatInterval
 		this.assets = new ViewAssets(this)
 		
-		this.touch = {
-			don_l: -Infinity,
-			don_r: -Infinity,
-			don_c: -Infinity,
-			ka_l: -Infinity,
-			ka_r: -Infinity,
-			ka_c: -Infinity,
-			cursor: {
-				ms: -Infinity,
-				x: 0,
-				y: 0
-			}
-		}
+		this.touch = -Infinity
 		
 		if(this.controller.touchEnabled){
 			this.touchEnabled = true
 			
-			this.touchBgDiv = document.getElementById("touch-bg")
-			this.touchBgBlueDiv = document.getElementById("touch-bg-blue")
 			this.touchDrumDiv = document.getElementById("touch-drum")
+			this.touchDrumImg = document.getElementById("touch-drum-img")
 			this.gameDiv.classList.add("touch-visible")
 			
 			pageEvents.add(this.canvas.canvas, "touchstart", this.ontouch.bind(this))
 			
 			this.touchFullBtn = document.getElementById("touch-full-btn")
-			pageEvents.add(this.touchFullBtn, "click", this.toggleFullscreen)
+			pageEvents.add(this.touchFullBtn, "click", toggleFullscreen)
 			
 			this.touchPauseBtn = document.getElementById("touch-pause-btn")
 			pageEvents.add(this.touchPauseBtn, "click", () => {
@@ -189,13 +176,11 @@ class View{
 			}
 		})()
 		this.touchCircle = (() => {
-			var padTop = this.touchDrum.h * 0.062
-			var padLeft = this.touchDrum.h * 0.05
 			return {
 				x: this.winW / 2,
-				y: this.winH + padTop,
-				rx: this.touchDrum.w / 2 - padLeft * 2,
-				ry: this.touchDrum.h
+				y: this.winH + this.touchDrum.h * 0.1,
+				rx: this.touchDrum.w / 2 - this.touchDrum.h * 0.03,
+				ry: this.touchDrum.h * 1.07
 			}
 		})()
 	}
@@ -880,13 +865,7 @@ class View{
 	drawTouch(){
 		if(this.touchEnabled){
 			var ms = this.controller.getElapsedTime()
-			this.ctx.save()
 			
-			var bgHeight = (this.winH - (this.barY + this.barH + 5)) / this.canvas.scale
-			if(bgHeight !== this.touchBgHeight){
-				this.touchBgHeight = bgHeight
-				this.touchBgDiv.style.height = bgHeight + "px"
-			}
 			var drumWidth = this.touchDrum.w / this.canvas.scale
 			var drumHeight = this.touchDrum.h / this.canvas.scale
 			if(drumHeight !== this.touchDrumHeight || drumWidth !== this.touchDrumWidth){
@@ -895,41 +874,15 @@ class View{
 				this.touchDrumDiv.style.width = drumWidth + "px"
 				this.touchDrumDiv.style.height = drumHeight + "px"
 			}
-			
-			var lastKa = this.touch.ka_l > this.touch.ka_r ? this.touch.ka_l : this.touch.ka_r
-			if(ms < lastKa + 150){
-				if(!this.blueBgShown){
-					this.blueBgShown = true
-					this.touchBgBlueDiv.style.opacity = 0.5
+			if(this.touch > ms - 150){
+				if(!this.drumPadding){
+					this.drumPadding = true
+					this.touchDrumImg.style.paddingTop = "1%"
 				}
-			}else if(this.blueBgShown){
-				this.blueBgShown = false
-				this.touchBgBlueDiv.style.opacity = 0
+			}else if(this.drumPadding){
+				this.drumPadding = false
+				this.touchDrumImg.style.paddingTop = ""
 			}
-			
-			var c = this.touchCircle
-			var pi = Math.PI
-			var lastDon = this.touch.don_l > this.touch.don_r ? this.touch.don_l : this.touch.don_r
-			if(lastDon > ms - 150){
-				this.ctx.fillStyle = "rgba(239, 86, 51, 0.5)"
-				this.ctx.beginPath()
-				this.ctx.ellipse(c.x, c.y, c.rx * 0.9, c.ry * 0.9, 0, pi, 0)
-				this.ctx.fill()
-			}
-			if(this.touch.don_c > ms - 150){
-				this.ctx.beginPath()
-				this.ctx.ellipse(c.x, c.y, c.rx * 0.6, c.ry * 0.6, 0, pi, 0)
-				this.ctx.fill()
-			}
-			if(this.touch.ka_c > ms - 150){
-				this.ctx.fillStyle = "rgba(33, 191, 211, 0.5)"
-				this.ctx.beginPath()
-				this.ctx.ellipse(c.x, c.y, c.rx * 1.3, c.ry * 1.3, 0, pi, 0)
-				this.ctx.ellipse(c.x, c.y, c.rx * 0.9, c.ry * 0.9, 0, 0, pi, true)
-				this.ctx.fill()
-			}
-			
-			this.ctx.restore()
 		}
 	}
 	ontouch(event){
@@ -939,43 +892,24 @@ class View{
 			var pageX = touch.pageX * scale
 			var pageY = touch.pageY * scale
 			
-			this.touch.cursor = {
-				ms: this.controller.getElapsedTime(),
-				x: pageX,
-				y: pageY
-			}
-			
 			var c = this.touchCircle
 			var pi = Math.PI
 			var inPath = () => this.ctx.isPointInPath(pageX, pageY)
 			
 			this.ctx.beginPath()
-			this.ctx.ellipse(c.x, c.y, c.rx * 0.6, c.ry * 0.6, 0, pi, 0)
+			this.ctx.ellipse(c.x, c.y, c.rx, c.ry, 0, pi, 0)
 			
 			if(inPath()){
-				this.touchNote("don_c")
-			}else{
-				this.ctx.beginPath()
-				this.ctx.ellipse(c.x, c.y, c.rx * 0.9, c.ry * 0.9, 0, pi, 0)
-				
-				if(inPath()){
-					if(pageX < this.winW / 2){
-						this.touchNote("don_l")
-					}else{
-						this.touchNote("don_r")
-					}
+				if(pageX < this.winW / 2){
+					this.touchNote("don_l")
 				}else{
-					
-					this.ctx.beginPath()
-					this.ctx.ellipse(c.x, c.y, c.rx * 1.3, c.ry * 1.3, 0, pi, 0)
-					
-					if(inPath()){
-						this.touchNote("ka_c")
-					}else if(pageX < this.winW / 2){
-						this.touchNote("ka_l")
-					}else{
-						this.touchNote("ka_r")
-					}
+					this.touchNote("don_r")
+				}
+			}else{
+				if(pageX < this.winW / 2){
+					this.touchNote("ka_l")
+				}else{
+					this.touchNote("ka_r")
 				}
 			}
 		}
@@ -984,39 +918,9 @@ class View{
 		var keyboard = this.controller.keyboard
 		var kbd = keyboard.getBindings()
 		var ms = this.controller.game.getAccurateTime()
-		this.touch[note] = ms
-		if(note === "don_c"){
-			this.touchNote("don_l")
-			this.touchNote("don_r")
-		}else if(note === "ka_c"){
-			this.touchNote("ka_l")
-			this.touchNote("ka_r")
-		}else{
-			keyboard.setKey(kbd[note], false)
-			keyboard.setKey(kbd[note], true, ms)
-		}
-	}
-	toggleFullscreen(){
-		var root = document.documentElement
-		if("requestFullscreen" in root){
-			if(document.fullscreenElement){
-				document.exitFullscreen()
-			}else{
-				root.requestFullscreen()
-			}
-		}else if("webkitRequestFullscreen" in root){
-			if(document.webkitFullscreenElement){
-				document.webkitExitFullscreen()
-			}else{
-				root.webkitRequestFullscreen()
-			}
-		}else if("mozRequestFullScreen" in root){
-			if(document.mozFullScreenElement){
-				document.mozCancelFullScreen()
-			}else{
-				root.mozRequestFullScreen()
-			}
-		}
+		this.touch = ms
+		keyboard.setKey(kbd[note], false)
+		keyboard.setKey(kbd[note], true, ms)
 	}
 	onmousemove(event){
 		this.lastMousemove = this.controller.getElapsedTime()
@@ -1049,10 +953,10 @@ class View{
 			pageEvents.remove(this.touchFullBtn, "click")
 			pageEvents.remove(this.touchPauseBtn, "click")
 			this.gameDiv.classList.remove("touch-visible")
-			delete this.touchBgDiv
+			delete this.touchDrumDiv
+			delete this.touchDrumImg
 			delete this.touchFullBtn
 			delete this.touchPauseBtn
-			delete this.touchBgBlueDiv
 		}
 		delete this.pauseMenu
 		delete this.cursor

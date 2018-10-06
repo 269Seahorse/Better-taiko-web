@@ -51,50 +51,33 @@
 	pointer-events: none;
 	z-index: 1;
 }
-#touch-bg{
+#touch-drum{
 	display: none;
 	position: absolute;
 	right: 0;
 	bottom: 0;
 	left: 0;
+	width: 50%;
 	height: 50%;
-	background: url(/assets/img/touch_bg.png) center bottom;
-	background-size: cover;
-	overflow: hidden;
-}
-#touch-bg-blue{
-	position: absolute;
-	top: 0;
-	right: 0;
-	bottom: 0;
-	left: 0;
-	background: url(/assets/img/touch_bg_blue.png) center bottom;
-	background-size: cover;
-	opacity: 0;
-}
-#touch-drum{
-	position: absolute;
-	right: 0;
-	bottom: 0;
-	left: 0;
 	text-align: center;
 	margin: auto;
 }
-#touch-drum img{
+#touch-drum-img{
 	width: 100%;
 }
 #touch-buttons{
 	display: none;
 	position: absolute;
-	top: 7vh;
+	top: 6.5vh;
 	right: 2vh;
 	opacity: 0.5;
 	z-index: 5;
 }
 #touch-buttons img{
-	width: 12vh;
+	width: 12.5vmin;
+	height: 12.5vmin;
 }
-.touch-visible #touch-bg,
+.touch-visible #touch-drum,
 .touch-visible #touch-buttons{
 	display: block;
 }

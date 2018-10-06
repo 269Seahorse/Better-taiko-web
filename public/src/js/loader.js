@@ -1,5 +1,6 @@
 class Loader{
-	constructor(){
+	constructor(callback){
+		this.callback = callback
 		this.loadedAssets = 0
 		this.assetsDiv = document.getElementById("assets")
 		this.ajax("src/views/loader.html").then(this.run.bind(this))
@@ -83,7 +84,7 @@ class Loader{
 		
 		Promise.all(this.promises).then(() => {
 			this.clean()
-			new Titlescreen()
+			this.callback()
 		}, this.errorMsg.bind(this))
 	}
 	loadSound(name, gain){
@@ -132,8 +133,3 @@ class Loader{
 		delete this.promises
 	}
 }
-
-var pageEvents = new PageEvents()
-var loader = new Loader()
-var snd = {}
-var p2

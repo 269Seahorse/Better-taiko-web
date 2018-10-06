@@ -131,7 +131,7 @@ class Controller{
 		if(!fadeIn){
 			this.clean()
 		}
-		new SongSelect(false, fadeIn)
+		new SongSelect(false, fadeIn, this.touchEnabled)
 	}
 	restartSong(){
 		this.clean()

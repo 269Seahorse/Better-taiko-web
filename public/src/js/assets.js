@@ -40,8 +40,6 @@ var assets = {
 		"bg_score_p1.png",
 		"bg_score_p2.png",
 		"badge_auto.png",
-		"touch_bg.png",
-		"touch_bg_blue.png",
 		"touch_drum.png",
 		"touch_pause.png",
 		"touch_fullscreen.png"
