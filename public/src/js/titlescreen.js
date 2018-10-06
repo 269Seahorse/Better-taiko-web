@@ -26,10 +26,10 @@ class Titlescreen{
 		setTimeout(this.goNext.bind(this), 500)
 	}
 	goNext(){
-		if(localStorage.getItem("tutorial") !== "true"){
-			new Tutorial()
-		}else{
+		if(this.touched || localStorage.getItem("tutorial") === "true"){
 			new SongSelect(false, false, this.touched)
+		}else{
+			new Tutorial()
 		}
 	}
 	clean(){

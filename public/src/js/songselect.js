@@ -111,12 +111,16 @@ class SongSelect{
 			action: "random",
 			category: "ランダム"
 		})
-		this.songs.push({
-			title: "あそびかた説明",
-			skin: this.songSkin.tutorial,
-			action: "tutorial",
-			category: "ランダム"
-		})
+		if(touchEnabled){
+			fromTutorial = false
+		}else{
+			this.songs.push({
+				title: "あそびかた説明",
+				skin: this.songSkin.tutorial,
+				action: "tutorial",
+				category: "ランダム"
+			})
+		}
 		this.songs.push({
 			title: "もどる",
 			skin: this.songSkin.back,
@@ -143,16 +147,16 @@ class SongSelect{
 		this.selectedDiff = 0
 		assets.sounds["bgm_songsel"].playLoop(0.1, false, 0, 1.442, 3.506)
 		
-		if(fromTutorial || !("selectedSong" in localStorage)){
-			this.selectedSong = this.songs.findIndex(song => song.action === "tutorial")
-			this.playBgm(true)
-		}else{
+		if(touchEnabled || !fromTutorial && "selectedSong" in localStorage){
 			if("selectedSong" in localStorage){
 				this.selectedSong = Math.min(Math.max(0, localStorage["selectedSong"] |0), this.songs.length)
 			}
 			assets.sounds["song-select"].play()
 			snd.musicGain.fadeOut()
 			this.playBgm(false)
+		}else{
+			this.selectedSong = this.songs.findIndex(song => song.action === "tutorial")
+			this.playBgm(true)
 		}
 		if("selectedDiff" in localStorage){
 			this.selectedDiff = Math.min(Math.max(0, localStorage["selectedDiff"] |0), 4)
@@ -324,6 +328,9 @@ class SongSelect{
 		}
 	}
 	pointer(enabled){
+		if(!this.canvas){
+			return
+		}
 		if(enabled && this.state.hasPointer === false){
 			this.canvas.style.cursor = "pointer"
 			this.state.hasPointer = true
