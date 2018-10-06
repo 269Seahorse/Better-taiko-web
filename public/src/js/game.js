@@ -339,21 +339,23 @@ class Game{
 			this.started = true
 			this.sndTime = this.startDate - snd.buffer.getTime() * 1000
 		}else if(ms < 0 || ms >= 0 && this.started){
-			this.elapsedTime = this.getAccurateTime(ms >= 0)
+			var currentDate = +new Date
+			if(!this.controller.touchEnabled){
+				var sndTime = currentDate - snd.buffer.getTime() * 1000
+				var lag = sndTime - this.sndTime
+				if(Math.abs(lag) >= 50){
+					this.startDate += lag
+					this.sndTime = sndTime
+				}
+			}
+			this.elapsedTime = currentDate - this.startDate
 		}
 	}
 	getAccurateTime(){
 		if(this.isPaused()){
 			return this.elapsedTime
 		}else{
-			var currentDate = +new Date
-			var sndTime = currentDate - snd.buffer.getTime() * 1000
-			var lag = sndTime - this.sndTime
-			if(Math.abs(lag) >= 50){
-				this.startDate += lag
-				this.sndTime = sndTime
-			}
-			return currentDate - this.startDate
+			return (+new Date) - this.startDate
 		}
 	}
 	getCircles(){
