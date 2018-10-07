@@ -498,7 +498,7 @@ class View{
 				}
 			}else if(!circle.isAnimated()){
 				// Start animation to HP bar
-				circle.animate()
+				circle.animate(ms)
 			}
 			if(ms >= circle.ms && !circle.gogoChecked){
 				if(this.gogoTime != circle.gogoTime){
@@ -507,10 +507,12 @@ class View{
 				circle.gogoChecked = true
 			}
 			if(circle.isAnimated()){
-				var animationDuration = 470
-				if(ms <= finishTime + animationDuration){
-					var curveDistance = this.HPBarX + this.HPBarW - this.slotX
-					var bezierPoint = this.calcBezierPoint(circle.getAnimT(), [{
+				var animT = circle.getAnimT()
+				var animationDuration = 400
+				if(ms <= animT + animationDuration){
+					var curveDistance = this.HPBarX + this.HPBarW - this.slotX - this.HPBarColH / 2
+					var animPoint = (ms - animT) / animationDuration
+					var bezierPoint = this.calcBezierPoint(this.easeOut(animPoint), [{
 						x: this.slotX + this.circleSize * 0.4,
 						y: this.circleY - this.circleSize * 0.8
 					}, {
@@ -521,13 +523,9 @@ class View{
 						y: 0
 					}, {
 						x: this.slotX + curveDistance,
-						y: this.HPbarColY
+						y: this.HPbarColY + this.HPBarColH / 2
 					}])
 					this.drawCircle(circle, {x: bezierPoint.x, y: bezierPoint.y})
-					
-					// Update animation frame
-					circle.incAnimT()
-					circle.incFrame()
 				}
 				else{
 					circle.endAnimation()
@@ -547,6 +545,9 @@ class View{
 			}
 		}
 		return data[0]
+	}
+	easeOut(pos){
+		return Math.sin(Math.PI / 2 * pos)
 	}
 	drawCircle(circle, circlePos){
 		var z = this.canvas.scale

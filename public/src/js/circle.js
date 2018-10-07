@@ -31,20 +31,15 @@ class Circle{
 	getLastFrame(){
 		return this.lastFrame
 	}
-	incFrame(){
-		this.lastFrame += 20
-	}
-	animate(){
+	animate(ms){
 		this.animating = true
+		this.animT = ms
 	}
 	isAnimated(){
 		return this.animating
 	}
 	getAnimT(){
 		return this.animT
-	}
-	incAnimT(){
-		this.animT += 0.05
 	}
 	getPlayed(){
 		return this.isPlayed
