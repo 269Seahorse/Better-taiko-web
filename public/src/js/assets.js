@@ -112,6 +112,7 @@ var assets = {
 		"bgm_result.ogg",
 		"bgm_setsume.ogg"
 	],
+	"audioOgg": "note_ka.ogg",
 	"fonts": [
 		"Kozuka",
 		"TnT"

@@ -241,6 +241,7 @@ class Game{
 		this.globalScore.points += score
 	}
 	checkDrumroll(circle){
+		var ms = this.elapsedTime
 		var dai = circle.getType() === "daiDrumroll"
 		var score = 100
 		circle.hit()
@@ -252,14 +253,14 @@ class Game{
 		}
 		var circleAnim = new Circle({
 			id: 0,
-			start: this.elapsedTime,
+			start: ms,
 			type: sound,
 			txt: "",
 			speed: circle.speed,
 			gogoTime: circle.gogoTime
 		})
 		circleAnim.played(score, dai)
-		circleAnim.animate()
+		circleAnim.animate(ms)
 		this.controller.view.drumroll.push(circleAnim)
 		this.globalScore.drumroll++
 		this.globalScore.points += score * (dai ? 2 : 1)
