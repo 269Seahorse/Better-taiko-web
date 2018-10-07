@@ -3,7 +3,7 @@
 		var AudioContext = window.AudioContext || window.webkitAudioContext
 		this.context = new AudioContext()
 		pageEvents.once(window, "click").then(() => {
-			if(this.context.state == "suspended"){
+			if(this.context.state === "suspended"){
 				this.context.resume()
 			}
 		})
@@ -12,7 +12,9 @@
 		return loader.ajax(url, request => {
 			request.responseType = "arraybuffer"
 		}).then(response => {
-			return this.context.decodeAudioData(response)
+			return new Promise((resolve, reject) => {
+				return this.context.decodeAudioData(response, resolve, reject)
+			})
 		}).then(buffer => {
 			return new Sound(gain || {soundBuffer: this}, buffer)
 		})
