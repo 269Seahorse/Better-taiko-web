@@ -18,7 +18,11 @@ class Gamepad{
 			"d": 13,
 			"l": 14,
 			"r": 15,
-			"guide": 16
+			"guide": 16,
+			"lsu": "lsu",
+			"lsr": "lsr",
+			"lsd": "lsd",
+			"lsl": "lsl"
 		}
 		this.btn = {}
 		if(callback){
@@ -33,51 +37,83 @@ class Gamepad{
 		}else{
 			return
 		}
+		
 		var bindings = this.bindings
+		
+		var force = {
+			lsu: false,
+			lsr: false,
+			lsd: false,
+			lsl: false
+		}
+		
+		for(var i = 0; i < gamepads.length; i++){
+			if(gamepads[i]){
+				var axes = gamepads[i].axes
+				if(axes.length >= 2){
+					force.lsl = force.lsl || axes[0] <= -0.5
+					force.lsr = force.lsr || axes[0] >= 0.5
+					force.lsu = force.lsu || axes[1] <= -0.5
+					force.lsd = force.lsd || axes[1] >= 0.5
+				}
+				if(axes.length >= 10){
+					// TaTaCon left D-Pad
+					for(var pov = 0; pov < 8; pov++){
+						if(Math.abs(axes[9] - (pov / 3.5 - 1)) <= 0.01){
+							force.lsu = force.lsu || pov === 7 || pov === 0 || pov === 1
+							force.lsr = force.lsr || pov === 1 || pov === 2 || pov === 3
+							force.lsd = force.lsd || pov === 3 || pov === 4 || pov === 5
+							force.lsl = force.lsl || pov === 5 || pov === 6 || pov === 7
+							break
+						}
+					}
+				}
+			}
+		}
+		
 		for(var i = 0; i < gamepads.length; i++){
 			if(gamepads[i]){
 				this.toRelease = {}
 				for(var bind in bindings){
 					this.toRelease[bind] = bindings[bind].length
 				}
-				for(var btnName = 0; btnName <= 16; btnName++){
-					buttonSearch: {
-						for(var bind in bindings){
-							for(var name in bindings[bind]){
-								if(btnName === this.b[bindings[bind][name]]){
-									this.checkButton(gamepads, btnName, bind, callback)
-									break buttonSearch
-								}
-							}
-						}
+				for(var bind in bindings){
+					for(var name in bindings[bind]){
+						var bindName = bindings[bind][name]
+						this.checkButton(gamepads, this.b[bindName], bind, callback, force[bindName])
 					}
 				}
 				break
 			}
 		}
 	}
-	checkButton(gamepads, btnName, keyCode, callback){
+	checkButton(gamepads, btnName, keyCode, callback, force){
 		var button = false
 		
-		for(var i = 0; i < gamepads.length; i++){
-			if(gamepads[i]){
-				var btn = gamepads[i].buttons[btnName]
-				if(btn){
-					var btnPressed = btn.pressed || btn.value >= 0.5
-					if(btnPressed){
-						button = btnPressed
+		if(typeof force === "undefined"){
+			for(var i = 0; i < gamepads.length; i++){
+				if(gamepads[i]){
+					var btn = gamepads[i].buttons[btnName]
+					if(btn){
+						var btnPressed = btn.pressed || btn.value >= 0.5
+						if(btnPressed){
+							button = btnPressed
+						}
 					}
 				}
 			}
+			
+			var pressed = !this.btn[btnName] && button
+			var released = this.btn[btnName] && !button
+		}else{
+			var pressed = !this.btn[btnName] && force
+			var released = this.btn[btnName] && !force
 		}
-		
-		var pressed = !this.btn[btnName] && button
-		var released = this.btn[btnName] && !button
 		
 		if(pressed){
 			this.btn[btnName] = true
 		}else if(released){
-			delete this.btn[btnName]
+			this.btn[btnName] = false
 		}
 		
 		if(pressed){
