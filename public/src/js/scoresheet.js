@@ -23,7 +23,7 @@ class Scoresheet{
 		this.draw = new CanvasDraw()
 		
 		this.gamepad = new Gamepad({
-			"13": ["a", "b", "start"]
+			"13": ["a", "b", "start", "ls", "rs"]
 		})
 		
 		this.redrawRunning = true

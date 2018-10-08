@@ -7,9 +7,8 @@ class Titlescreen{
 		pageEvents.once(this.titleScreen, "touchstart").then(this.onPressed.bind(this))
 		assets.sounds["title"].play()
 		this.gamepad = new Gamepad({
-			"start": ["b", "x", "y", "start"],
-			"a": ["a"]
-		}, (pressed, key) => {
+			"start": ["a", "b", "x", "y", "start", "ls", "rs"]
+		}, pressed => {
 			if(pressed){
 				this.onPressed()
 			}
