@@ -189,8 +189,8 @@ class SongSelect{
 		this.gamepad = new Gamepad({
 			"13": ["b", "start", "ls", "rs"],
 			"8": ["a"],
-			"37": ["l", "lb", "lt"],
-			"39": ["r", "rb", "rt"],
+			"37": ["l", "lb", "lt", "lsl"],
+			"39": ["r", "rb", "rt", "lsr"],
 			"ctrl": ["y"],
 			"shift": ["x"]
 		})
