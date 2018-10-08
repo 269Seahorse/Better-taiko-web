@@ -24,8 +24,8 @@ class Keyboard{
 		}
 		
 		var gameBtn = {}
-		gameBtn[this.kbd["don_l"]] = ["u", "d", "l", "r"]
-		gameBtn[this.kbd["don_r"]] = ["a", "b", "x", "y"]
+		gameBtn[this.kbd["don_l"]] = ["u", "d", "l", "r", "ls"]
+		gameBtn[this.kbd["don_r"]] = ["a", "b", "x", "y", "rs"]
 		gameBtn[this.kbd["ka_l"]] = ["lb", "lt"]
 		gameBtn[this.kbd["ka_r"]] = ["rb", "rt"]
 		this.gamepad = new Gamepad(gameBtn)
@@ -33,7 +33,7 @@ class Keyboard{
 		var menuBtn = {
 			"cancel": ["a"],
 		}
-		menuBtn[this.kbd["confirm"]] = ["b"]
+		menuBtn[this.kbd["confirm"]] = ["b", "ls", "rs"]
 		menuBtn[this.kbd["previous"]] = ["u", "l", "lb", "lt"],
 		menuBtn[this.kbd["next"]] = ["d", "r", "rb", "rt"]
 		menuBtn[this.kbd["pause"]] = ["start"]

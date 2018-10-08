@@ -11,7 +11,7 @@ class Loader{
 		this.screen.innerHTML = page
 		this.loaderPercentage = document.querySelector("#loader .percentage")
 		this.loaderProgress = document.querySelector("#loader .progress")
-			
+		
 		snd.buffer = new SoundBuffer()
 		snd.musicGain = snd.buffer.createGain()
 		snd.sfxGain = snd.buffer.createGain()

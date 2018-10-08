@@ -10,7 +10,7 @@ class Tutorial{
 		pageEvents.keyOnce(this, 13, "down").then(this.onEnd.bind(this))
 		
 		this.gamepad = new Gamepad({
-			"confirm": ["start", "b"]
+			"confirm": ["start", "b", "ls", "rs"]
 		}, this.onEnd.bind(this))
 	}
 	onEnd(event){
