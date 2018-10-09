@@ -325,7 +325,7 @@ class View{
 			this.ctx.strokeStyle = "#000"
 			this.ctx.lineWidth = fontSize / 10
 			var glyph = this.ctx.measureText("0").width
-			var comboText = this.controller.getCombo().toString().split("")
+			var comboText = comboCount.toString().split("")
 			for(var i in comboText){
 				var textX = comboX + glyph * (i - (comboText.length - 1) / 2)
 				if(comboCount >= 100){
@@ -673,7 +673,7 @@ class View{
 			this.diffX, this.diffY,
 			this.diffW, this.diffH
 		)
-		if(this.controller.autoPlayEnabled){
+		if(this.controller.autoPlayEnabled && !this.controller.multiplayer){
 			this.ctx.drawImage(assets.image["badge_auto"],
 				this.diffX + this.diffW * 0.71, this.diffY + this.diffH * 0.01,
 				this.diffH * 0.3, this.diffH * 0.3

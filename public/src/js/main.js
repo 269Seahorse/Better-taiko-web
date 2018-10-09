@@ -24,6 +24,7 @@ function toggleFullscreen(){
 var pageEvents = new PageEvents()
 var snd = {}
 var p2
+var disableBlur = false
 var loader = new Loader(() => {
 	new Titlescreen()
 })
