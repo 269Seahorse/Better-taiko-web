@@ -34,8 +34,8 @@ class Keyboard{
 			"cancel": ["a"],
 		}
 		menuBtn[this.kbd["confirm"]] = ["b", "ls", "rs"]
-		menuBtn[this.kbd["previous"]] = ["u", "l", "lb", "lt"],
-		menuBtn[this.kbd["next"]] = ["d", "r", "rb", "rt"]
+		menuBtn[this.kbd["previous"]] = ["u", "l", "lb", "lt", "lsu", "lsl"],
+		menuBtn[this.kbd["next"]] = ["d", "r", "rb", "rt", "lsd", "lsr"]
 		menuBtn[this.kbd["pause"]] = ["start"]
 		this.gamepadMenu = new Gamepad(menuBtn)
 		

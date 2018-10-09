@@ -24,7 +24,7 @@
 	height: auto;
 }
 .click-to-continue{
-	position:absolute;
+	position: absolute;
 	bottom: 10%;
 	color: #fff;
 	font-size: 8vmin;
@@ -34,6 +34,8 @@
 }
 .click-to-continue::before{
 	-webkit-text-stroke: 0.25em #f00;
-	filter: blur(0.3vmin);
 	left: auto;
+}
+#screen:not(.disable-blur) .click-to-continue::before{
+	filter: blur(0.3vmin);
 }

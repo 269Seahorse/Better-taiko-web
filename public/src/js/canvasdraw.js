@@ -95,10 +95,13 @@
 		
 		ctx.save()
 		
-		ctx.shadowColor = "rgba(0, 0, 0, 0.5)"
-		ctx.shadowBlur = 10
-		ctx.shadowOffsetX = 5
-		ctx.shadowOffsetY = 5
+		this.shadow({
+			ctx: ctx,
+			fill: "rgba(0, 0, 0, 0.5)",
+			blur: 10,
+			x: 5,
+			y: 5
+		})
 		ctx.fillStyle = "#000"
 		ctx.fillRect(x, y, w, h)
 		
@@ -454,11 +457,14 @@
 				action = "fillText"
 			}
 			if(layer.shadow){
-				ctx.save()
-				ctx.shadowOffsetX = layer.shadow[0]
-				ctx.shadowOffsetY = layer.shadow[1]
-				ctx.shadowBlur = layer.shadow[2]
-				ctx.shadowColor = "rgba(0, 0, 0, " + (1 / (layer.shadow[3] || 2)) + ")"
+				ctx.save() 
+				this.shadow({
+					ctx: ctx,
+					fill: "rgba(0, 0, 0, " + (1 / (layer.shadow[3] || 2)) + ")",
+					blur: layer.shadow[2],
+					x: layer.shadow[0],
+					y: layer.shadow[1]
+				})
 			}
 			var offsetX = 0
 			for(let symbol of drawn){
@@ -625,8 +631,11 @@
 		ctx.save()
 		ctx.fillStyle = config.songSel ? "#fff" : "#f72568"
 		if(config.songSel){
-			ctx.shadowColor = "#fff"
-			ctx.shadowBlur = 10
+			this.shadow({
+				ctx: ctx,
+				fill: "#fff",
+				blur: 10
+			})
 			ctx.translate(config.x - 9, config.y - 9)
 		}else{
 			ctx.translate(config.x - 10.5, config.y - 9.5)
@@ -702,7 +711,9 @@
 		ctx.save()
 		ctx.strokeStyle = "#fff"
 		ctx.lineWidth = 35
-		ctx.filter = "blur(1.5px)"
+		if(!disableBlur){
+			ctx.filter = "blur(1.5px)"
+		}
 		ctx.stroke(this.crownPath)
 		ctx.restore()
 		
@@ -755,6 +766,24 @@
 			ctx.globalAlpha = amount
 			ctx.drawImage(this.tmpCanvas, 0, 0)
 			ctx.restore()
+		}
+	}
+	
+	shadow(config){
+		if(!disableBlur){
+			var ctx = config.ctx
+			if(config.fill){
+				ctx.shadowColor = config.fill
+			}
+			if(config.blur){
+				ctx.shadowBlur = config.blur
+			}
+			if(config.x){
+				ctx.shadowOffsetX = config.x
+			}
+			if(config.y){
+				ctx.shadowOffsetY = config.y
+			}
 		}
 	}
 	

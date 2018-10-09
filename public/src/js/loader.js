@@ -3,6 +3,8 @@ class Loader{
 		this.callback = callback
 		this.loadedAssets = 0
 		this.assetsDiv = document.getElementById("assets")
+		this.canvasTest = new CanvasTest()
+		p2 = new P2Connection()
 		this.ajax("src/views/loader.html").then(this.run.bind(this))
 	}
 	run(page){
@@ -70,8 +72,6 @@ class Loader{
 			assets.audioSfxLoud.forEach(name => {
 				this.promises.push(this.loadSound(name, snd.sfxLoudGain))
 			})
-		
-			p2 = new P2Connection()
 			
 			this.promises.push(this.ajax("/api/songs").then(songs => {
 				assets.songs = JSON.parse(songs)
@@ -84,13 +84,24 @@ class Loader{
 				}))
 			})
 			
+			this.promises.push(this.canvasTest.blurPerformance().then(result => {
+				if(result > 1000 / 50){
+					// Less than 50 fps with blur enabled
+					disableBlur = true
+					this.screen.classList.add("disable-blur")
+				}
+			}))
+			
 			this.promises.forEach(promise => {
 				promise.then(this.assetLoaded.bind(this))
 			})
 			
 			Promise.all(this.promises).then(() => {
-				this.clean()
-				this.callback()
+				this.canvasTest.drawAllImages().then(() => {
+					this.canvasTest.clean()
+					this.clean()
+					this.callback()
+				})
 			}, this.errorMsg.bind(this))
 			
 		})
@@ -122,7 +133,7 @@ class Loader{
 		}
 	}
 	changePage(name){
-		document.getElementById("screen").innerHTML = assets.pages[name]
+		this.screen.innerHTML = assets.pages[name]
 	}
 	ajax(url, customRequest){
 		return new Promise((resolve, reject) => {
