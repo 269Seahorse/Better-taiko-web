@@ -132,13 +132,19 @@ class SongSelect{
 			marginLeft: 18,
 			width: 82,
 			selectedWidth: 382,
+			fullWidth: 912,
 			height: 452,
+			fullHeight: 502,
 			border: 6,
 			innerBorder: 8,
 			letterBorder: 12
 		}
 		
 		this.draw = new CanvasDraw()
+		this.songTitleCache = new CanvasCache()
+		this.selectTextCache = new CanvasCache()
+		this.categoryCache = new CanvasCache()
+		this.difficultyCache = new CanvasCache()
 		
 		this.difficulty = ["かんたん", "ふつう", "むずかしい", "おに"]
 		this.difficultyId = ["easy", "normal", "hard", "oni"]
@@ -530,6 +536,24 @@ class SongSelect{
 			ctx.scale(ratio, ratio)
 			this.canvas.style.width = (winW / this.pixelRatio) + "px"
 			this.canvas.style.height = (winH / this.pixelRatio) + "px"
+			
+			var borders = (this.songAsset.border + this.songAsset.innerBorder) * 2
+			this.songTitleCache.resize((this.songAsset.width - borders + 1) * this.songs.length, (this.songAsset.height - borders + 1) * 2, ratio + 0.5)
+			
+			this.selectTextCache.resize((280 + 53 + 60 + 1) * 2, this.songAsset.marginTop + 15, ratio + 0.5)
+			
+			var categories = 0
+			var lastCategory
+			this.songs.forEach(song => {
+				var cat = (song.category || "") + song.skin.outline
+				if(lastCategory !== cat){
+					lastCategory = cat
+					categories++
+				}
+			})
+			this.categoryCache.resize(280, (this.songAsset.marginTop + 1) * categories , ratio + 0.5)
+			
+			this.difficultyCache.resize((44 + 56 + 2) * 4, 135 + 10, ratio + 0.5)
 		}else if(!document.hasFocus()){
 			this.pointer(false)
 			return
@@ -567,39 +591,60 @@ class SongSelect{
 		}
 		
 		if(screen === "title" || screen === "titleFadeIn" || screen === "song"){
-			this.draw.layeredText({
+			this.selectTextCache.get({
 				ctx: ctx,
-				text: "曲をえらぶ",
-				fontSize: 48,
-				fontFamily: this.font,
-				x: frameLeft + 53,
-				y: frameTop + 30,
-				letterSpacing: 2
-			}, [
-				{x: -2, y: -2, outline: "#000", letterBorder: 22},
-				{},
-				{x: 2, y: 2, shadow: [3, 3, 3]},
-				{x: 2, y: 2, outline: "#ad1516", letterBorder: 10},
-				{x: -2, y: -2, outline: "#ff797b"},
-				{outline: "#f70808"},
-				{fill: "#fff", shadow: [-1, 1, 3, 1.5]}
-			])
+				x: frameLeft,
+				y: frameTop,
+				w: 280 + 53 + 60,
+				h: this.songAsset.marginTop + 15,
+				id: "song"
+			}, ctx => {
+				this.draw.layeredText({
+					ctx: ctx,
+					text: "曲をえらぶ",
+					fontSize: 48,
+					fontFamily: this.font,
+					x: 53,
+					y: 30,
+					letterSpacing: 2,
+					forceShadow: true
+				}, [
+					{x: -2, y: -2, outline: "#000", letterBorder: 22},
+					{},
+					{x: 2, y: 2, shadow: [3, 3, 3]},
+					{x: 2, y: 2, outline: "#ad1516", letterBorder: 10},
+					{x: -2, y: -2, outline: "#ff797b"},
+					{outline: "#f70808"},
+					{fill: "#fff", shadow: [-1, 1, 3, 1.5]}
+				])
+			})
 			
 			var category = this.songs[this.selectedSong].category
 			if(category){
-				this.draw.layeredText({
+				var selectedSong = this.songs[this.selectedSong]
+				this.categoryCache.get({
 					ctx: ctx,
-					text: category,
-					fontSize: 40,
-					fontFamily: this.font,
-					x: winW / 2,
-					y: frameTop + 38,
-					width: 255,
-					align: "center"
-				}, [
-					{outline: this.songs[this.selectedSong].skin.outline, letterBorder: 12, shadow: [3, 3, 3]},
-					{fill: "#fff"}
-				])
+					x: winW / 2 - 280 / 2,
+					y: frameTop,
+					w: 280,
+					h: this.songAsset.marginTop,
+					id: category + selectedSong.skin.outline
+				}, ctx => {
+					this.draw.layeredText({
+						ctx: ctx,
+						text: category,
+						fontSize: 40,
+						fontFamily: this.font,
+						x: 280 / 2,
+						y: 38,
+						width: 255,
+						align: "center",
+						forceShadow: true
+					}, [
+						{outline: selectedSong.skin.outline, letterBorder: 12, shadow: [3, 3, 3]},
+						{fill: "#fff"}
+					])
+				})
 			}
 		}
 		
@@ -668,6 +713,12 @@ class SongSelect{
 			}
 		}
 		
+		this.songFrameCache = {
+			w: this.songAsset.width + this.songAsset.selectedWidth + this.songAsset.fullWidth + (15 + 1) * 3,
+			h: this.songAsset.fullHeight + 16,
+			ratio: ratio
+		}
+		
 		if(screen === "title" || screen === "titleFadeIn" || screen === "song"){
 			for(var i = this.selectedSong - 1; ; i--){
 				var highlight = 0
@@ -726,8 +777,8 @@ class SongSelect{
 		}
 		var selectedHeight = this.songAsset.height
 		if(screen === "difficulty"){
-			selectedWidth = 912
-			selectedHeight = 502
+			selectedWidth = this.songAsset.fullWidth
+			selectedHeight = this.songAsset.fullHeight
 			highlight = 0
 		}
 		
@@ -744,29 +795,41 @@ class SongSelect{
 			highlight: highlight,
 			noCrop: screen === "difficulty",
 			animateMS: this.state.moveMS,
+			cached: selectedWidth === this.songAsset.fullWidth ? 3 : (selectedWidth === this.songAsset.selectedWidth ? 2 : (selectedWidth === this.songAsset.width ? 1 : 0)),
+			frameCache: this.songFrameCache,
 			innerContent: (x, y, w, h) => {
 				ctx.strokeStyle = "#000"
 				if(screen === "title" || screen === "titleFadeIn" || screen === "song"){
 					var opened = ((selectedWidth - this.songAsset.width) / (this.songAsset.selectedWidth - this.songAsset.width))
 					var songSel = true
 				}else{
-					this.draw.layeredText({
+					this.selectTextCache.get({
 						ctx: ctx,
-						text: "むずかしさをえらぶ",
-						fontSize: 46,
-						fontFamily: this.font,
-						x: x - 144,
-						y: y - 24,
-						width: 280
-					}, [
-						{x: -2, y: -2, outline: "#000", letterBorder: 23},
-						{shadow: [3, 3, 3]},
-						{x: 2, y: 2},
-						{x: 2, y: 2, outline: "#ad1516", letterBorder: 10},
-						{x: -2, y: -2, outline: "#ff797b"},
-						{outline: "#f70808"},
-						{fill: "#fff", shadow: [-1, 1, 3, 1.5]}
-					])
+						x: x - 144 - 53,
+						y: y - 24 - 30,
+						w: 280 + 53 + 60,
+						h: this.songAsset.marginTop + 15,
+						id: "difficulty"
+					}, ctx => {
+						this.draw.layeredText({
+							ctx: ctx,
+							text: "むずかしさをえらぶ",
+							fontSize: 46,
+							fontFamily: this.font,
+							x: 53,
+							y: 30,
+							width: 280,
+							forceShadow: true
+						}, [
+							{x: -2, y: -2, outline: "#000", letterBorder: 23},
+							{},
+							{x: 2, y: 2, shadow: [3, 3, 3]},
+							{x: 2, y: 2, outline: "#ad1516", letterBorder: 10},
+							{x: -2, y: -2, outline: "#ff797b"},
+							{outline: "#f70808"},
+							{fill: "#fff", shadow: [-1, 1, 3, 1.5]}
+						])
+					})
 					var opened = 1
 					var songSel = false
 					var _x = x + 62
@@ -883,16 +946,26 @@ class SongSelect{
 								border: 4.5
 							})
 						}
-						this.draw.verticalText({
+						var offset = (songSel ? 44 : 56) / 2
+						this.difficultyCache.get({
 							ctx: ctx,
-							text: this.difficulty[i],
-							x: _x,
+							x: _x - offset,
 							y: songSel ? _y + 10 : _y + 23,
-							width: songSel ? 44 : 56,
-							height: songSel ? (i === 1 ? 66 : 88) : (i === 0 ? 130 : i === 1 ? 110 : 135),
-							fill: "#000",
-							fontSize: songSel ? 25 : (i === 2 ? 45 : 40),
-							fontFamily: this.font
+							w: songSel ? 44 : 56,
+							h: (songSel ? 88 : 135) + 10,
+							id: this.difficulty[i] + (songSel ? "1" : "0")
+						}, ctx => {
+							this.draw.verticalText({
+								ctx: ctx,
+								text: this.difficulty[i],
+								x: offset,
+								y: 0,
+								width: songSel ? 44 : 56,
+								height: songSel ? (i === 1 ? 66 : 88) : (i === 0 ? 130 : (i === 1 ? 110 : 135)),
+								fill: "#000",
+								fontSize: songSel ? 25 : (i === 2 ? 45 : 40),
+								fontFamily: this.font
+							})
 						})
 						for(var j = 0; j < 10; j++){
 							if(songSel){
@@ -910,7 +983,8 @@ class SongSelect{
 									ctx: ctx,
 									songSel: songSel,
 									x: _x,
-									y: yPos
+									y: yPos,
+									ratio: ratio
 								})
 							}
 						}
@@ -959,23 +1033,37 @@ class SongSelect{
 				}
 				ctx.globalAlpha = 1 - Math.max(0, opened - 0.5) * 2
 				ctx.fillStyle = selectedSkin.background
-				ctx.fillRect(x,y,w,h)
+				ctx.fillRect(x, y, w, h)
 				ctx.globalAlpha = 1
-				var textX = Math.max(w - 37, w / 2)
+				var borders = (this.songAsset.border + this.songAsset.innerBorder) * 2
+				var textW = this.songAsset.width - borders
+				var textH = this.songAsset.height - borders
+				var textX = Math.max(w - 37 - textW / 2, w / 2 - textW / 2)
 				var textY = opened * 12 + (1 - opened) * 7
-				this.draw.verticalText({
+				this.songTitleCache.get({
 					ctx: ctx,
-					text: currentSong.title,
 					x: x + textX,
-					y: y + textY,
-					width: w,
-					height: h - 35,
-					fill: "#fff",
-					outline: selectedSkin.outline,
-					outlineSize: this.songAsset.letterBorder,
-					fontSize: 40,
-					fontFamily: this.font
+					y: y + textY - 7,
+					w: textW,
+					h: textH,
+					id: currentSong.title + selectedSkin.outline,
+				}, ctx => {
+					this.draw.verticalText({
+						ctx: ctx,
+						text: currentSong.title,
+						x: textW / 2,
+						y: 7,
+						width: textW,
+						height: textH - 35,
+						fill: "#fff",
+						outline: selectedSkin.outline,
+						outlineSize: this.songAsset.letterBorder,
+						fontSize: 40,
+						fontFamily: this.font
+					})
 				})
+				//ctx.fillStyle="#f00"
+				//ctx.fillRect(textX,textY,textW,textH)
 			}
 		})
 		
@@ -1014,19 +1102,30 @@ class SongSelect{
 		config.outline = config.song.skin.outline
 		config.text = config.song.title
 		config.animateMS = this.state.moveMS
+		config.cached = 1
+		config.frameCache = this.songFrameCache
 		config.innerContent = (x, y, w, h) => {
-			this.draw.verticalText({
+			this.songTitleCache.get({
 				ctx: ctx,
-				text: config.text,
-				x: x + w / 2,
-				y: y + 7,
-				width: w,
-				height: h - 35,
-				fill: "#fff",
-				outline: config.outline,
-				outlineSize: this.songAsset.letterBorder,
-				fontSize: 40,
-				fontFamily: this.font
+				x: x,
+				y: y,
+				w: w,
+				h: h,
+				id: config.text + config.outline,
+			}, ctx => {
+				this.draw.verticalText({
+					ctx: ctx,
+					text: config.text,
+					x: w / 2,
+					y: 7,
+					width: w,
+					height: h - 35,
+					fill: "#fff",
+					outline: config.outline,
+					outlineSize: this.songAsset.letterBorder,
+					fontSize: 40,
+					fontFamily: this.font
+				})
 			})
 		}
 		this.draw.songFrame(config)
@@ -1137,6 +1236,11 @@ class SongSelect{
 	}
 	
 	clean(){
+		this.draw.clean()
+		this.songTitleCache.clean()
+		this.selectTextCache.clean()
+		this.categoryCache.clean()
+		this.difficultyCache.clean()
 		assets.sounds["bgm_songsel"].stop()
 		if(!this.bgmEnabled){
 			snd.musicGain.fadeIn()

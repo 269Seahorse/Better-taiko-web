@@ -88,7 +88,6 @@ class Loader{
 				if(result > 1000 / 50){
 					// Less than 50 fps with blur enabled
 					disableBlur = true
-					this.screen.classList.add("disable-blur")
 				}
 			}))
 			

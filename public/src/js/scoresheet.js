@@ -21,6 +21,7 @@ class Scoresheet{
 		this.numbers = "001122334455667788900112233445".split("")
 		
 		this.draw = new CanvasDraw()
+		this.canvasCache = new CanvasCache()
 		
 		this.gamepad = new Gamepad({
 			"13": ["a", "b", "start", "ls", "rs"]
@@ -130,6 +131,8 @@ class Scoresheet{
 				ctx.scale(ratio, ratio)
 				this.canvas.style.width = (winW / this.pixelRatio) + "px"
 				this.canvas.style.height = (winH / this.pixelRatio) + "px"
+				
+				this.canvasCache.resize(winW / ratio, 80 + 1, ratio)
 			}else if(!document.hasFocus() && this.state.screen === "scoresShown"){
 				return
 			}else{
@@ -237,36 +240,47 @@ class Scoresheet{
 				ctx.scale(ratio, ratio)
 				ctx.translate(frameLeft, frameTop)
 				
-				this.draw.layeredText({
+				this.canvasCache.get({
 					ctx: ctx,
-					text: "成績発表",
-					fontSize: 48,
-					fontFamily: this.font,
-					x: 23,
-					y: 15,
-					letterSpacing: 3
-				}, [
-					{x: -2, y: -2, outline: "#000", letterBorder: 22},
-					{},
-					{x: 2, y: 2, shadow: [2, 2, 7]},
-					{x: 2, y: 2, outline: "#ad1516", letterBorder: 10},
-					{x: -2, y: -2, outline: "#ff797b"},
-					{outline: "#f70808"},
-					{fill: "#fff", shadow: [-1, 1, 3, 1.5]}
-				])
-				
-				this.draw.layeredText({
-					ctx: ctx,
-					text: this.results.title,
-					fontSize: 40,
-					fontFamily: this.font,
-					x: 1257,
-					y: 20,
-					align: "right"
-				}, [
-					{outline: "#000", letterBorder: 10, shadow: [1, 1, 3]},
-					{fill: "#fff"}
-				])
+					x: 0,
+					y: 0,
+					w: winW,
+					h: 80,
+					id: "results"
+				}, ctx => {
+					this.draw.layeredText({
+						ctx: ctx,
+						text: "成績発表",
+						fontSize: 48,
+						fontFamily: this.font,
+						x: 23,
+						y: 15,
+						letterSpacing: 3,
+						forceShadow: true
+					}, [
+						{x: -2, y: -2, outline: "#000", letterBorder: 22},
+						{},
+						{x: 2, y: 2, shadow: [2, 2, 7]},
+						{x: 2, y: 2, outline: "#ad1516", letterBorder: 10},
+						{x: -2, y: -2, outline: "#ff797b"},
+						{outline: "#f70808"},
+						{fill: "#fff", shadow: [-1, 1, 3, 1.5]}
+					])
+					
+					this.draw.layeredText({
+						ctx: ctx,
+						text: this.results.title,
+						fontSize: 40,
+						fontFamily: this.font,
+						x: 1257,
+						y: 20,
+						align: "right",
+						forceShadow: true
+					}, [
+						{outline: "#000", letterBorder: 10, shadow: [1, 1, 3]},
+						{fill: "#fff"}
+					])
+				})
 				
 				ctx.save()
 				for(var p = 0; p < players; p++){
@@ -470,7 +484,8 @@ class Scoresheet{
 							x: 395,
 							y: 218,
 							scale: crownScale,
-							shine: shine
+							shine: shine,
+							ratio: ratio
 						})
 						
 						ctx.restore()
@@ -649,6 +664,8 @@ class Scoresheet{
 	}
 	
 	clean(){
+		this.draw.clean()
+		this.canvasCache.clean()
 		assets.sounds["bgm_result"].stop()
 		snd.musicGain.fadeIn()
 		this.redrawRunning = false

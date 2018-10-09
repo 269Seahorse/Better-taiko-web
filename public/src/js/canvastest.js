@@ -8,6 +8,7 @@ class CanvasTest{
 		this.canvas.height = height
 		this.ctx = this.canvas.getContext("2d")
 		this.ctx.scale(pixelRatio, pixelRatio)
+		this.ratio = pixelRatio
 		this.draw = new CanvasDraw()
 		this.font = "serif"
 		
@@ -60,6 +61,7 @@ class CanvasTest{
 						innerBorder: this.songAsset.innerBorder,
 						background: "#efb058",
 						borderStyle: ["#ffe7bd", "#c68229"],
+						ratio: this.ratio,
 						innerContent: () => {}
 					})
 				}
@@ -138,6 +140,7 @@ class CanvasTest{
 		this.ctx.fillText(text, x, y)
 	}
 	clean(){
+		this.draw.clean()
 		delete this.ctx
 		delete this.canvas
 	}

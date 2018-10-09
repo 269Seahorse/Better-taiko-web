@@ -60,6 +60,10 @@
 			uppercaseDigit: /[A-ZＡ-Ｚ0-9０-９]/
 		}
 		
+		this.songFrameCache = new CanvasCache()
+		this.diffStarCache = new CanvasCache()
+		this.crownCache = new CanvasCache()
+		
 		this.tmpCanvas = document.createElement("canvas")
 		this.tmpCtx = this.tmpCanvas.getContext("2d")
 	}
@@ -95,15 +99,34 @@
 		
 		ctx.save()
 		
-		this.shadow({
-			ctx: ctx,
-			fill: "rgba(0, 0, 0, 0.5)",
-			blur: 10,
-			x: 5,
-			y: 5
-		})
-		ctx.fillStyle = "#000"
-		ctx.fillRect(x, y, w, h)
+		var shadowBg = (ctx, noForce) => {
+			this.shadow({
+				ctx: ctx,
+				fill: "rgba(0, 0, 0, 0.5)",
+				blur: 10,
+				x: 5,
+				y: 5,
+				force: !noForce
+			})
+			ctx.fillStyle = "#000"
+			ctx.fillRect(0, 0, w, h)
+		}
+		if(config.cached){
+			if(this.songFrameCache.w !== config.frameCache.w){
+				this.songFrameCache.resize(config.frameCache.w, config.frameCache.h, config.frameCache.ratio)
+			}
+			this.songFrameCache.get({
+				ctx: ctx,
+				x: x,
+				y: y,
+				w: w + 15,
+				h: h + 15,
+				id: "shadow" + config.cached
+			}, shadowBg)
+		}else{
+			ctx.translate(x, y)
+			shadowBg(ctx, true)
+		}
 		
 		ctx.restore()
 		ctx.save()
@@ -211,15 +234,7 @@
 		var ctx = config.ctx
 		var inputText = config.text
 		var mul = config.fontSize / 40
-		var ura = false
 		
-		if(inputText.endsWith(" (裏)")){
-			inputText = inputText.slice(0, -4)
-			ura = true
-		}else if(inputText.endsWith("(裏)")){
-			inputText = inputText.slice(0, -3)
-			ura = true
-		}
 		var string = inputText.split("")
 		var drawn = []
 		
@@ -246,7 +261,7 @@
 			}else if(r.tilde.test(symbol)){
 				// Rotated hyphen, tilde
 				if(symbol === "~"){
-					symbol = "~"
+					symbol = "～"
 				}
 				drawn.push({text: symbol, x: 0, y: 2, h: 35, rotate: true})
 			}else if(r.tall.test(symbol)){
@@ -281,18 +296,8 @@
 		ctx.save()
 		ctx.translate(config.x, config.y)
 		
-		var scale = 1
-		if(config.height){
-			var height = config.height - (ura ? 52 * mul : 0)
-			if(drawnHeight > height){
-				scale = height / drawnHeight
-				ctx.scale(1, scale)
-			}
-		}
-		
-		if(ura){
-			// Circled ura
-			drawn.push({text: "裏", x: 0, y: 18, h: 52, ura: true, scale: [1, 1 / scale]})
+		if(config.height && drawnHeight > config.height){
+			ctx.scale(1, config.height / drawnHeight)
 		}
 		
 		var actions = []
@@ -322,7 +327,7 @@
 					currentX += 20 * mul
 				}
 				var currentY = offsetY + symbol.y * mul
-				if(symbol.rotate || symbol.scale || symbol.svg || symbol.ura){
+				if(symbol.rotate || symbol.scale || symbol.svg){
 					saved = true
 					ctx.save()
 					
@@ -347,23 +352,7 @@
 					}else{
 						ctx.textAlign = "center"
 					}
-					if(symbol.ura){
-						ctx.font = (30 * mul) + "px Meiryo"
-						ctx.textBaseline = "center"
-						ctx.beginPath()
-						ctx.arc(currentX, currentY + (21.5 * mul), (18 * mul), 0, Math.PI * 2)
-						if(action === "stroke"){
-							ctx.fillStyle = config.outline
-							ctx.fill()
-						}else if(action === "fill"){
-							ctx.strokeStyle = config.fill
-							ctx.lineWidth = 2.5 * mul
-							ctx.fillText(symbol.text, currentX, currentY)
-						}
-						ctx.stroke()
-					}else{
-						ctx[action + "Text"](symbol.text, currentX, currentY)
-					}
+					ctx[action + "Text"](symbol.text, currentX, currentY)
 				}
 				offsetY += symbol.h * mul
 				if(saved){
@@ -463,7 +452,8 @@
 					fill: "rgba(0, 0, 0, " + (1 / (layer.shadow[3] || 2)) + ")",
 					blur: layer.shadow[2],
 					x: layer.shadow[0],
-					y: layer.shadow[1]
+					y: layer.shadow[1],
+					force: config.forceShadow
 				})
 			}
 			var offsetX = 0
@@ -629,19 +619,35 @@
 	diffStar(config){
 		var ctx = config.ctx
 		ctx.save()
-		ctx.fillStyle = config.songSel ? "#fff" : "#f72568"
 		if(config.songSel){
-			this.shadow({
+			if(this.diffStarCache.scale !== config.ratio){
+				this.diffStarCache.resize(30, 30, config.ratio)
+			}
+			var offset = 30 / 2 - 18 / 2
+			this.diffStarCache.get({
 				ctx: ctx,
-				fill: "#fff",
-				blur: 10
+				x: config.x - 9 - offset,
+				y: config.y - 9 - offset,
+				w: 30,
+				h: 30,
+				id: "star"
+			}, ctx => {
+				ctx.fillStyle = "#fff"
+				this.shadow({
+					ctx: ctx,
+					fill: "#fff",
+					blur: 10,
+					force: true
+				})
+				ctx.translate(offset, offset)
+				ctx.fill(this.diffStarPath)
 			})
-			ctx.translate(config.x - 9, config.y - 9)
 		}else{
+			ctx.fillStyle = "#f72568"
 			ctx.translate(config.x - 10.5, config.y - 9.5)
 			ctx.scale(1.1, 1.1)
+			ctx.fill(this.diffStarPath)
 		}
-		ctx.fill(this.diffStarPath)
 		ctx.restore()
 	}
 	
@@ -708,14 +714,27 @@
 		ctx.translate(-47, -39)
 		ctx.miterLimit = 1.7
 		
-		ctx.save()
-		ctx.strokeStyle = "#fff"
-		ctx.lineWidth = 35
-		if(!disableBlur){
-			ctx.filter = "blur(1.5px)"
+		if(!this.crownCache.w){
+			this.crownCache.resize(140, 140, config.ratio)
 		}
-		ctx.stroke(this.crownPath)
-		ctx.restore()
+		var offset = 140 / 2 - 94 / 2
+		this.crownCache.get({
+			ctx: ctx,
+			x: -offset,
+			y: -offset,
+			w: 140,
+			h: 140,
+			id: "crown"
+		}, ctx => {
+			ctx.save()
+			ctx.translate(offset, offset)
+			ctx.strokeStyle = "#fff"
+			ctx.lineWidth = 35
+			ctx.miterLimit = 1.7
+			ctx.filter = "blur(1.5px)"
+			ctx.stroke(this.crownPath)
+			ctx.restore()
+		})
 		
 		if(config.shine){
 			ctx.strokeStyle = "#fff"
@@ -770,7 +789,7 @@
 	}
 	
 	shadow(config){
-		if(!disableBlur){
+		if(!disableBlur || config.force){
 			var ctx = config.ctx
 			if(config.fill){
 				ctx.shadowColor = config.fill
@@ -789,5 +808,13 @@
 	
 	getMS(){
 		return +new Date
+	}
+	
+	clean(){
+		this.songFrameCache.clean()
+		this.diffStarCache.clean()
+		this.crownCache.clean()
+		delete this.tmpCtx
+		delete this.tmpCanvas
 	}
 }
