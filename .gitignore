@@ -44,4 +44,4 @@ Temporary Items
 public/songs
 public/api
 taiko.db
-public/version.json
+version.json

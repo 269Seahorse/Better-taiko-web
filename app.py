@@ -1,9 +1,10 @@
 #!/usr/bin/env python2
 
+import json
 import sqlite3
 import re
 import os
-from flask import Flask, g, jsonify
+from flask import Flask, g, jsonify, render_template
 
 app = Flask(__name__)
 DATABASE = 'taiko.db'
@@ -64,6 +65,12 @@ def close_connection(exception):
     db = getattr(g, '_database', None)
     if db is not None:
         db.close()
+
+
+@app.route('/')
+def route_index():
+    version = json.load(open('version.json', 'r'))
+    return render_template('index.html', version=version)
 
 
 @app.route('/api/songs')
