@@ -56,7 +56,13 @@
 <body>
 	<div id="assets"></div>
 	<div id="screen"></div>
-	<div id="version"><a href="https://github.com/bui/taiko-web/commit/{{version.commit}}" target="_blank" class="stroke-sub" alt="taiko-web ver.{{version.version}} ({{version.commit_short}})">taiko-web ver.{{version.version}} ({{version.commit_short}})</a></div>
+	<div id="version">
+		{% if version %}
+			<a href="https://github.com/bui/taiko-web/commit/{{version.commit}}" target="_blank" class="stroke-sub" alt="taiko-web ver.{{version.version}} ({{version.commit_short}})">taiko-web ver.{{version.version}} ({{version.commit_short}})</a>
+		{% else %}
+			<a href="https://github.com/bui/taiko-web" target="_blank" class="stroke-sub" alt="taiko-web (unknown version)">taiko-web (unknown version)</a>
+		{% endif %}
+	</div>
 	<script src="/src/js/main.js?{{version.commit_short}}"></script>
 </body>
 </html>

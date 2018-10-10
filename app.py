@@ -69,7 +69,9 @@ def close_connection(exception):
 
 @app.route('/')
 def route_index():
-    version = json.load(open('version.json', 'r'))
+    version = None
+    if os.path.isfile('version.json'):
+        version = json.load(open('version.json', 'r'))
     return render_template('index.html', version=version)
 
 
