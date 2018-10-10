@@ -237,7 +237,7 @@ kbd{
 }
 
 #version a {
-	color: inherit;
+	color: #FFFFFF;
 	text-decoration: none;
 	cursor: default;
 }

@@ -18,15 +18,18 @@ class Loader{
 		this.ajax("/version.json").then(function(resp){
 			var versionLink = document.createElement("a")
 			versionLink.setAttribute("target", "_blank")
+			versionLink.setAttribute("class", "stroke-sub")
 
 			try {
 				var parsed = JSON.parse(resp)
 				versionLink.setAttribute("href", "https://github.com/bui/taiko-web/commit/" + parsed.commit)
-				versionLink.appendChild(document.createTextNode("taiko-web ver." + parsed.version + " (" + parsed.commit_short + ")"))
+				var ver_string = "taiko-web ver." + parsed.version + " (" + parsed.commit_short + ")"
 			} catch(e) {
 				versionLink.setAttribute("href", "https://github.com/bui/taiko-web")
-				versionLink.appendChild(document.createTextNode("taiko-web (unknown version)"))
+				var ver_string = "taiko-web (unknown version)"
 			} finally {
+				versionLink.appendChild(document.createTextNode(ver_string))
+				versionLink.setAttribute("alt", ver_string)
 				versionTag.appendChild(versionLink)
 			}
 		})
