@@ -48,7 +48,7 @@ class View{
 		
 		this.drumroll = []
 		
-		this.beatInterval = this.controller.getSongData().beatInfo.beatInterval
+		this.beatInterval = this.controller.parsedSongData.beatInfo.beatInterval
 		this.assets = new ViewAssets(this)
 		
 		this.touch = -Infinity
@@ -289,16 +289,12 @@ class View{
 		}
 	}
 	drawMeasures(){
-		var measures = this.controller.getSongData().measures
+		var measures = this.controller.parsedSongData.measures
 		var currentTime = this.controller.getElapsedTime()
 		
 		measures.forEach((measure, index)=>{
 			var timeForDistance = this.posToMs(this.distanceForCircle, measure.speed)
-			if(
-				currentTime >= measure.ms - timeForDistance
-				&& currentTime <= measure.ms + 350
-				&& measure.nb == 0
-			){
+			if(currentTime >= measure.ms - timeForDistance && currentTime <= measure.ms + 350){
 				this.drawMeasure(measure)
 			}
 		})

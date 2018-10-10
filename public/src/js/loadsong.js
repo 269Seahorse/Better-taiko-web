@@ -40,7 +40,7 @@ class loadSong{
 				}, reject)
 			}
 		}))
-		promises.push(loader.ajax(this.getOsuPath(this.selectedSong)).then(data => {
+		promises.push(loader.ajax(this.getSongPath(this.selectedSong)).then(data => {
 			this.songData = data.replace(/\0/g, "").split("\n")
 		}))
 		Promise.all(promises).then(() => {
@@ -50,8 +50,13 @@ class loadSong{
 			alert("An error occurred, please refresh")
 		})
 	}
-	getOsuPath(selectedSong){
-		return "/songs/" + selectedSong.folder + "/" + selectedSong.difficulty + ".osu"
+	getSongPath(selectedSong){
+		var directory = "/songs/" + selectedSong.folder + "/"
+		if(selectedSong.type === "tja"){
+			return directory + "main.tja"
+		}else{
+			return directory + selectedSong.difficulty + ".osu"
+		}
 	}
 	setupMultiplayer(){
 		if(this.multiplayer){

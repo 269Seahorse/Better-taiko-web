@@ -88,7 +88,9 @@ class SongSelect{
 				skin: song.category in this.songSkin ? this.songSkin[song.category] : this.songSkin.default,
 				stars: song.stars,
 				category: song.category,
-				preview: song.preview || 0
+				preview: song.preview || 0,
+				type: song.type,
+				offset: song.offset
 			})
 		}
 		this.songs.sort((a, b) => {
@@ -470,7 +472,9 @@ class SongSelect{
 			"title": selectedSong.title,
 			"folder": selectedSong.id,
 			"difficulty": this.difficultyId[difficulty],
-			"category": selectedSong.category
+			"category": selectedSong.category,
+			"type": selectedSong.type,
+			"offset": selectedSong.offset
 		}, shift, ctrl, touch)
 	}
 	toTitleScreen(){

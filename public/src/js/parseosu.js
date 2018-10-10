@@ -1,5 +1,5 @@
-class ParseSong{
-	constructor(fileContent){
+class ParseOsu{
+	constructor(fileContent, offset){
 		this.osu = {
 			OFFSET: 0,
 			MSPERBEAT: 1,
@@ -36,11 +36,13 @@ class ParseSong{
 		}
 		this.data = []
 		for(let line of fileContent){
-			line = line.trim().replace(/\/\/.*/, "")
+			line = line.replace(/\/\/.*/, "").trim()
 			if(line !== ""){
 				this.data.push(line)
 			}
 		}
+		this.offset = (offset || 0) * -1000
+		this.soundOffset = 0
 		this.beatInfo = {
 			beatInterval: 0,
 			lastBeatInterval: 0,
@@ -126,7 +128,7 @@ class ParseSong{
 				this.difficulty.lastMultiplier = sliderMultiplier
 			}
 			timingPoints.push({
-				start: start,
+				start: start + this.offset,
 				sliderMultiplier: sliderMultiplier,
 				measure: parseInt(values[this.osu.METER]),
 				gogoTime: parseInt(values[this.osu.KIAIMODE])
@@ -139,20 +141,18 @@ class ParseSong{
 		var measureNumber = 0
 		for(var i = 0; i<this.timingPoints.length; i++){
 			if(this.timingPoints[i + 1]){
-				var limit = this.timingPoints[i + 1].start
+				var limit = this.timingPoints[i + 1].start - this.offset
 			}else{
-				var limit = this.circles[this.circles.length - 1].getMS()
+				var limit = this.circles[this.circles.length - 1].getMS() - this.offset
 			}
-			for(var j = this.timingPoints[i].start; j <= limit; j += this.beatInfo.beatInterval){
-				measures.push({
-					ms: j,
-					nb: measureNumber,
-					speed: this.timingPoints[i].sliderMultiplier
-				})
-				measureNumber++
-				if(measureNumber === this.timingPoints[i].measure + 1){
-					measureNumber = 0
+			for(var start = this.timingPoints[i].start; start <= limit; start += this.beatInfo.beatInterval){
+				if(measureNumber === 0){
+					measures.push({
+						ms: start + this.offset,
+						speed: this.timingPoints[i].sliderMultiplier
+					})
 				}
+				measureNumber = (measureNumber + 1) % (this.timingPoints[i].measure + 1)
 			}
 		}
 		return measures
@@ -242,9 +242,14 @@ class ParseSong{
 			var hitSound = parseInt(values[this.osu.HITSOUND])
 			var beatLength = speed
 			var lastMultiplier = this.difficulty.lastMultiplier
+			if(circleID === 1 && start + this.offset < 0){
+				var offset = start + this.offset
+				this.soundOffset = offset
+				this.offset -= offset
+			}
 			
 			for(var j = 0; j < this.timingPoints.length; j++){
-				if(this.timingPoints[j].start > start){
+				if(this.timingPoints[j].start - this.offset > start){
 					break
 				}
 				speed = this.timingPoints[j].sliderMultiplier
@@ -258,11 +263,11 @@ class ParseSong{
 				var requiredHits = Math.floor(Math.max(1, (endTime - start) / 1000 * hitMultiplier))
 				circles.push(new Circle({
 					id: circleID,
-					start: start,
+					start: start + this.offset,
 					type: "balloon",
 					txt: "ふうせん",
 					speed: speed,
-					endTime: endTime,
+					endTime: endTime + this.offset,
 					requiredHits: requiredHits,
 					gogoTime: gogoTime
 				}))
@@ -284,11 +289,11 @@ class ParseSong{
 				}
 				circles.push(new Circle({
 					id: circleID,
-					start: start,
+					start: start + this.offset,
 					type: type,
 					txt: txt,
 					speed: speed,
-					endTime: endTime,
+					endTime: endTime + this.offset,
 					gogoTime: gogoTime
 				}))
 				
@@ -318,7 +323,7 @@ class ParseSong{
 				if(!emptyValue){
 					circles.push(new Circle({
 						id: circleID,
-						start: start,
+						start: start + this.offset,
 						type: type,
 						txt: txt,
 						speed: speed,
@@ -333,17 +338,5 @@ class ParseSong{
 			}
 		}
 		return circles
-	}
-	getData(){
-		return {
-			generalInfo: this.generalInfo,
-			metaData: this.metadata,
-			editor: this.editor,
-			beatInfo: this.beatInfo,
-			difficulty: this.difficulty,
-			timingPoints: this.timingPoints,
-			circles: this.circles,
-			measures: this.measures
-		}
 	}
 }

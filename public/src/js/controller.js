@@ -8,8 +8,13 @@ class Controller{
 		this.snd = this.multiplayer ? "_p" + this.multiplayer : ""
 		
 		var backgroundURL = "/songs/" + this.selectedSong.folder + "/bg.png"
-		var songParser = new ParseSong(songData)
-		this.parsedSongData = songParser.getData()
+		
+		if(selectedSong.type === "tja"){
+			this.parsedSongData = new ParseTja(songData, selectedSong.difficulty, selectedSong.offset)
+		}else{
+			this.parsedSongData = new ParseOsu(songData, selectedSong.offset)
+		}
+		this.offset = this.parsedSongData.soundOffset
 		
 		assets.songs.forEach(song => {
 			if(song.id == this.selectedSong.folder){
@@ -167,9 +172,6 @@ class Controller{
 	}
 	getBindings(){
 		return this.keyboard.getBindings()
-	}
-	getSongData(){
-		return this.game.getSongData()
 	}
 	getElapsedTime(){
 		return this.game.elapsedTime
