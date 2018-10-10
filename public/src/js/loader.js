@@ -23,7 +23,7 @@ class Loader{
 				var parsed = JSON.parse(resp)
 				versionLink.setAttribute("href", "https://github.com/bui/taiko-web/commit/" + parsed.commit)
 				versionLink.appendChild(document.createTextNode("taiko-web ver." + parsed.version + " (" + parsed.commit_short + ")"))
-			} catch(SyntaxError) {
+			} catch(e) {
 				versionLink.setAttribute("href", "https://github.com/bui/taiko-web")
 				versionLink.appendChild(document.createTextNode("taiko-web (unknown version)"))
 			} finally {
