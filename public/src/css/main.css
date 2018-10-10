@@ -241,3 +241,7 @@ kbd{
 	text-decoration: none;
 	cursor: default;
 }
+
+.version-hide{
+    pointer-events: none;
+}

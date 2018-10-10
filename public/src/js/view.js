@@ -59,6 +59,7 @@ class View{
 			this.touchDrumDiv = document.getElementById("touch-drum")
 			this.touchDrumImg = document.getElementById("touch-drum-img")
 			this.gameDiv.classList.add("touch-visible")
+			document.getElementById("version").classList.add("version-hide")
 			
 			pageEvents.add(this.canvas.canvas, "touchstart", this.ontouch.bind(this))
 			
@@ -954,6 +955,7 @@ class View{
 			pageEvents.remove(this.touchFullBtn, "click")
 			pageEvents.remove(this.touchPauseBtn, "click")
 			this.gameDiv.classList.remove("touch-visible")
+			document.getElementById("version").classList.remove("version-hide")
 			delete this.touchDrumDiv
 			delete this.touchDrumImg
 			delete this.touchFullBtn
