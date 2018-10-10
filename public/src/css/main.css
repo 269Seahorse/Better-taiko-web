@@ -224,3 +224,20 @@ kbd{
 	height: 12.5vmin;
 	opacity: 0.5;
 }
+
+#version {
+	position: fixed;
+	z-index: 1000;
+	font-size: 2vh;
+	position: absolute;
+	bottom: 1vh;
+	right: 1vh;
+	opacity: 0.7;
+	font-family: TnT;
+}
+
+#version a {
+	color: inherit;
+	text-decoration: none;
+	cursor: default;
+}
