@@ -13,26 +13,6 @@ class Loader{
 		this.screen.innerHTML = page
 		this.loaderPercentage = document.querySelector("#loader .percentage")
 		this.loaderProgress = document.querySelector("#loader .progress")
-
-		var versionTag = document.getElementById("version")
-		this.ajax("/version.json").then(function(resp){
-			var versionLink = document.createElement("a")
-			versionLink.setAttribute("target", "_blank")
-			versionLink.setAttribute("class", "stroke-sub")
-
-			try {
-				var parsed = JSON.parse(resp)
-				versionLink.setAttribute("href", "https://github.com/bui/taiko-web/commit/" + parsed.commit)
-				var ver_string = "taiko-web ver." + parsed.version + " (" + parsed.commit_short + ")"
-			} catch(e) {
-				versionLink.setAttribute("href", "https://github.com/bui/taiko-web")
-				var ver_string = "taiko-web (unknown version)"
-			} finally {
-				versionLink.appendChild(document.createTextNode(ver_string))
-				versionLink.setAttribute("alt", ver_string)
-				versionTag.appendChild(versionLink)
-			}
-		})
 		
 		snd.buffer = new SoundBuffer()
 		snd.musicGain = snd.buffer.createGain()
