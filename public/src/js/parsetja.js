@@ -123,43 +123,6 @@
 		var circleID = 0
 		
 		var pushMeasure = () => {
-			for(var i = 0; i < currentMeasure.length; i++){
-				var note = currentMeasure[i]
-				if(firstNote && note.type){
-					firstNote = false
-					if(ms < 0){
-						this.soundOffset = ms
-						ms = 0
-					}
-				}
-				note.start = ms
-				if(note.endDrumroll){
-					note.endDrumroll.endTime = ms
-				}
-				var msPerMeasure = 60000 * measure / bpm
-				ms += msPerMeasure / currentMeasure.length
-			}
-			for(var i = 0; i < currentMeasure.length; i++){
-				var note = currentMeasure[i]
-				if(note.type){
-					circleID++
-					var circleObj = new Circle({
-						id: circleID,
-						start: note.start,
-						type: note.type,
-						txt: note.txt,
-						speed: note.bpm * note.scroll / 60,
-						gogoTime: note.gogo,
-						endTime: note.endTime,
-						requiredHits: note.requiredHits
-					})
-					if(lastDrumroll === note){
-						lastDrumroll = circleObj
-					}
-					
-					circles.push(circleObj)
-				}
-			}
 			if(barLine){
 				var note = currentMeasure[0]
 				if(note){
@@ -181,6 +144,48 @@
 						})
 					}
 				}
+			}
+			if(currentMeasure.length){
+				for(var i = 0; i < currentMeasure.length; i++){
+					var note = currentMeasure[i]
+					if(firstNote && note.type){
+						firstNote = false
+						if(ms < 0){
+							this.soundOffset = ms
+							ms = 0
+						}
+					}
+					note.start = ms
+					if(note.endDrumroll){
+						note.endDrumroll.endTime = ms
+					}
+					var msPerMeasure = 60000 * measure / bpm
+					ms += msPerMeasure / currentMeasure.length
+				}
+				for(var i = 0; i < currentMeasure.length; i++){
+					var note = currentMeasure[i]
+					if(note.type){
+						circleID++
+						var circleObj = new Circle({
+							id: circleID,
+							start: note.start,
+							type: note.type,
+							txt: note.txt,
+							speed: note.bpm * note.scroll / 60,
+							gogoTime: note.gogo,
+							endTime: note.endTime,
+							requiredHits: note.requiredHits
+						})
+						if(lastDrumroll === note){
+							lastDrumroll = circleObj
+						}
+						
+						circles.push(circleObj)
+					}
+				}
+			}else{
+				var msPerMeasure = 60000 * measure / bpm
+				ms += msPerMeasure
 			}
 		}
 		
@@ -230,6 +235,9 @@
 						break
 					case "delay":
 						ms += (parseFloat(value) || 0) * 1000
+						break
+					case "barlineon":
+						barLine = true
 						break
 					case "barlineoff":
 						barLine = false
