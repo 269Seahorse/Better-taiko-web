@@ -48,7 +48,7 @@ class View{
 		
 		this.drumroll = []
 		
-		this.beatInterval = this.controller.getSongData().beatInfo.beatInterval
+		this.beatInterval = this.controller.parsedSongData.beatInfo.beatInterval
 		this.assets = new ViewAssets(this)
 		
 		this.touch = -Infinity
@@ -216,13 +216,14 @@ class View{
 		//this.drawTime()
 	}
 	updateDonFaces(){
-		if(this.controller.getElapsedTime() >= this.nextBeat){
+		var ms = this.controller.getElapsedTime()
+		while(ms >= this.nextBeat){
 			this.nextBeat += this.beatInterval
 			if(this.controller.getCombo() >= 50){
-				this.currentBigDonFace = (this.currentBigDonFace + 1) % 2
-				this.currentDonFace = (this.currentDonFace + 1) % 2
-			}
-			else{
+				var face = Math.floor(ms / this.beatInterval) % 2
+				this.currentBigDonFace = face
+				this.currentDonFace = face
+			}else{
 				this.currentBigDonFace = 1
 				this.currentDonFace = 0
 			}
@@ -289,16 +290,12 @@ class View{
 		}
 	}
 	drawMeasures(){
-		var measures = this.controller.getSongData().measures
+		var measures = this.controller.parsedSongData.measures
 		var currentTime = this.controller.getElapsedTime()
 		
 		measures.forEach((measure, index)=>{
 			var timeForDistance = this.posToMs(this.distanceForCircle, measure.speed)
-			if(
-				currentTime >= measure.ms - timeForDistance
-				&& currentTime <= measure.ms + 350
-				&& measure.nb == 0
-			){
+			if(currentTime >= measure.ms - timeForDistance && currentTime <= measure.ms + 350){
 				this.drawMeasure(measure)
 			}
 		})

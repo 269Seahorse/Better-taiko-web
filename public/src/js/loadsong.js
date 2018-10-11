@@ -40,7 +40,7 @@ class loadSong{
 				}, reject)
 			}
 		}))
-		promises.push(loader.ajax(this.getOsuPath(this.selectedSong)).then(data => {
+		promises.push(loader.ajax(this.getSongPath(this.selectedSong)).then(data => {
 			this.songData = data.replace(/\0/g, "").split("\n")
 		}))
 		Promise.all(promises).then(() => {
@@ -50,8 +50,13 @@ class loadSong{
 			alert("An error occurred, please refresh")
 		})
 	}
-	getOsuPath(selectedSong){
-		return "/songs/" + selectedSong.folder + "/" + selectedSong.difficulty + ".osu"
+	getSongPath(selectedSong){
+		var directory = "/songs/" + selectedSong.folder + "/"
+		if(selectedSong.type === "tja"){
+			return directory + "main.tja"
+		}else{
+			return directory + selectedSong.difficulty + ".osu"
+		}
 	}
 	setupMultiplayer(){
 		if(this.multiplayer){
@@ -70,14 +75,20 @@ class loadSong{
 						this.selectedSong2 = {
 							title: this.selectedSong.title,
 							folder: this.selectedSong.folder,
-							difficulty: event.value
+							difficulty: event.value,
+							type: this.selectedSong.type,
+							offset: this.selectedSong.offset
 						}
-						loader.ajax(this.getOsuPath(this.selectedSong2)).then(data => {
-							this.song2Data = data.replace(/\0/g, "").split("\n")
+						if(this.selectedSong.type === "tja"){
 							p2.send("gamestart")
-						}, () => {
-							p2.send("gamestart")
-						})
+						}else{
+							loader.ajax(this.getSongPath(this.selectedSong2)).then(data => {
+								this.song2Data = data.replace(/\0/g, "").split("\n")
+								p2.send("gamestart")
+							}, () => {
+								p2.send("gamestart")
+							})
+						}
 					}
 				}else if(event.type === "gamestart"){
 					this.clean()

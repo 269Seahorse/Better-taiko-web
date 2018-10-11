@@ -60,6 +60,26 @@ def get_osu_key(osu, section, key, default=None):
     return default
 
 
+def get_tja_preview(tja):
+    tja_lines = open(tja, 'r').read().replace('\x00', '').split('\n')
+    
+    for line in tja_lines:
+        line = line.strip()
+        if ':' in line:
+            name, value = line.split(':', 1)
+            if name.lower() == 'demostart':
+                value = value.strip()
+                try:
+                    value = float(value)
+                except ValueError:
+                    pass
+                else:
+                    return int(value * 1000)
+        elif line.lower() == '#start':
+            break
+    return 0
+
+
 @app.teardown_appcontext
 def close_connection(exception):
     db = getattr(g, '_database', None)
@@ -85,12 +105,19 @@ def route_api_songs():
         categories[cat[0]] = {'title': cat[1], 'title_en': cat[2]}
     songs_out = []
     for song in songs:
-        osus = [osu for osu in os.listdir('public/songs/%s' % song[0]) if osu in ['easy.osu', 'normal.osu', 'hard.osu', 'oni.osu']]
-        if osus:
-            osud = parse_osu('public/songs/%s/%s' % (song[0], osus[0]))
-            preview = int(get_osu_key(osud, 'General', 'PreviewTime', 0))
+        type = song[9]
+        if type == "tja":
+            if os.path.isfile('public/songs/%s/main.tja' % song[0]):
+                preview = get_tja_preview('public/songs/%s/main.tja' % song[0])
+            else:
+                preview = 0
         else:
-            preview = 0
+            osus = [osu for osu in os.listdir('public/songs/%s' % song[0]) if osu in ['easy.osu', 'normal.osu', 'hard.osu', 'oni.osu']]
+            if osus:
+                osud = parse_osu('public/songs/%s/%s' % (song[0], osus[0]))
+                preview = int(get_osu_key(osud, 'General', 'PreviewTime', 0))
+            else:
+                preview = 0
         category_out = categories[song[8]] if song[8] in categories else def_category
         
         songs_out.append({
@@ -102,7 +129,9 @@ def route_api_songs():
             ],
             'preview': preview,
             'category': category_out['title'],
-            'category_en': category_out['title_en']
+            'category_en': category_out['title_en'],
+            'type': type,
+            'offset': song[10]
         })
 
     return jsonify(songs_out)

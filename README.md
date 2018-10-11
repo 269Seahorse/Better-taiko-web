@@ -10,9 +10,10 @@ Still in developement. Works best with Chrome.
 
 Create a SQLite databse named `taiko.db` with the following schema:
 
-    CREATE TABLE "songs" ( `id` INTEGER NOT NULL PRIMARY KEY AUTOINCREMENT, `title` TEXT NOT NULL, `title_en` TEXT, `easy` INTEGER, `normal` INTEGER, `hard` INTEGER, `oni` INTEGER, `enabled` INTEGER NOT NULL, `category` INTEGER )
+    CREATE TABLE "songs" ( `id` INTEGER NOT NULL PRIMARY KEY AUTOINCREMENT, `title` TEXT NOT NULL, `title_en` TEXT, `easy` INTEGER, `normal` INTEGER, `hard` INTEGER, `oni` INTEGER, `enabled` INTEGER NOT NULL, `category` INTEGER, `type` TEXT , `offset` REAL NOT NULL )
+    CREATE TABLE "categories" ( `id` INTEGER NOT NULL PRIMARY KEY AUTOINCREMENT, `title` TEXT NOT NULL, `title_en` TEXT NOT NULL )
 
-When inserting rows, leave any difficulty columns as NULL if you don't intend to add notecharts for them.
+When inserting song rows, leave any difficulty columns as NULL if you don't intend to add notecharts for them.
 
 Each song's data is contained within a directory under `public/songs/`. For example:
 

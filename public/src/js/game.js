@@ -49,7 +49,6 @@ class Game{
 	update(){
 		// Main operations
 		this.updateTime()
-		this.checkTiming()
 		this.updateCirclesStatus()
 		this.checkPlays()
 		// Event operations
@@ -277,6 +276,7 @@ class Game{
 		var started = this.fadeOutStarted
 		if(started){
 			var ms = this.elapsedTime
+			var musicDuration = this.controller.mainAsset.duration * 1000 - this.controller.offset
 			if(this.musicFadeOut === 0){
 				if(this.controller.multiplayer === 1){
 					p2.send("gameresults", this.getGlobalScore())
@@ -286,10 +286,10 @@ class Game{
 				this.controller.gameEnded()
 				p2.send("gameend")
 				this.musicFadeOut++
-			}else if(this.musicFadeOut === 2 && (ms >= started + 8600 && ms >= this.controller.mainAsset.duration * 1000 + 250)){
+			}else if(this.musicFadeOut === 2 && (ms >= started + 8600 && ms >= musicDuration + 250)){
 				this.controller.displayResults()
 				this.musicFadeOut++
-			}else if(this.musicFadeOut === 3 && (ms >= started + 9600 && ms >= this.controller.mainAsset.duration * 1000 + 1250)){
+			}else if(this.musicFadeOut === 3 && (ms >= started + 9600 && ms >= musicDuration + 1250)){
 				this.controller.clean()
 				if(this.controller.scoresheet){
 					this.controller.scoresheet.startRedraw()
@@ -297,16 +297,9 @@ class Game{
 			}
 		}
 	}
-	checkTiming(){
-		if(this.songData.timingPoints[this.currentTimingPoint + 1]){
-			if(this.elapsedTime >= this.songData.timingPoints[this.currentTimingPoint + 1].start){
-				this.currentTimingPoint++
-			}
-		}
-	}
 	playMainMusic(){
-		var ms = this.elapsedTime
-		if(!this.mainMusicPlaying && (!this.fadeOutStarted || ms<this.fadeOutStarted + 1600)){
+		var ms = this.elapsedTime + this.controller.offset
+		if(!this.mainMusicPlaying && (!this.fadeOutStarted || ms < this.fadeOutStarted + 1600)){
 			if(this.controller.multiplayer !== 2){
 				this.mainAsset.play((ms < 0 ? -ms : 0) / 1000, false, Math.max(0, ms / 1000))
 			}
@@ -361,9 +354,6 @@ class Game{
 	}
 	getCircles(){
 		return this.songData.circles
-	}
-	getSongData(){
-		return this.songData
 	}
 	updateCurrentCircle(){
 		this.currentCircle++
