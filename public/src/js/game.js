@@ -3,7 +3,7 @@ class Game{
 		this.controller = controller
 		this.selectedSong = selectedSong
 		this.songData = songData
-		this.elapsedTime = {}
+		this.elapsedTime = 0
 		this.currentCircle = 0
 		this.combo = 0
 		this.rules = new GameRules(this)
@@ -38,6 +38,7 @@ class Game{
 	run(){
 		this.timeForDistanceCircle = 2500
 		this.initTiming()
+		this.view = this.controller.view
 	}
 	initTiming(){
 		// Date when the chrono is started (before the game begins)
@@ -74,6 +75,12 @@ class Game{
 							assets.sounds["renda" + this.controller.snd].stop()
 							this.controller.playSound("renda")
 						}
+					}
+					if(!circle.beatMSCopied){
+						if(this.view.beatInterval !== circle.beatMS){
+							this.view.changeBeatInterval(circle.beatMS)
+						}
+						circle.beatMSCopied = true
 					}
 				}
 				if(ms > endTime){
@@ -260,7 +267,7 @@ class Game{
 		})
 		circleAnim.played(score, dai)
 		circleAnim.animate(ms)
-		this.controller.view.drumroll.push(circleAnim)
+		this.view.drumroll.push(circleAnim)
 		this.globalScore.drumroll++
 		this.globalScore.points += score * (dai ? 2 : 1)
 	}
@@ -373,7 +380,7 @@ class Game{
 		if(this.combo === 50 || this.combo > 0 && this.combo % 100 === 0 && this.combo <= 1400){
 			this.controller.playSoundMeka("combo-" + this.combo)
 		}
-		this.controller.view.updateCombo(this.combo)
+		this.view.updateCombo(this.combo)
 	}
 	getCombo(){
 		return this.combo

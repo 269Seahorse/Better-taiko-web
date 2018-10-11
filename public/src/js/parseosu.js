@@ -131,7 +131,8 @@ class ParseOsu{
 				start: start + this.offset,
 				sliderMultiplier: sliderMultiplier,
 				measure: parseInt(values[this.osu.METER]),
-				gogoTime: parseInt(values[this.osu.KIAIMODE])
+				gogoTime: parseInt(values[this.osu.KIAIMODE]),
+				beatMS: 1000 / this.difficulty.lastMultiplier
 			})
 		}
 		return timingPoints
@@ -242,6 +243,7 @@ class ParseOsu{
 			var hitSound = parseInt(values[this.osu.HITSOUND])
 			var beatLength = speed
 			var lastMultiplier = this.difficulty.lastMultiplier
+			var beatMS = this.beatInfo.beatInterval
 			if(circleID === 1 && start + this.offset < 0){
 				var offset = start + this.offset
 				this.soundOffset = offset
@@ -249,11 +251,13 @@ class ParseOsu{
 			}
 			
 			for(var j = 0; j < this.timingPoints.length; j++){
-				if(this.timingPoints[j].start - this.offset > start){
+				var timingPoint = this.timingPoints[j]
+				if(timingPoint.start - this.offset > start){
 					break
 				}
-				speed = this.timingPoints[j].sliderMultiplier
-				gogoTime = this.timingPoints[j].gogoTime
+				speed = timingPoint.sliderMultiplier
+				gogoTime = timingPoint.gogoTime
+				beatMS = timingPoint.beatMS
 			}
 			
 			if(osuType & this.osu.SPINNER){
@@ -269,7 +273,8 @@ class ParseOsu{
 					speed: speed,
 					endTime: endTime + this.offset,
 					requiredHits: requiredHits,
-					gogoTime: gogoTime
+					gogoTime: gogoTime,
+					beatMS: beatMS
 				}))
 				
 			}else if(osuType & this.osu.SLIDER){
@@ -294,7 +299,8 @@ class ParseOsu{
 					txt: txt,
 					speed: speed,
 					endTime: endTime + this.offset,
-					gogoTime: gogoTime
+					gogoTime: gogoTime,
+					beatMS: beatMS
 				}))
 				
 			}else if(osuType & this.osu.CIRCLE){
@@ -327,7 +333,8 @@ class ParseOsu{
 						type: type,
 						txt: txt,
 						speed: speed,
-						gogoTime: gogoTime
+						gogoTime: gogoTime,
+						beatMS: beatMS
 					}))
 				}
 			}else{

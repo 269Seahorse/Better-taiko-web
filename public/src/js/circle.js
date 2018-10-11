@@ -18,6 +18,7 @@ class Circle{
 		this.rendaPlayed = false
 		this.gogoTime = config.gogoTime
 		this.gogoChecked = false
+		this.beatMS = config.beatMS
 	}
 	getMS(){
 		return this.ms

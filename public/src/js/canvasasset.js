@@ -7,6 +7,7 @@ class CanvasAsset{
 		this.speed = 1000 / 60
 		this.animationStart = 0
 		this.layer = layer
+		this.beatInterval = 468.75
 	}
 	draw(){
 		if(this.animation){
@@ -14,13 +15,13 @@ class CanvasAsset{
 			var frame = 0
 			var ms = this.controller.getElapsedTime()
 			if(this.animationEnd){
-				if(ms > this.animationEnd.ms){
+				if(ms > this.animationStart + this.animationEnd.frameCount * this.speed * this.beatInterval){
 					this.animationEnd.callback()
-					delete this.animationEnd
+					this.animationEnd = false
 					return this.draw()
 				}
 			}
-			var index = Math.floor((ms - this.animationStart) / this.speed)
+			var index = Math.floor((ms - this.animationStart) / (this.speed * this.beatInterval))
 			if(Array.isArray(this.animation)){
 				frame = this.animation[this.mod(this.animation.length, index)]
 			}else{
@@ -80,14 +81,21 @@ class CanvasAsset{
 	setAnimationStart(ms){
 		this.animationStart = ms
 	}
-	setAnimationEnd(ms, callback){
-		if(typeof ms === "undefined"){
-			delete this.animationEnd
+	setAnimationEnd(frameCount, callback){
+		if(typeof frameCount === "undefined"){
+			this.animationEnd = false
 		}else{
 			this.animationEnd = {
-				ms: ms,
+				frameCount: frameCount,
 				callback: callback
 			}
 		}
+	}
+	changeBeatInterval(beatMS, initial){
+		var ms = this.controller.getElapsedTime()
+		if(!initial){
+			this.animationStart = ms - (ms - this.animationStart) / this.beatInterval * beatMS
+		}
+		this.beatInterval = beatMS
 	}
 }
