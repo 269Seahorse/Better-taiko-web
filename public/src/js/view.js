@@ -216,13 +216,14 @@ class View{
 		//this.drawTime()
 	}
 	updateDonFaces(){
-		if(this.controller.getElapsedTime() >= this.nextBeat){
+		var ms = this.controller.getElapsedTime()
+		while(ms >= this.nextBeat){
 			this.nextBeat += this.beatInterval
 			if(this.controller.getCombo() >= 50){
-				this.currentBigDonFace = (this.currentBigDonFace + 1) % 2
-				this.currentDonFace = (this.currentDonFace + 1) % 2
-			}
-			else{
+				var face = Math.floor(ms / this.beatInterval) % 2
+				this.currentBigDonFace = face
+				this.currentDonFace = face
+			}else{
 				this.currentBigDonFace = 1
 				this.currentDonFace = 0
 			}

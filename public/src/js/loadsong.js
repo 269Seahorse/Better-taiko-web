@@ -75,14 +75,20 @@ class loadSong{
 						this.selectedSong2 = {
 							title: this.selectedSong.title,
 							folder: this.selectedSong.folder,
-							difficulty: event.value
+							difficulty: event.value,
+							type: this.selectedSong.type,
+							offset: this.selectedSong.offset
 						}
-						loader.ajax(this.getOsuPath(this.selectedSong2)).then(data => {
-							this.song2Data = data.replace(/\0/g, "").split("\n")
+						if(this.selectedSong.type === "tja"){
 							p2.send("gamestart")
-						}, () => {
-							p2.send("gamestart")
-						})
+						}else{
+							loader.ajax(this.getSongPath(this.selectedSong2)).then(data => {
+								this.song2Data = data.replace(/\0/g, "").split("\n")
+								p2.send("gamestart")
+							}, () => {
+								p2.send("gamestart")
+							})
+						}
 					}
 				}else if(event.type === "gamestart"){
 					this.clean()
