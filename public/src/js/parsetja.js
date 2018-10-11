@@ -159,7 +159,7 @@
 					if(note.endDrumroll){
 						note.endDrumroll.endTime = ms
 					}
-					var msPerMeasure = 60000 * measure / bpm
+					var msPerMeasure = 60000 * measure / note.bpm
 					ms += msPerMeasure / currentMeasure.length
 				}
 				for(var i = 0; i < currentMeasure.length; i++){
@@ -196,19 +196,36 @@
 				var line = line.slice(1).toLowerCase()
 				var [name, value] = this.split(line, " ")
 				
+				if(!branch || branch && branchType === branchPreference){
+					switch(name){
+						case "gogostart":
+							gogo = true
+							break
+						case "gogoend":
+							gogo = false
+							break
+						case "bpmchange":
+							bpm = parseFloat(value)
+							break
+						case "scroll":
+							scroll = parseFloat(value)
+							break
+						case "measure":
+							var [numerator, denominator] = value.split("/")
+							measure = numerator / denominator * 4
+							break
+						case "delay":
+							ms += (parseFloat(value) || 0) * 1000
+							break
+						case "barlineon":
+							barLine = true
+							break
+						case "barlineoff":
+							barLine = false
+							break
+					}
+				}
 				switch(name){
-					case "gogostart":
-						gogo = true
-						break
-					case "gogoend":
-						gogo = false
-						break
-					case "bpmchange":
-						bpm = parseFloat(value)
-						break
-					case "scroll":
-						scroll = parseFloat(value)
-						break
 					case "branchstart":
 						branch = true
 						branchType = ""
@@ -228,19 +245,6 @@
 						break
 					case "n": case "e": case "m":
 						branchType = name
-						break
-					case "measure":
-						var [numerator, denominator] = value.split("/")
-						measure = numerator / denominator * 4
-						break
-					case "delay":
-						ms += (parseFloat(value) || 0) * 1000
-						break
-					case "barlineon":
-						barLine = true
-						break
-					case "barlineoff":
-						barLine = false
 						break
 				}
 				
