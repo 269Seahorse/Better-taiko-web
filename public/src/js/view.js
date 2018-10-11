@@ -804,7 +804,7 @@ class View{
 				fireworksAsset.setAnimation("normal")
 				fireworksAsset.setAnimationStart(circle.ms)
 				var length = fireworksAsset.getAnimationLength("normal")
-				fireworksAsset.setAnimationEnd(circle.ms + length * fireworksAsset.speed, () => {
+				fireworksAsset.setAnimationEnd(length, () => {
 					fireworksAsset.setAnimation(false)
 				})
 			})
@@ -812,11 +812,11 @@ class View{
 			var don = this.assets.don
 			don.setAnimation("gogostart")
 			var length = don.getAnimationLength("gogo")
-			don.setUpdateSpeed(this.beatInterval / (length / 4))
+			don.setUpdateSpeed(4 / length)
 			var start = circle.ms - (circle.ms % this.beatInterval)
 			don.setAnimationStart(start)
 			var length = don.getAnimationLength("gogostart")
-			don.setAnimationEnd(start + length * don.speed, don.normalAnimation)
+			don.setAnimationEnd(length, don.normalAnimation)
 		}
 	}
 	drawGogoTime(){
@@ -856,9 +856,9 @@ class View{
 			var ms = this.controller.getElapsedTime()
 			don.setAnimationStart(ms)
 			var length = don.getAnimationLength("normal")
-			don.setUpdateSpeed(this.beatInterval / (length / 4))
+			don.setUpdateSpeed(4 / length)
 			var length = don.getAnimationLength("10combo")
-			don.setAnimationEnd(ms + length * don.speed, don.normalAnimation)
+			don.setAnimationEnd(length, don.normalAnimation)
 		}
 	}
 	drawTouch(){
@@ -939,6 +939,10 @@ class View{
 				this.cursor.style.pointerEvents = ""
 			}
 		}
+	}
+	changeBeatInterval(beatMS){
+		this.beatInterval = beatMS
+		this.assets.changeBeatInterval(beatMS)
 	}
 	clean(){
 		pageEvents.mouseRemove(this)

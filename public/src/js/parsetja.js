@@ -174,7 +174,8 @@
 							speed: note.bpm * note.scroll / 60,
 							gogoTime: note.gogo,
 							endTime: note.endTime,
-							requiredHits: note.requiredHits
+							requiredHits: note.requiredHits,
+							beatMS: 60000 / note.bpm
 						})
 						if(lastDrumroll === note){
 							lastDrumroll = circleObj

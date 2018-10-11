@@ -3,7 +3,6 @@ class ViewAssets{
 		this.view = view
 		this.controller = this.view.controller
 		this.allAssets = []
-		this.beatInterval = this.view.beatInterval
 		this.ctx = this.view.ctx
 		
 		this.don = this.createAsset("background", frame => {
@@ -40,17 +39,17 @@ class ViewAssets{
 		this.don.normalAnimation = () => {
 			if(this.view.gogoTime){
 				var length = this.don.getAnimationLength("gogo")
-				this.don.setUpdateSpeed(this.beatInterval / (length / 4))
+				this.don.setUpdateSpeed(4 / length)
 				this.don.setAnimation("gogo")
 			}else if(this.controller.getGlobalScore().gauge >= 50){
 				this.don.setAnimationStart(0)
 				var length = this.don.getAnimationLength("clear")
-				this.don.setUpdateSpeed(this.beatInterval / (length / 2))
+				this.don.setUpdateSpeed(2 / length)
 				this.don.setAnimation("clear")
 			}else{
 				this.don.setAnimationStart(0)
 				var length = this.don.getAnimationLength("normal")
-				this.don.setUpdateSpeed(this.beatInterval / (length / 4))
+				this.don.setUpdateSpeed(4 / length)
 				this.don.setAnimation("normal")
 			}
 		}
@@ -87,7 +86,7 @@ class ViewAssets{
 			}
 		})
 		this.fire.addFrames("normal", 7, "fire_anim")
-		this.fire.setUpdateSpeed(this.beatInterval / 8)
+		this.fire.setUpdateSpeed(1 / 8)
 		this.fireworks = []
 		for(let i = 0; i < 5 ; i++){
 			var fireworksAsset = this.createAsset("foreground", frame => {
@@ -108,9 +107,10 @@ class ViewAssets{
 				}
 			})
 			fireworksAsset.addFrames("normal", 30, "fireworks_anim")
-			fireworksAsset.setUpdateSpeed(this.beatInterval / 16)
+			fireworksAsset.setUpdateSpeed(1 / 16)
 			this.fireworks.push(fireworksAsset)
 		}
+		this.changeBeatInterval(this.view.beatInterval, true)
 	}
 	createAsset(layer, position){
 		var asset = new CanvasAsset(this.view, layer, position)
@@ -125,5 +125,10 @@ class ViewAssets{
 				}
 			})
 		}
+	}
+	changeBeatInterval(beatMS, initial){
+		this.allAssets.forEach(asset => {
+			asset.changeBeatInterval(beatMS, initial)
+		})
 	}
 }
