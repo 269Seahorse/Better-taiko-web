@@ -40,9 +40,11 @@ class Controller{
 		}
 	}
 	loadUIEvents(){
+		this.pauseMenu = document.getElementById("pause-menu")
 		this.continueBtn = document.getElementById("continue-butt")
 		this.restartBtn = document.getElementById("restart-butt")
 		this.songSelBtn = document.getElementById("song-selection-butt")
+		pageEvents.add(this.pauseMenu, "touchstart", event => event.preventDefault())
 		pageEvents.add(this.continueBtn, ["click", "touchend"], this.togglePauseMenu.bind(this))
 		pageEvents.add(this.restartBtn, ["click", "touchend"], () => {
 			assets.sounds["don"].play()
@@ -207,6 +209,8 @@ class Controller{
 		this.keyboard.clean()
 		this.view.clean()
 		
+		pageEvents.remove(this.pauseMenu, "touchstart")
+		delete this.pauseMenu
 		pageEvents.remove(this.continueBtn, ["click", "touchend"])
 		delete this.continueBtn
 		pageEvents.remove(this.restartBtn, ["click", "touchend"])

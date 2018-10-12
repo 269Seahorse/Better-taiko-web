@@ -670,8 +670,7 @@ class View{
 		}
 	}
 	drawDifficulty(){
-		var diffImage = this.songDifficulty === "ura" ? "oni" : this.songDifficulty
-		this.ctx.drawImage(assets.image["muzu_" + diffImage],
+		this.ctx.drawImage(assets.image["muzu_" + this.songDifficulty],
 			this.diffX, this.diffY,
 			this.diffW, this.diffH
 		)

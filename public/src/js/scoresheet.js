@@ -290,8 +290,7 @@ class Scoresheet{
 					}
 					
 					var imgScale = 1.35
-					var diffImage = results.difficulty === "ura" ? "oni" : results.difficulty
-					ctx.drawImage(assets.image["muzu_" + diffImage],
+					ctx.drawImage(assets.image["muzu_" + results.difficulty],
 						276, 150, imgScale * 176, imgScale * 120
 					)
 					

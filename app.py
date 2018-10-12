@@ -105,24 +105,24 @@ def route_api_songs():
         categories[cat[0]] = {'title': cat[1], 'title_en': cat[2]}
     songs_out = []
     for song in songs:
-        id = song[0]
-        type = song[10]
-        if type == "tja":
-            if os.path.isfile('public/songs/%s/main.tja' % id):
-                preview = get_tja_preview('public/songs/%s/main.tja' % id)
+        song_id = song[0]
+        song_type = song[10]
+        if song_type == "tja":
+            if os.path.isfile('public/songs/%s/main.tja' % song_id):
+                preview = get_tja_preview('public/songs/%s/main.tja' % song_id)
             else:
                 preview = 0
         else:
-            osus = [osu for osu in os.listdir('public/songs/%s' % id) if osu in ['easy.osu', 'normal.osu', 'hard.osu', 'oni.osu']]
+            osus = [osu for osu in os.listdir('public/songs/%s' % song_id) if osu in ['easy.osu', 'normal.osu', 'hard.osu', 'oni.osu']]
             if osus:
-                osud = parse_osu('public/songs/%s/%s' % (id, osus[0]))
+                osud = parse_osu('public/songs/%s/%s' % (song_id, osus[0]))
                 preview = int(get_osu_key(osud, 'General', 'PreviewTime', 0))
             else:
                 preview = 0
         category_out = categories[song[9]] if song[9] in categories else def_category
         
         songs_out.append({
-            'id': id,
+            'id': song_id,
             'title': song[1],
             'title_en': song[2],
             'stars': [
@@ -131,7 +131,7 @@ def route_api_songs():
             'preview': preview,
             'category': category_out['title'],
             'category_en': category_out['title_en'],
-            'type': type,
+            'type': song_type,
             'offset': song[11]
         })
 

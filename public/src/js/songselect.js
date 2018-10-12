@@ -571,7 +571,7 @@ class SongSelect{
 			})
 			this.categoryCache.resize(280, (this.songAsset.marginTop + 1) * categories , ratio + 0.5)
 			
-			this.difficultyCache.resize((44 + 56 + 2) * 4, 135 + 10, ratio + 0.5)
+			this.difficultyCache.resize((44 + 56 + 2) * 5, 135 + 10, ratio + 0.5)
 		}else if(!document.hasFocus()){
 			this.pointer(false)
 			return
@@ -936,20 +936,19 @@ class SongSelect{
 						}
 					}
 				}
-				for(var i = 0; currentSong.stars && i < 4; i++){
-					var currentUra = !songSel && i === 3 && this.state.ura
+				var drawDifficulty = (ctx, i, currentUra) => {
 					if(currentSong.stars[i] || currentUra){
 						if(songSel){
 							var _x = x + 33 + i * 60
 							var _y = y + 120
-							ctx.fillStyle = "#ff9f18"
+							ctx.fillStyle = currentUra ? "#006279" : "#ff9f18"
 							ctx.beginPath()
 							ctx.arc(_x, _y + 22, 22, -Math.PI, 0)
 							ctx.arc(_x, _y + 266, 22, 0, Math.PI)
 							ctx.fill()
 							this.draw.diffIcon({
 								ctx: ctx,
-								diff: i,
+								diff: currentUra ? 4 : i,
 								x: _x,
 								y: _y - 8,
 								scale: 1,
@@ -971,7 +970,7 @@ class SongSelect{
 							ctx.lineWidth = 4.5
 							ctx.fillRect(_x - 35.5, _y + 2, 71, 380)
 							ctx.strokeRect(_x - 35.5, _y + 2, 71, 380)
-							ctx.fillStyle = "#fff"
+							ctx.fillStyle = currentUra ? "#006279" : "#fff"
 							ctx.lineWidth = 2.5
 							ctx.fillRect(_x - 28, _y + 19, 56, 351)
 							ctx.strokeRect(_x - 28, _y + 19, 56, 351)
@@ -991,7 +990,7 @@ class SongSelect{
 							y: songSel ? _y + 10 : _y + 23,
 							w: songSel ? 44 : 56,
 							h: (songSel ? 88 : 135) + 10,
-							id: this.difficulty[i] + (songSel ? "1" : "0")
+							id: this.difficulty[currentUra ? 4 : i] + (songSel ? "1" : "0")
 						}, ctx => {
 							this.draw.verticalText({
 								ctx: ctx,
@@ -1000,9 +999,11 @@ class SongSelect{
 								y: 0,
 								width: songSel ? 44 : 56,
 								height: songSel ? (i === 1 ? 66 : 88) : (i === 0 ? 130 : (i === 1 ? 110 : 135)),
-								fill: "#000",
+								fill: currentUra ? "#fff" : "#000",
 								fontSize: songSel ? 25 : (i === 2 ? 45 : 40),
-								fontFamily: this.font
+								fontFamily: this.font,
+								outline: currentUra ? "#003C52" : false,
+								outlineSize: currentUra ? this.songAsset.letterBorder : 0
 							})
 						})
 						var songStars = currentUra ? currentSong.stars[4] : currentSong.stars[i]
@@ -1013,7 +1014,7 @@ class SongSelect{
 								var yPos = _y + 178 + j * 19.5
 							}
 							if(10 - j > songStars){
-								ctx.fillStyle = songSel ? "#e97526" : "#e7e7e7"
+								ctx.fillStyle = currentUra ? "#187085" : (songSel ? "#e97526" : "#e7e7e7")
 								ctx.beginPath()
 								ctx.arc(_x, yPos, songSel ? 4.5 : 5, 0, Math.PI * 2)
 								ctx.fill()
@@ -1021,6 +1022,7 @@ class SongSelect{
 								this.draw.diffStar({
 									ctx: ctx,
 									songSel: songSel,
+									ura: currentUra,
 									x: _x,
 									y: yPos,
 									ratio: ratio
@@ -1073,15 +1075,40 @@ class SongSelect{
 						}
 					}
 				}
+				for(var i = 0; currentSong.stars && i < 4; i++){
+					var currentUra = i === 3 && (this.state.ura && !songSel || currentSong.stars[4] && songSel)
+					if(songSel && currentUra){
+						drawDifficulty(ctx, i, false)
+						var elapsedMS = this.state.screenMS > this.state.moveMS ? this.state.screenMS : this.state.moveMS
+						var fade = ((ms - elapsedMS) % 4000) / 4000
+						var alphaFade = 0
+						if(fade > 0.95){
+							alphaFade = this.draw.easeOut(1 - (fade - 0.95) * 20)
+						}else if(fade > 0.5){
+							alphaFade = 1
+						}else if(fade > 0.45){
+							alphaFade = this.draw.easeIn((fade - 0.45) * 20)
+						}
+						this.draw.alpha(alphaFade, ctx, ctx => {
+							drawDifficulty(ctx, i, true)
+						})
+					}else{
+						drawDifficulty(ctx, i, currentUra)
+					}
+				}
 				if(!songSel && currentSong.stars[4]){
-					var _x = x + 402 + 4 * 100
+					var fade = ((ms - this.state.screenMS) % 1200) / 1200
+					var _x = x + 402 + 4 * 100 + fade * 25
 					var _y = y + 258
+					ctx.save()
+					ctx.globalAlpha = this.draw.easeInOut(1 - fade)
 					ctx.fillStyle = "#e0be28"
 					ctx.beginPath()
 					ctx.moveTo(_x - 35, _y - 25)
 					ctx.lineTo(_x - 10, _y)
 					ctx.lineTo(_x - 35, _y + 25)
 					ctx.fill()
+					ctx.restore()
 				}
 				
 				ctx.globalAlpha = 1 - Math.max(0, opened - 0.5) * 2
