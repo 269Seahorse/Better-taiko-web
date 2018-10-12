@@ -89,8 +89,7 @@ class Scoresheet{
 		this.winH = null
 		
 		pageEvents.keyAdd(this, "all", "down", this.keyDown.bind(this))
-		pageEvents.add(this.canvas, "mousedown", this.mouseDown.bind(this))
-		pageEvents.add(this.canvas, "touchstart", this.mouseDown.bind(this))
+		pageEvents.add(this.canvas, ["mousedown", "touchstart"], this.mouseDown.bind(this))
 	}
 	
 	redraw(){
@@ -291,7 +290,8 @@ class Scoresheet{
 					}
 					
 					var imgScale = 1.35
-					ctx.drawImage(assets.image["muzu_" + results.difficulty],
+					var diffImage = results.difficulty === "ura" ? "oni" : results.difficulty
+					ctx.drawImage(assets.image["muzu_" + diffImage],
 						276, 150, imgScale * 176, imgScale * 120
 					)
 					
@@ -670,8 +670,7 @@ class Scoresheet{
 		snd.musicGain.fadeIn()
 		this.redrawRunning = false
 		pageEvents.keyRemove(this, "all")
-		pageEvents.remove(this.canvas, "mousedown")
-		pageEvents.remove(this.canvas, "touchstart")
+		pageEvents.remove(this.canvas, ["mousedown", "touchstart"])
 		delete this.ctx
 		delete this.canvas
 	}

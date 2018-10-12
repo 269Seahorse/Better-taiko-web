@@ -61,6 +61,7 @@
 	height: 50%;
 	text-align: center;
 	margin: auto;
+	overflow: hidden;
 }
 #touch-drum-img{
 	width: 100%;

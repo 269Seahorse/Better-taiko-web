@@ -13,6 +13,7 @@ body{
 	height: 100%;
 	background: #fe7839;
 	user-select: none;
+	touch-action: none;
 }
 #screen{
 	width: 100%;

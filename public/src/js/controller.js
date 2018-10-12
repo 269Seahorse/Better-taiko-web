@@ -43,14 +43,12 @@ class Controller{
 		this.continueBtn = document.getElementById("continue-butt")
 		this.restartBtn = document.getElementById("restart-butt")
 		this.songSelBtn = document.getElementById("song-selection-butt")
-		pageEvents.add(this.continueBtn, "click", () => {
-			this.togglePauseMenu()
-		})
-		pageEvents.add(this.restartBtn, "click", () => {
+		pageEvents.add(this.continueBtn, ["click", "touchend"], this.togglePauseMenu.bind(this))
+		pageEvents.add(this.restartBtn, ["click", "touchend"], () => {
 			assets.sounds["don"].play()
 			this.restartSong()
 		})
-		pageEvents.add(this.songSelBtn, "click", () => {
+		pageEvents.add(this.songSelBtn, ["click", "touchend"], () => {
 			assets.sounds["don"].play()
 			this.songSelection()
 		})
@@ -63,9 +61,6 @@ class Controller{
 	stopMainLoop(){
 		this.mainLoopRunning = false
 		this.mainAsset.stop()
-		if(this.syncWith){
-			this.syncWith.stopMainLoop()
-		}
 	}
 	mainLoop(){
 		if(this.mainLoopRunning){
@@ -212,11 +207,11 @@ class Controller{
 		this.keyboard.clean()
 		this.view.clean()
 		
-		pageEvents.remove(this.continueBtn, "click")
+		pageEvents.remove(this.continueBtn, ["click", "touchend"])
 		delete this.continueBtn
-		pageEvents.remove(this.restartBtn, "click")
+		pageEvents.remove(this.restartBtn, ["click", "touchend"])
 		delete this.restartBtn
-		pageEvents.remove(this.songSelBtn, "click")
+		pageEvents.remove(this.songSelBtn, ["click", "touchend"])
 		delete this.songSelBtn
 	}
 }

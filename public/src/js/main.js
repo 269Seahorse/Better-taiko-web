@@ -1,5 +1,4 @@
 function toggleFullscreen(){
-	var root = document.documentElement
 	if("requestFullscreen" in root){
 		if(document.fullscreenElement){
 			document.exitFullscreen()
@@ -20,6 +19,8 @@ function toggleFullscreen(){
 		}
 	}
 }
+var root = document.documentElement
+var fullScreenSupported = "requestFullscreen" in root || "webkitRequestFullscreen" in root || "mozRequestFullScreen" in root
 
 var pageEvents = new PageEvents()
 var snd = {}

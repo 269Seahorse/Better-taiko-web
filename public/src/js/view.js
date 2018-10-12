@@ -64,10 +64,13 @@ class View{
 			pageEvents.add(this.canvas.canvas, "touchstart", this.ontouch.bind(this))
 			
 			this.touchFullBtn = document.getElementById("touch-full-btn")
-			pageEvents.add(this.touchFullBtn, "click", toggleFullscreen)
+			pageEvents.add(this.touchFullBtn, "touchend", toggleFullscreen)
+			if(!fullScreenSupported){
+				this.touchFullBtn.style.display = "none"
+			}
 			
 			this.touchPauseBtn = document.getElementById("touch-pause-btn")
-			pageEvents.add(this.touchPauseBtn, "click", () => {
+			pageEvents.add(this.touchPauseBtn, "touchend", () => {
 				this.controller.togglePauseMenu()
 			})
 		}
@@ -667,7 +670,8 @@ class View{
 		}
 	}
 	drawDifficulty(){
-		this.ctx.drawImage(assets.image["muzu_" + this.songDifficulty],
+		var diffImage = this.songDifficulty === "ura" ? "oni" : this.songDifficulty
+		this.ctx.drawImage(assets.image["muzu_" + diffImage],
 			this.diffX, this.diffY,
 			this.diffW, this.diffH
 		)
@@ -946,15 +950,15 @@ class View{
 	}
 	clean(){
 		pageEvents.mouseRemove(this)
-		if(this.controller.multiplayer === 2){
+		if(this.controller.multiplayer === 2 && this.canvas){
 			this.canvas.canvas.parentNode.removeChild(this.canvas.canvas)
 		}else{
 			this.cursor.parentNode.removeChild(this.cursor)
 		}
 		if(this.touchEnabled){
 			pageEvents.remove(this.canvas.canvas, "touchstart")
-			pageEvents.remove(this.touchFullBtn, "click")
-			pageEvents.remove(this.touchPauseBtn, "click")
+			pageEvents.remove(this.touchFullBtn, "touchend")
+			pageEvents.remove(this.touchPauseBtn, "touchend")
 			this.gameDiv.classList.remove("touch-visible")
 			document.getElementById("version").classList.remove("version-hide")
 			delete this.touchDrumDiv

@@ -508,7 +508,7 @@
 		ctx.save()
 		ctx.lineWidth = config.border
 		ctx.strokeStyle = "#000"
-		var icon = this.diffIconPath[config.diff]
+		var icon = this.diffIconPath[config.diff === 4 ? 3 : config.diff]
 		ctx.translate(config.x - icon[0].w * scale / 2, config.y - icon[0].h * scale / 2)
 		ctx.scale(scale, scale)
 		for(var i = 1; i < icon.length; i++){
@@ -518,7 +518,11 @@
 		}
 		if(!config.noFill){
 			for(var i = 1; i < icon.length; i++){
-				ctx.fillStyle = icon[i].fill
+				if(config.diff === 4 && icon[i].fill === "#db1885"){
+					ctx.fillStyle = "#7135db"
+				}else{
+					ctx.fillStyle = icon[i].fill
+				}
 				ctx.fill(icon[i].d)
 			}
 		}

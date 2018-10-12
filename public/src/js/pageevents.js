@@ -8,6 +8,10 @@ class PageEvents{
 		this.add(window, "mousemove", this.mouseEvent.bind(this))
 	}
 	add(target, type, callback){
+		if(Array.isArray(type)){
+			type.forEach(type => this.add(target, type, callback))
+			return
+		}
 		this.remove(target, type)
 		var addedEvent = this.allEvents.get(target)
 		if(!addedEvent){
@@ -18,6 +22,10 @@ class PageEvents{
 		return target.addEventListener(type, callback)
 	}
 	remove(target, type){
+		if(Array.isArray(type)){
+			type.forEach(type => this.remove(target, type))
+			return
+		}
 		var addedEvent = this.allEvents.get(target)
 		if(addedEvent){
 			var callback = addedEvent.get(type)

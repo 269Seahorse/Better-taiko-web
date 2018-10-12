@@ -3,8 +3,7 @@ class Titlescreen{
 		loader.changePage("titlescreen")
 		this.titleScreen = document.getElementById("title-screen")
 		pageEvents.keyAdd(this, "all", "down", this.keyDown.bind(this))
-		pageEvents.add(this.titleScreen, "mousedown", this.onPressed.bind(this))
-		pageEvents.once(this.titleScreen, "touchstart").then(this.onPressed.bind(this))
+		pageEvents.add(this.titleScreen, ["mousedown", "touchstart"], this.onPressed.bind(this))
 		assets.sounds["title"].play()
 		this.gamepad = new Gamepad({
 			"13": ["a", "b", "x", "y", "start", "ls", "rs"]
@@ -48,8 +47,7 @@ class Titlescreen{
 		this.gamepad.clean()
 		assets.sounds["title"].stop()
 		pageEvents.keyRemove(this, "all")
-		pageEvents.remove(this.titleScreen, "mousedown")
-		pageEvents.remove(this.titleScreen, "touchstart")
+		pageEvents.remove(this.titleScreen, ["mousedown", "touchstart"])
 		delete this.titleScreen
 	}
 }

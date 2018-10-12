@@ -12,6 +12,7 @@ class GameRules{
 				break
 			case "hard":
 			case "oni":
+			case "ura":
 				this.good = 3 / 2 * frame
 				this.ok = 9 / 2 * frame
 				this.bad = 13 / 2 * frame
