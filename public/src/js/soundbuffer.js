@@ -179,7 +179,9 @@ class Sound{
 	stop(time, absolute){
 		time = this.convertTime(time, absolute)
 		this.sources.forEach(source => {
-			source.stop(Math.max(source.startTime, time))
+			try{
+				source.stop(Math.max(source.startTime, time))
+			}catch(e){}
 		})
 		this.setTimeouts(time).then(() => {
 			if(this.loop){
