@@ -10,7 +10,7 @@ class Scoresheet{
 		this.canvas = document.getElementById("canvas")
 		this.ctx = this.canvas.getContext("2d")
 		
-		this.font = "TnT"
+		this.font = "TnT, Meiryo, sans-serif"
 		this.state = {
 			screen: "fadeIn",
 			screenMS: this.getMS(),

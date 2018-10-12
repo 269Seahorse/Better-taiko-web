@@ -76,7 +76,7 @@ class View{
 		}
 	}
 	run(){
-		this.ctx.font = "normal 14pt TnT"
+		this.ctx.font = "normal 14pt TnT, Meiryo, sans-serif"
 		this.setBackground()
 		
 		if(this.controller.multiplayer !== 2){
@@ -321,7 +321,7 @@ class View{
 			var comboX = this.taikoX + this.taikoW / 2
 			var comboY = this.barY + this.barH / 2
 			var fontSize = this.taikoH * 0.4
-			this.ctx.font = "normal " + fontSize + "px TnT"
+			this.ctx.font = "normal " + fontSize + "px TnT, Meiryo, sans-serif"
 			this.ctx.textAlign = "center"
 			this.ctx.strokeStyle = "#000"
 			this.ctx.lineWidth = fontSize / 10
@@ -357,7 +357,7 @@ class View{
 			}else{
 				this.ctx.fillStyle = "#fff"
 			}
-			this.ctx.font = "normal " + fontSize + "px TnT"
+			this.ctx.font = "normal " + fontSize + "px TnT, Meiryo, sans-serif"
 			this.ctx.lineWidth = fontSize / 5
 			this.strokeFillText("コンボ",
 				comboX,
@@ -389,7 +389,7 @@ class View{
 		
 		var fontSize = 0.7 * this.scoreSquareH
 		// Draw score text
-		this.ctx.font = "normal " + fontSize + "px TnT"
+		this.ctx.font = "normal " + fontSize + "px TnT, Meiryo, sans-serif"
 		this.ctx.fillStyle = "#fff"
 		this.ctx.textAlign = "center"
 		var glyph = this.ctx.measureText("0").width

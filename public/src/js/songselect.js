@@ -78,7 +78,7 @@ class SongSelect{
 				outline: "#656565"
 			}
 		}
-		this.font = "TnT"
+		this.font = "TnT, Meiryo, sans-serif"
 		
 		this.songs = []
 		for(let song of assets.songs){
@@ -432,6 +432,9 @@ class SongSelect{
 				this.state.locked = true
 				this.state.moveHover = null
 				this.state.ura = 0
+				if(this.selectedDiff === 5){
+					this.selectedDiff = 4
+				}
 				
 				assets.sounds["don"].play()
 				assets.sounds["song-select"].stop()
