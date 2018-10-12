@@ -236,11 +236,14 @@ kbd{
 	opacity: 0.7;
 	font-family: TnT, Meiryo, sans-serif;
 }
+#version:hover{
+	opacity: 1;
+}
 
-#version a {
+#version-link{
 	color: #FFFFFF;
 	text-decoration: none;
-	cursor: default;
+	pointer-events: none;
 }
 
 .version-hide{
