@@ -433,7 +433,8 @@ class Scoresheet{
 		if(elapsed >= 1200){
 			ctx.save()
 			ctx.setTransform(1, 0, 0, 1, 0, 0)
-			
+			var noCrownResultWait = -2000;
+
 			for(var p = 0; p < players; p++){
 				var results = this.results
 				if(p === 1){
@@ -446,6 +447,7 @@ class Scoresheet{
 					crownType = "silver"
 				}
 				if(crownType !== null){
+					noCrownResultWait = 0;
 					var amount = Math.min(1, (elapsed - 1200) / 450)
 					this.draw.alpha(this.draw.easeIn(amount), ctx, ctx => {
 						ctx.save()
@@ -494,7 +496,7 @@ class Scoresheet{
 			ctx.restore()
 		}
 		
-		if(elapsed >= 2400){
+		if(elapsed >= 2400 + noCrownResultWait){
 			ctx.save()
 			ctx.translate(frameLeft, frameTop)
 			
@@ -504,7 +506,7 @@ class Scoresheet{
 				var lastTime = 0
 				for(var p = 0; p < players; p++){
 					var results = p === 0 ? this.results : p2.results
-					var currentTime = 3100 + results.points.length * 30 * this.frame
+					var currentTime = 3100 + noCrownResultWait + results.points.length * 30 * this.frame
 					if(currentTime > lastTime){
 						lastTime = currentTime
 					}
@@ -537,7 +539,7 @@ class Scoresheet{
 				
 				this.state.countupShown = false
 				
-				var points = this.getNumber(results.points, 3100, elapsed)
+				var points = this.getNumber(results.points, 3100 + noCrownResultWait, elapsed)
 				var scale = 1.3
 				ctx.font = "35px " + this.font
 				ctx.translate(760, 286)
@@ -555,7 +557,7 @@ class Scoresheet{
 				
 				if(!this.state["countupTime" + p]){
 					var times = {}
-					var lastTime = 3100 + results.points.length * 30 * this.frame + 1000
+					var lastTime = 3100 + noCrownResultWait + results.points.length * 30 * this.frame + 1000
 					for(var i in printNumbers){
 						times[printNumbers[i]] = lastTime + 500
 						lastTime = lastTime + 500 + results[printNumbers[i]].length * 30 * this.frame
