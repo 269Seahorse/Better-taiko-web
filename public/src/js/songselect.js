@@ -78,7 +78,7 @@ class SongSelect{
 				outline: "#656565"
 			}
 		}
-		this.font = "TnT"
+		this.font = "TnT, Meiryo, sans-serif"
 		
 		this.songs = []
 		for(let song of assets.songs){
@@ -149,7 +149,7 @@ class SongSelect{
 		this.difficultyCache = new CanvasCache()
 		
 		this.difficulty = ["かんたん", "ふつう", "むずかしい", "おに"]
-		this.difficultyId = ["easy", "normal", "hard", "oni"]
+		this.difficultyId = ["easy", "normal", "hard", "oni", "ura"]
 		
 		this.selectedSong = 0
 		this.selectedDiff = 0
@@ -181,6 +181,7 @@ class SongSelect{
 			screenMS: this.getMS(),
 			move: 0,
 			moveMS: 0,
+			ura: 0,
 			moveHover: null,
 			locked: true,
 			hasPointer: false
@@ -210,12 +211,11 @@ class SongSelect{
 		this.redraw()
 		pageEvents.keyAdd(this, "all", "down", this.keyDown.bind(this))
 		pageEvents.add(this.canvas, "mousemove", this.mouseMove.bind(this))
-		pageEvents.add(this.canvas, "mousedown", this.mouseDown.bind(this))
-		pageEvents.add(this.canvas, "touchstart", this.mouseDown.bind(this))
-		if(touchEnabled){
+		pageEvents.add(this.canvas, ["mousedown", "touchstart"], this.mouseDown.bind(this))
+		if(touchEnabled && fullScreenSupported){
 			this.touchFullBtn = document.getElementById("touch-full-btn")
 			this.touchFullBtn.style.display = "block"
-			pageEvents.add(this.touchFullBtn, "click", toggleFullscreen)
+			pageEvents.add(this.touchFullBtn, "touchend", toggleFullscreen)
 		}
 	}
 	
@@ -306,6 +306,12 @@ class SongSelect{
 				|| mouse.y < 40 || mouse.y > 540
 			){
 				this.toSongSelect()
+			}else if(moveBy === 5){
+				this.state.ura = !this.state.ura
+				assets.sounds["ka"].play()
+				if(this.selectedDiff === 5 && !this.state.ura){
+					this.state.move = -1
+				}
 			}else if(moveBy !== null){
 				this.toLoadSong(moveBy - 1, shift, ctrl, touch)
 			}
@@ -370,10 +376,10 @@ class SongSelect{
 		if(this.state.locked === 0){
 			if(100 < x && x < 160 && 120 < y && y < 420){
 				return 0
-			}else if(434 < x && x < 810 && 95 < y && y < 524){
-				var moveBy = Math.floor((x - 434) / ((810 - 434) / 4)) + 1
+			}else if(422 < x && x < 922 && 95 < y && y < 524){
+				var moveBy = Math.floor((x - 422) / ((922 - 422) / 5)) + 1
 				var currentSong = this.songs[this.selectedSong]
-				if(currentSong.stars[moveBy - 1]){
+				if(this.state.ura && moveBy === 4 || currentSong.stars[moveBy - 1]){
 					return moveBy
 				}
 			}
@@ -425,6 +431,10 @@ class SongSelect{
 				this.state.screenMS = this.getMS()
 				this.state.locked = true
 				this.state.moveHover = null
+				this.state.ura = 0
+				if(this.selectedDiff === 5){
+					this.selectedDiff = 4
+				}
 				
 				assets.sounds["don"].play()
 				assets.sounds["song-select"].stop()
@@ -467,6 +477,10 @@ class SongSelect{
 		
 		localStorage["selectedSong"] = this.selectedSong
 		localStorage["selectedDiff"] = difficulty + 1
+		
+		if(difficulty === 3 && this.state.ura){
+			difficulty = 4
+		}
 		
 		new loadSong({
 			"title": selectedSong.title,
@@ -557,7 +571,7 @@ class SongSelect{
 			})
 			this.categoryCache.resize(280, (this.songAsset.marginTop + 1) * categories , ratio + 0.5)
 			
-			this.difficultyCache.resize((44 + 56 + 2) * 4, 135 + 10, ratio + 0.5)
+			this.difficultyCache.resize((44 + 56 + 2) * 5, 135 + 10, ratio + 0.5)
 		}else if(!document.hasFocus()){
 			this.pointer(false)
 			return
@@ -698,9 +712,28 @@ class SongSelect{
 				this.state.locked = 0
 			}
 			if(this.state.move){
+				var hasUra = currentSong.stars[4]
+				var previousSelection = this.selectedDiff
 				do{
-					this.selectedDiff = this.mod(5, this.selectedDiff + this.state.move)
-				}while(this.selectedDiff !== 0 && !currentSong.stars[this.selectedDiff - 1])
+					if(hasUra && this.state.move > 0){
+						this.selectedDiff += this.state.move
+						if(this.selectedDiff > 5){
+							this.state.ura = !this.state.ura
+							if(this.state.ura){
+								this.selectedDiff = previousSelection === 4 ? 5 : previousSelection
+								break
+							}else{
+								this.state.move = -1
+							}
+						}
+					}else{
+						this.selectedDiff = this.mod(6, this.selectedDiff + this.state.move)
+					}
+				}while(
+					this.selectedDiff !== 0 && !currentSong.stars[this.selectedDiff - 1]
+					|| this.selectedDiff === 4 && this.state.ura
+					|| this.selectedDiff === 5 && !this.state.ura
+				)
 				this.state.move = 0
 			}else if(!currentSong.stars[this.selectedDiff - 1]){
 				this.selectedDiff = 0
@@ -903,19 +936,19 @@ class SongSelect{
 						}
 					}
 				}
-				for(var i = 0; currentSong.stars && i < 4; i++){
-					if(currentSong.stars[i]){
+				var drawDifficulty = (ctx, i, currentUra) => {
+					if(currentSong.stars[i] || currentUra){
 						if(songSel){
 							var _x = x + 33 + i * 60
 							var _y = y + 120
-							ctx.fillStyle = "#ff9f18"
+							ctx.fillStyle = currentUra ? "#006279" : "#ff9f18"
 							ctx.beginPath()
 							ctx.arc(_x, _y + 22, 22, -Math.PI, 0)
 							ctx.arc(_x, _y + 266, 22, 0, Math.PI)
 							ctx.fill()
 							this.draw.diffIcon({
 								ctx: ctx,
-								diff: i,
+								diff: currentUra ? 4 : i,
 								x: _x,
 								y: _y - 8,
 								scale: 1,
@@ -937,13 +970,13 @@ class SongSelect{
 							ctx.lineWidth = 4.5
 							ctx.fillRect(_x - 35.5, _y + 2, 71, 380)
 							ctx.strokeRect(_x - 35.5, _y + 2, 71, 380)
-							ctx.fillStyle = "#fff"
+							ctx.fillStyle = currentUra ? "#006279" : "#fff"
 							ctx.lineWidth = 2.5
 							ctx.fillRect(_x - 28, _y + 19, 56, 351)
 							ctx.strokeRect(_x - 28, _y + 19, 56, 351)
 							this.draw.diffIcon({
 								ctx: ctx,
-								diff: i,
+								diff: currentUra ? 4 : i,
 								x: _x,
 								y: _y - 12,
 								scale: 1.4,
@@ -957,7 +990,7 @@ class SongSelect{
 							y: songSel ? _y + 10 : _y + 23,
 							w: songSel ? 44 : 56,
 							h: (songSel ? 88 : 135) + 10,
-							id: this.difficulty[i] + (songSel ? "1" : "0")
+							id: this.difficulty[currentUra ? 4 : i] + (songSel ? "1" : "0")
 						}, ctx => {
 							this.draw.verticalText({
 								ctx: ctx,
@@ -966,19 +999,22 @@ class SongSelect{
 								y: 0,
 								width: songSel ? 44 : 56,
 								height: songSel ? (i === 1 ? 66 : 88) : (i === 0 ? 130 : (i === 1 ? 110 : 135)),
-								fill: "#000",
+								fill: currentUra ? "#fff" : "#000",
 								fontSize: songSel ? 25 : (i === 2 ? 45 : 40),
-								fontFamily: this.font
+								fontFamily: this.font,
+								outline: currentUra ? "#003C52" : false,
+								outlineSize: currentUra ? this.songAsset.letterBorder : 0
 							})
 						})
+						var songStars = currentUra ? currentSong.stars[4] : currentSong.stars[i]
 						for(var j = 0; j < 10; j++){
 							if(songSel){
 								var yPos = _y + 113 + j * 17
 							}else{
 								var yPos = _y + 178 + j * 19.5
 							}
-							if(10 - j > currentSong.stars[i]){
-								ctx.fillStyle = songSel ? "#e97526" : "#e7e7e7"
+							if(10 - j > songStars){
+								ctx.fillStyle = currentUra ? "#187085" : (songSel ? "#e97526" : "#e7e7e7")
 								ctx.beginPath()
 								ctx.arc(_x, yPos, songSel ? 4.5 : 5, 0, Math.PI * 2)
 								ctx.fill()
@@ -986,11 +1022,16 @@ class SongSelect{
 								this.draw.diffStar({
 									ctx: ctx,
 									songSel: songSel,
+									ura: currentUra,
 									x: _x,
 									y: yPos,
 									ratio: ratio
 								})
 							}
+						}
+						var currentDiff = this.selectedDiff - 1
+						if(this.selectedDiff === 5){
+							currentDiff = 3
 						}
 						if(i === currentSong.p2Cursor){
 							this.draw.diffCursor({
@@ -999,13 +1040,12 @@ class SongSelect{
 								x: _x,
 								y: _y - (songSel ? 45 : 65),
 								two: true,
-								side: songSel ? false : (currentSong.p2Cursor === this.selectedDiff - 1),
+								side: songSel ? false : (currentSong.p2Cursor === currentDiff),
 								scale: songSel ? 0.7 : 1
 							})
 						}
 						if(!songSel){
 							var highlight = 0
-							var currentDiff = this.selectedDiff - 1
 							if(this.state.moveHover - 1 === i){
 								highlight = 2
 							}else if(currentDiff === i){
@@ -1035,6 +1075,42 @@ class SongSelect{
 						}
 					}
 				}
+				for(var i = 0; currentSong.stars && i < 4; i++){
+					var currentUra = i === 3 && (this.state.ura && !songSel || currentSong.stars[4] && songSel)
+					if(songSel && currentUra){
+						drawDifficulty(ctx, i, false)
+						var elapsedMS = this.state.screenMS > this.state.moveMS ? this.state.screenMS : this.state.moveMS
+						var fade = ((ms - elapsedMS) % 4000) / 4000
+						var alphaFade = 0
+						if(fade > 0.95){
+							alphaFade = this.draw.easeOut(1 - (fade - 0.95) * 20)
+						}else if(fade > 0.5){
+							alphaFade = 1
+						}else if(fade > 0.45){
+							alphaFade = this.draw.easeIn((fade - 0.45) * 20)
+						}
+						this.draw.alpha(alphaFade, ctx, ctx => {
+							drawDifficulty(ctx, i, true)
+						})
+					}else{
+						drawDifficulty(ctx, i, currentUra)
+					}
+				}
+				if(!songSel && currentSong.stars[4]){
+					var fade = ((ms - this.state.screenMS) % 1200) / 1200
+					var _x = x + 402 + 4 * 100 + fade * 25
+					var _y = y + 258
+					ctx.save()
+					ctx.globalAlpha = this.draw.easeInOut(1 - fade)
+					ctx.fillStyle = "#e0be28"
+					ctx.beginPath()
+					ctx.moveTo(_x - 35, _y - 25)
+					ctx.lineTo(_x - 10, _y)
+					ctx.lineTo(_x - 35, _y + 25)
+					ctx.fill()
+					ctx.restore()
+				}
+				
 				ctx.globalAlpha = 1 - Math.max(0, opened - 0.5) * 2
 				ctx.fillStyle = selectedSkin.background
 				ctx.fillRect(x, y, w, h)
@@ -1066,8 +1142,6 @@ class SongSelect{
 						fontFamily: this.font
 					})
 				})
-				//ctx.fillStyle="#f00"
-				//ctx.fillRect(textX,textY,textW,textH)
 			}
 		})
 		
@@ -1212,6 +1286,9 @@ class SongSelect{
 				var id = idDiff.id |0
 				var diff = idDiff.diff
 				var diffId = this.difficultyId.indexOf(diff)
+				if(diffId > 3){
+					diffId = 3
+				}
 				if(diffId >= 0){
 					var currentSong = this.songs.find(song => song.id === id)
 					currentSong.p2Cursor = diffId
@@ -1255,10 +1332,8 @@ class SongSelect{
 		this.redrawRunning = false
 		this.endPreview()
 		pageEvents.keyRemove(this, "all")
-		pageEvents.remove(this.canvas, "mousemove")
-		pageEvents.remove(this.canvas, "mousedown")
-		pageEvents.remove(this.canvas, "touchstart")
-		if(this.touchEnabled){
+		pageEvents.remove(this.canvas, ["mousemove", "mousedown", "touchstart"])
+		if(this.touchEnabled && fullScreenSupported){
 			pageEvents.remove(this.touchFullBtn, "click")
 			delete this.touchFullBtn
 		}

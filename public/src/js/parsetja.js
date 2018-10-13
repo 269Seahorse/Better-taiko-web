@@ -22,7 +22,14 @@
 			{name: false, txt: false},
 			{name: "balloon", txt: "ふうせん"}
 		]
-		this.courseTypes = ["easy", "normal", "hard", "oni"]
+		this.courseTypes = {
+			"0": "easy",
+			"1": "normal",
+			"2": "hard",
+			"3": "oni",
+			"4": "ura",
+			"edit": "ura"
+		}
 		
 		this.metadata = this.parseMetadata()
 		this.measures = []
@@ -67,10 +74,11 @@
 					value = value.trim()
 					
 					if(name === "course"){
+						value = value.toLowerCase()
 						if(value in this.courseTypes){
 							courseName = this.courseTypes[value]
 						}else{
-							courseName = value.toLowerCase()
+							courseName = value
 						}
 					}else if(name === "balloon"){
 						value = value ? value.split(",").map(digit => parseInt(digit)) : []

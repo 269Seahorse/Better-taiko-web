@@ -13,6 +13,7 @@ body{
 	height: 100%;
 	background: #fe7839;
 	user-select: none;
+	touch-action: none;
 }
 #screen{
 	width: 100%;
@@ -20,7 +21,7 @@ body{
 	margin: 0;
 	padding: 0;
 	background: #fe7839 url("/assets/img/bg-pattern-1.png") top center;
-	font-family: TnT;
+	font-family: TnT, Meiryo, sans-serif;
 }
 #assets{
 	display: none;
@@ -233,13 +234,16 @@ kbd{
 	bottom: 1vh;
 	right: 1vh;
 	opacity: 0.7;
-	font-family: TnT;
+	font-family: TnT, Meiryo, sans-serif;
+}
+#version:hover{
+	opacity: 1;
 }
 
-#version a {
+#version-link{
 	color: #FFFFFF;
 	text-decoration: none;
-	cursor: default;
+	pointer-events: none;
 }
 
 .version-hide{

@@ -5,8 +5,7 @@ class Tutorial{
 		assets.sounds["bgm_setsume"].playLoop(0.1, false, 0, 1.054, 16.054)
 		this.endButton = document.getElementById("tutorial-end-button")
 		
-		pageEvents.once(this.endButton, "mousedown").then(this.onEnd.bind(this))
-		pageEvents.once(this.endButton, "touchstart").then(this.onEnd.bind(this))
+		pageEvents.once(this.endButton, ["mousedown", "touchstart"]).then(this.onEnd.bind(this))
 		pageEvents.keyOnce(this, 13, "down").then(this.onEnd.bind(this))
 		
 		this.gamepad = new Gamepad({
@@ -29,7 +28,7 @@ class Tutorial{
 	clean(){
 		this.gamepad.clean()
 		assets.sounds["bgm_setsume"].stop()
-		pageEvents.remove(this.endButton, "click")
+		pageEvents.remove(this.endButton, ["mousedown", "touchstart"])
 		pageEvents.keyRemove(this, 13)
 		delete this.endButton
 	}

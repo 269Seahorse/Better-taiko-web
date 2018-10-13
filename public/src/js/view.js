@@ -64,16 +64,19 @@ class View{
 			pageEvents.add(this.canvas.canvas, "touchstart", this.ontouch.bind(this))
 			
 			this.touchFullBtn = document.getElementById("touch-full-btn")
-			pageEvents.add(this.touchFullBtn, "click", toggleFullscreen)
+			pageEvents.add(this.touchFullBtn, "touchend", toggleFullscreen)
+			if(!fullScreenSupported){
+				this.touchFullBtn.style.display = "none"
+			}
 			
 			this.touchPauseBtn = document.getElementById("touch-pause-btn")
-			pageEvents.add(this.touchPauseBtn, "click", () => {
+			pageEvents.add(this.touchPauseBtn, "touchend", () => {
 				this.controller.togglePauseMenu()
 			})
 		}
 	}
 	run(){
-		this.ctx.font = "normal 14pt TnT"
+		this.ctx.font = "normal 14pt TnT, Meiryo, sans-serif"
 		this.setBackground()
 		
 		if(this.controller.multiplayer !== 2){
@@ -318,7 +321,7 @@ class View{
 			var comboX = this.taikoX + this.taikoW / 2
 			var comboY = this.barY + this.barH / 2
 			var fontSize = this.taikoH * 0.4
-			this.ctx.font = "normal " + fontSize + "px TnT"
+			this.ctx.font = "normal " + fontSize + "px TnT, Meiryo, sans-serif"
 			this.ctx.textAlign = "center"
 			this.ctx.strokeStyle = "#000"
 			this.ctx.lineWidth = fontSize / 10
@@ -354,7 +357,7 @@ class View{
 			}else{
 				this.ctx.fillStyle = "#fff"
 			}
-			this.ctx.font = "normal " + fontSize + "px TnT"
+			this.ctx.font = "normal " + fontSize + "px TnT, Meiryo, sans-serif"
 			this.ctx.lineWidth = fontSize / 5
 			this.strokeFillText("コンボ",
 				comboX,
@@ -386,7 +389,7 @@ class View{
 		
 		var fontSize = 0.7 * this.scoreSquareH
 		// Draw score text
-		this.ctx.font = "normal " + fontSize + "px TnT"
+		this.ctx.font = "normal " + fontSize + "px TnT, Meiryo, sans-serif"
 		this.ctx.fillStyle = "#fff"
 		this.ctx.textAlign = "center"
 		var glyph = this.ctx.measureText("0").width
@@ -946,15 +949,15 @@ class View{
 	}
 	clean(){
 		pageEvents.mouseRemove(this)
-		if(this.controller.multiplayer === 2){
+		if(this.controller.multiplayer === 2 && this.canvas){
 			this.canvas.canvas.parentNode.removeChild(this.canvas.canvas)
 		}else{
 			this.cursor.parentNode.removeChild(this.cursor)
 		}
 		if(this.touchEnabled){
 			pageEvents.remove(this.canvas.canvas, "touchstart")
-			pageEvents.remove(this.touchFullBtn, "click")
-			pageEvents.remove(this.touchPauseBtn, "click")
+			pageEvents.remove(this.touchFullBtn, "touchend")
+			pageEvents.remove(this.touchPauseBtn, "touchend")
 			this.gameDiv.classList.remove("touch-visible")
 			document.getElementById("version").classList.remove("version-hide")
 			delete this.touchDrumDiv

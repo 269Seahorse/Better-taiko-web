@@ -22,6 +22,7 @@ var assets = {
 		"muzu_normal.png",
 		"muzu_hard.png",
 		"muzu_oni.png",
+		"muzu_ura.png",
 		"don_anim_normal.png",
 		"don_anim_10combo.png",
 		"don_anim_gogo.png",

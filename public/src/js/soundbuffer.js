@@ -2,11 +2,7 @@
 	constructor(){
 		var AudioContext = window.AudioContext || window.webkitAudioContext
 		this.context = new AudioContext()
-		pageEvents.once(window, "click").then(() => {
-			if(this.context.state === "suspended"){
-				this.context.resume()
-			}
-		})
+		pageEvents.add(window, ["click", "touchend"], this.pageClicked.bind(this))
 	}
 	load(url, gain){
 		return loader.ajax(url, request => {
@@ -47,6 +43,11 @@
 		source.buffer = sound.buffer
 		source.connect(sound.gain.gainNode || this.context.destination)
 		return source
+	}
+	pageClicked(){
+		if(this.context.state === "suspended"){
+			this.context.resume()
+		}
 	}
 }
 class SoundGain{
@@ -178,7 +179,9 @@ class Sound{
 	stop(time, absolute){
 		time = this.convertTime(time, absolute)
 		this.sources.forEach(source => {
-			source.stop(Math.max(source.startTime, time))
+			try{
+				source.stop(Math.max(source.startTime, time))
+			}catch(e){}
 		})
 		this.setTimeouts(time).then(() => {
 			if(this.loop){

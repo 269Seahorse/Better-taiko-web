@@ -229,6 +229,12 @@
 	easeIn(pos){
 		return 1 - Math.cos(Math.PI / 2 * pos)
 	}
+	easeOut(pos){
+		return Math.sin(Math.PI / 2 * pos)
+	}
+	easeInOut(pos){
+		return (Math.cos(Math.PI * pos) - 1) / -2
+	}
 	
 	verticalText(config){
 		var ctx = config.ctx
@@ -508,7 +514,7 @@
 		ctx.save()
 		ctx.lineWidth = config.border
 		ctx.strokeStyle = "#000"
-		var icon = this.diffIconPath[config.diff]
+		var icon = this.diffIconPath[config.diff === 4 ? 3 : config.diff]
 		ctx.translate(config.x - icon[0].w * scale / 2, config.y - icon[0].h * scale / 2)
 		ctx.scale(scale, scale)
 		for(var i = 1; i < icon.length; i++){
@@ -518,7 +524,11 @@
 		}
 		if(!config.noFill){
 			for(var i = 1; i < icon.length; i++){
-				ctx.fillStyle = icon[i].fill
+				if(config.diff === 4 && icon[i].fill === "#db1885"){
+					ctx.fillStyle = "#7135db"
+				}else{
+					ctx.fillStyle = icon[i].fill
+				}
 				ctx.fill(icon[i].d)
 			}
 		}
@@ -619,18 +629,19 @@
 	diffStar(config){
 		var ctx = config.ctx
 		ctx.save()
-		if(config.songSel){
+		if(config.songSel || config.ura){
 			if(this.diffStarCache.scale !== config.ratio){
-				this.diffStarCache.resize(30, 30, config.ratio)
+				this.diffStarCache.resize(62, 31, config.ratio)
 			}
 			var offset = 30 / 2 - 18 / 2
+			var big = config.ura && !config.songSel
 			this.diffStarCache.get({
 				ctx: ctx,
 				x: config.x - 9 - offset,
 				y: config.y - 9 - offset,
 				w: 30,
 				h: 30,
-				id: "star"
+				id: big ? "big" : "small"
 			}, ctx => {
 				ctx.fillStyle = "#fff"
 				this.shadow({
@@ -639,7 +650,12 @@
 					blur: 10,
 					force: true
 				})
-				ctx.translate(offset, offset)
+				if(big){
+					ctx.translate(30 / 2 - 21 / 2, 30 / 2 - 19 / 2)
+					ctx.scale(1.1, 1.1)
+				}else{
+					ctx.translate(offset, offset)
+				}
 				ctx.fill(this.diffStarPath)
 			})
 		}else{

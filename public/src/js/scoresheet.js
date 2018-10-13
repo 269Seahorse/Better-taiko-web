@@ -10,7 +10,7 @@ class Scoresheet{
 		this.canvas = document.getElementById("canvas")
 		this.ctx = this.canvas.getContext("2d")
 		
-		this.font = "TnT"
+		this.font = "TnT, Meiryo, sans-serif"
 		this.state = {
 			screen: "fadeIn",
 			screenMS: this.getMS(),
@@ -89,8 +89,7 @@ class Scoresheet{
 		this.winH = null
 		
 		pageEvents.keyAdd(this, "all", "down", this.keyDown.bind(this))
-		pageEvents.add(this.canvas, "mousedown", this.mouseDown.bind(this))
-		pageEvents.add(this.canvas, "touchstart", this.mouseDown.bind(this))
+		pageEvents.add(this.canvas, ["mousedown", "touchstart"], this.mouseDown.bind(this))
 	}
 	
 	redraw(){
@@ -670,8 +669,7 @@ class Scoresheet{
 		snd.musicGain.fadeIn()
 		this.redrawRunning = false
 		pageEvents.keyRemove(this, "all")
-		pageEvents.remove(this.canvas, "mousedown")
-		pageEvents.remove(this.canvas, "touchstart")
+		pageEvents.remove(this.canvas, ["mousedown", "touchstart"])
 		delete this.ctx
 		delete this.canvas
 	}
