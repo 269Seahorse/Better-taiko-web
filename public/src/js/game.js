@@ -60,8 +60,10 @@ class Game{
 		return this.songData.circles
 	}
 	updateCirclesStatus(){
+		var nextSet = false
 		var circles = this.songData.circles
-		circles.forEach(circle => {
+		for(var i in circles){
+			var circle = circles[i]
 			if(!circle.getPlayed()){
 				var ms = this.elapsedTime
 				var type = circle.getType()
@@ -69,7 +71,7 @@ class Game{
 				var endTime = circle.getEndTime() + (drumrollNotes ? 0 : this.rules.bad)
 				
 				if(ms >= circle.getMS()){
-					if(drumrollNotes && !circle.rendaPlayed){
+					if(drumrollNotes && !circle.rendaPlayed && ms < endTime){
 						circle.rendaPlayed = true
 						if(this.rules.difficulty === "easy"){
 							assets.sounds["renda" + this.controller.snd].stop()
@@ -107,9 +109,12 @@ class Game{
 							}
 						}
 					}
+				}else if(!this.controller.autoPlayEnabled && !nextSet){
+					nextSet = true
+					this.currentCircle = i
 				}
 			}
-		})
+		}
 	}
 	setHPGain(gain){
 		this.HPGain = gain

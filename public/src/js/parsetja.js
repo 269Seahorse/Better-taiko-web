@@ -140,6 +140,7 @@
 				}
 				this.measures.push({
 					ms: ms,
+					originalMS: ms,
 					speed: speed
 				})
 				if(firstMeasure){
@@ -148,6 +149,7 @@
 					for(var measureMs = ms - msPerMeasure; measureMs > 0; measureMs -= msPerMeasure){
 						this.measures.push({
 							ms: measureMs,
+							originalMS: ms,
 							speed: speed
 						})
 					}
@@ -166,6 +168,7 @@
 					note.start = ms
 					if(note.endDrumroll){
 						note.endDrumroll.endTime = ms
+						note.endDrumroll.originalEndTime = ms
 					}
 					var msPerMeasure = 60000 * measure / note.bpm
 					ms += msPerMeasure / currentMeasure.length
@@ -344,6 +347,7 @@
 		pushMeasure()
 		if(lastDrumroll){
 			lastDrumroll.endTime = ms
+			lastDrumroll.originalEndTime = ms
 		}
 		
 		return circles

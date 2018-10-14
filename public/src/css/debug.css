@@ -1,0 +1,116 @@
+#debug{
+	position: absolute;
+	top: 0;
+	left: 0;
+	width: 260px;
+	background: #fff;
+	border: 1px solid #333;
+	color: #000;
+	z-index: 50;
+	font-size: 14px;
+	font-family: TnT, Meiryo, sans-serif; 
+}
+
+#debug .title{
+	position: relative;
+	height: 25px;
+	padding: 5px 0 0 5px;
+	box-sizing: border-box;
+	background: #bbb;
+	color: #fff;
+	cursor: default;
+	z-index: 1
+}
+
+#debug .title::before{
+	left: auto;
+	-webkit-text-stroke: 0.25em #555;
+}
+
+#debug .minimise{
+	position: absolute;
+	top: 3px;
+	right: 3px;
+	width: 19px;
+	height: 19px;
+	background: #d77;
+	z-index: 1;
+}
+
+#debug .content{
+	height: calc(100% - 25px);
+	overflow-y: auto;
+	padding: 8px;
+	box-sizing: border-box;
+}
+
+#debug .input-slider{
+	display: flex;
+	width: 100%;
+	height: 30px;
+	margin: 5px 0 15px 0;
+}
+#debug .input-slider>input{
+	width: 70%;
+	height: 100%;
+	box-sizing: border-box;
+	font-size: 18px;
+	font-family: monospace;
+	padding: 2px 4px;
+	text-align: center;
+}
+#debug .input-slider>span{
+	display: block;
+	width: 10%;
+	height: 100%;
+	opacity: 0.8;
+	background: #666;
+	color: #fff;
+	text-align: center;
+	line-height: 2em;
+	cursor: pointer;
+}
+#debug .input-slider>span:hover{
+	opacity: 1;
+	background: #333;
+}
+
+#debug label{
+	display: block;
+	margin: 15px 0;
+}
+
+#debug input[type="checkbox"]{
+	margin-right: 1em;
+}
+
+#debug .bottom-btns{
+	display: flex;
+	width: 100%;
+	justify-content: flex-end;
+}
+#debug .bottom-btns div{
+	width: calc(50% - 3px);
+	height: 30px;
+	opacity: 0.8;
+	background: #666;
+	color: #fff;
+	text-align: center;
+	line-height: 2em;
+	cursor: pointer;
+}
+#debug .bottom-btns div:hover{
+	opacity: 1;
+	background: #333;
+}
+#debug .restart-btn{
+	display: none;
+	margin-right: 3px;
+}
+#debug .exit-btn{
+	margin-left: 3px;
+}
+
+#debug .autoplay-label{
+	display: none;
+}

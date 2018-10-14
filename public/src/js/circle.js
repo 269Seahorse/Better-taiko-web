@@ -3,10 +3,12 @@ class Circle{
 		// id, ms, type, text, speed, endTime, requiredHits
 		this.id = config.id
 		this.ms = config.start
+		this.originalMS = this.ms
 		this.type = config.type
 		this.text = config.txt
 		this.speed = config.speed
 		this.endTime = config.endTime || this.ms
+		this.originalEndTime = this.endTime
 		this.isPlayed = 0
 		this.animating = false
 		this.animT = 0

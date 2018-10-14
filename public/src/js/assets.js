@@ -124,7 +124,8 @@ var assets = {
 		"songselect.html",
 		"titlescreen.html",
 		"tutorial.html",
-		"about.html"
+		"about.html",
+		"debug.html"
 	],
 	
 	"songs": [],
