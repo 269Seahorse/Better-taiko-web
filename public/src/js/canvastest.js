@@ -91,6 +91,7 @@ class CanvasTest{
 	drawAllImages(){
 		return new Promise(resolve => {
 			requestAnimationFrame(() => {
+				var startTime = +new Date
 				var ctx = this.ctx
 				ctx.save()
 				ctx.clearRect(0, 0, this.canvas.width, this.canvas.height)
@@ -131,7 +132,7 @@ class CanvasTest{
 				}
 				
 				ctx.restore()
-				resolve()
+				resolve((+new Date) - startTime)
 			})
 		})
 	}

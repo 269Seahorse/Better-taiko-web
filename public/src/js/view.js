@@ -949,8 +949,10 @@ class View{
 	}
 	clean(){
 		pageEvents.mouseRemove(this)
-		if(this.controller.multiplayer === 2 && this.canvas){
-			this.canvas.canvas.parentNode.removeChild(this.canvas.canvas)
+		if(this.controller.multiplayer === 2){
+			if(this.canvas){
+				this.canvas.canvas.parentNode.removeChild(this.canvas.canvas)
+			}
 		}else{
 			this.cursor.parentNode.removeChild(this.cursor)
 		}

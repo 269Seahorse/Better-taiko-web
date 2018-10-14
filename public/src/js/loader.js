@@ -5,16 +5,9 @@ class Loader{
 		this.assetsDiv = document.getElementById("assets")
 		this.canvasTest = new CanvasTest()
 		p2 = new P2Connection()
-		this.ajax("src/views/loader.html").then(this.run.bind(this))
+		this.startTime = +new Date
 		
-		pageEvents.add(root, ["touchstart", "touchmove", "touchend"], event => {
-			event.preventDefault()
-		})
-		var versionDiv = document.getElementById("version")
-		var versionLink = document.getElementById("version-link")
-		pageEvents.add(versionDiv, ["click", "touchend"], () => {
-			versionLink.click()
-		})
+		this.ajax("src/views/loader.html").then(this.run.bind(this))
 	}
 	run(page){
 		this.promises = []
@@ -94,6 +87,7 @@ class Loader{
 			})
 			
 			this.promises.push(this.canvasTest.blurPerformance().then(result => {
+				perf.blur = result
 				if(result > 1000 / 50){
 					// Less than 50 fps with blur enabled
 					disableBlur = true
@@ -105,7 +99,9 @@ class Loader{
 			})
 			
 			Promise.all(this.promises).then(() => {
-				this.canvasTest.drawAllImages().then(() => {
+				this.canvasTest.drawAllImages().then(result => {
+					perf.allImg = result
+					perf.load = (+new Date) - this.startTime
 					this.canvasTest.clean()
 					this.clean()
 					this.callback()

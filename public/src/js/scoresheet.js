@@ -115,7 +115,7 @@ class Scoresheet{
 		ctx.save()
 		
 		var winW = innerWidth
-		var winH = innerHeight
+		var winH = lastHeight
 		this.pixelRatio = window.devicePixelRatio || 1
 		winW *= this.pixelRatio
 		winH *= this.pixelRatio
