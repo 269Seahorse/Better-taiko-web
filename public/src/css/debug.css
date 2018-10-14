@@ -3,7 +3,6 @@
 	top: 0;
 	left: 0;
 	width: 260px;
-	height: 240px;
 	background: #fff;
 	border: 1px solid #333;
 	color: #000;
@@ -110,4 +109,8 @@
 }
 #debug .exit-btn{
 	margin-left: 3px;
+}
+
+#debug .autoplay-label{
+	display: none;
 }

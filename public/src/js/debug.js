@@ -13,6 +13,8 @@ class Debug{
 		this.offsetDiv = this.debugDiv.getElementsByClassName("offset")[0]
 		this.measureNumDiv = this.debugDiv.getElementsByClassName("measure-num")[0]
 		this.restartCheckbox = this.debugDiv.getElementsByClassName("change-restart")[0]
+		this.autoplayLabel = this.debugDiv.getElementsByClassName("autoplay-label")[0]
+		this.autoplayCheckbox = this.debugDiv.getElementsByClassName("autoplay")[0]
 		this.restartBtn = this.debugDiv.getElementsByClassName("restart-btn")[0]
 		this.exitBtn = this.debugDiv.getElementsByClassName("exit-btn")[0]
 		
@@ -23,6 +25,7 @@ class Debug{
 		pageEvents.add(this.minimiseDiv, "click", this.minimise.bind(this))
 		pageEvents.add(this.restartBtn, "click", this.restartSong.bind(this))
 		pageEvents.add(this.exitBtn, "click", this.clean.bind(this))
+		pageEvents.add(this.autoplayCheckbox, "change", this.toggleAutoplay.bind(this))
 		
 		this.offsetSlider = new InputSlider(this.offsetDiv, -60, 60, 3)
 		this.offsetSlider.onchange(this.offsetChange.bind(this))
@@ -85,6 +88,7 @@ class Debug{
 	updateStatus(){
 		if(debugObj.controller && !this.controller){
 			this.restartBtn.style.display = "block"
+			this.autoplayLabel.style.display = "block"
 			
 			this.controller = debugObj.controller
 			var selectedSong = this.controller.selectedSong
@@ -109,16 +113,16 @@ class Debug{
 				var circles = game.songData.circles
 				for(var i in circles){
 					game.currentCircle = i
-					if(circles[i].ms < measureMS){
-						game.currentCircle = i
-					}else{
+					if(circles[i].endTime >= measureMS){
 						break
 					}
 				}
 			}
+			this.autoplayCheckbox.checked = this.controller.autoPlayEnabled
 		}
 		if(this.controller && !debugObj.controller){
 			this.restartBtn.style.display = ""
+			this.autoplayLabel.style.display = ""
 			this.controller = null
 		}
 	}
@@ -149,14 +153,38 @@ class Debug{
 			this.controller.restartSong()
 		}
 	}
+	toggleAutoplay(){
+		if(this.controller){
+			this.controller.autoPlayEnabled = this.autoplayCheckbox.checked
+			if(!this.controller.autoPlayEnabled){
+				var keyboard = debugObj.controller.keyboard
+				var kbd = keyboard.getBindings()
+				keyboard.setKey(kbd.don_l, false)
+				keyboard.setKey(kbd.don_r, false)
+				keyboard.setKey(kbd.ka_l, false)
+				keyboard.setKey(kbd.ka_r, false)
+			}
+		}
+	}
 	clean(){
 		this.offsetSlider.clean()
 		
 		pageEvents.remove(window, ["mousedown", "mouseup", "mousemove", "blur"])
 		pageEvents.remove(this.title, "mousedown")
+		pageEvents.remove(this.minimiseDiv, "click")
+		pageEvents.remove(this.restartBtn, "click")
+		pageEvents.remove(this.exitBtn, "click")
+		pageEvents.remove(this.autoplayCheckbox, "change")
 		
 		delete this.titleDiv
 		delete this.minimiseDiv
+		delete this.offsetDiv
+		delete this.measureNumDiv
+		delete this.restartCheckbox
+		delete this.autoplayLabel
+		delete this.autoplayCheckbox
+		delete this.restartBtn
+		delete this.exitBtn
 		delete this.controller
 		
 		debugObj.state = "closed"

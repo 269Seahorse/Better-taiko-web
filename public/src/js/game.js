@@ -71,7 +71,7 @@ class Game{
 				var endTime = circle.getEndTime() + (drumrollNotes ? 0 : this.rules.bad)
 				
 				if(ms >= circle.getMS()){
-					if(drumrollNotes && !circle.rendaPlayed){
+					if(drumrollNotes && !circle.rendaPlayed && ms < endTime){
 						circle.rendaPlayed = true
 						if(this.rules.difficulty === "easy"){
 							assets.sounds["renda" + this.controller.snd].stop()
@@ -83,10 +83,6 @@ class Game{
 							this.view.changeBeatInterval(circle.beatMS)
 						}
 						circle.beatMSCopied = true
-					}
-					if(!nextSet){
-						nextSet = true
-						this.currentCircle = i
 					}
 				}
 				if(ms > endTime){
@@ -113,6 +109,9 @@ class Game{
 							}
 						}
 					}
+				}else if(!this.controller.autoPlayEnabled && !nextSet){
+					nextSet = true
+					this.currentCircle = i
 				}
 			}
 		}
