@@ -169,8 +169,8 @@ class SongSelect{
 		this.selectedDiff = 0
 		assets.sounds["bgm_songsel"].playLoop(0.1, false, 0, 1.442, 3.506)
 		
-		if(!touchEnabled && !fromTutorial && !("selectedSong" in localStorage)){
-			fromTutorial = "tutorial"
+		if(!fromTutorial && !("selectedSong" in localStorage)){
+			fromTutorial = touchEnabled ? "about" : "tutorial"
 		}
 		
 		if(fromTutorial){

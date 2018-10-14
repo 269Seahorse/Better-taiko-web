@@ -1,6 +1,9 @@
-class About{
+﻿class About{
 	constructor(touchEnabled){
-		this.issueTemplate = "###### Describe the problem you are having below. Please include a screenshot and the diagnostic information."
+		this.issueTemplate = [
+			"###### 下記の問題を説明してください。 スクリーンショットと診断情報を含めてください。",
+			"###### Describe the problem you are having below. Please include a screenshot and the diagnostic information."
+		]
 		
 		this.touchEnabled = touchEnabled
 		loader.changePage("about")
@@ -115,7 +118,7 @@ class About{
 			}
 		}
 		
-		var issueBody = this.issueTemplate + "\n\n\n\n" + diag
+		var issueBody = this.issueTemplate.join("\n") + "\n\n\n\n" + diag
 		this.getLink(this.linkGithub).href += "?body=" + encodeURIComponent(issueBody)
 		this.getLink(this.linkEmail).href += "?body=" + encodeURIComponent(issueBody.replace(/\n/g, "\r\n"))
 	}
