@@ -84,8 +84,8 @@ pageEvents.add(versionDiv, ["click", "touchend"], () => {
 })
 resizeRoot()
 setInterval(resizeRoot, 100)
-pageEvents.keyAdd(debugObj, 186, "down", event => {
-	if(event.ctrlKey && event.shiftKey && !event.altKey){
+pageEvents.keyAdd(debugObj, "all", "down", event => {
+	if(event.keyCode === 186 && event.ctrlKey && event.shiftKey && !event.altKey){
 		if(debugObj.state === "open"){
 			debugObj.debug.minimise()
 		}else if(debugObj.state === "minimised"){
@@ -93,6 +93,9 @@ pageEvents.keyAdd(debugObj, 186, "down", event => {
 		}else{
 			debugObj.debug = new Debug()
 		}
+	}
+	if(event.keyCode === 82 && debugObj.debug && debugObj.controller){
+		debugObj.controller.restartSong()
 	}
 })
 

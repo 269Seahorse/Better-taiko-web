@@ -60,8 +60,10 @@ class Game{
 		return this.songData.circles
 	}
 	updateCirclesStatus(){
+		var nextSet = false
 		var circles = this.songData.circles
-		circles.forEach(circle => {
+		for(var i in circles){
+			var circle = circles[i]
 			if(!circle.getPlayed()){
 				var ms = this.elapsedTime
 				var type = circle.getType()
@@ -81,6 +83,10 @@ class Game{
 							this.view.changeBeatInterval(circle.beatMS)
 						}
 						circle.beatMSCopied = true
+					}
+					if(!nextSet){
+						nextSet = true
+						this.currentCircle = i
 					}
 				}
 				if(ms > endTime){
@@ -109,7 +115,7 @@ class Game{
 					}
 				}
 			}
-		})
+		}
 	}
 	setHPGain(gain){
 		this.HPGain = gain

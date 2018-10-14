@@ -2,8 +2,8 @@
 	position: absolute;
 	top: 0;
 	left: 0;
-	width: 250px;
-	height: 220px;
+	width: 260px;
+	height: 240px;
 	background: #fff;
 	border: 1px solid #333;
 	color: #000;
@@ -83,4 +83,31 @@
 
 #debug input[type="checkbox"]{
 	margin-right: 1em;
+}
+
+#debug .bottom-btns{
+	display: flex;
+	width: 100%;
+	justify-content: flex-end;
+}
+#debug .bottom-btns div{
+	width: calc(50% - 3px);
+	height: 30px;
+	opacity: 0.8;
+	background: #666;
+	color: #fff;
+	text-align: center;
+	line-height: 2em;
+	cursor: pointer;
+}
+#debug .bottom-btns div:hover{
+	opacity: 1;
+	background: #333;
+}
+#debug .restart-btn{
+	display: none;
+	margin-right: 3px;
+}
+#debug .exit-btn{
+	margin-left: 3px;
 }

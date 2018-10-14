@@ -1,5 +1,8 @@
 class Debug{
 	constructor(){
+		if(!assets.pages["debug"]){
+			return
+		}
 		this.debugDiv = document.createElement("div")
 		this.debugDiv.id = "debug"
 		this.debugDiv.innerHTML = assets.pages["debug"]
@@ -10,12 +13,16 @@ class Debug{
 		this.offsetDiv = this.debugDiv.getElementsByClassName("offset")[0]
 		this.measureNumDiv = this.debugDiv.getElementsByClassName("measure-num")[0]
 		this.restartCheckbox = this.debugDiv.getElementsByClassName("change-restart")[0]
+		this.restartBtn = this.debugDiv.getElementsByClassName("restart-btn")[0]
+		this.exitBtn = this.debugDiv.getElementsByClassName("exit-btn")[0]
 		
 		this.moving = false
 		pageEvents.add(window, ["mousedown", "mouseup", "blur"], this.stopMove.bind(this))
 		pageEvents.add(window, "mousemove", this.onMove.bind(this))
 		pageEvents.add(this.titleDiv, "mousedown", this.startMove.bind(this))
 		pageEvents.add(this.minimiseDiv, "click", this.minimise.bind(this))
+		pageEvents.add(this.restartBtn, "click", this.restartSong.bind(this))
+		pageEvents.add(this.exitBtn, "click", this.clean.bind(this))
 		
 		this.offsetSlider = new InputSlider(this.offsetDiv, -60, 60, 3)
 		this.offsetSlider.onchange(this.offsetChange.bind(this))
@@ -77,9 +84,11 @@ class Debug{
 	}
 	updateStatus(){
 		if(debugObj.controller && !this.controller){
+			this.restartBtn.style.display = "block"
+			
 			this.controller = debugObj.controller
 			var selectedSong = this.controller.selectedSong
-			this.defaultOffset = selectedSong.offset
+			this.defaultOffset = selectedSong.offset || 0
 			if(this.songFolder === selectedSong.folder){
 				this.offsetChange(this.offsetSlider.get(), true)
 			}else{
@@ -99,6 +108,7 @@ class Debug{
 				game.sndTime = timestamp - snd.buffer.getTime() * 1000
 				var circles = game.songData.circles
 				for(var i in circles){
+					game.currentCircle = i
 					if(circles[i].ms < measureMS){
 						game.currentCircle = i
 					}else{
@@ -108,6 +118,7 @@ class Debug{
 			}
 		}
 		if(this.controller && !debugObj.controller){
+			this.restartBtn.style.display = ""
 			this.controller = null
 		}
 	}
@@ -122,14 +133,19 @@ class Debug{
 			songData.measures.forEach(measure => {
 				measure.ms = measure.originalMS + offset
 			})
-			if(this.restartCheckbox.checked, !noRestart){
-				this.controller.restartSong()
+			if(this.restartCheckbox.checked && !noRestart){
+				this.restartSong()
 			}
 		}
 	}
 	measureNumChange(value){
 		this.measureNum = value
-		if(this.controller && this.restartCheckbox.checked){
+		if(this.restartCheckbox.checked){
+			this.restartSong()
+		}
+	}
+	restartSong(){
+		if(this.controller){
 			this.controller.restartSong()
 		}
 	}
