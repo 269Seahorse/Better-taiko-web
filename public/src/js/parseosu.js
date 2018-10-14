@@ -150,6 +150,7 @@ class ParseOsu{
 				if(measureNumber === 0){
 					measures.push({
 						ms: start + this.offset,
+						originalMS: start + this.offset,
 						speed: this.timingPoints[i].sliderMultiplier
 					})
 				}

@@ -38,6 +38,12 @@ class Controller{
 			syncWith.startDate = this.game.startDate
 			this.syncWith = syncWith
 		}
+		if(this.multiplayer !== 2){
+			debugObj.controller = this
+			if(debugObj.debug){
+				debugObj.debug.updateStatus()
+			}
+		}
 	}
 	loadUIEvents(){
 		this.pauseMenu = document.getElementById("pause-menu")
@@ -217,5 +223,12 @@ class Controller{
 		delete this.restartBtn
 		pageEvents.remove(this.songSelBtn, ["click", "touchend"])
 		delete this.songSelBtn
+		
+		if(this.multiplayer !== 2){
+			debugObj.controller = null
+			if(debugObj.debug){
+				debugObj.debug.updateStatus()
+			}
+		}
 	}
 }

@@ -40,6 +40,19 @@ function resizeRoot(){
 	}
 }
 
+function debug(){
+	if(debugObj.state === "open"){
+		debugObj.debug.clean()
+		return "Debug closed"
+	}else if(debugObj.state === "minimised"){
+		debugObj.debug.restore()
+		return "Debug restored"
+	}else{
+		debugObj.debug = new Debug()
+		return "Debug opened"
+	}
+}
+
 var root = document.documentElement
 var fullScreenSupported = "requestFullscreen" in root || "webkitRequestFullscreen" in root || "mozRequestFullScreen" in root
 
@@ -49,6 +62,10 @@ var p2
 var disableBlur = false
 var cancelTouch = true
 var lastHeight
+var debugObj = {
+	state: "closed",
+	debug: null
+}
 var perf = {
 	blur: 0,
 	allImg: 0,

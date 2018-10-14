@@ -140,6 +140,7 @@
 				}
 				this.measures.push({
 					ms: ms,
+					originalMS: ms,
 					speed: speed
 				})
 				if(firstMeasure){
