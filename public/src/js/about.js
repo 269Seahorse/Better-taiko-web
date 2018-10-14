@@ -120,7 +120,7 @@
 		
 		var issueBody = this.issueTemplate.join("\n") + "\n\n\n\n" + diag
 		this.getLink(this.linkGithub).href += "?body=" + encodeURIComponent(issueBody)
-		this.getLink(this.linkEmail).href += "?body=" + encodeURIComponent(issueBody.replace(/\n/g, "\r\n"))
+		this.getLink(this.linkEmail).href += "?body=" + encodeURIComponent(issueBody.replace(/\n/g, "<br>\r\n"))
 	}
 	getLink(target){
 		return target.getElementsByTagName("a")[0]

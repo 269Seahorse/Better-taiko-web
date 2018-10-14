@@ -565,7 +565,7 @@ class SongSelect{
 		
 		var ctx = this.ctx
 		var winW = innerWidth
-		var winH = innerHeight
+		var winH = lastHeight
 		if(winW / 32 > winH / 9){
 			winW = winH / 9 * 32
 		}

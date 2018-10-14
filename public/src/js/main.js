@@ -66,7 +66,7 @@ pageEvents.add(versionDiv, ["click", "touchend"], () => {
 	versionLink.click()
 })
 resizeRoot()
-pageEvents.add(window, "resize", resizeRoot)
+setInterval(resizeRoot, 100)
 
 var loader = new Loader(() => {
 	new Titlescreen()
