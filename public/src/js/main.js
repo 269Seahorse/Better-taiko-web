@@ -84,6 +84,17 @@ pageEvents.add(versionDiv, ["click", "touchend"], () => {
 })
 resizeRoot()
 setInterval(resizeRoot, 100)
+pageEvents.keyAdd(debugObj, 186, "down", event => {
+	if(event.ctrlKey && event.shiftKey && !event.altKey){
+		if(debugObj.state === "open"){
+			debugObj.debug.minimise()
+		}else if(debugObj.state === "minimised"){
+			debugObj.debug.restore()
+		}else{
+			debugObj.debug = new Debug()
+		}
+	}
+})
 
 var loader = new Loader(() => {
 	new Titlescreen()

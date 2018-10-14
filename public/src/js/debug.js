@@ -8,6 +8,8 @@ class Debug{
 		this.titleDiv = this.debugDiv.getElementsByClassName("title")[0]
 		this.minimiseDiv = this.debugDiv.getElementsByClassName("minimise")[0]
 		this.offsetDiv = this.debugDiv.getElementsByClassName("offset")[0]
+		this.measureNumDiv = this.debugDiv.getElementsByClassName("measure-num")[0]
+		this.restartCheckbox = this.debugDiv.getElementsByClassName("change-restart")[0]
 		
 		this.moving = false
 		pageEvents.add(window, ["mousedown", "mouseup", "blur"], this.stopMove.bind(this))
@@ -15,8 +17,12 @@ class Debug{
 		pageEvents.add(this.titleDiv, "mousedown", this.startMove.bind(this))
 		pageEvents.add(this.minimiseDiv, "click", this.minimise.bind(this))
 		
-		this.offsetSlider = new InputSlider(this.offsetDiv)
+		this.offsetSlider = new InputSlider(this.offsetDiv, -60, 60, 3)
 		this.offsetSlider.onchange(this.offsetChange.bind(this))
+		
+		this.measureNumSlider = new InputSlider(this.measureNumDiv, 0, 1000, 0)
+		this.measureNumSlider.onchange(this.measureNumChange.bind(this))
+		this.measureNumSlider.set(0)
 		
 		this.moveTo(100, 100)
 		this.restore()
@@ -75,17 +81,37 @@ class Debug{
 			var selectedSong = this.controller.selectedSong
 			this.defaultOffset = selectedSong.offset
 			if(this.songFolder === selectedSong.folder){
-				this.offsetChange(this.offsetSlider.get())
+				this.offsetChange(this.offsetSlider.get(), true)
 			}else{
 				this.songFolder = selectedSong.folder
 				this.offsetSlider.set(this.defaultOffset)
+			}
+			
+			var measures = this.controller.parsedSongData.measures
+			this.measureNumSlider.setMinMax(0, measures.length - 1)
+			if(this.measureNum && measures.length > this.measureNum){
+				var measureMS = measures[this.measureNum].ms
+				var game = this.controller.game
+				game.started = true
+				var timestamp = +new Date
+				var currentDate = timestamp - measureMS
+				game.startDate = currentDate
+				game.sndTime = timestamp - snd.buffer.getTime() * 1000
+				var circles = game.songData.circles
+				for(var i in circles){
+					if(circles[i].ms < measureMS){
+						game.currentCircle = i
+					}else{
+						break
+					}
+				}
 			}
 		}
 		if(this.controller && !debugObj.controller){
 			this.controller = null
 		}
 	}
-	offsetChange(value){
+	offsetChange(value, noRestart){
 		if(this.controller){
 			var offset = (this.defaultOffset - value) * 1000
 			var songData = this.controller.parsedSongData
@@ -96,6 +122,15 @@ class Debug{
 			songData.measures.forEach(measure => {
 				measure.ms = measure.originalMS + offset
 			})
+			if(this.restartCheckbox.checked, !noRestart){
+				this.controller.restartSong()
+			}
+		}
+	}
+	measureNumChange(value){
+		this.measureNum = value
+		if(this.controller && this.restartCheckbox.checked){
+			this.controller.restartSong()
 		}
 	}
 	clean(){
@@ -104,7 +139,6 @@ class Debug{
 		pageEvents.remove(window, ["mousedown", "mouseup", "mousemove", "blur"])
 		pageEvents.remove(this.title, "mousedown")
 		
-		delete this.debugDiv
 		delete this.titleDiv
 		delete this.minimiseDiv
 		delete this.controller
@@ -112,10 +146,17 @@ class Debug{
 		debugObj.state = "closed"
 		debugObj.debug = null
 		document.body.removeChild(this.debugDiv)
+		
+		delete this.debugDiv
 	}
 }
 class InputSlider{
-	constructor(sliderDiv){
+	constructor(sliderDiv, min, max, fixedPoint){
+		this.fixedPoint = fixedPoint
+		this.mul = Math.pow(10, fixedPoint)
+		this.min = min * this.mul
+		this.max = max * this.mul
+		
 		this.input = sliderDiv.getElementsByTagName("input")[0]
 		this.reset = sliderDiv.getElementsByClassName("reset")[0]
 		this.plus = sliderDiv.getElementsByClassName("plus")[0]
@@ -128,6 +169,7 @@ class InputSlider{
 		pageEvents.add(this.minus, "click", this.subtract.bind(this))
 		pageEvents.add(this.reset, "click", this.resetValue.bind(this))
 		pageEvents.add(this.input, "change", this.manualSet.bind(this))
+		pageEvents.add(this.input, "keydown", this.captureKeys.bind(this))
 	}
 	update(noCallback, force){
 		var oldValue = this.input.value
@@ -135,37 +177,42 @@ class InputSlider{
 			this.input.value = ""
 			this.input.readOnly = true
 		}else{
-			if(this.value > 60000){
-				this.value = 60000
+			if(this.value > this.max){
+				this.value = this.max
 			}
-			if(this.value < -60000){
-				this.value = -60000
+			if(this.value < this.min){
+				this.value = this.min
 			}
-			this.input.value = this.get().toFixed(3)
+			this.input.value = this.get().toFixed(this.fixedPoint)
 			this.input.readOnly = false
 		}
 		if(force || !noCallback && oldValue !== this.input.value){
 			this.callbacks.forEach(callback => {
-				callback(this.input.value)
+				callback(this.get())
 			})
 		}
 	}
 	set(number){
-		this.value = Math.floor(number * 1000)
+		this.value = Math.floor(number * this.mul)
 		this.defaultValue = this.value
 		this.update(true)
+	}
+	setMinMax(min, max){
+		this.min = min
+		this.max = max
+		this.update()
 	}
 	get(){
 		if(this.value === null){
 			return null
 		}else{
-			return Math.floor(this.value) / 1000
+			return Math.floor(this.value) / this.mul
 		}
 	}
 	add(event){
 		if(this.value !== null){
 			var newValue = this.value + this.eventNumber(event)
-			if(newValue <= 60000){
+			if(newValue <= this.max){
 				this.value = newValue
 				this.update()
 			}
@@ -174,7 +221,7 @@ class InputSlider{
 	subtract(event){
 		if(this.value !== null){
 			var newValue = this.value - this.eventNumber(event)
-			if(newValue >= -60000){
+			if(newValue >= this.min){
 				this.value = newValue
 				this.update()
 			}
@@ -191,17 +238,20 @@ class InputSlider{
 		this.callbacks.push(callback)
 	}
 	manualSet(){
-		var number = parseFloat(this.input.value)
-		if(Number.isFinite(number) && -60 <= number && number <= 60){
-			this.value = number * 1000
+		var number = parseFloat(this.input.value) * this.mul
+		if(Number.isFinite(number) && this.min <= number && number <= this.max){
+			this.value = number
 		}
 		this.update(false, true)
+	}
+	captureKeys(event){
+		event.stopPropagation()
 	}
 	clean(){
 		pageEvents.remove(this.plus, "click")
 		pageEvents.remove(this.minus, "click")
 		pageEvents.remove(this.reset, "click")
-		pageEvents.remove(this.input, "change")
+		pageEvents.remove(this.input, ["change", "keydown"])
 		
 		delete this.input
 		delete this.reset

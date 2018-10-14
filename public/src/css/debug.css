@@ -2,8 +2,8 @@
 	position: absolute;
 	top: 0;
 	left: 0;
-	width: 180px;
-	height: 160px;
+	width: 250px;
+	height: 220px;
 	background: #fff;
 	border: 1px solid #333;
 	color: #000;
@@ -49,7 +49,7 @@
 	display: flex;
 	width: 100%;
 	height: 30px;
-	margin: 5px 0;
+	margin: 5px 0 15px 0;
 }
 #debug .input-slider>input{
 	width: 70%;
@@ -74,4 +74,13 @@
 #debug .input-slider>span:hover{
 	opacity: 1;
 	background: #333;
+}
+
+#debug label{
+	display: block;
+	margin: 15px 0;
+}
+
+#debug input[type="checkbox"]{
+	margin-right: 1em;
 }
