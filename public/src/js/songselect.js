@@ -29,6 +29,12 @@ class SongSelect{
 				border: ["#d6ffff", "#6bae9c"],
 				outline: "#31ae94"
 			},
+			"about": {
+				sort: 7,
+				background: "#91cfff",
+				border: ["#dff0ff", "#6890b2"],
+				outline: "#217abb"
+			},
 			"J-POP": {
 				sort: 0,
 				background: "#219fbb",
@@ -114,7 +120,9 @@ class SongSelect{
 			category: "ランダム"
 		})
 		if(touchEnabled){
-			fromTutorial = false
+			if(fromTutorial === "tutorial"){
+				fromTutorial = false
+			}
 		}else{
 			this.songs.push({
 				title: "あそびかた説明",
@@ -123,6 +131,12 @@ class SongSelect{
 				category: "ランダム"
 			})
 		}
+		this.songs.push({
+			title: "について",
+			skin: this.songSkin.about,
+			action: "about",
+			category: "ランダム"
+		})
 		this.songs.push({
 			title: "もどる",
 			skin: this.songSkin.back,
@@ -155,16 +169,20 @@ class SongSelect{
 		this.selectedDiff = 0
 		assets.sounds["bgm_songsel"].playLoop(0.1, false, 0, 1.442, 3.506)
 		
-		if(touchEnabled || !fromTutorial && "selectedSong" in localStorage){
+		if(!touchEnabled && !fromTutorial && !("selectedSong" in localStorage)){
+			fromTutorial = "tutorial"
+		}
+		
+		if(fromTutorial){
+			this.selectedSong = this.songs.findIndex(song => song.action === fromTutorial)
+			this.playBgm(true)
+		}else{
 			if("selectedSong" in localStorage){
 				this.selectedSong = Math.min(Math.max(0, localStorage["selectedSong"] |0), this.songs.length)
 			}
 			assets.sounds["song-select"].play()
 			snd.musicGain.fadeOut()
 			this.playBgm(false)
-		}else{
-			this.selectedSong = this.songs.findIndex(song => song.action === "tutorial")
-			this.playBgm(true)
 		}
 		if("selectedDiff" in localStorage){
 			this.selectedDiff = Math.min(Math.max(0, localStorage["selectedDiff"] |0), 4)
@@ -454,6 +472,8 @@ class SongSelect{
 				}, 200)
 			}else if(currentSong.action === "tutorial"){
 				this.toTutorial()
+			}else if(currentSong.action === "about"){
+				this.toAbout()
 			}
 			this.pointer(false)
 		}
@@ -503,6 +523,13 @@ class SongSelect{
 		this.clean()
 		setTimeout(() => {
 			new Tutorial(true)
+		}, 500)
+	}
+	toAbout(){
+		assets.sounds["don"].play()
+		this.clean()
+		setTimeout(() => {
+			new About(this.touchEnabled)
 		}, 500)
 	}
 	

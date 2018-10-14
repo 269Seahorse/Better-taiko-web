@@ -123,7 +123,8 @@ var assets = {
 		"loadsong.html",
 		"songselect.html",
 		"titlescreen.html",
-		"tutorial.html"
+		"tutorial.html",
+		"about.html"
 	],
 	
 	"songs": [],

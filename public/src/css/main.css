@@ -12,6 +12,7 @@ body{
 	width: 100%;
 	height: 100%;
 	background: #fe7839;
+	position: relative;
 	user-select: none;
 	touch-action: none;
 }
@@ -135,30 +136,34 @@ body{
 #tutorial{
 	background: rgb(246, 234, 212);
 	color: black;
-	border: 5px black solid;
-	border-radius: 10px;
-	height: 65%;
-	max-width: 800px;
-	padding: 20px;
-	margin: 8px;
-	font-size: 16pt;
+	border: 0.25em black solid;
+	border-radius: 0.5em;
+	width: 800px;
+	padding: 1em;
+	margin: 1em;
+	font-size: 21px;
 	position: relative;
+}
+.touch-enabled #tutorial{
+	font-size: 3vmin;
 }
 #tutorial-title{
 	z-index: 1;
 	position: absolute;
 	color: white;
-	top: -25px;
-	font-size: 26pt;
+	top: -0.7em;
+	font-size: 1.65em;
 }
 #tutorial-content{
-	padding: 15px 30px;
+	margin: 0.7em 0;
+	overflow-y: auto;
+	max-height: calc(100vh - 14em);
 }
 kbd{
 	font-family: inherit;
 	padding: 0.1em 0.6em;
 	border: 1px solid #ccc;
-	font-size: 13px;
+	font-size: 0.6em;
 	background-color: #f7f7f7;
 	color: #333;
 	box-shadow: 0 1px 0px rgba(0, 0, 0, 0.2), 0 0 0 2px #ffffff inset;
@@ -169,26 +174,61 @@ kbd{
 	white-space: nowrap;
 }
 .taibtn{
-	bottom: 15px;
-	margin: 0 auto;
-	position: absolute;
-	right: 15px;
-	padding: 10px 40px;
-	border-radius: 15px;
-	border: 3px rgba(218, 205, 178, 1) solid;
+	display: inline-block;
+	padding: 0.4em 0.4em;
+	border-radius: 0.5em;
+	border: 0.1em rgba(218, 205, 178, 1) solid;
 	cursor: pointer;
-}
-.taibtn:hover{
-	z-index: 1;
-	color: white;
-	background: rgb(255, 181, 71);
-	border-color: white;
-}
-.taibtn::before{
-	padding: 0 40px;
+	font-size: 1.4em;
+	box-sizing: border-box;
+	color: #555;
+	text-align: center;
 }
 #tutorial-end-button{
-	font-size: 22pt;
+	float: right;
+	padding: 0.4em 1.5em;
+	font-weight: bold;
+	border-color: #000;
+	color: #000;
+}
+.taibtn:hover,
+#tutorial-end-button:hover{
+	position: relative;
+	z-index: 1;
+	color: #fff;
+	background: #ffb547;
+	border-color: #fff;
+}
+.taibtn::before{
+	padding-left: inherit;
+}
+#about-link-btns{
+	float: left;
+	display: flex;
+}
+#about-link-btns .taibtn{
+	margin-right: 0.4em;
+}
+#diag-txt{
+	width: 100%;
+	height: 5em;
+	font-size: inherit;
+	resize: none;
+	word-break: break-all;
+	margin-bottom: 1em;
+	background: #fff;
+	border: 1px solid #a9a9a9;
+}
+.text-warn{
+	color: #d00;
+}
+.link-btn a{
+	color: inherit;
+	text-decoration: none;
+	pointer-events: none;
+}
+.nowrap{
+	white-space: nowrap;
 }
 @keyframes bgscroll{
 	from{

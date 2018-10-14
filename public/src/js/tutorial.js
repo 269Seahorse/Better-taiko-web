@@ -22,7 +22,7 @@ class Tutorial{
 		assets.sounds["don"].play()
 		localStorage.setItem("tutorial", "true")
 		setTimeout(() => {
-			new SongSelect(this.fromSongSel, false, touched)
+			new SongSelect(this.fromSongSel ? "tutorial" : false, false, touched)
 		}, 500)
 	}
 	clean(){

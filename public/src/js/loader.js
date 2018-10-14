@@ -6,15 +6,6 @@ class Loader{
 		this.canvasTest = new CanvasTest()
 		p2 = new P2Connection()
 		this.ajax("src/views/loader.html").then(this.run.bind(this))
-		
-		pageEvents.add(root, ["touchstart", "touchmove", "touchend"], event => {
-			event.preventDefault()
-		})
-		var versionDiv = document.getElementById("version")
-		var versionLink = document.getElementById("version-link")
-		pageEvents.add(versionDiv, ["click", "touchend"], () => {
-			versionLink.click()
-		})
 	}
 	run(page){
 		this.promises = []
