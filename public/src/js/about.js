@@ -1,5 +1,7 @@
 class About{
 	constructor(touchEnabled){
+		this.issueTemplate = "###### Describe the problem you are having below. Please include a screenshot and the diagnostic information."
+		
 		this.touchEnabled = touchEnabled
 		loader.changePage("about")
 		cancelTouch = false
@@ -14,8 +16,8 @@ class About{
 		this.linkGithub = document.getElementById("link-github")
 		this.linkEmail = document.getElementById("link-email")
 		
-		pageEvents.add(this.linkGithub, ["click", "touchend"], this.linkButton)
-		pageEvents.add(this.linkEmail, ["click", "touchend"], this.linkButton)
+		pageEvents.add(this.linkGithub, ["click", "touchend"], this.linkButton.bind(this))
+		pageEvents.add(this.linkEmail, ["click", "touchend"], this.linkButton.bind(this))
 		pageEvents.once(this.endButton, ["mousedown", "touchstart"]).then(this.onEnd.bind(this))
 		pageEvents.keyOnce(this, 13, "down").then(this.onEnd.bind(this))
 		
@@ -51,6 +53,8 @@ class About{
 		if(!fullScreenSupported){
 			diag.push("Full screen supported: false")
 		}
+		diag.push("Blur performance: " + perf.blur + "ms, all images: " + perf.allImg + "ms")
+		diag.push("Page load: " + (perf.load / 1000).toFixed(1) + "s")
 		if("getGamepads" in navigator){
 			var gamepads = navigator.getGamepads()
 			for(var i = 0; i < gamepads.length; i++){
@@ -78,32 +82,48 @@ class About{
 			}
 		}
 		diag.push("```")
+		var diag = diag.join("\n")
 		
-		var body = this.diagTxt.contentWindow.document.body
-		body.innerText = diag.join("\n")
-		
-		body.setAttribute("style", `
-			font-family: monospace;
-			margin: 2px 0 0 2px;
-			white-space: pre-wrap;
-			word-break: break-all;
-			cursor: text;
-		`)
-		body.setAttribute("onblur", `
-			getSelection().removeAllRanges()
-		`)
-		if(!this.touchEnabled){
-			body.setAttribute("onfocus", `
-				var selection = getSelection()
-				selection.removeAllRanges()
-				var range = document.createRange()
-				range.selectNodeContents(document.body)
-				selection.addRange(range)
+		if(navigator.userAgent.indexOf("Android") >= 0){
+			var iframe = document.createElement("iframe")
+			this.diagTxt.appendChild(iframe)
+			var body = iframe.contentWindow.document.body
+			body.innerText = diag
+			
+			body.setAttribute("style", `
+				font-family: monospace;
+				margin: 2px 0 0 2px;
+				white-space: pre-wrap;
+				word-break: break-all;
+				cursor: text;
 			`)
+			body.setAttribute("onblur", `
+				getSelection().removeAllRanges()
+			`)
+		}else{
+			this.textarea = document.createElement("textarea")
+			this.textarea.readOnly = true
+			this.textarea.value = diag
+			this.diagTxt.appendChild(this.textarea)
+			if(!this.touchEnabled){
+				pageEvents.add(this.textarea, "focus", () => {
+					this.textarea.select()
+				})
+				pageEvents.add(this.textarea, "blur", () => {
+					getSelection().removeAllRanges()
+				})
+			}
 		}
+		
+		var issueBody = this.issueTemplate + "\n\n\n\n" + diag
+		this.getLink(this.linkGithub).href += "?body=" + encodeURIComponent(issueBody)
+		this.getLink(this.linkEmail).href += "?body=" + encodeURIComponent(issueBody.replace(/\n/g, "\r\n"))
+	}
+	getLink(target){
+		return target.getElementsByTagName("a")[0]
 	}
 	linkButton(event){
-		event.currentTarget.getElementsByTagName("a")[0].click()
+		this.getLink(event.currentTarget).click()
 	}
 	clean(){
 		cancelTouch = true
@@ -111,6 +131,9 @@ class About{
 		pageEvents.remove(this.linkGithub, ["click", "touchend"])
 		pageEvents.remove(this.linkEmail, ["click", "touchend"])
 		pageEvents.remove(this.endButton, ["mousedown", "touchstart"])
+		if(this.textarea){
+			pageEvents.remove(this.textarea, ["focus", "blur"])
+		}
 		pageEvents.keyRemove(this, 13)
 		delete this.endButton
 		delete this.diagTxt
@@ -118,5 +141,6 @@ class About{
 		delete this.tutorialOuter
 		delete this.linkGithub
 		delete this.linkEmail
+		delete this.textarea
 	}
 }

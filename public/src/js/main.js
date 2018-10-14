@@ -49,6 +49,11 @@ var p2
 var disableBlur = false
 var cancelTouch = true
 var lastHeight
+var perf = {
+	blur: 0,
+	allImg: 0,
+	load: 0
+}
 
 pageEvents.add(root, ["touchstart", "touchmove", "touchend"], event => {
 	if(event.cancelable && cancelTouch){
