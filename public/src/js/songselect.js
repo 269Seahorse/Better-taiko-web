@@ -1267,26 +1267,35 @@ class SongSelect{
 				if(!loadOnly){
 					this.preview = songObj.preview_sound
 					this.preview.gain = snd.previewGain
-					this.previewLoaded(startLoad, prvTime)
+					this.previewLoaded(startLoad, songObj.preview_time)
 				}
 			}else{
 				var previewFilename = prvTime > 0.1 ? "/preview.mp3" : "/main.mp3"
-				snd.previewGain.load("/songs/" + id + previewFilename).then(sound => {
+				
+				var loadPreview = previewFilename => {
+					return snd.previewGain.load("/songs/" + id + previewFilename)
+				}
+				
+				songObj.preview_time = 0
+				loadPreview(previewFilename).catch(() => {
+					songObj.preview_time = prvTime
+					return loadPreview("/main.mp3")
+				}).then(sound => {
 					if(currentId === this.previewId){
 						songObj.preview_sound = sound
 						this.preview = sound
-						this.previewLoaded(startLoad, prvTime)
+						this.previewLoaded(startLoad, songObj.preview_time)
 					}
 				})
 			}
 		}
 	}
-	previewLoaded(startLoad, prvtime){
+	previewLoaded(startLoad, prvTime){
 		var endLoad = this.getMS()
 		var difference = endLoad - startLoad
 		var minDelay = 300
 		var delay = minDelay - Math.min(minDelay, difference)
-		this.preview.playLoop(delay / 1000, false, 0)
+		this.preview.playLoop(delay / 1000, false, prvTime / 1000)
 	}
 	endPreview(){
 		this.previewId++
