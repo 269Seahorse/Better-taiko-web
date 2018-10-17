@@ -167,6 +167,9 @@ def make_preview(song_id, song_type):
     song_path = 'public/songs/%s/main.mp3' % song_id
     prev_path = 'public/songs/%s/preview.mp3' % song_id
 
+    if os.path.isfile(prev_path):
+        os.remove(prev_path)    
+
     if os.path.isfile(song_path) and not os.path.isfile(prev_path):
         preview = get_preview(song_id, song_type) / 1000
         if not preview or preview <= 0.1:
@@ -175,21 +178,10 @@ def make_preview(song_id, song_type):
 
         print 'Making preview.mp3 for song #%s' % song_id
         ff = FFmpeg(inputs={song_path: '-ss %s' % preview},
-                    outputs={prev_path: '-codec:a libmp3lame -b:a 128k -y -loglevel panic'})
+                    outputs={prev_path: '-codec:a libmp3lame -ar 32000 -b:a 92k -y -loglevel panic'})
         ff.run()
 
     return prev_path
-
-
-def check_song_previews():
-    with app.app_context():
-        songs = query_db('select * from songs where enabled = 1')
-
-    for song in songs:
-        make_preview(song[0], song[10])
-
-
-check_song_previews()
 
 
 if __name__ == '__main__':
