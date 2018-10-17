@@ -1263,16 +1263,17 @@ class SongSelect{
 			}
 			var songObj = assets.songs.find(song => song.id == id)
 			
-			if(songObj.sound){
+			if(songObj.preview_sound){
 				if(!loadOnly){
-					this.preview = songObj.sound
+					this.preview = songObj.preview_sound
 					this.preview.gain = snd.previewGain
 					this.previewLoaded(startLoad, prvTime)
 				}
 			}else{
-				snd.previewGain.load("/songs/" + id + "/main.mp3").then(sound => {
+				var previewFilename = prvTime > 0.1 ? "/preview.mp3" : "/main.mp3"
+				snd.previewGain.load("/songs/" + id + previewFilename).then(sound => {
 					if(currentId === this.previewId){
-						songObj.sound = sound
+						songObj.preview_sound = sound
 						this.preview = sound
 						this.previewLoaded(startLoad, prvTime)
 					}
@@ -1285,7 +1286,7 @@ class SongSelect{
 		var difference = endLoad - startLoad
 		var minDelay = 300
 		var delay = minDelay - Math.min(minDelay, difference)
-		this.preview.playLoop(delay / 1000, false, prvtime / 1000)
+		this.preview.playLoop(delay / 1000, false, 0)
 	}
 	endPreview(){
 		this.previewId++
