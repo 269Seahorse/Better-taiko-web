@@ -167,9 +167,6 @@ def make_preview(song_id, song_type):
     song_path = 'public/songs/%s/main.mp3' % song_id
     prev_path = 'public/songs/%s/preview.mp3' % song_id
 
-    if os.path.isfile(prev_path):
-        os.remove(prev_path)    
-
     if os.path.isfile(song_path) and not os.path.isfile(prev_path):
         preview = get_preview(song_id, song_type) / 1000
         if not preview or preview <= 0.1:
