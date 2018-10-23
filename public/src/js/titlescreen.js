@@ -17,8 +17,8 @@ class Titlescreen{
 		if(!code){
 			code = event.keyCode
 		}
-		if(code == 13 || code == 32 || code == 86 || code == 66){
-			// Enter, Space, V, B
+		if(code == 13 || code == 32 || code == 70 || code == 74){
+			// Enter, Space, F, J
 			this.onPressed()
 		}
 	}

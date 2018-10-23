@@ -255,14 +255,14 @@ class SongSelect{
 		}
 
 		var key = {
-			confirm: code == 13 || code == 32 || code == 86 || code == 66,
-			// Enter, Space, V, B
+			confirm: code == 13 || code == 32 || code == 70 || code == 74,
+			// Enter, Space, F, J
 			cancel: code == 27 || code == 8,
 			// Esc, Backspace
-			left: code == 70 || code == 68,
-			// Left
-			right: code == 74 || code == 75
-			// Right
+			left: code == 68,
+			// Left, D
+			right: code == 75
+			// Right, K
 		}
 		if(key.cancel && event){
 			event.preventDefault()

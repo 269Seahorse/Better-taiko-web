@@ -42,8 +42,8 @@ class Scoresheet{
 			code = event.keyCode
 		}
 		var key = {
-			confirm: code == 13 || code == 32 || code == 86 || code == 66,
-			// Enter, Space, V, B
+			confirm: code == 13 || code == 32 || code == 70 || code == 74,
+			// Enter, Space, F, J
 			cancel: code == 27 || code == 8
 			// Esc, Backspace
 		}
