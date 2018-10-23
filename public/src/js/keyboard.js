@@ -4,10 +4,10 @@ class Keyboard{
 		this.game = this.controller.game
 		
 		this.kbd = {
-			"don_l": 86, // V
-			"don_r": 66, // B
-			"ka_l": 67, // C
-			"ka_r": 78, // N
+			"don_l": 70, // F
+			"don_r": 74, // J
+			"ka_l": 68, // D
+			"ka_r": 75, // K
 			"pause": 81, // Q
 			"back": 8, // Backspace
 			"previous": 38, // Up

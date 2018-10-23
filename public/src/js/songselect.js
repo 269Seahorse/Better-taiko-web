@@ -253,15 +253,16 @@ class SongSelect{
 		if(code === "ctrl" || code === "shift"){
 			return
 		}
+
 		var key = {
 			confirm: code == 13 || code == 32 || code == 86 || code == 66,
 			// Enter, Space, V, B
 			cancel: code == 27 || code == 8,
 			// Esc, Backspace
-			left: code == 37 || code == 67,
-			// Left, C
-			right: code == 39 || code == 78
-			// Right, N
+			left: code == 70 || code == 68,
+			// Left
+			right: code == 74 || code == 75
+			// Right
 		}
 		if(key.cancel && event){
 			event.preventDefault()
