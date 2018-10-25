@@ -27,6 +27,7 @@ class CanvasAsset{
 			}else{
 				frame = this.mod(this.animation, index)
 			}
+			this.ctx.save()
 			var pos = this.position(frame)
 			if(this.image){
 				this.ctx.drawImage(this.image,
@@ -35,9 +36,7 @@ class CanvasAsset{
 					pos.x, pos.y, pos.w, pos.h
 				)
 			}
-			if(pos.callback){
-				pos.callback()
-			}
+			this.ctx.restore()
 		}
 	}
 	mod(length, index){

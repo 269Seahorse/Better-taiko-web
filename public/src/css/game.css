@@ -1,9 +1,10 @@
 #game{
 	width: 100%;
 	height: 100%;
-	position: asbolute;
+	position: absolute;
 	overflow: hidden;
 	background-size: cover;
+	background-position: center;
 }
 #game.default-bg{
 	background-size: calc(100vh / 720 * 512);
@@ -70,7 +71,7 @@
 #touch-buttons{
 	display: none;
 	position: absolute;
-	top: 6.5vh;
+	top: 8vh;
 	right: 2vh;
 	opacity: 0.5;
 	z-index: 5;
@@ -78,6 +79,12 @@
 #touch-buttons img{
 	width: 12.5vmin;
 	height: 12.5vmin;
+}
+.portrait #touch-buttons{
+	top: 11vh;
+}
+.touchp2 #touch-buttons{
+	top: -1.9vh;
 }
 .touch-visible #touch-drum,
 .touch-visible #touch-buttons{

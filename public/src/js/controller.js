@@ -81,6 +81,17 @@ class Controller{
 					if(this.syncWith){
 						this.syncWith.mainLoop()
 					}
+					
+					if(this.scoresheet){
+						if(this.view.ctx){
+							this.view.ctx.save()
+							this.view.ctx.setTransform(1, 0, 0, 1, 0, 0)
+						}
+						this.scoresheet.redraw()
+						if(this.view.ctx){
+							this.view.ctx.restore()
+						}
+					}
 				})
 			}
 			var ms = this.game.elapsedTime
@@ -104,10 +115,6 @@ class Controller{
 				this.view.refresh()
 			}
 			this.keyboard.checkMenuKeys()
-			
-			if(this.scoresheet){
-				this.scoresheet.redraw()
-			}
 		}
 	}
 	togglePauseMenu(){
@@ -117,11 +124,13 @@ class Controller{
 	gameEnded(){
 		var score = this.getGlobalScore()
 		var vp
-		if(score.bad === 0){
-			vp = "fullcombo"
-			this.playSoundMeka("fullcombo", 1.350)
-		}else if(score.gauge >= 50){
-			vp = "clear"
+		if(Math.round(score.gauge / 2) - 1 >= 25){
+			if(score.bad === 0){
+				vp = "fullcombo"
+				this.playSoundMeka("fullcombo", 1.350)
+			}else{
+				vp = "clear"
+			}
 		}else{
 			vp = "fail"
 		}
@@ -132,8 +141,8 @@ class Controller{
 			this.scoresheet = new Scoresheet(this, this.getGlobalScore(), this.multiplayer)
 		}
 	}
-	displayScore(score, notPlayed){
-		this.view.displayScore(score, notPlayed)
+	displayScore(score, notPlayed, bigNote){
+		this.view.displayScore(score, notPlayed, bigNote)
 	}
 	songSelection(fadeIn){
 		if(!fadeIn){

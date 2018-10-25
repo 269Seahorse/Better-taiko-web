@@ -1,14 +1,17 @@
 class CanvasCache{
 	constructor(w, h, scale){
-		this.canvas = document.createElement("canvas")
-		this.ctx = this.canvas.getContext("2d")
-		this.map = new Map()
 		if(w){
 			this.resize(w, h, scale)
 		}
 	}
 	resize(w, h, scale){
-		this.map.clear()
+		if(this.canvas){
+			this.map.clear()
+		}else{
+			this.map = new Map()
+			this.canvas = document.createElement("canvas")
+			this.ctx = this.canvas.getContext("2d")
+		}
 		this.scale = scale
 		this.x = 0
 		this.y = 0
@@ -20,8 +23,11 @@ class CanvasCache{
 		this.canvas.height = this.h * this.scale
 		this.ctx.scale(this.scale, this.scale)
 	}
-	get(config, callback){
+	get(config, callback, setOnly){
 		var img = this.map.get(config.id)
+		if(img && setOnly || !img && !callback){
+			return
+		}
 		var saved = false
 		if(!img){
 			var w = config.w
@@ -50,6 +56,10 @@ class CanvasCache{
 			
 			callback(this.ctx)
 		}
+		if(setOnly){
+			this.ctx.restore()
+			return
+		}
 		var z = this.scale
 		config.ctx.drawImage(this.canvas,
 			img.x * z |0, img.y * z |0, img.w * z |0, img.h * z |0,
@@ -58,6 +68,9 @@ class CanvasCache{
 		if(saved){
 			this.ctx.restore()
 		}
+	}
+	set(config, callback){
+		return this.get(config, callback, true)
 	}
 	clean(){
 		delete this.map

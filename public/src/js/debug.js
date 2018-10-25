@@ -117,6 +117,10 @@ class Debug{
 						break
 					}
 				}
+				if(game.mainMusicPlaying){
+					game.mainMusicPlaying = false
+					game.mainAsset.stop()
+				}
 			}
 			this.autoplayCheckbox.checked = this.controller.autoPlayEnabled
 		}

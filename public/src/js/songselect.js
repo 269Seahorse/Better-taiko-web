@@ -156,6 +156,21 @@ class SongSelect{
 			letterBorder: 12
 		}
 		
+		this.diffOptions = [{
+			text: "もどる",
+			fill: "#efb058",
+			iconName: "back",
+			iconFill: "#f7d39c",
+			letterSpacing: 4
+		}, {
+			text: "演奏オプション",
+			fill: "#b2e442",
+			iconName: "options",
+			iconFill: "#d9f19f",
+			letterSpacing: 0
+		}]
+		this.optionsList = ["なし", "オート", "ネットプレイ"]
+		
 		this.draw = new CanvasDraw()
 		this.songTitleCache = new CanvasCache()
 		this.selectTextCache = new CanvasCache()
@@ -185,7 +200,7 @@ class SongSelect{
 			this.playBgm(false)
 		}
 		if("selectedDiff" in localStorage){
-			this.selectedDiff = Math.min(Math.max(0, localStorage["selectedDiff"] |0), 4)
+			this.selectedDiff = Math.min(Math.max(0, localStorage["selectedDiff"] |0), this.diffOptions.length + 3)
 		}
 		
 		this.songSelect = document.getElementById("song-select")
@@ -202,7 +217,8 @@ class SongSelect{
 			ura: 0,
 			moveHover: null,
 			locked: true,
-			hasPointer: false
+			hasPointer: false,
+			options: 0
 		}
 		this.songSelecting = {
 			speed: 800,
@@ -218,6 +234,8 @@ class SongSelect{
 			"8": ["a"],
 			"37": ["l", "lb", "lt", "lsl"],
 			"39": ["r", "rb", "rt", "lsr"],
+			"38": ["u", "lsu"],
+			"40": ["d", "lsd"],
 			"ctrl": ["y"],
 			"shift": ["x"]
 		})
@@ -259,10 +277,14 @@ class SongSelect{
 			// Enter, Space, F, J
 			cancel: code == 27 || code == 8,
 			// Esc, Backspace
-			left: code == 68,
+			left: code == 37 || code == 68,
 			// Left, D
-			right: code == 75
+			right: code == 39 || code == 75,
 			// Right, K
+			up: code == 38,
+			// Up
+			down: code == 40
+			// Down
 		}
 		if(key.cancel && event){
 			event.preventDefault()
@@ -281,8 +303,10 @@ class SongSelect{
 			if(key.confirm){
 				if(this.selectedDiff === 0){
 					this.toSongSelect()
+				}else if(this.selectedDiff === 1){
+					this.toOptions(1)
 				}else{
-					this.toLoadSong(this.selectedDiff - 1, modifiers.shift, modifiers.ctrl)
+					this.toLoadSong(this.selectedDiff - this.diffOptions.length, modifiers.shift, modifiers.ctrl)
 				}
 			}else if(key.cancel){
 				this.toSongSelect()
@@ -290,6 +314,8 @@ class SongSelect{
 				this.moveToDiff(-1)
 			}else if(key.right){
 				this.moveToDiff(1)
+			}else if(this.selectedDiff === 1 && (key.up || key.down)){
+				this.toOptions(key.up ? -1 : 1)
 			}
 		}
 	}
@@ -319,20 +345,21 @@ class SongSelect{
 			}
 		}else if(this.state.screen === "difficulty"){
 			var moveBy = this.diffSelMouse(mouse.x, mouse.y)
-			if(
-				moveBy === 0
-				|| mouse.x < 55 || mouse.x > 967
-				|| mouse.y < 40 || mouse.y > 540
-			){
+			if(mouse.x < 55 || mouse.x > 967 || mouse.y < 40 || mouse.y > 540){
 				this.toSongSelect()
-			}else if(moveBy === 5){
+			}else if(moveBy === 0){
+				this.selectedDiff = 0
+				this.toSongSelect()
+			}else if(moveBy === 1){
+				this.toOptions(1)
+			}else if(moveBy === this.diffOptions.length + 4){
 				this.state.ura = !this.state.ura
 				assets.sounds["ka"].play()
-				if(this.selectedDiff === 5 && !this.state.ura){
+				if(this.selectedDiff === this.diffOptions.length + 4 && !this.state.ura){
 					this.state.move = -1
 				}
 			}else if(moveBy !== null){
-				this.toLoadSong(moveBy - 1, shift, ctrl, touch)
+				this.toLoadSong(moveBy - this.diffOptions.length, shift, ctrl, touch)
 			}
 		}
 	}
@@ -393,12 +420,12 @@ class SongSelect{
 	}
 	diffSelMouse(x, y){
 		if(this.state.locked === 0){
-			if(100 < x && x < 160 && 120 < y && y < 420){
-				return 0
+			if(95 < x && x < 239 && 118 < y && y < 422){
+				return Math.floor((x - 95) / ((239 - 95) / 2))
 			}else if(422 < x && x < 922 && 95 < y && y < 524){
-				var moveBy = Math.floor((x - 422) / ((922 - 422) / 5)) + 1
+				var moveBy = Math.floor((x - 422) / ((922 - 422) / 5)) + this.diffOptions.length
 				var currentSong = this.songs[this.selectedSong]
-				if(this.state.ura && moveBy === 4 || currentSong.stars[moveBy - 1]){
+				if(this.state.ura && moveBy === this.diffOptions + 3 || currentSong.stars[moveBy - this.diffOptions.length]){
 					return moveBy
 				}
 			}
@@ -451,8 +478,8 @@ class SongSelect{
 				this.state.locked = true
 				this.state.moveHover = null
 				this.state.ura = 0
-				if(this.selectedDiff === 5){
-					this.selectedDiff = 4
+				if(this.selectedDiff === this.diffOptions.length + 4){
+					this.selectedDiff = this.diffOptions.length + 3
 				}
 				
 				assets.sounds["don"].play()
@@ -497,10 +524,21 @@ class SongSelect{
 		assets.sounds["don"].play()
 		
 		localStorage["selectedSong"] = this.selectedSong
-		localStorage["selectedDiff"] = difficulty + 1
+		localStorage["selectedDiff"] = difficulty + this.diffOptions.length
 		
 		if(difficulty === 3 && this.state.ura){
 			difficulty = 4
+		}
+		var autoplay = false
+		var multiplayer = false
+		if(this.state.options === 1){
+			autoplay = true
+		}else if(this.state.options === 2){
+			multiplayer = true
+		}else if(shift){
+			autoplay = shift
+		}else{
+			multiplayer = ctrl
 		}
 		
 		new loadSong({
@@ -510,7 +548,12 @@ class SongSelect{
 			"category": selectedSong.category,
 			"type": selectedSong.type,
 			"offset": selectedSong.offset
-		}, shift, ctrl, touch)
+		}, autoplay, multiplayer, touch)
+	}
+	toOptions(moveBy){
+		assets.sounds["ka"].play()
+		this.selectedDiff = 1
+		this.state.options = this.mod(this.optionsList.length, this.state.options + moveBy)
 	}
 	toTitleScreen(){
 		assets.sounds["cancel"].play()
@@ -745,25 +788,25 @@ class SongSelect{
 				do{
 					if(hasUra && this.state.move > 0){
 						this.selectedDiff += this.state.move
-						if(this.selectedDiff > 5){
+						if(this.selectedDiff > this.diffOptions.length + 4){
 							this.state.ura = !this.state.ura
 							if(this.state.ura){
-								this.selectedDiff = previousSelection === 4 ? 5 : previousSelection
+								this.selectedDiff = previousSelection === this.diffOptions.length + 3 ? this.diffOptions.length + 4 : previousSelection
 								break
 							}else{
 								this.state.move = -1
 							}
 						}
 					}else{
-						this.selectedDiff = this.mod(6, this.selectedDiff + this.state.move)
+						this.selectedDiff = this.mod(this.diffOptions.length + 5, this.selectedDiff + this.state.move)
 					}
 				}while(
-					this.selectedDiff !== 0 && !currentSong.stars[this.selectedDiff - 1]
-					|| this.selectedDiff === 4 && this.state.ura
-					|| this.selectedDiff === 5 && !this.state.ura
+					this.selectedDiff >= this.diffOptions.length && !currentSong.stars[this.selectedDiff - this.diffOptions.length]
+					|| this.selectedDiff === this.diffOptions.length + 3 && this.state.ura
+					|| this.selectedDiff === this.diffOptions.length + 4 && !this.state.ura
 				)
 				this.state.move = 0
-			}else if(!currentSong.stars[this.selectedDiff - 1]){
+			}else if(this.selectedDiff < 0 || this.selectedDiff >= this.diffOptions.length && !currentSong.stars[this.selectedDiff - this.diffOptions.length]){
 				this.selectedDiff = 0
 			}
 		}
@@ -897,70 +940,80 @@ class SongSelect{
 					})
 					var opened = 1
 					var songSel = false
-					var _x = x + 62
-					var _y = y + 67
-					ctx.fillStyle = "#efb058"
-					ctx.lineWidth = 5
-					this.draw.roundedRect({
-						ctx: ctx,
-						x: _x - 28,
-						y: _y,
-						w: 56,
-						h: 298,
-						radius: 24
-					})
-					ctx.fill()
-					ctx.stroke()
-					ctx.fillStyle = "#f7d39c"
-					ctx.beginPath()
-					ctx.arc(_x, _y + 28, 20, 0, Math.PI * 2)
-					ctx.fill()
-					this.draw.diffOptionsIcon({
-						ctx: ctx,
-						x: _x,
-						y: _y + 28
-					})
 					
-					this.draw.verticalText({
-						ctx: ctx,
-						text: "もどる",
-						x: _x,
-						y: _y + 57,
-						width: 56,
-						height: 220,
-						fill: "#fff",
-						outline: "#000",
-						outlineSize: this.songAsset.letterBorder,
-						letterBorder: 4,
-						fontSize: 28,
-						fontFamily: this.font,
-						letterSpacing: 4
-					})
-					var highlight = 0
-					if(this.state.moveHover === 0){
-						highlight = 2
-					}else if(this.selectedDiff === 0){
-						highlight = 1
-					}
-					if(highlight){
-						this.draw.highlight({
+					for(var i = 0; i < this.diffOptions.length; i++){
+						var _x = x + 62 + i * 72
+						var _y = y + 67
+						ctx.fillStyle = this.diffOptions[i].fill
+						ctx.lineWidth = 5
+						this.draw.roundedRect({
 							ctx: ctx,
-							x: _x - 32,
-							y: _y - 3,
-							w: 64,
-							h: 304,
-							animate: highlight === 1,
-							animateMS: this.state.moveMS,
-							opacity: highlight === 2 ? 0.8 : 1,
+							x: _x - 28,
+							y: _y,
+							w: 56,
+							h: 298,
 							radius: 24
 						})
-						if(this.selectedDiff === 0){
-							this.draw.diffCursor({
+						ctx.fill()
+						ctx.stroke()
+						ctx.fillStyle = this.diffOptions[i].iconFill
+						ctx.beginPath()
+						ctx.arc(_x, _y + 28, 20, 0, Math.PI * 2)
+						ctx.fill()
+						this.draw.diffOptionsIcon({
+							ctx: ctx,
+							x: _x,
+							y: _y + 28,
+							iconName: this.diffOptions[i].iconName
+						})
+						
+						var text = this.diffOptions[i].text
+						if(this.diffOptions[i].iconName === "options" && (this.selectedDiff === i || this.state.options !== 0)){
+							text = this.optionsList[this.state.options]
+						}
+						
+						this.draw.verticalText({
+							ctx: ctx,
+							text: text,
+							x: _x,
+							y: _y + 57,
+							width: 56,
+							height: 220,
+							fill: "#fff",
+							outline: "#000",
+							outlineSize: this.songAsset.letterBorder,
+							letterBorder: 4,
+							fontSize: 28,
+							fontFamily: this.font,
+							letterSpacing: this.diffOptions[i].letterSpacing
+						})
+						
+						var highlight = 0
+						if(this.state.moveHover === i){
+							highlight = 2
+						}else if(this.selectedDiff === i){
+							highlight = 1
+						}
+						if(highlight){
+							this.draw.highlight({
 								ctx: ctx,
-								font: this.font,
-								x: _x,
-								y: _y - 45
+								x: _x - 32,
+								y: _y - 3,
+								w: 64,
+								h: 304,
+								animate: highlight === 1,
+								animateMS: this.state.moveMS,
+								opacity: highlight === 2 ? 0.8 : 1,
+								radius: 24
 							})
+							if(this.selectedDiff === i && !this.touchEnabled){
+								this.draw.diffCursor({
+									ctx: ctx,
+									font: this.font,
+									x: _x,
+									y: _y - 45
+								})
+							}
 						}
 					}
 				}
@@ -1057,8 +1110,8 @@ class SongSelect{
 								})
 							}
 						}
-						var currentDiff = this.selectedDiff - 1
-						if(this.selectedDiff === 5){
+						var currentDiff = this.selectedDiff - this.diffOptions.length
+						if(this.selectedDiff === 4 + this.diffOptions.length){
 							currentDiff = 3
 						}
 						if(i === currentSong.p2Cursor){
@@ -1074,12 +1127,12 @@ class SongSelect{
 						}
 						if(!songSel){
 							var highlight = 0
-							if(this.state.moveHover - 1 === i){
+							if(this.state.moveHover - this.diffOptions.length === i){
 								highlight = 2
 							}else if(currentDiff === i){
 								highlight = 1
 							}
-							if(currentDiff === i){
+							if(currentDiff === i && !this.touchEnabled){
 								this.draw.diffCursor({
 									ctx: ctx,
 									font: this.font,

@@ -111,7 +111,7 @@ class Keyboard{
 				this.controller.togglePauseMenu()
 				for(var key in this.keyTime){
 					this.keys[key] = null
-					this.keyTime[key] = null
+					this.keyTime[key] = -Infinity
 				}
 			})
 			var moveMenuMinus = () => {
