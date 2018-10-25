@@ -131,4 +131,11 @@ class ViewAssets{
 			asset.changeBeatInterval(beatMS, initial)
 		})
 	}
+	clean(){
+		delete this.ctx
+		delete this.don
+		delete this.fire
+		delete this.fireworks
+		delete this.allAssets
+	}
 }

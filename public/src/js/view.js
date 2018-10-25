@@ -1286,22 +1286,26 @@
 		return this.controller.getElapsedTime()
 	}
 	clean(){
+		this.draw.clean()
+		this.assets.clean()
+		this.titleCache.clean()
 		this.comboCache.clean()
 		
 		if(this.multiplayer !== 2){
 			pageEvents.remove(window, "resize")
+			if(this.touchEnabled){
+				pageEvents.remove(this.canvas, "touchstart")
+				pageEvents.remove(this.touchFullBtn, "touchend")
+				pageEvents.remove(this.touchPauseBtn, "touchend")
+				this.gameDiv.classList.remove("touch-visible")
+				document.getElementById("version").classList.remove("version-hide")
+				delete this.touchDrumDiv
+				delete this.touchDrumImg
+				delete this.touchFullBtn
+				delete this.touchPauseBtn
+			}
 		}
-		if(this.touchEnabled){
-			pageEvents.remove(this.canvas, "touchstart")
-			pageEvents.remove(this.touchFullBtn, "touchend")
-			pageEvents.remove(this.touchPauseBtn, "touchend")
-			this.gameDiv.classList.remove("touch-visible")
-			document.getElementById("version").classList.remove("version-hide")
-			delete this.touchDrumDiv
-			delete this.touchDrumImg
-			delete this.touchFullBtn
-			delete this.touchPauseBtn
-		}
+		pageEvents.mouseRemove(this)
 		delete this.pauseMenu
 		delete this.cursor
 		delete this.gameDiv
