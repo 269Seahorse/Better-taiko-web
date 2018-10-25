@@ -116,9 +116,6 @@ class Game{
 			}
 		}
 	}
-	setHPGain(gain){
-		this.HPGain = gain
-	}
 	checkPlays(){
 		var circles = this.songData.circles
 		var circle = circles[this.currentCircle]
@@ -200,14 +197,15 @@ class Game{
 				if(circleStatus === 230 || circleStatus === 450){
 					score = circleStatus
 				}
-				this.controller.displayScore(score)
+				circle.played(score, score === 0 ? typeDai : keyDai)
+				this.controller.displayScore(score, false, typeDai && keyDai)
 			}else{
-				this.controller.displayScore(score, true)
+				circle.played(-1, typeDai)
+				this.controller.displayScore(score, true, false)
 			}
 			this.updateCombo(score)
 			this.updateGlobalScore(score, typeDai && keyDai ? 2 : 1, circle.gogoTime)
 			this.updateCurrentCircle()
-			circle.played(score, score === 0 ? typeDai : keyDai)
 			if(this.controller.multiplayer == 1){
 				p2.send("note", {
 					score: score,

@@ -94,7 +94,7 @@ class loadSong{
 					this.clean()
 					loader.changePage("game")
 					var taikoGame1 = new Controller(this.selectedSong, this.songData, false, 1, this.touchEnabled)
-					var taikoGame2 = new Controller(this.selectedSong2, this.song2Data, true, 2)
+					var taikoGame2 = new Controller(this.selectedSong2, this.song2Data, true, 2, this.touchEnabled)
 					taikoGame1.run(taikoGame2)
 				}
 			})

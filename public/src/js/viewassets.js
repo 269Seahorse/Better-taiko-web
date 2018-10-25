@@ -9,17 +9,17 @@ class ViewAssets{
 			var imgw = 360
 			var imgh = 184
 			var scale = 165
-			var w = (this.view.barH * imgw) / scale
-			var h = (this.view.barH * imgh) / scale
+			var w = imgw
+			var h = imgh
 			return {
 				sx: Math.floor(frame / 10) * imgw,
-				sy: (frame % 10) * imgh,
+				sy: (frame % 10) * imgh + 1,
 				sw: imgw,
-				sh: imgh,
-				x: this.view.taikoSquareW - w + this.view.barH * 0.2,
-				y: this.view.barY - h,
+				sh: imgh - 1,
+				x: view.portrait ? -60 : 0,
+				y: view.portrait ? (view.multiplayer === 2 ? 560 : 35) : (view.multiplayer === 2 ? 360 : 2),
 				w: w,
-				h: h
+				h: h - 1
 			}
 		})
 		this.don.addFrames("normal", [
@@ -41,7 +41,7 @@ class ViewAssets{
 				var length = this.don.getAnimationLength("gogo")
 				this.don.setUpdateSpeed(4 / length)
 				this.don.setAnimation("gogo")
-			}else if(this.controller.getGlobalScore().gauge >= 50){
+			}else if(Math.round(this.controller.getGlobalScore().gauge / 2) - 1 >= 25){
 				this.don.setAnimationStart(0)
 				var length = this.don.getAnimationLength("clear")
 				this.don.setUpdateSpeed(2 / length)
@@ -58,31 +58,31 @@ class ViewAssets{
 		this.fire = this.createAsset("bar", frame => {
 			var imgw = 360
 			var imgh = 370
-			var scale = 175
-			var ms = this.controller.getElapsedTime()
+			var scale = 130
+			var ms = this.view.getMS()
 			var elapsed = ms - this.view.gogoTimeStarted
+			
+			var mul = this.view.slotPos.size / 106
+			var barH = 130 * mul
+			
 			if(this.view.gogoTime){
 				var grow = 3 - Math.min(200, elapsed) / 100
 				this.ctx.globalAlpha = Math.min(200, elapsed) / 200
 			}else{
 				var grow = 1 - Math.min(100, elapsed) / 100
 			}
-			var w = (this.view.barH * imgw) / scale * grow
-			var h = (this.view.barH * imgh) / scale * grow
+			var w = (barH * imgw) / scale * grow
+			var h = (barH * imgh) / scale * grow
 			this.ctx.globalCompositeOperation = "lighter"
 			return {
 				sx: frame * imgw,
 				sy: 0,
 				sw: imgw,
 				sh: imgh,
-				x: this.view.slotX - w / 2,
-				y: this.view.circleY - h / 2,
+				x: this.view.slotPos.x - w / 2,
+				y: this.view.slotPos.y - h / 2,
 				w: w,
-				h: h,
-				callback: () => {
-					this.ctx.globalCompositeOperation = "source-over"
-					this.ctx.globalAlpha = 1
-				}
+				h: h
 			}
 		})
 		this.fire.addFrames("normal", 7, "fire_anim")
@@ -93,15 +93,17 @@ class ViewAssets{
 				var imgw = 230
 				var imgh = 460
 				var scale = 165
-				var w = (this.view.barH * imgw) / scale
-				var h = (this.view.barH * imgh) / scale
+				var w = imgw
+				var h = imgh
+				var winW = this.view.winW / this.view.ratio
+				var winH = this.view.winH / this.view.ratio
 				return {
 					sx: Math.floor(frame / 4) * imgw,
 					sy: (frame % 4) * imgh,
 					sw: imgw,
 					sh: imgh,
-					x: this.view.winW / 4 * i - w / 2 * (i / 2),
-					y: this.view.winH - h,
+					x: winW / 4 * i - w / 2 * (i / 2),
+					y: winH - h,
 					w: w,
 					h: h
 				}
@@ -118,17 +120,22 @@ class ViewAssets{
 		return asset
 	}
 	drawAssets(layer){
-		if(this.controller.multiplayer !== 2 || layer === "bar"){
-			this.allAssets.forEach(asset => {
-				if(layer === asset.layer){
-					asset.draw()
-				}
-			})
-		}
+		this.allAssets.forEach(asset => {
+			if(layer === asset.layer){
+				asset.draw()
+			}
+		})
 	}
 	changeBeatInterval(beatMS, initial){
 		this.allAssets.forEach(asset => {
 			asset.changeBeatInterval(beatMS, initial)
 		})
+	}
+	clean(){
+		delete this.ctx
+		delete this.don
+		delete this.fire
+		delete this.fireworks
+		delete this.allAssets
 	}
 }

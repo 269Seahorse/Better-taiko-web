@@ -416,16 +416,25 @@ class Scoresheet{
 					results = p2.results
 					ctx.translate(0, p2Offset)
 				}
-				ctx.drawImage(assets.image["hp-bar-bg"],
-					552, 120, 688, 48
-				)
-				var gauge = results.gauge / 100
-				if(gauge > 0){
-					ctx.drawImage(assets.image["hp-bar-colour"],
-						0, 0, 650 * gauge, 40,
-						557, 127, 635 * gauge, 37,
-					)
-				}
+				var gaugePercent = Math.round(results.gauge / 2) / 50
+				var w = 712
+				this.draw.gauge({
+					ctx: ctx,
+					x: 558 + w,
+					y: 116,
+					clear: 25 / 50,
+					percentage: gaugePercent,
+					font: this.font,
+					scale: w / 788,
+					scoresheet: true
+				})
+				this.draw.soul({
+					ctx: ctx,
+					x: 1215,
+					y: 144,
+					scale: 36 / 42,
+					cleared: gaugePercent - 1 / 50 >= 25 / 50
+				})
 			}
 			ctx.restore()
 		}
@@ -441,10 +450,8 @@ class Scoresheet{
 					results = p2.results
 				}
 				var crownType = null
-				if(results.bad === "0"){
-					crownType = "gold"
-				}else if(results.gauge >= 50){
-					crownType = "silver"
+				if(Math.round(results.gauge / 2) - 1 >= 25){
+					crownType = results.bad === "0" ? "gold" : "silver"
 				}
 				if(crownType !== null){
 					noCrownResultWait = 0;

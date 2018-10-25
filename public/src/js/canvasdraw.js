@@ -39,6 +39,13 @@
 		
 		this.crownPath = new Path2D("m82 21c0-4 3-6 5.5-6 2.5 0 5.5 2 5.5 6 0 4-3 6-5.5 6C85 27 82 25 82 21ZM41.5 6c0-4 3-6 5.5-6 2.5 0 5.5 2 5.5 6 0 4-3 6-5.5 6-2.5 0-5.5-2-5.5-6zM1 21C1 17 4 15 6.5 15 9 15 12 17 12 21 12 25 9 27 6.5 27 4 27 1 25 1 21Zm12 46h68l2 11H11ZM13 62 5 18 29 34 47 6 65 34 89 18 81 62Z")
 		
+		this.soulPath = new Path2D("m37 29c1-4 7 2 7 4 0 1-2 2-4 2-1 0-1-4-3-6zm-4-7c3 1 5 3 4 5-1 2-3 3-3 4 3-2 5-2 5-2 0 0-1 3-5 5-4 3-5-1-3-4 2-3 3-6 0-7zm-3 8c1 3-5 10 8 7 6-1 2-4 2-4 5 1 7 3 7 5 0 3-8 4-12 4-4 0-9-2-9-5 0 0 0-6-1-8 0-3 3-3 5 1zM20 23h8C27 27 20 44 9 42 18 36 23 28 21 26 19 24 20 23 20 23Zm0-6c4-2 9-4 14-2v2c-5 0-9 1-14 2zm8-7v12h-4c2-1 1-9-1-10zm-6 12c3 0 10-2 10-2 0 0 1-10 0-10-5 1-8 3-12 3 0 0 2 5 2 9zm0-12c0 0 6-1 9-3 3-2 9 3 8 6-1 3-2 6-4 9-2 2-15 2-15 2-1 0-3-7-2-11zM21 0c8 0 10 3 8 5 0 0-6 7-15 10C22 8 23 3 23 3 23 1 21 0 21 0ZM5 9c-1 3 2 6 4 6 5-1 13-6 4-7-3 0-5 5-8 1zm7 17c2-1 4-1 6 1 2 2 1 6-2 6-1 0-2-2-2-2-1-2-3-4-2-5zm2 4c-3 2-4 5-5 6-1 1-4 2-6-2-1-2 0-3 2-5l4-4c0-1-1 0-4 1-2 1-5-2-4-4 2-5 1 0 3-1 6-4 9-5 11-3 2 2 0 3-2 5-1 1-3 4-4 6 0 1 3-1 4-2")
+		
+		this.optionsPath = {
+			shadow: new Path2D("M4-1V8H9V0l1-1 3 6v4l-4 5v10l4 5v4l-2 4-2 1V30H4L5 37 3 38 0 33V29L4 24V14L0 9V5L3 0Z"),
+			main: new Path2D("M4 0V8H9V0h1l3 5v4l-4 5v10l4 5v4l-3 5H9V30H4v8H3L0 33V29L4 24V14L0 9V5L3 0Z")
+		}
+		
 		this.regex = {
 			comma: /[,.]/,
 			ideographicComma: /[、。]/,
@@ -76,11 +83,25 @@
 		var h = config.h
 		var r = config.radius
 		ctx.beginPath()
-		ctx.arc(x + r, y + r, r, Math.PI, Math.PI * 1.5)
-		ctx.arc(x + w - r, y + r, r, Math.PI * 1.5, 0)
-		ctx.arc(x + w - r, y + h - r, r, 0, Math.PI / 2)
-		ctx.arc(x + r, y + h - r, r, Math.PI / 2, Math.PI)
-		ctx.lineTo(x, y + r)
+		this.roundedCorner(ctx, x, y, r, 0)
+		this.roundedCorner(ctx, x + w, y, r, 1)
+		this.roundedCorner(ctx, x + w, y + h, r, 2)
+		this.roundedCorner(ctx, x, y + h, r, 3)
+		ctx.closePath()
+	}
+	
+	roundedCorner(ctx, x, y, r, rotation){
+		var pi = Math.PI
+		switch(rotation){
+			case 0:
+				return ctx.arc(x + r, y + r, r, pi, pi / -2)
+			case 1:
+				return ctx.arc(x - r, y + r, r, pi / -2, 0)
+			case 2:
+				return ctx.arc(x - r, y - r, r, 0, pi / 2)
+			case 3:
+				return ctx.arc(x + r, y - r, r, pi / 2, pi)
+		}
 	}
 	
 	songFrame(config){
@@ -428,6 +449,9 @@
 		}
 		
 		ctx.translate(config.x, config.y)
+		if(config.scale){
+			ctx.scale(config.scale[0], config.scale[1])
+		}
 		var scale = 1
 		if(config.width && drawnWidth > config.width){
 			scale = config.width / drawnWidth
@@ -438,7 +462,13 @@
 		ctx.textAlign = "center"
 		
 		for(let layer of layers){
+			var savedLayer = false
 			var action = "strokeText"
+			if(layer.scale){
+				savedLayer = true
+				ctx.save()
+				ctx.scale(layer.scale[0], layer.scale[1])
+			}
 			if(layer.outline){
 				ctx.strokeStyle = layer.outline
 				ctx.lineJoin = "round"
@@ -452,7 +482,10 @@
 				action = "fillText"
 			}
 			if(layer.shadow){
-				ctx.save() 
+				if(!savedLayer){
+					savedLayer = true
+					ctx.save()
+				}
 				this.shadow({
 					ctx: ctx,
 					fill: "rgba(0, 0, 0, " + (1 / (layer.shadow[3] || 2)) + ")",
@@ -501,7 +534,7 @@
 				}
 				offsetX += symbol.w * mul
 			}
-			if(layer.shadow){
+			if(savedLayer){
 				ctx.restore()
 			}
 		}
@@ -538,42 +571,59 @@
 	diffOptionsIcon(config){
 		var ctx = config.ctx
 		ctx.save()
-		ctx.translate(config.x - 21, config.y - 21)
 		
-		var drawLine = y => {
-			ctx.beginPath()
-			ctx.moveTo(12, y)
-			ctx.arc(20.5, 25, 8.5, Math.PI, Math.PI * 2, true)
-			ctx.lineTo(29, 18)
-			ctx.stroke()
-		}
-		var drawTriangle = noFill => {
-			ctx.beginPath()
-			ctx.moveTo(29, 5)
-			ctx.lineTo(21, 19)
-			ctx.lineTo(37, 19)
-			ctx.closePath()
-			if(!noFill){
-				ctx.fill()
+		if(config.iconName === "back"){
+			ctx.translate(config.x - 21, config.y - 21)
+			
+			var drawLine = y => {
+				ctx.beginPath()
+				ctx.moveTo(12, y)
+				ctx.arc(20.5, 25, 8.5, Math.PI, Math.PI * 2, true)
+				ctx.lineTo(29, 18)
+				ctx.stroke()
 			}
+			var drawTriangle = noFill => {
+				ctx.beginPath()
+				ctx.moveTo(29, 5)
+				ctx.lineTo(21, 19)
+				ctx.lineTo(37, 19)
+				ctx.closePath()
+				if(!noFill){
+					ctx.fill()
+				}
+			}
+			ctx.strokeStyle = "#000"
+			ctx.lineWidth = 12
+			drawLine(9)
+			ctx.lineWidth = 5
+			drawTriangle(true)
+			ctx.stroke()
+			ctx.lineWidth = 7
+			ctx.fillStyle = "#fff"
+			ctx.strokeStyle = "#fff"
+			drawLine(11)
+			drawTriangle()
+			ctx.translate(-1.5, -0.5)
+			ctx.fillStyle = "#23a6e1"
+			ctx.strokeStyle = "#23a6e1"
+			ctx.globalCompositeOperation = "darken"
+			drawLine(11)
+			drawTriangle()
+		}else if(config.iconName === "options"){
+			ctx.translate(config.x, config.y)
+			ctx.rotate(-55 * Math.PI / 180)
+			ctx.translate(-6, -20)
+			ctx.strokeStyle = "#000"
+			ctx.lineWidth = 6
+			ctx.stroke(this.optionsPath.main)
+			ctx.translate(-2, 2)
+			ctx.stroke(this.optionsPath.main)
+			ctx.fillStyle = "#7e7c76"
+			ctx.fill(this.optionsPath.shadow)
+			ctx.translate(2, -2)
+			ctx.fillStyle = "#d9d6ce"
+			ctx.fill(this.optionsPath.main)
 		}
-		ctx.strokeStyle = "#000"
-		ctx.lineWidth = 12
-		drawLine(9)
-		ctx.lineWidth = 5
-		drawTriangle(true)
-		ctx.stroke()
-		ctx.lineWidth = 7
-		ctx.fillStyle = "#fff"
-		ctx.strokeStyle = "#fff"
-		drawLine(11)
-		drawTriangle()
-		ctx.translate(-1.5, -0.5)
-		ctx.fillStyle = "#23a6e1"
-		ctx.strokeStyle = "#23a6e1"
-		ctx.globalCompositeOperation = "darken"
-		drawLine(11)
-		drawTriangle()
 		
 		ctx.restore()
 	}
@@ -676,9 +726,13 @@
 			ctx.scale(1 / mul, 1 / mul)
 		}
 		ctx.fillStyle = ctx.createPattern(config.img, "repeat")
-		ctx.beginPath()
-		ctx.rect(config.x * mul, config.y * mul, config.w * mul, config.h * mul)
-		ctx.translate(config.dx, config.dy)
+		if(config.shape){
+			config.shape(ctx, mul)
+		}else{
+			ctx.beginPath()
+			ctx.rect(config.x * mul, config.y * mul, config.w * mul, config.h * mul)
+		}
+		ctx.translate(config.dx * mul, config.dy * mul)
 		ctx.fill()
 		
 		ctx.restore()
@@ -691,6 +745,9 @@
 		ctx.translate(config.x, config.y)
 		if(config.scale){
 			ctx.scale(config.scale, config.scale)
+		}
+		if(config.align === "center"){
+			ctx.translate(config.score === "bad" ? -49 / 2 : -23 / 2, 0)
 		}
 		ctx.strokeStyle = "#000"
 		ctx.lineWidth = 7
@@ -787,6 +844,160 @@
 		ctx.fillStyle = grd
 		ctx.fill(this.crownPath)
 		
+		ctx.restore()
+	}
+	
+	gauge(config){
+		var ctx = config.ctx
+		ctx.save()
+		
+		ctx.translate(config.x, config.y)
+		if(config.scale){
+			ctx.scale(config.scale, config.scale)
+		}
+		ctx.translate(-788, 0)
+		
+		var firstTop = config.multiplayer ? 0 : 30
+		var secondTop = config.multiplayer ? 0 : 8
+		
+		var cleared = config.percentage - 1 / 50 >= config.clear
+		
+		var gaugeW = 14 * 50
+		var gaugeClear = gaugeW * config.clear
+		var gaugeFilled = gaugeW * config.percentage
+		
+		ctx.fillStyle = "#000"
+		ctx.beginPath()
+		if(config.scoresheet){
+			ctx.moveTo(-4, 26)
+			ctx.lineTo(gaugeClear - 4, 26)
+			this.roundedCorner(ctx, gaugeClear - 4, 4, 13, 0)
+			this.roundedCorner(ctx, 760, 4, 13, 1)
+			ctx.lineTo(760, 56)
+			ctx.lineTo(-4, 56)
+		}else if(config.multiplayer){
+			ctx.moveTo(gaugeClear - 7, 27)
+			ctx.lineTo(788, 27)
+			ctx.lineTo(788, 52)
+			this.roundedCorner(ctx, gaugeClear - 7, 52, 18, 3)
+		}else{
+			ctx.moveTo(gaugeClear - 7, 24)
+			this.roundedCorner(ctx, gaugeClear - 7, 0, 18, 0)
+			ctx.lineTo(788, 0)
+			ctx.lineTo(788, 24)
+		}
+		ctx.fill()
+		
+		if(gaugeFilled <= gaugeClear){
+			ctx.fillStyle = "#680000"
+			var x = Math.max(0, gaugeFilled - 5)
+			ctx.fillRect(x, firstTop, gaugeClear - x + 2, 22)
+		}
+		if(gaugeFilled > 0){
+			var w = Math.min(gaugeClear + 1, gaugeFilled - 4)
+			ctx.fillStyle = "#ff3508"
+			ctx.fillRect(0, firstTop + 2, w, 20)
+			ctx.fillStyle = "#ff9e94"
+			ctx.fillRect(0, firstTop, w, 3)
+		}
+		if(gaugeFilled < gaugeW - 4){
+			ctx.fillStyle = "#684c00"
+			var x = Math.max(gaugeClear + 9, gaugeFilled - gaugeClear + 9)
+			ctx.fillRect(x, secondTop, gaugeW - 4 - x, 44)
+		}
+		if(gaugeFilled > gaugeClear + 14){
+			var w = Math.min(gaugeW - 4, gaugeFilled - gaugeClear - 14)
+			ctx.fillStyle = "#ff0"
+			ctx.fillRect(gaugeClear + 9, secondTop + 2, w, 42)
+			ctx.fillStyle = "#fff"
+			ctx.fillRect(gaugeClear + 9, secondTop, w, 3)
+		}
+		ctx.fillStyle = cleared ? "#ff0" : "#684c00"
+		ctx.beginPath()
+		if(config.multiplayer){
+			this.roundedCorner(ctx, gaugeClear, secondTop + 44, 10, 3)
+			ctx.lineTo(gaugeClear, secondTop)
+			ctx.lineTo(gaugeClear + 10, secondTop)
+		}else{
+			ctx.moveTo(gaugeClear, secondTop + 44)
+			this.roundedCorner(ctx, gaugeClear, secondTop, 10, 0)
+			ctx.lineTo(gaugeClear + 10, secondTop + 44)
+		}
+		ctx.fill()
+		if(cleared){
+			ctx.save()
+			ctx.clip()
+			ctx.fillStyle = "#fff"
+			ctx.fillRect(gaugeClear, secondTop, 10, 3)
+			ctx.restore()
+		}
+		
+		ctx.strokeStyle = "rgba(0, 0, 0, 0.16)"
+		ctx.beginPath()
+		ctx.lineWidth = 5
+		for(var i = 0; i < 49; i++){
+			var x = 14 + i * 14 - ctx.lineWidth / 2
+			if(i === 26){
+				ctx.stroke()
+				ctx.beginPath()
+				ctx.lineWidth = 4
+			}
+			ctx.moveTo(x, x < gaugeClear ? firstTop : secondTop)
+			ctx.lineTo(x, x < gaugeClear ? firstTop + 22 : secondTop + 44)
+		}
+		ctx.stroke()
+		this.layeredText({
+			ctx: ctx,
+			text: "クリア",
+			fontSize: 18,
+			fontFamily: config.font,
+			x: gaugeClear - 6,
+			y: config.multiplayer ? 22 : 11,
+			letterSpacing: -2
+		}, [
+			{scale: [1.1, 1.01], outline: "#000", letterBorder: 6},
+			{scale: [1.11, 1], fill: cleared ? "#fff" : "#737373"}
+		])
+		
+		ctx.restore()
+	}
+	
+	soul(config){
+		var ctx = config.ctx
+		ctx.save()
+		
+		ctx.translate(config.x, config.y)
+		if(config.scale){
+			ctx.scale(config.scale, config.scale)
+		}
+		ctx.translate(-23, -21)
+		
+		ctx.fillStyle = config.cleared ? "#fff" : "#737373"
+		ctx.fill(this.soulPath)
+		
+		ctx.restore()
+	}
+	
+	slot(ctx, x, y, size){
+		var mul = size / 106
+		
+		ctx.save()
+		ctx.globalAlpha = 0.7
+		ctx.globalCompositeOperation = "screen"
+		ctx.fillStyle = "#444544"
+		ctx.beginPath()
+		ctx.arc(x, y, 26 * mul, 0, Math.PI * 2)
+		ctx.fill()
+		ctx.lineWidth = 3
+		ctx.strokeStyle = "#9c9e9c"
+		ctx.beginPath()
+		ctx.arc(x, y, 33.5 * mul, 0, Math.PI * 2)
+		ctx.stroke()
+		ctx.lineWidth = 3.5
+		ctx.strokeStyle = "#5d5e5d"
+		ctx.beginPath()
+		ctx.arc(x, y, 51.5 * mul, 0, Math.PI * 2)
+		ctx.stroke()
 		ctx.restore()
 	}
 	
