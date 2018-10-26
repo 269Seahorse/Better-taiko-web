@@ -75,7 +75,7 @@ class Game{
 						circle.rendaPlayed = true
 						if(this.rules.difficulty === "easy"){
 							assets.sounds["renda" + this.controller.snd].stop()
-							this.controller.playSound("renda")
+							this.controller.playSoundMeka("renda")
 						}
 					}
 					if(!circle.beatMSCopied){

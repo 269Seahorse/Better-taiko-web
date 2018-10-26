@@ -57,7 +57,7 @@ var assets = {
 		"combo-1300-meka.wav",
 		"combo-1400-meka.wav",
 		"fullcombo-meka.wav",
-		
+
 		"song-select.wav",
 		"title.ogg",
 		"pause.wav",
@@ -69,6 +69,7 @@ var assets = {
 		"note_ka.ogg",
 		"balloon.ogg",
 		"renda.ogg",
+		"renda-meka.ogg",
 		
 		"combo-50.wav",
 		"combo-100.wav",
