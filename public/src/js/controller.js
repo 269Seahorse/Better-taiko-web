@@ -26,6 +26,8 @@ class Controller{
 		this.view = new View(this, backgroundURL, this.selectedSong.title, this.selectedSong.difficulty)
 		this.mekadon = new Mekadon(this, this.game)
 		this.keyboard = new Keyboard(this)
+		
+		this.playedSounds = {}
 	}
 	run(syncWith){
 		this.loadUIEvents()
@@ -34,8 +36,8 @@ class Controller{
 		this.startMainLoop()
 		if(syncWith){
 			syncWith.run()
-			syncWith.elapsedTime = this.game.elapsedTime
-			syncWith.startDate = this.game.startDate
+			syncWith.game.elapsedTime = this.game.elapsedTime
+			syncWith.game.startDate = this.game.startDate
 			this.syncWith = syncWith
 		}
 		if(!this.multiplayer){
@@ -76,6 +78,7 @@ class Controller{
 				requestAnimationFrame(() => {
 					if(this.syncWith){
 						this.syncWith.game.elapsedTime = this.game.elapsedTime
+						this.syncWith.game.startDate = this.game.startDate
 					}
 					this.mainLoop()
 					if(this.syncWith){
@@ -161,7 +164,11 @@ class Controller{
 		}
 	}
 	playSound(id, time){
-		assets.sounds[id + this.snd].play(time)
+		var ms = (+new Date) + (time || 0) * 1000
+		if(!(id in this.playedSounds) || ms > this.playedSounds[id] + 30){
+			assets.sounds[id + this.snd].play(time)
+			this.playedSounds[id] = ms
+		}
 	}
 	playSoundMeka(soundID, time){
 		var meka = ""

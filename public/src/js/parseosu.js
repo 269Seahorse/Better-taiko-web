@@ -109,15 +109,15 @@ class ParseOsu{
 		var timingPoints = []
 		var indexes = this.getStartEndIndexes("TimingPoints")
 		var lastBeatInterval = parseInt(this.data[indexes.start].split(",")[1])
-		for(var i = indexes.start; i<= indexes.end; i++){
+		for(var i = indexes.start; i <= indexes.end; i++){
 			var values = this.data[i].split(",")
 			var start = parseInt(values[this.osu.OFFSET])
 			var msOrPercent = parseFloat(values[this.osu.MSPERBEAT])
 			if(i == indexes.start){
-				start = 0
 				this.beatInfo.beatInterval = msOrPercent
 				this.beatInfo.bpm = Math.floor(1000 / this.beatInfo.beatInterval * 60)
 			}
+			var beatReset = false
 			if(msOrPercent < 0){
 				var sliderMultiplier = this.difficulty.lastMultiplier / Math.abs(msOrPercent / 100)
 			}else{
@@ -126,35 +126,61 @@ class ParseOsu{
 					this.difficulty.originalMultiplier = sliderMultiplier
 				}
 				this.difficulty.lastMultiplier = sliderMultiplier
+				beatReset = true
 			}
 			timingPoints.push({
 				start: start + this.offset,
 				sliderMultiplier: sliderMultiplier,
 				measure: parseInt(values[this.osu.METER]),
 				gogoTime: parseInt(values[this.osu.KIAIMODE]),
-				beatMS: 1000 / this.difficulty.lastMultiplier
+				beatMS: 1000 / this.difficulty.lastMultiplier,
+				beatReset: beatReset
 			})
 		}
 		return timingPoints
 	}
 	parseMeasures(){
 		var measures = []
-		var measureNumber = 0
-		for(var i = 0; i<this.timingPoints.length; i++){
-			if(this.timingPoints[i + 1]){
-				var limit = this.timingPoints[i + 1].start - this.offset
-			}else{
-				var limit = this.circles[this.circles.length - 1].getMS() - this.offset
-			}
-			for(var start = this.timingPoints[i].start; start <= limit; start += this.beatInfo.beatInterval){
-				if(measureNumber === 0){
-					measures.push({
-						ms: start + this.offset,
-						originalMS: start + this.offset,
-						speed: this.timingPoints[i].sliderMultiplier
-					})
+		
+		for(var i = 0; i < this.timingPoints.length; i++){
+			var currentTiming = this.timingPoints[i]
+			var firstTiming = i === 0
+			
+			var limit = this.circles[this.circles.length - 1].endTime + currentTiming.beatMS
+			
+			for(var j = i + 1; j < this.timingPoints.length; j++){
+				var nextTiming = this.timingPoints[j]
+				var newLimit = nextTiming.start
+				if(nextTiming.measure !== currentTiming.measure || nextTiming.beatReset){
+					limit = newLimit - currentTiming.beatMS
+					break
 				}
-				measureNumber = (measureNumber + 1) % (this.timingPoints[i].measure + 1)
+				i = j
+			}
+			
+			var start = currentTiming.start
+			var interval = currentTiming.beatMS * currentTiming.measure
+			if(firstTiming){
+				while(start >= interval){
+					start -= interval
+				}
+			}
+			for(var ms = start; ms <= limit; ms += interval){
+				
+				var speed = currentTiming.sliderMultiplier
+				for(var j = 0; j < this.timingPoints.length; j++){
+					var timingPoint = this.timingPoints[j]
+					if(j !== 0 && timingPoint.start - this.offset > ms){
+						break
+					}
+					speed = timingPoint.sliderMultiplier
+				}
+				
+				measures.push({
+					ms: ms,
+					originalMS: ms,
+					speed: speed
+				})
 			}
 		}
 		return measures
@@ -253,7 +279,7 @@ class ParseOsu{
 			
 			for(var j = 0; j < this.timingPoints.length; j++){
 				var timingPoint = this.timingPoints[j]
-				if(timingPoint.start - this.offset > start){
+				if(j !== 0 && timingPoint.start - this.offset > start){
 					break
 				}
 				speed = timingPoint.sliderMultiplier

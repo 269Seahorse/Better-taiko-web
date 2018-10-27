@@ -242,17 +242,21 @@ class SongSelect{
 		
 		this.startP2()
 		
-		this.redrawRunning = true
-		this.redrawBind = this.redraw.bind(this)
-		this.redraw()
 		pageEvents.keyAdd(this, "all", "down", this.keyDown.bind(this))
-		pageEvents.add(this.canvas, "mousemove", this.mouseMove.bind(this))
-		pageEvents.add(this.canvas, ["mousedown", "touchstart"], this.mouseDown.bind(this))
+		pageEvents.add(window, "mousemove", this.mouseMove.bind(this))
+		pageEvents.add(window, ["mousedown", "touchstart"], this.mouseDown.bind(this))
 		if(touchEnabled && fullScreenSupported){
 			this.touchFullBtn = document.getElementById("touch-full-btn")
 			this.touchFullBtn.style.display = "block"
 			pageEvents.add(this.touchFullBtn, "touchend", toggleFullscreen)
 		}
+		
+		this.selectable = document.getElementById("song-sel-selectable")
+		this.selectableText = ""
+		
+		this.redrawRunning = true
+		this.redrawBind = this.redraw.bind(this)
+		this.redraw()
 	}
 	
 	keyDown(event, code){
@@ -321,6 +325,15 @@ class SongSelect{
 	}
 	
 	mouseDown(event){
+		if(event.target === this.selectable || event.target.parentNode === this.selectable){
+			this.selectable.focus()
+		}else{
+			getSelection().removeAllRanges()
+			this.selectable.blur()
+		}
+		if(event.target !== this.canvas){
+			return
+		}
 		if(event.type === "mousedown"){
 			if(event.which !== 1){
 				return
@@ -643,6 +656,8 @@ class SongSelect{
 			this.categoryCache.resize(280, (this.songAsset.marginTop + 1) * categories , ratio + 0.5)
 			
 			this.difficultyCache.resize((44 + 56 + 2) * 5, 135 + 10, ratio + 0.5)
+			
+			this.selectableText = ""
 		}else if(!document.hasFocus()){
 			this.pointer(false)
 			return
@@ -1223,8 +1238,29 @@ class SongSelect{
 						fontFamily: this.font
 					})
 				})
+				if(!songSel && this.selectableText !== currentSong.title){
+					this.draw.verticalText({
+						ctx: ctx,
+						text: currentSong.title,
+						x: x + textX + textW / 2,
+						y: y + textY,
+						width: textW,
+						height: textH - 35,
+						fontSize: 40,
+						fontFamily: this.font,
+						selectable: this.selectable,
+						selectableScale: this.ratio / this.pixelRatio
+					})
+					this.selectable.style.display = ""
+					this.selectableText = currentSong.title
+				}
 			}
 		})
+		
+		if(screen !== "difficulty" && this.selectableText){
+			this.selectableText = ""
+			this.selectable.style.display = "none"
+		}
 		
 		if(songSelMoving){
 			this.draw.highlight({
@@ -1423,11 +1459,12 @@ class SongSelect{
 		this.redrawRunning = false
 		this.endPreview()
 		pageEvents.keyRemove(this, "all")
-		pageEvents.remove(this.canvas, ["mousemove", "mousedown", "touchstart"])
+		pageEvents.remove(window, ["mousemove", "mousedown", "touchstart"])
 		if(this.touchEnabled && fullScreenSupported){
 			pageEvents.remove(this.touchFullBtn, "click")
 			delete this.touchFullBtn
 		}
+		delete this.selectable
 		delete this.ctx
 		delete this.canvas
 	}

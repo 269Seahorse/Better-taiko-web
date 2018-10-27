@@ -139,6 +139,9 @@ class Scoresheet{
 			}
 		}else{
 			ctx.scale(ratio, ratio)
+			if(!this.canvasCache.canvas){
+				this.canvasCache.resize(winW / ratio, 80 + 1, ratio)
+			}
 		}
 		this.winW = winW
 		this.winH = winH
@@ -406,36 +409,38 @@ class Scoresheet{
 		
 		if(elapsed >= 800){
 			ctx.save()
-			ctx.translate(frameLeft, frameTop)
-			
-			ctx.globalAlpha = Math.min(1, (elapsed - 800) / 500)
-			
-			for(var p = 0; p < players; p++){
-				var results = this.results
-				if(p === 1){
-					results = p2.results
-					ctx.translate(0, p2Offset)
+			ctx.setTransform(1, 0, 0, 1, 0, 0)
+			this.draw.alpha(Math.min(1, (elapsed - 800) / 500), ctx, ctx => {
+				ctx.scale(ratio, ratio)
+				ctx.translate(frameLeft, frameTop)
+				
+				for(var p = 0; p < players; p++){
+					var results = this.results
+					if(p === 1){
+						results = p2.results
+						ctx.translate(0, p2Offset)
+					}
+					var gaugePercent = Math.round(results.gauge / 2) / 50
+					var w = 712
+					this.draw.gauge({
+						ctx: ctx,
+						x: 558 + w,
+						y: 116,
+						clear: 25 / 50,
+						percentage: gaugePercent,
+						font: this.font,
+						scale: w / 788,
+						scoresheet: true
+					})
+					this.draw.soul({
+						ctx: ctx,
+						x: 1215,
+						y: 144,
+						scale: 36 / 42,
+						cleared: gaugePercent - 1 / 50 >= 25 / 50
+					})
 				}
-				var gaugePercent = Math.round(results.gauge / 2) / 50
-				var w = 712
-				this.draw.gauge({
-					ctx: ctx,
-					x: 558 + w,
-					y: 116,
-					clear: 25 / 50,
-					percentage: gaugePercent,
-					font: this.font,
-					scale: w / 788,
-					scoresheet: true
-				})
-				this.draw.soul({
-					ctx: ctx,
-					x: 1215,
-					y: 144,
-					scale: 36 / 42,
-					cleared: gaugePercent - 1 / 50 >= 25 / 50
-				})
-			}
+			})
 			ctx.restore()
 		}
 		
