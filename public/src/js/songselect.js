@@ -243,8 +243,8 @@ class SongSelect{
 		this.startP2()
 		
 		pageEvents.keyAdd(this, "all", "down", this.keyDown.bind(this))
-		pageEvents.add(window, "mousemove", this.mouseMove.bind(this))
-		pageEvents.add(window, ["mousedown", "touchstart"], this.mouseDown.bind(this))
+		pageEvents.add(loader.screen, "mousemove", this.mouseMove.bind(this))
+		pageEvents.add(loader.screen, ["mousedown", "touchstart"], this.mouseDown.bind(this))
 		if(touchEnabled && fullScreenSupported){
 			this.touchFullBtn = document.getElementById("touch-full-btn")
 			this.touchFullBtn.style.display = "block"
@@ -1459,7 +1459,7 @@ class SongSelect{
 		this.redrawRunning = false
 		this.endPreview()
 		pageEvents.keyRemove(this, "all")
-		pageEvents.remove(window, ["mousemove", "mousedown", "touchstart"])
+		pageEvents.remove(loader.screen, ["mousemove", "mousedown", "touchstart"])
 		if(this.touchEnabled && fullScreenSupported){
 			pageEvents.remove(this.touchFullBtn, "click")
 			delete this.touchFullBtn
