@@ -46,3 +46,4 @@ public/api
 taiko.db
 version.json
 public/index.html
+config.json

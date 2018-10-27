@@ -7,7 +7,7 @@ class Controller{
 		this.touchEnabled = touchEnabled
 		this.snd = this.multiplayer ? "_p" + this.multiplayer : ""
 		
-		var backgroundURL = "/songs/" + this.selectedSong.folder + "/bg.png"
+		var backgroundURL = gameConfig.songs_baseurl + this.selectedSong.folder + "/bg.png"
 		
 		if(selectedSong.type === "tja"){
 			this.parsedSongData = new ParseTja(songData, selectedSong.difficulty, selectedSong.offset)

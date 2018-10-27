@@ -1,11 +1,11 @@
 class SongSelect{
 	constructor(fromTutorial, fadeIn, touchEnabled){
 		this.touchEnabled = touchEnabled
-		
+
 		loader.changePage("songselect")
 		this.canvas = document.getElementById("song-sel-canvas")
 		this.ctx = this.canvas.getContext("2d")
-		
+
 		this.songSkin = {
 			"selected": {
 				background: "#ffdb2c",
@@ -1363,7 +1363,7 @@ class SongSelect{
 				var previewFilename = prvTime > 0.1 ? "/preview.mp3" : "/main.mp3"
 				
 				var loadPreview = previewFilename => {
-					return snd.previewGain.load("/songs/" + id + previewFilename)
+					return snd.previewGain.load(gameConfig.songs_baseurl + id + previewFilename)
 				}
 				
 				songObj.preview_time = 0

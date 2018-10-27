@@ -78,6 +78,10 @@ class Loader{
 			this.promises.push(this.ajax("/api/songs").then(songs => {
 				assets.songs = JSON.parse(songs)
 			}))
+
+			this.promises.push(this.ajax("/api/config").then(conf => {
+				gameConfig = JSON.parse(conf)
+			}))
 			
 			assets.views.forEach(name => {
 				var id = this.getFilename(name)

@@ -19,7 +19,7 @@ class loadSong{
 				resolve()
 			})
 			img.id = "music-bg"
-			img.src = "/songs/" + id + "/bg.png"
+			img.src = gameConfig.songs_baseurl + id + "/bg.png"
 			document.getElementById("assets").appendChild(img)
 		}))
 		
@@ -34,7 +34,7 @@ class loadSong{
 				songObj.sound.gain = snd.musicGain
 				resolve()
 			}else{
-				snd.musicGain.load("/songs/" + id + "/main.mp3").then(sound => {
+				snd.musicGain.load(gameConfig.songs_baseurl + id + "/main.mp3").then(sound => {
 					songObj.sound = sound
 					resolve()
 				}, reject)
@@ -51,7 +51,7 @@ class loadSong{
 		})
 	}
 	getSongPath(selectedSong){
-		var directory = "/songs/" + selectedSong.folder + "/"
+		var directory = gameConfig.songs_baseurl + selectedSong.folder + "/"
 		if(selectedSong.type === "tja"){
 			return directory + "main.tja"
 		}else{
