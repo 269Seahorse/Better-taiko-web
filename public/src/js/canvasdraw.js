@@ -53,9 +53,11 @@
 			brackets: /[\(（\)）「」『』]/,
 			tilde: /[\-－~～]/,
 			tall: /[bｂdｄfｆh-lｈ-ｌtｔ0-9０-９♪]/,
-			uppercase: /[A-ZＡ-Ｚ!！]/,
+			uppercase: /[A-ZＡ-Ｚ]/,
 			lowercase: /[a-zａ-ｚ･]/,
-			latin: /[A-ZＡ-Ｚ!！a-zａ-ｚ･]/,
+			latin: /[A-ZＡ-Ｚa-zａ-ｚ･]/,
+			exclamation: /[!！\?？ ]/,
+			question: /[\?？]/,
 			smallHiragana: /[ぁぃぅぇぉっゃゅょァィゥェォッャュョ]/,
 			hiragana: /[\u3040-\u30ff]/,
 			todo: /[トド]/,
@@ -63,7 +65,7 @@
 			em: /[mwｍｗ]/,
 			emCap: /[MWＭＷ]/,
 			rWidth: /[abdfIjo-rtvａｂｄｆＩｊｏ-ｒｔｖ]/,
-			lWidth: /[ilｉｌ!！]/,
+			lWidth: /[ilｉｌ]/,
 			uppercaseDigit: /[A-ZＡ-Ｚ0-9０-９]/
 		}
 		
@@ -266,13 +268,16 @@
 		var drawn = []
 		
 		var r = this.regex
-		for(let symbol of string){
+		var previousSymbol = ""
+		
+		for(var i = 0; i < string.length; i++){
+			let symbol = string[i]
 			if(symbol === " "){
 				// Space
 				drawn.push({text: symbol, x: 0, y: 0, h: 18})
 			}else if(symbol === "ー"){
 				// Long-vowel mark
-				drawn.push({svg: this.longVowelMark, x: -4, y: 5, h: 33, scale: [mul, mul]})
+				drawn.push({realText: symbol, svg: this.longVowelMark, x: -4, y: 5, h: 33, scale: [mul, mul]})
 			}else if(r.comma.test(symbol)){
 				// Comma, full stop
 				drawn.push({text: symbol, x: 16, y: -7, h: 0, scale: [1.2, 0.7]})
@@ -281,16 +286,13 @@
 				drawn.push({text: symbol, x: 16, y: -16, h: 18})
 			}else if(r.apostrophe.test(symbol)){
 				// Apostrophe
-				drawn.push({text: ",", x: 20, y: -39, h: 0, scale: [1.2, 0.7]})
+				drawn.push({realText: symbol, text: ",", x: 20, y: -39, h: 0, scale: [1.2, 0.7]})
 			}else if(r.brackets.test(symbol)){
 				// Rotated brackets
 				drawn.push({text: symbol, x: 0, y: -5, h: 25, rotate: true})
 			}else if(r.tilde.test(symbol)){
 				// Rotated hyphen, tilde
-				if(symbol === "~"){
-					symbol = "～"
-				}
-				drawn.push({text: symbol, x: 0, y: 2, h: 35, rotate: true})
+				drawn.push({realText: symbol, text: symbol === "~" ? "～" : symbol, x: 0, y: 2, h: 35, rotate: true})
 			}else if(r.tall.test(symbol)){
 				// Tall latin script lowercase, numbers
 				drawn.push({text: symbol, x: 0, y: 4, h: 34, scale: [1.05, 0.9]})
@@ -300,6 +302,46 @@
 			}else if(r.lowercase.test(symbol)){
 				// Latin script lower case
 				drawn.push({text: symbol, x: 0, y: -1, h: 28, scale: [1.05, 0.9]})
+			}else if(r.exclamation.test(symbol)){
+				// Exclamation mark
+				var toDraw = [symbol]
+				for(var repeat = 1; repeat - 1 < i; repeat++){
+					if(!r.exclamation.test(string[i - repeat])){
+						break
+					}
+					toDraw.push(string[i - repeat])
+				}
+				if(repeat > 1){
+					drawn.splice(i - repeat + 1, repeat)
+					var allExclamations = !toDraw.find(a => a !== "!")
+					
+					for(var j = 1; j < repeat + 1; j++){
+						var text = string[i - repeat + j]
+						if(allExclamations){
+							var y = 18
+							var h = 61
+						}else{
+							var y = 8
+							var h = 37
+						}
+						if(i === repeat - 1){
+							h -= y - 4
+							y = 4
+						}
+						
+						drawn.push({
+							text: text,
+							x: ((j - 1) - (repeat - 1) / 2) * 15,
+							y: y - (j === 1 ? 0 : h),
+							h: j === 1 ? h : 0,
+							scale: r.question.test(text) ? [0.6, 0.95] : false
+						})
+					}
+				}else{
+					drawn.push({text: symbol, x: 0, y: 8, h: 37,
+						scale: r.question.test(symbol) ? [0.7, 0.95] : false
+					})
+				}
 			}else if(r.smallHiragana.test(symbol)){
 				// Small hiragana, small katakana
 				drawn.push({text: symbol, x: 0, y: -8, h: 25, right: true})
@@ -323,8 +365,25 @@
 		ctx.save()
 		ctx.translate(config.x, config.y)
 		
+		if(config.selectable){
+			config.selectable.innerHTML = ""
+			var scale = config.selectableScale
+			var style = config.selectable.style
+			style.left = (config.x - config.width / 2) * scale + "px"
+			style.top = config.y * scale + "px"
+			style.width = config.width * scale + "px"
+			style.height = (drawnHeight+15) * scale + "px"
+			style.fontSize = 40 * mul * scale + "px"
+			style.transform = ""
+		}
+		
 		if(config.height && drawnHeight > config.height){
-			ctx.scale(1, config.height / drawnHeight)
+			var scaling = config.height / drawnHeight
+			ctx.scale(1, scaling)
+			if(config.selectable){
+				style.transform = "scale(1, " + scaling + ")"
+				style.top = (config.y + (config.height - drawnHeight) / 2 - 15 / 2 * scaling) * scale + "px"
+			}
 		}
 		
 		var actions = []
@@ -333,6 +392,9 @@
 		}
 		if(config.fill){
 			actions.push("fill")
+		}
+		if(config.selectable){
+			actions.push("selectable")
 		}
 		for(let action of actions){
 			ctx.font = config.fontSize + "px " + config.fontFamily
@@ -354,6 +416,34 @@
 					currentX += 20 * mul
 				}
 				var currentY = offsetY + symbol.y * mul
+				offsetY += symbol.h * mul
+				if(action === "selectable"){
+					let div = document.createElement("div")
+					div.classList.add("stroke-sub")
+					let text = symbol.realText || symbol.text
+					let textWidth = ctx.measureText(text).width
+					let transform = []
+					if(symbol.scale){
+						transform.push("scale(" + symbol.scale[0] + "," + symbol.scale[1] + ")")
+					}
+					if(symbol.rotate || symbol.realText === "ー"){
+						transform.push("rotate(90deg)")
+					}
+					if(transform.length){
+						div.style.transform = transform.join(" ")
+					}
+					if(symbol.right){
+						currentX = currentX + config.width / 2 - textWidth
+					}else{
+						currentX = currentX + config.width / 2 - textWidth / 2
+					}
+					div.style.left = currentX * scale + "px"
+					div.style.top = currentY * scale + "px"
+					div.appendChild(document.createTextNode(text))
+					div.setAttribute("alt", text)
+					config.selectable.appendChild(div)
+					continue
+				}
 				if(symbol.rotate || symbol.scale || symbol.svg){
 					saved = true
 					ctx.save()
@@ -381,7 +471,6 @@
 					}
 					ctx[action + "Text"](symbol.text, currentX, currentY)
 				}
-				offsetY += symbol.h * mul
 				if(saved){
 					ctx.restore()
 				}
@@ -396,13 +485,12 @@
 		ctx.save()
 		
 		var string = config.text.split("")
-		if(config.align === "right"){
-			string.reverse()
-		}
 		var drawn = []
 		
 		var r = this.regex
-		for(let symbol of string){
+		for(var i = 0; i < string.length; i++){
+			let symbol = string[i]
+			
 			if(symbol === "-"){
 				drawn.push({text: symbol, x: -4, y: 0, w: 28, scale: [0.8, 1]})
 			}else if(symbol === "™"){
@@ -411,6 +499,8 @@
 				drawn.push({text: symbol, x: 0, y: 0, w: 10})
 			}else if(symbol === "'"){
 				drawn.push({text: ",", x: 0, y: -15, w: 7, scale: [1, 0.7]})
+			}else if(symbol === "?"){
+				drawn.push({text: symbol, x: 0, y: -1, w: 12, scale: [0.7, 0.95]})
 			}else if(r.en.test(symbol)){
 				// n-width
 				drawn.push({text: symbol, x: 0, y: 0, w: 28, scale: [1, 0.95]})
@@ -429,6 +519,16 @@
 			}else if(r.uppercaseDigit.test(symbol)){
 				// Latin script uppercase, digits
 				drawn.push({text: symbol, x: 0, y: -2, w: 32})
+			}else if(r.exclamation.test(symbol)){
+				// Exclamation mark
+				var nextExclamation = string[i + 1] ? r.exclamation.test(string[i + 1]) : false
+				drawn.push({
+					text: symbol,
+					x: nextExclamation ? 4 : -1,
+					y: 0,
+					w: nextExclamation ? 16 : 28,
+					scale: symbol === "？" ? [0.7, 0.95] : false
+				})
 			}else if(r.smallHiragana.test(symbol)){
 				// Small hiragana, small katakana
 				drawn.push({text: symbol, x: 0, y: 0, w: 30})
@@ -438,6 +538,10 @@
 			}else{
 				drawn.push({text: symbol, x: 0, y: 0, w: 39})
 			}
+		}
+		
+		if(config.align === "right"){
+			drawn.reverse()
 		}
 		
 		var drawnWidth = 0

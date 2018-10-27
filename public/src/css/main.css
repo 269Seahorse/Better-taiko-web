@@ -4,7 +4,7 @@
 }
 @font-face{
 	font-family: Kozuka;
-	src: url("/assets/fonts/KozGoPro-Bold.otf") format("truetype");
+	src: url("/assets/fonts/Kozuka.otf") format("truetype");
 }
 html,
 body{
@@ -23,6 +23,7 @@ body{
 	margin: 0;
 	padding: 0;
 	background: #fe7839 url("/assets/img/bg-pattern-1.png") top center;
+	background-size: 30vh;
 	font-family: TnT, Meiryo, sans-serif;
 }
 #assets{
@@ -264,6 +265,30 @@ kbd{
 	width: 12.5vmin;
 	height: 12.5vmin;
 	opacity: 0.5;
+}
+#song-sel-selectable{
+	position: absolute;
+	opacity: 1;
+	text-align: center;
+	word-break: break-all;
+	white-space: pre-wrap;
+	user-select: all;
+	cursor: text;
+	color: transparent;
+}
+#song-sel-selectable:focus{
+	background: #ffdb2c;
+	color: #000;
+}
+#song-sel-selectable .stroke-sub{
+	position: absolute;
+	z-index: 1;
+}
+#song-sel-selectable .stroke-sub::before{
+	-webkit-text-stroke: 0;
+}
+#song-sel-selectable:focus .stroke-sub::before{
+	-webkit-text-stroke: 0.25em #fff;
 }
 
 #version {

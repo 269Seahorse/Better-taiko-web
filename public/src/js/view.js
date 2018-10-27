@@ -49,10 +49,15 @@
 			if(this.controller.touchEnabled){
 				this.touchDrumDiv = document.getElementById("touch-drum")
 				this.touchDrumImg = document.getElementById("touch-drum-img")
+				
+				if(this.controller.autoPlayEnabled){
+					this.touchDrumDiv.style.display = "none"
+				}else{
+					pageEvents.add(this.canvas, "touchstart", this.ontouch.bind(this))
+				}
+				
 				this.gameDiv.classList.add("touch-visible")
 				document.getElementById("version").classList.add("version-hide")
-				
-				pageEvents.add(this.canvas, "touchstart", this.ontouch.bind(this))
 				
 				this.touchFullBtn = document.getElementById("touch-full-btn")
 				pageEvents.add(this.touchFullBtn, "touchend", toggleFullscreen)
@@ -1036,7 +1041,7 @@
 			ctx.strokeText(text, textX, textY)
 			ctx.fillText(text, textX, textY)
 			
-			if(drumroll){
+			if(drumroll === 2){
 				ctx.strokeText(longText[1], textX + endX, textY)
 				ctx.fillText(longText[1], textX + endX, textY)
 			}

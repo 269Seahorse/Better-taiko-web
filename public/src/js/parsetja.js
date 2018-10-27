@@ -300,6 +300,15 @@
 								scroll: scroll
 							}
 							if(lastDrumroll){
+								if(symbol === "9"){
+									currentMeasure.push({
+										endDrumroll: lastDrumroll,
+										bpm: bpm,
+										scroll: scroll
+									})
+									lastDrumroll = false
+									break
+								}
 								circleObj.endDrumroll = lastDrumroll
 							}
 							if(symbol === "7" || symbol === "9"){
