@@ -125,7 +125,6 @@
 		var branchPreference = "m"
 		
 		var currentMeasure = []
-		var firstMeasure = true
 		var firstNote = true
 		var circles = []
 		var circleID = 0
@@ -143,19 +142,6 @@
 					originalMS: ms,
 					speed: speed
 				})
-				if(firstMeasure){
-					firstMeasure = false
-					var msPerMeasure = 60000 * measure / bpm
-					for(var measureMs = ms - msPerMeasure; measureMs > 0; measureMs -= msPerMeasure){
-						this.measures.push({
-							ms: measureMs,
-							originalMS: ms,
-							speed: speed
-						})
-					}
-				}
-			}else{
-				firstMeasure = false
 			}
 			if(currentMeasure.length){
 				for(var i = 0; i < currentMeasure.length; i++){
