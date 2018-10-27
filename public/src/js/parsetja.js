@@ -154,6 +154,8 @@
 						})
 					}
 				}
+			}else{
+				firstMeasure = false
 			}
 			if(currentMeasure.length){
 				for(var i = 0; i < currentMeasure.length; i++){
