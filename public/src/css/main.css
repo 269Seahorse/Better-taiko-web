@@ -14,7 +14,8 @@ body{
 	height: 100%;
 	margin: 0;
 	padding: 0;
-	background: #fe7839 url("/assets/img/bg-pattern-1.png") top center;
+	background-color: #fe7839;
+	background-position: top center;
 	background-size: 30vh;
 	font-family: TnT, Meiryo, sans-serif;
 }
@@ -236,7 +237,6 @@ kbd{
 #song-select{
 	width: 100%;
 	height: 100%;
-	background-image: url("/assets/img/bg_genre_0.png");
 	background-size: calc(100vh / 720 * 512);
 	background-repeat: repeat no-repeat;
 	animation: bgscroll 16s infinite linear;
@@ -257,6 +257,8 @@ kbd{
 	width: 12.5vmin;
 	height: 12.5vmin;
 	opacity: 0.5;
+	background-size: contain;
+	background-repeat: no-repeat;
 }
 #song-sel-selectable{
 	position: absolute;

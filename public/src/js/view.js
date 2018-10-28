@@ -1220,11 +1220,11 @@
 			if(this.touch > ms - 100){
 				if(!this.drumPadding){
 					this.drumPadding = true
-					this.touchDrumImg.style.paddingTop = "1%"
+					this.touchDrumImg.style.backgroundPositionY = "7px"
 				}
 			}else if(this.drumPadding){
 				this.drumPadding = false
-				this.touchDrumImg.style.paddingTop = ""
+				this.touchDrumImg.style.backgroundPositionY = ""
 			}
 		}
 	}

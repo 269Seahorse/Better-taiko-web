@@ -15,13 +15,19 @@
 	display: flex;
 	justify-content: center;
 	align-items: center;
-	background: #1389f0 url("/assets/img/title-screen.png") no-repeat center;
+	background-color: #1389f0;
+	background-repeat: no-repeat;
+	background-position: center;
 	background-size: cover;
 	cursor: pointer;
 }
 .logo-big{
 	width: 90vmin;
-	height: auto;
+	height: calc(90vmin / 754 * 400);
+	background-size: contain;
+	background-repeat: no-repeat;
+	text-align: center;
+	color: transparent;
 }
 .click-to-continue{
 	position: absolute;
