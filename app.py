@@ -163,6 +163,22 @@ def route_api_songs():
     return jsonify(songs_out)
 
 
+@app.route('/api/config')
+def route_api_config():
+    if os.path.isfile('config.json'):
+        config = json.load(open('config.json', 'r'))
+    else:
+        print 'WARNING: No config.json found, using default values'
+        config = {
+            'songs_baseurl': ''.join([request.host_url, 'songs']) + '/'
+        }
+
+    if not config.get('songs_baseurl'):
+        config['songs_baseurl'] = ''.join([request.host_url, 'songs']) + '/'
+
+    return jsonify(config)
+
+
 def make_preview(song_id, song_type):
     song_path = 'public/songs/%s/main.mp3' % song_id
     prev_path = 'public/songs/%s/preview.mp3' % song_id

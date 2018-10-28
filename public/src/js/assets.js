@@ -125,3 +125,5 @@ var assets = {
 	"image": {},
 	"pages": {}
 }
+
+var gameConfig = {}

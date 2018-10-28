@@ -751,7 +751,7 @@
 	setBackground(){
 		var gameDiv = document.getElementById("game")
 		var selectedSong = this.controller.selectedSong
-		var bg = "/songs/" + selectedSong.folder + "/bg.png"
+		var bg = gameConfig.songs_baseurl + selectedSong.folder + "/bg.png"
 		if(selectedSong.defaultBg){
 			var categories = {
 				"J-POP": 0,
