@@ -1,11 +1,3 @@
-@font-face{
-	font-family: TnT;
-	src: url("/assets/fonts/TnT.ttf") format("truetype");
-}
-@font-face{
-	font-family: Kozuka;
-	src: url("/assets/fonts/Kozuka.otf") format("truetype");
-}
 html,
 body{
 	margin: 0;

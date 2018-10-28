@@ -27,6 +27,25 @@ def query_db(query, args=(), one=False):
     return (rv[0] if rv else None) if one else rv
 
 
+def get_config():
+    if os.path.isfile('config.json'):
+        try:
+            config = json.load(open('config.json', 'r'))
+        except ValueError:
+            print 'WARNING: Invalid config.json, using default values'
+            config = {}
+    else:
+        print 'WARNING: No config.json found, using default values'
+        config = {}
+
+    if not config.get('songs_baseurl'):
+        config['songs_baseurl'] = ''.join([request.host_url, 'songs']) + '/'
+    if not config.get('assets_baseurl'):
+        config['assets_baseurl'] = ''.join([request.host_url, 'assets']) + '/'
+
+    return config
+
+
 def parse_osu(osu):
     osu_lines = open(osu, 'r').read().replace('\x00', '').split('\n')
     sections = {}
@@ -110,7 +129,7 @@ def route_index():
     version = None
     if os.path.isfile('version.json'):
         version = json.load(open('version.json', 'r'))
-    return render_template('index.html', version=version)
+    return render_template('index.html', version=version, config=get_config())
 
 
 @app.route('/api/preview')
@@ -165,17 +184,7 @@ def route_api_songs():
 
 @app.route('/api/config')
 def route_api_config():
-    if os.path.isfile('config.json'):
-        config = json.load(open('config.json', 'r'))
-    else:
-        print 'WARNING: No config.json found, using default values'
-        config = {
-            'songs_baseurl': ''.join([request.host_url, 'songs']) + '/'
-        }
-
-    if not config.get('songs_baseurl'):
-        config['songs_baseurl'] = ''.join([request.host_url, 'songs']) + '/'
-
+    config = get_config()
     return jsonify(config)
 
 
