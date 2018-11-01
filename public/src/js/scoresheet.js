@@ -33,6 +33,23 @@ class Scoresheet{
 		
 		assets.sounds["results"].play()
 		assets.sounds["bgm_result"].playLoop(3, false, 0, 0.847, 17.689)
+		
+		if(p2.session){
+			if(p2.getMessage("scorenext")){
+				this.toScorenext(true)
+			}
+			if(p2.getMessage("songsel")){
+				this.toSongsel(true)
+			}
+			pageEvents.add(p2, "message", response => {
+				if(response.type === "scorenext"){
+					this.toScorenext(true)
+				}else if(response.type === "songsel"){
+					this.state.pointerLocked = true
+					this.toSongsel(true)
+				}
+			})
+		}
 	}
 	keyDown(event, code){
 		if(!code){
@@ -68,16 +85,29 @@ class Scoresheet{
 		this.toNext()
 	}
 	toNext(){
-		var ms = this.getMS()
-		var elapsed = ms - this.state.screenMS
+		var elapsed = this.getMS() - this.state.screenMS
 		if(this.state.screen === "fadeIn" && elapsed >= this.state.startDelay){
-			this.state.screen = "scoresShown"
-			this.state.screenMS = ms
-			assets.sounds["note_don"].play()
+			this.toScorenext()
 		}else if(this.state.screen === "scoresShown" && elapsed >= 1000){
+			this.toSongsel()
+		}
+	}
+	toScorenext(fromP2){
+		if(p2.session && !fromP2){
+			p2.send("scorenext")
+		}
+		this.state.screen = "scoresShown"
+		this.state.screenMS = this.getMS()
+		assets.sounds["note_don"].play()
+	}
+	toSongsel(fromP2){
+		if(p2.session && !fromP2){
+			this.state.pointerLocked = true
+			p2.send("songsel")
+		}else{
 			snd.musicGain.fadeOut(0.5)
 			this.state.screen = "fadeOut"
-			this.state.screenMS = ms
+			this.state.screenMS = this.getMS()
 			assets.sounds["note_don"].play()
 		}
 	}

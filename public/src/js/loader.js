@@ -4,7 +4,6 @@ class Loader{
 		this.loadedAssets = 0
 		this.assetsDiv = document.getElementById("assets")
 		this.canvasTest = new CanvasTest()
-		p2 = new P2Connection()
 		this.startTime = +new Date
 		
 		this.ajax("src/views/loader.html").then(this.run.bind(this))
@@ -96,6 +95,24 @@ class Loader{
 						disableBlur = true
 					}
 				}))
+				
+				if(location.hash.length === 6){
+					this.promises.push(new Promise(resolve => {
+						p2.open()
+						pageEvents.add(p2, "message", response => {
+							if(response.type === "session"){
+								resolve()
+							}else if(response.type === "gameend"){
+								p2.hash("")
+								p2.hashLock = false
+								resolve()
+							}
+						})
+						p2.send("invite", location.hash.slice(1).toLowerCase())
+					}).then(() => {
+						pageEvents.remove(p2, "message")
+					}))
+				}
 				
 				this.promises.forEach(promise => {
 					promise.then(this.assetLoaded.bind(this))

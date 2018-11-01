@@ -3,11 +3,14 @@
 import asyncio
 import websockets
 import json
+import random
 
 server_status = {
 	"waiting": {},
-	"users": []
+	"users": [],
+	"invites": {}
 }
+consonants = "bcdfghjklmnpqrstvwxyz"
 
 def msgobj(type, value=None):
 	if value == None:
@@ -24,6 +27,9 @@ def status_event():
 		})
 	return msgobj("users", value)
 
+def get_invite():
+	return "".join([random.choice(consonants) for x in range(5)])
+
 async def notify_status():
 	ready_users = [user for user in server_status["users"] if "ws" in user and user["action"] == "ready"]
 	if ready_users:
@@ -34,7 +40,8 @@ async def connection(ws, path):
 	# User connected
 	user = {
 		"ws": ws,
-		"action": "ready"
+		"action": "ready",
+		"session": False
 	}
 	server_status["users"].append(user)
 	try:
@@ -66,6 +73,8 @@ async def connection(ws, path):
 				if action == "ready":
 					# Not playing or waiting
 					if type == "join":
+						if value == None:
+							continue
 						waiting = server_status["waiting"]
 						id = value["id"] if "id" in value else None
 						diff = value["diff"] if "diff" in value else None
@@ -95,6 +104,7 @@ async def connection(ws, path):
 								])
 							else:
 								# Wait for another user
+								del user["other_user"]
 								user["action"] = "waiting"
 								user["gameid"] = id
 								waiting[id] = {
@@ -104,9 +114,37 @@ async def connection(ws, path):
 								await ws.send(msgobj("waiting"))
 						# Update others on waiting players
 						await notify_status()
+					elif type == "invite":
+						if value == None:
+							# Session invite link requested
+							invite = get_invite()
+							server_status["invites"][invite] = user
+							user["action"] = "invite"
+							user["session"] = invite
+							await ws.send(msgobj("invite", invite))
+						elif value in server_status["invites"]:
+							# Join a session with the other user
+							user["other_user"] = server_status["invites"][value]
+							del server_status["invites"][value]
+							if "ws" in user["other_user"]:
+								user["other_user"]["other_user"] = user
+								user["action"] = "invite"
+								user["session"] = value
+								sent_msg = msgobj("session")
+								await asyncio.wait([
+									ws.send(sent_msg),
+									user["other_user"]["ws"].send(sent_msg)
+								])
+								await ws.send(msgobj("invite"))
+							else:
+								del user["other_user"]
+								await ws.send(msgobj("gameend"))
+						else:
+							# Session code is invalid
+							await ws.send(msgobj("gameend"))
 				elif action == "waiting" or action == "loading" or action == "loaded":
 					# Waiting for another user
-					if type == "leave":
+					if type == "leave" and not user["session"]:
 						# Stop waiting
 						del server_status["waiting"][user["gameid"]]
 						del user["gameid"]
@@ -129,9 +167,23 @@ async def connection(ws, path):
 				elif action == "playing":
 					# Playing with another user
 					if "other_user" in user and "ws" in user["other_user"]:
-						if type == "note" or type == "drumroll" or type == "gameresults":
+						if type == "note"\
+							or type == "drumroll"\
+							or type == "gameresults"\
+							or type == "scorenext" and user["session"]:
 							await user["other_user"]["ws"].send(msgobj(type, value))
-						if type == "gameend":
+						elif type == "songsel" and user["session"]:
+							user["action"] = "songsel"
+							user["other_user"]["action"] = "songsel"
+							sent_msg1 = msgobj(type)
+							sent_msg2 = msgobj("users", [])
+							await asyncio.wait([
+								ws.send(sent_msg1),
+								ws.send(sent_msg2),
+								user["other_user"]["ws"].send(sent_msg1),
+								user["other_user"]["ws"].send(sent_msg2)
+							])
+						elif type == "gameend":
 							# User wants to disconnect
 							user["action"] = "ready"
 							user["other_user"]["action"] = "ready"
@@ -147,6 +199,101 @@ async def connection(ws, path):
 					else:
 						# Other user disconnected
 						user["action"] = "ready"
+						user["session"] = False
+						await asyncio.wait([
+							ws.send(msgobj("gameend")),
+							ws.send(status_event())
+						])
+				elif action == "invite":
+					if type == "leave":
+						# Cancel session invite
+						if user["session"] in server_status["invites"]:
+							del server_status["invites"][user["session"]]
+						user["action"] = "ready"
+						user["session"] = False
+						if "other_user" in user and "ws" in user["other_user"]:
+							user["other_user"]["action"] = "ready"
+							user["other_user"]["session"] = False
+							sent_msg = status_event()
+							await asyncio.wait([
+								ws.send(msgobj("left")),
+								ws.send(sent_msg),
+								user["other_user"]["ws"].send(msgobj("gameend")),
+								user["other_user"]["ws"].send(sent_msg)
+							])
+						else:
+							await asyncio.wait([
+								ws.send(msgobj("left")),
+								ws.send(status_event())
+							])
+					elif type == "songsel" and "other_user" in user:
+						if "ws" in user["other_user"]:
+							user["action"] = "songsel"
+							user["other_user"]["action"] = "songsel"
+							sent_msg = msgobj(type)
+							await asyncio.wait([
+								ws.send(sent_msg),
+								user["other_user"]["ws"].send(sent_msg)
+							])
+						else:
+							user["action"] = "ready"
+							user["session"] = False
+							await asyncio.wait([
+								ws.send(msgobj("gameend")),
+								ws.send(status_event())
+							])
+				elif action == "songsel":
+					# Session song selection
+					if "other_user" in user and "ws" in user["other_user"]:
+						if type == "songsel":
+							# Change song select position
+							if user["other_user"]["action"] == "songsel":
+								sent_msg = msgobj(type, value)
+								await asyncio.wait([
+									ws.send(sent_msg),
+									user["other_user"]["ws"].send(sent_msg)
+								])
+						elif type == "join":
+							# Start game
+							if value == None:
+								continue
+							id = value["id"] if "id" in value else None
+							diff = value["diff"] if "diff" in value else None
+							if not id or not diff:
+								continue
+							if user["other_user"]["action"] == "waiting":
+								user["action"] = "loading"
+								user["other_user"]["action"] = "loading"
+								await asyncio.wait([
+									ws.send(msgobj("gameload", user["other_user"]["gamediff"])),
+									user["other_user"]["ws"].send(msgobj("gameload", diff))
+								])
+							else:
+								user["action"] = "waiting"
+								user["gamediff"] = diff
+								await user["other_user"]["ws"].send(msgobj("users", [{
+									"id": id,
+									"diff": diff
+								}]))
+						elif type == "gameend":
+							# User wants to disconnect
+							user["action"] = "ready"
+							user["session"] = False
+							user["other_user"]["action"] = "ready"
+							user["other_user"]["session"] = False
+							sent_msg1 = msgobj("gameend")
+							sent_msg2 = status_event()
+							await asyncio.wait([
+								ws.send(sent_msg1),
+								ws.send(sent_msg2),
+								user["other_user"]["ws"].send(sent_msg1),
+								user["other_user"]["ws"].send(sent_msg2)
+							])
+							del user["other_user"]
+					else:
+						# Other user disconnected
+						user["action"] = "ready"
+						user["session"] = False
 						await asyncio.wait([
 							ws.send(msgobj("gameend")),
 							ws.send(status_event())
@@ -157,6 +304,7 @@ async def connection(ws, path):
 		del server_status["users"][server_status["users"].index(user)]
 		if "other_user" in user and "ws" in user["other_user"]:
 			user["other_user"]["action"] = "ready"
+			user["other_user"]["session"] = False
 			await asyncio.wait([
 				user["other_user"]["ws"].send(msgobj("gameend")),
 				user["other_user"]["ws"].send(status_event())
@@ -164,6 +312,8 @@ async def connection(ws, path):
 		if user["action"] == "waiting":
 			del server_status["waiting"][user["gameid"]]
 			await notify_status()
+		elif user["action"] == "invite" and user["session"] in server_status["invites"]:
+			del server_status["invites"][user["session"]]
 
 asyncio.get_event_loop().run_until_complete(
 	websockets.serve(connection, "localhost", 34802)

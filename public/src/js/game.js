@@ -294,7 +294,9 @@ class Game{
 				this.musicFadeOut++
 			}else if(this.musicFadeOut === 1 && ms >= started + 1600){
 				this.controller.gameEnded()
-				p2.send("gameend")
+				if(!p2.session){
+					p2.send("gameend")
+				}
 				this.musicFadeOut++
 			}else if(this.musicFadeOut === 2 && (ms >= started + 8600 && ms >= musicDuration + 250)){
 				this.controller.displayResults()

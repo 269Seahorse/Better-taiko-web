@@ -117,7 +117,8 @@ var assets = {
 		"titlescreen.html",
 		"tutorial.html",
 		"about.html",
-		"debug.html"
+		"debug.html",
+		"session.html"
 	],
 	
 	"songs": [],

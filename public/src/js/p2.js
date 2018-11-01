@@ -5,6 +5,8 @@ class P2Connection{
 		this.otherConnected = false
 		this.allEvents = new Map()
 		this.addEventListener("message", this.message.bind(this))
+		this.currentHash = ""
+		pageEvents.add(window, "hashchange", this.onhashchange.bind(this))
 	}
 	addEventListener(type, callback){
 		var addedType = this.allEvents.get(type)
@@ -24,8 +26,8 @@ class P2Connection{
 		this.closed = false
 		var wsProtocol = location.protocol == "https:" ? "wss:" : "ws:"
 		this.socket = new WebSocket(wsProtocol + "//" + location.host + "/p2")
-		pageEvents.race(this.socket, "open", "close", listener =>{
-			if(listener === "open"){
+		pageEvents.race(this.socket, "open", "close").then(response => {
+			if(response.type === "open"){
 				return this.openEvent()
 			}
 			return this.closeEvent()
@@ -76,15 +78,20 @@ class P2Connection{
 		}catch(e){
 			var response = {}
 		}
-		this.lastMessages[response.type] = response.value
+		this.lastMessages[response.type] = response
 		var addedType = this.allEvents.get("message")
 		if(addedType){
 			addedType.forEach(callback => callback(response))
 		}
 	}
-	getMessage(type, callback){
+	getMessage(type){
 		if(type in this.lastMessages){
 			return this.lastMessages[type]
+		}
+	}
+	clearMessage(type){
+		if(type in this.lastMessages){
+			this.lastMessages[type] = null
 		}
 	}
 	message(response){
@@ -98,6 +105,11 @@ class P2Connection{
 				break
 			case "gameend":
 				this.otherConnected = false
+				this.session = false
+				if(this.hashLock){
+					this.hash("")
+					this.hashLock = false
+				}
 				break
 			case "gameresults":
 				this.results = {}
@@ -114,7 +126,23 @@ class P2Connection{
 			case "drumroll":
 				this.drumrollPace = response.value.pace
 				break
+			case "session":
+				this.clearMessage("users")
+				this.otherConnected = true
+				this.session = true
+				break
 		}
+	}
+	onhashchange(){
+		if(this.hashLock){
+			this.hash(this.currentHash)
+		}else{
+			location.reload()
+		}
+	}
+	hash(string){
+		this.currentHash = string
+		history.replaceState("", "", location.pathname + (string ? "#" + string : ""))
 	}
 	play(circle, mekadon){
 		if(this.otherConnected || this.notes.length > 0){
