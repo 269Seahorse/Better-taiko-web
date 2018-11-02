@@ -182,8 +182,8 @@ class SongSelect{
 		this.difficultyId = ["easy", "normal", "hard", "oni", "ura"]
 		
 		this.sessionText = {
-			"sessionstart": "2人プレイのネットプレイセッションを開始する！",
-			"sessionend": "ネットプレイを終了する"
+			"sessionstart": "オンラインセッションを開始する！",
+			"sessionend": "オンラインセッションを終了する"
 		}
 		
 		this.selectedSong = 0
@@ -201,7 +201,7 @@ class SongSelect{
 			this.selectedSong = this.songs.findIndex(song => song.action === fromTutorial)
 			this.playBgm(true)
 		}else{
-			if(!p2.session && "selectedSong" in localStorage){
+			if((!p2.session || fadeIn) && "selectedSong" in localStorage){
 				this.selectedSong = Math.min(Math.max(0, localStorage["selectedSong"] |0), this.songs.length)
 			}
 			assets.sounds["song-select"].play()
@@ -220,7 +220,7 @@ class SongSelect{
 		this.previewId = 0
 		var skipStart = fromTutorial || p2.session
 		this.state = {
-			screen: skipStart ? "song" : (fadeIn ? "titleFadeIn" : "title"),
+			screen: fadeIn ? "titleFadeIn" : (skipStart ? "song" : "title"),
 			screenMS: this.getMS(),
 			move: 0,
 			moveMS: 0,
@@ -242,11 +242,12 @@ class SongSelect{
 		this.pressedKeys = {}
 		this.gamepad = new Gamepad({
 			"13": ["b", "start", "ls", "rs"],
-			"8": ["a"],
+			"27": ["a"],
 			"37": ["l", "lb", "lt", "lsl"],
 			"39": ["r", "rb", "rt", "lsr"],
 			"38": ["u", "lsu"],
 			"40": ["d", "lsd"],
+			"8": ["back"],
 			"ctrl": ["y"],
 			"shift": ["x"]
 		})
@@ -293,8 +294,10 @@ class SongSelect{
 		var key = {
 			confirm: code == 13 || code == 32 || code == 70 || code == 74,
 			// Enter, Space, F, J
-			cancel: code == 27 || code == 8,
-			// Esc, Backspace
+			cancel: code == 27,
+			// Esc
+			session: code == 8,
+			// Backspace
 			left: code == 37 || code == 68,
 			// Left, D
 			right: code == 39 || code == 75,
@@ -312,6 +315,8 @@ class SongSelect{
 				this.toSelectDifficulty()
 			}else if(key.cancel){
 				this.toTitleScreen()
+			}else if(key.session){
+				this.toSession()
 			}else if(key.left){
 				this.moveToSong(-1)
 			}else if(key.right){
@@ -326,7 +331,7 @@ class SongSelect{
 				}else{
 					this.toLoadSong(this.selectedDiff - this.diffOptions.length, modifiers.shift, modifiers.ctrl)
 				}
-			}else if(key.cancel){
+			}else if(key.cancel || key.session){
 				this.toSongSelect()
 			}else if(key.left){
 				this.moveToDiff(-1)
@@ -941,7 +946,8 @@ class SongSelect{
 					x: _x,
 					y: songTop,
 					song: this.songs[index],
-					highlight: highlight
+					highlight: highlight,
+					disabled: p2.session && this.songs[index].action && this.songs[index].action !== "random"
 				})
 			}
 			for(var i = this.selectedSong + 1; ; i++){
@@ -960,7 +966,8 @@ class SongSelect{
 					x: _x,
 					y: songTop,
 					song: this.songs[index],
-					highlight: highlight
+					highlight: highlight,
+					disabled: p2.session && this.songs[index].action && this.songs[index].action !== "random"
 				})
 			}
 		}
@@ -1003,6 +1010,7 @@ class SongSelect{
 			animateMS: this.state.moveMS,
 			cached: selectedWidth === this.songAsset.fullWidth ? 3 : (selectedWidth === this.songAsset.selectedWidth ? 2 : (selectedWidth === this.songAsset.width ? 1 : 0)),
 			frameCache: this.songFrameCache,
+			disabled: p2.session && currentSong.action && currentSong.action !== "random",
 			innerContent: (x, y, w, h) => {
 				ctx.strokeStyle = "#000"
 				if(screen === "title" || screen === "titleFadeIn" || screen === "song"){
@@ -1388,18 +1396,33 @@ class SongSelect{
 		ctx.lineTo(x + w - 4, y + 4)
 		ctx.fill()
 		x = frameLeft + 642
-		this.draw.pattern({
-			ctx: ctx,
-			img: assets.image["bg_score_p2"],
-			x: x,
-			y: y,
-			w: w,
-			h: h,
-			dx: frameLeft + 15,
-			dy: frameTop - 20,
-			scale: 1.55
-		})
-		ctx.fillStyle = "rgba(138, 245, 247, 0.5)"
+		if(p2.session){
+			this.draw.pattern({
+				ctx: ctx,
+				img: assets.image["bg_score_p2"],
+				x: x,
+				y: y,
+				w: w,
+				h: h,
+				dx: frameLeft + 15,
+				dy: frameTop - 20,
+				scale: 1.55
+			})
+			ctx.fillStyle = "rgba(138, 245, 247, 0.5)"
+		}else{
+			this.draw.pattern({
+				ctx: ctx,
+				img: assets.image["bg_settings"],
+				x: x,
+				y: y,
+				w: w,
+				h: h,
+				dx: frameLeft + 11,
+				dy: frameTop + 45,
+				scale: 3.1
+			})
+			ctx.fillStyle = "rgba(255, 255, 255, 0.5)"
+		}
 		ctx.beginPath()
 		ctx.moveTo(x, y + h)
 		ctx.lineTo(x, y)

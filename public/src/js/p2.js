@@ -47,6 +47,11 @@ class P2Connection{
 	closeEvent(){
 		this.removeEventListener(onmessage)
 		this.otherConnected = false
+		this.session = false
+		if(this.hashLock){
+			this.hash("")
+			this.hashLock = false
+		}
 		if(!this.closed){
 			setTimeout(() => {
 				if(this.socket.readyState !== this.socket.OPEN){

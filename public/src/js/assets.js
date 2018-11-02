@@ -31,6 +31,7 @@ var assets = {
 		"bg_genre_7.png",
 		"bg_score_p1.png",
 		"bg_score_p2.png",
+		"bg_settings.png",
 		"badge_auto.png",
 		"touch_drum.png",
 		"touch_pause.png",

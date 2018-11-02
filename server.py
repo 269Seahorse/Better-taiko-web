@@ -169,13 +169,12 @@ async def connection(ws, path):
 					if "other_user" in user and "ws" in user["other_user"]:
 						if type == "note"\
 							or type == "drumroll"\
-							or type == "gameresults"\
-							or type == "scorenext" and user["session"]:
+							or type == "gameresults":
 							await user["other_user"]["ws"].send(msgobj(type, value))
 						elif type == "songsel" and user["session"]:
 							user["action"] = "songsel"
 							user["other_user"]["action"] = "songsel"
-							sent_msg1 = msgobj(type)
+							sent_msg1 = msgobj("songsel")
 							sent_msg2 = msgobj("users", [])
 							await asyncio.wait([
 								ws.send(sent_msg1),

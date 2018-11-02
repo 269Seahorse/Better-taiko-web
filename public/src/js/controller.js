@@ -141,7 +141,7 @@ class Controller{
 	}
 	displayResults(){
 		if(this.multiplayer !== 2){
-			this.scoresheet = new Scoresheet(this, this.getGlobalScore(), this.multiplayer)
+			this.scoresheet = new Scoresheet(this, this.getGlobalScore(), this.multiplayer, this.touchEnabled)
 		}
 	}
 	displayScore(score, notPlayed, bigNote){
