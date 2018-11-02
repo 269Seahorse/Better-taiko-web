@@ -176,9 +176,15 @@ class SongSelect{
 		this.selectTextCache = new CanvasCache()
 		this.categoryCache = new CanvasCache()
 		this.difficultyCache = new CanvasCache()
+		this.sessionCache = new CanvasCache()
 		
 		this.difficulty = ["かんたん", "ふつう", "むずかしい", "おに"]
 		this.difficultyId = ["easy", "normal", "hard", "oni", "ura"]
+		
+		this.sessionText = {
+			"sessionstart": "オンラインセッションを開始する！",
+			"sessionend": "オンラインセッションを終了する"
+		}
 		
 		this.selectedSong = 0
 		this.selectedDiff = 0
@@ -187,12 +193,15 @@ class SongSelect{
 		if(!fromTutorial && !("selectedSong" in localStorage)){
 			fromTutorial = touchEnabled ? "about" : "tutorial"
 		}
+		if(p2.session){
+			fromTutorial = false
+		}
 		
 		if(fromTutorial){
 			this.selectedSong = this.songs.findIndex(song => song.action === fromTutorial)
 			this.playBgm(true)
 		}else{
-			if("selectedSong" in localStorage){
+			if((!p2.session || fadeIn) && "selectedSong" in localStorage){
 				this.selectedSong = Math.min(Math.max(0, localStorage["selectedSong"] |0), this.songs.length)
 			}
 			assets.sounds["song-select"].play()
@@ -209,8 +218,9 @@ class SongSelect{
 		this.songSelect.style.backgroundImage = "url('" + assets.image["bg_genre_" + sort].src + "')"
 		
 		this.previewId = 0
+		var skipStart = fromTutorial || p2.session
 		this.state = {
-			screen: fromTutorial ? "song" : (fadeIn ? "titleFadeIn" : "title"),
+			screen: fadeIn ? "titleFadeIn" : (skipStart ? "song" : "title"),
 			screenMS: this.getMS(),
 			move: 0,
 			moveMS: 0,
@@ -218,7 +228,8 @@ class SongSelect{
 			moveHover: null,
 			locked: true,
 			hasPointer: false,
-			options: 0
+			options: 0,
+			selLock: false
 		}
 		this.songSelecting = {
 			speed: 800,
@@ -231,11 +242,12 @@ class SongSelect{
 		this.pressedKeys = {}
 		this.gamepad = new Gamepad({
 			"13": ["b", "start", "ls", "rs"],
-			"8": ["a"],
+			"27": ["a"],
 			"37": ["l", "lb", "lt", "lsl"],
 			"39": ["r", "rb", "rt", "lsr"],
 			"38": ["u", "lsu"],
 			"40": ["d", "lsd"],
+			"8": ["back"],
 			"ctrl": ["y"],
 			"shift": ["x"]
 		})
@@ -244,6 +256,9 @@ class SongSelect{
 		
 		pageEvents.keyAdd(this, "all", "down", this.keyDown.bind(this))
 		pageEvents.add(loader.screen, "mousemove", this.mouseMove.bind(this))
+		pageEvents.add(loader.screen, "mouseleave", () => {
+			this.state.moveHover = null
+		})
 		pageEvents.add(loader.screen, ["mousedown", "touchstart"], this.mouseDown.bind(this))
 		if(touchEnabled && fullScreenSupported){
 			this.touchFullBtn = document.getElementById("touch-full-btn")
@@ -279,8 +294,10 @@ class SongSelect{
 		var key = {
 			confirm: code == 13 || code == 32 || code == 70 || code == 74,
 			// Enter, Space, F, J
-			cancel: code == 27 || code == 8,
-			// Esc, Backspace
+			cancel: code == 27,
+			// Esc
+			session: code == 8,
+			// Backspace
 			left: code == 37 || code == 68,
 			// Left, D
 			right: code == 39 || code == 75,
@@ -298,6 +315,8 @@ class SongSelect{
 				this.toSelectDifficulty()
 			}else if(key.cancel){
 				this.toTitleScreen()
+			}else if(key.session){
+				this.toSession()
 			}else if(key.left){
 				this.moveToSong(-1)
 			}else if(key.right){
@@ -312,7 +331,7 @@ class SongSelect{
 				}else{
 					this.toLoadSong(this.selectedDiff - this.diffOptions.length, modifiers.shift, modifiers.ctrl)
 				}
-			}else if(key.cancel){
+			}else if(key.cancel || key.session){
 				this.toSongSelect()
 			}else if(key.left){
 				this.moveToDiff(-1)
@@ -350,11 +369,15 @@ class SongSelect{
 			var touch = true
 		}
 		if(this.state.screen === "song"){
-			var moveBy = this.songSelMouse(mouse.x, mouse.y)
-			if(moveBy === 0){
-				this.toSelectDifficulty()
-			}else if(moveBy !== null){
-				this.moveToSong(moveBy)
+			if(mouse.x > 513 && mouse.y > 603){
+				this.toSession()
+			}else{
+				var moveBy = this.songSelMouse(mouse.x, mouse.y)
+				if(moveBy === 0){
+					this.toSelectDifficulty()
+				}else if(moveBy !== null){
+					this.moveToSong(moveBy)
+				}
 			}
 		}else if(this.state.screen === "difficulty"){
 			var moveBy = this.diffSelMouse(mouse.x, mouse.y)
@@ -380,9 +403,13 @@ class SongSelect{
 		var mouse = this.mouseOffset(event.offsetX, event.offsetY)
 		var moveTo = null
 		if(this.state.screen === "song"){
-			var moveTo = this.songSelMouse(mouse.x, mouse.y)
-			if(moveTo === null && this.state.moveHover === 0 && !this.songs[this.selectedSong].stars){
-				this.state.moveMS = this.getMS() - this.songSelecting.speed
+			if(mouse.x > 513 && mouse.y > 603){
+				moveTo = "session"
+			}else{
+				var moveTo = this.songSelMouse(mouse.x, mouse.y)
+				if(moveTo === null && this.state.moveHover === 0 && !this.songs[this.selectedSong].stars){
+					this.state.moveMS = this.getMS() - this.songSelecting.speed
+				}
 			}
 			this.state.moveHover = moveTo
 		}else if(this.state.screen === "difficulty"){
@@ -446,10 +473,17 @@ class SongSelect{
 		return null
 	}
 	
-	moveToSong(moveBy){
-		if(this.state.locked !== 1){
-			var ms = this.getMS()
-			if(this.songs[this.selectedSong].stars && this.state.locked === 0){
+	moveToSong(moveBy, fromP2){
+		var ms = this.getMS()
+		if(p2.session && !fromP2){
+			if(!this.state.selLock && ms > this.state.moveMS + 800){
+				this.state.selLock = true
+				p2.send("songsel", {
+					song: this.mod(this.songs.length, this.selectedSong + moveBy)
+				})
+			}
+		}else if(this.state.locked !== 1 || fromP2){
+			if(this.songs[this.selectedSong].stars && (this.state.locked === 0 || fromP2)){
 				this.state.moveMS = ms
 			}else{
 				this.state.moveMS = ms - this.songSelecting.speed * this.songSelecting.resize
@@ -482,9 +516,19 @@ class SongSelect{
 			assets.sounds["ka"].play()
 		}
 	}
-	toSelectDifficulty(){
-		if(this.state.locked === 0){
-			var currentSong = this.songs[this.selectedSong]
+	toSelectDifficulty(fromP2){
+		var currentSong = this.songs[this.selectedSong]
+		if(p2.session && !fromP2 && currentSong.action !== "random"){
+			if(this.songs[this.selectedSong].stars){
+				if(!this.state.selLock){
+					this.state.selLock = true
+					p2.send("songsel", {
+						song: this.selectedSong,
+						selected: true
+					})
+				}
+			}
+		}else if(this.state.locked === 0 || fromP2){
 			if(currentSong.stars){
 				this.state.screen = "difficulty"
 				this.state.screenMS = this.getMS()
@@ -516,11 +560,18 @@ class SongSelect{
 			}else if(currentSong.action === "about"){
 				this.toAbout()
 			}
-			this.pointer(false)
 		}
+		this.pointer(false)
 	}
-	toSongSelect(){
-		if(this.state.locked !== 1){
+	toSongSelect(fromP2){
+		if(p2.session && !fromP2){
+			if(!this.state.selLock){
+				this.state.selLock = true
+				p2.send("songsel", {
+					song: this.selectedSong
+				})
+			}
+		}else if(fromP2 || this.state.locked !== 1){
 			this.state.screen = "song"
 			this.state.screenMS = this.getMS()
 			this.state.locked = true
@@ -544,10 +595,10 @@ class SongSelect{
 		}
 		var autoplay = false
 		var multiplayer = false
-		if(this.state.options === 1){
-			autoplay = true
-		}else if(this.state.options === 2){
+		if(p2.session || this.state.options === 2){
 			multiplayer = true
+		}else if(this.state.options === 1){
+			autoplay = true
 		}else if(shift){
 			autoplay = shift
 		}else{
@@ -564,16 +615,20 @@ class SongSelect{
 		}, autoplay, multiplayer, touch)
 	}
 	toOptions(moveBy){
-		assets.sounds["ka"].play()
-		this.selectedDiff = 1
-		this.state.options = this.mod(this.optionsList.length, this.state.options + moveBy)
+		if(!p2.session){
+			assets.sounds["ka"].play()
+			this.selectedDiff = 1
+			this.state.options = this.mod(this.optionsList.length, this.state.options + moveBy)
+		}
 	}
 	toTitleScreen(){
-		assets.sounds["cancel"].play()
-		this.clean()
-		setTimeout(() => {
-			new Titlescreen()
-		}, 500)
+		if(!p2.session){
+			assets.sounds["cancel"].play()
+			this.clean()
+			setTimeout(() => {
+				new Titlescreen()
+			}, 500)
+		}
 	}
 	toTutorial(){
 		assets.sounds["don"].play()
@@ -588,6 +643,17 @@ class SongSelect{
 		setTimeout(() => {
 			new About(this.touchEnabled)
 		}, 500)
+	}
+	toSession(){
+		if(p2.session){
+			p2.send("gameend")
+		}else{
+			assets.sounds["don"].play()
+			this.clean()
+			setTimeout(() => {
+				new Session(this.touchEnabled)
+			}, 500)
+		}
 	}
 	
 	redraw(){
@@ -656,6 +722,28 @@ class SongSelect{
 			this.categoryCache.resize(280, (this.songAsset.marginTop + 1) * categories , ratio + 0.5)
 			
 			this.difficultyCache.resize((44 + 56 + 2) * 5, 135 + 10, ratio + 0.5)
+			
+			var w = winW / ratio / 2
+			this.sessionCache.resize(w, 39 * 2, ratio + 0.5)
+			for(var id in this.sessionText){
+				this.sessionCache.set({
+					w: w,
+					h: 38,
+					id: id
+				}, ctx => {
+					var text = this.sessionText[id]
+					ctx.font = "28px " + this.font
+					ctx.textAlign = "center"
+					ctx.textBaseline = "middle"
+					ctx.strokeStyle = "#000"
+					ctx.lineWidth = 8
+					ctx.lineJoin = "round"
+					ctx.miterLimit = 1
+					ctx.strokeText(text, w / 2, 38 / 2)
+					ctx.fillStyle = "#fff"
+					ctx.fillText(text, w / 2, 38 / 2)
+				})
+			}
 			
 			this.selectableText = ""
 		}else if(!document.hasFocus()){
@@ -858,7 +946,8 @@ class SongSelect{
 					x: _x,
 					y: songTop,
 					song: this.songs[index],
-					highlight: highlight
+					highlight: highlight,
+					disabled: p2.session && this.songs[index].action && this.songs[index].action !== "random"
 				})
 			}
 			for(var i = this.selectedSong + 1; ; i++){
@@ -877,7 +966,8 @@ class SongSelect{
 					x: _x,
 					y: songTop,
 					song: this.songs[index],
-					highlight: highlight
+					highlight: highlight,
+					disabled: p2.session && this.songs[index].action && this.songs[index].action !== "random"
 				})
 			}
 		}
@@ -920,6 +1010,7 @@ class SongSelect{
 			animateMS: this.state.moveMS,
 			cached: selectedWidth === this.songAsset.fullWidth ? 3 : (selectedWidth === this.songAsset.selectedWidth ? 2 : (selectedWidth === this.songAsset.width ? 1 : 0)),
 			frameCache: this.songFrameCache,
+			disabled: p2.session && currentSong.action && currentSong.action !== "random",
 			innerContent: (x, y, w, h) => {
 				ctx.strokeStyle = "#000"
 				if(screen === "title" || screen === "titleFadeIn" || screen === "song"){
@@ -1273,6 +1364,113 @@ class SongSelect{
 			})
 		}
 		
+		ctx.fillStyle = "#000"
+		ctx.fillRect(0, frameTop + 595, 1280 + frameLeft * 2, 125 + frameTop)
+		var x = 0
+		var y = frameTop + 603
+		var w = frameLeft + 638
+		var h = 117 + frameTop
+		this.draw.pattern({
+			ctx: ctx,
+			img: assets.image["bg_score_p1"],
+			x: x,
+			y: y,
+			w: w,
+			h: h,
+			dx: frameLeft + 10,
+			dy: frameTop + 15,
+			scale: 1.55
+		})
+		ctx.fillStyle = "rgba(249, 163, 149, 0.5)"
+		ctx.beginPath()
+		ctx.moveTo(x, y)
+		ctx.lineTo(x + w, y)
+		ctx.lineTo(x + w - 4, y + 4)
+		ctx.lineTo(x, y + 4)
+		ctx.fill()
+		ctx.fillStyle = "rgba(0, 0, 0, 0.25)"
+		ctx.beginPath()
+		ctx.moveTo(x + w, y)
+		ctx.lineTo(x + w, y + h)
+		ctx.lineTo(x + w - 4, y + h)
+		ctx.lineTo(x + w - 4, y + 4)
+		ctx.fill()
+		x = frameLeft + 642
+		if(p2.session){
+			this.draw.pattern({
+				ctx: ctx,
+				img: assets.image["bg_score_p2"],
+				x: x,
+				y: y,
+				w: w,
+				h: h,
+				dx: frameLeft + 15,
+				dy: frameTop - 20,
+				scale: 1.55
+			})
+			ctx.fillStyle = "rgba(138, 245, 247, 0.5)"
+		}else{
+			this.draw.pattern({
+				ctx: ctx,
+				img: assets.image["bg_settings"],
+				x: x,
+				y: y,
+				w: w,
+				h: h,
+				dx: frameLeft + 11,
+				dy: frameTop + 45,
+				scale: 3.1
+			})
+			ctx.fillStyle = "rgba(255, 255, 255, 0.5)"
+		}
+		ctx.beginPath()
+		ctx.moveTo(x, y + h)
+		ctx.lineTo(x, y)
+		ctx.lineTo(x + w, y)
+		ctx.lineTo(x + w, y + 4)
+		ctx.lineTo(x + 4, y + 4)
+		ctx.lineTo(x + 4, y + h)
+		ctx.fill()
+		if(screen !== "difficulty"){
+			var elapsed = (ms - this.state.screenMS) % 3100
+			var fade = 1
+			if(!p2.session && screen === "song"){
+				if(elapsed > 2800){
+					fade = (elapsed - 2800) / 300
+				}else if(2000 < elapsed){
+					if(elapsed < 2300){
+						fade = 1 - (elapsed - 2000) / 300
+					}else{
+						fade = 0
+					}
+				}
+			}
+			if(fade > 0){
+				if(fade < 1){
+					ctx.globalAlpha = this.draw.easeIn(fade)
+				}
+				this.sessionCache.get({
+					ctx: ctx,
+					x: winW / 2,
+					y: y + (h - 32) / 2,
+					w: winW / 2,
+					h: 38,
+					id: p2.session ? "sessionend" : "sessionstart"
+				})
+				ctx.globalAlpha = 1
+			}
+			if(this.state.moveHover === "session"){
+				this.draw.highlight({
+					ctx: ctx,
+					x: x,
+					y: y,
+					w: w,
+					h: h,
+					opacity: 0.8
+				})
+			}
+		}
+		
 		if(screen === "titleFadeIn"){
 			ctx.save()
 			
@@ -1408,8 +1606,8 @@ class SongSelect{
 		this.songs.forEach(song => {
 			song.p2Cursor = null
 		})
-		if(response){
-			response.forEach(idDiff => {
+		if(response && response.value){
+			response.value.forEach(idDiff => {
 				var id = idDiff.id |0
 				var diff = idDiff.diff
 				var diffId = this.difficultyId.indexOf(diff)
@@ -1417,17 +1615,72 @@ class SongSelect{
 					diffId = 3
 				}
 				if(diffId >= 0){
-					var currentSong = this.songs.find(song => song.id === id)
+					var index = 0
+					var currentSong = this.songs.find((song, i) => {
+						index = i
+						return song.id === id
+					})
 					currentSong.p2Cursor = diffId
+					if(currentSong.stars){
+						this.selectedSong = index
+						this.state.move = 0
+						if(this.state.screen !== "difficulty"){
+							this.toSelectDifficulty(true)
+						}
+					}
 				}
 			})
 		}
 	}
+	onsongsel(response){
+		if(response && response.value){
+			var selected = false
+			if("selected" in response.value){
+				selected = response.value.selected
+			}
+			if("song" in response.value){
+				var song = +response.value.song
+				if(song >= 0 && song < this.songs.length){
+					if(!selected){
+						this.state.locked = true
+						if(this.state.screen === "difficulty"){
+							this.toSongSelect(true)
+						}
+						var moveBy = song - this.selectedSong
+						if(moveBy){
+							if(this.selectedSong < song){
+								var altMoveBy = -this.mod(this.songs.length, this.selectedSong - song)
+							}else{
+								var altMoveBy = this.mod(this.songs.length, moveBy)
+							}
+							if(Math.abs(altMoveBy) < Math.abs(moveBy)){
+								moveBy = altMoveBy
+							}
+							this.moveToSong(moveBy, true)
+						}
+					}else if(this.songs[song].stars){
+						this.selectedSong = song
+						this.state.move = 0
+						if(this.state.screen !== "difficulty"){
+							this.toSelectDifficulty(true)
+						}
+					}
+				}
+			}
+		}
+	}
 	startP2(){
 		this.onusers(p2.getMessage("users"))
+		if(p2.session){
+			this.onsongsel(p2.getMessage("songsel"))
+		}
 		pageEvents.add(p2, "message", response => {
 			if(response.type == "users"){
-				this.onusers(response.value)
+				this.onusers(response)
+			}
+			if(p2.session && response.type == "songsel"){
+				this.onsongsel(response)
+				this.state.selLock = false
 			}
 		})
 		if(p2.closed){
@@ -1449,6 +1702,7 @@ class SongSelect{
 		this.selectTextCache.clean()
 		this.categoryCache.clean()
 		this.difficultyCache.clean()
+		this.sessionCache.clean()
 		assets.sounds["bgm_songsel"].stop()
 		if(!this.bgmEnabled){
 			snd.musicGain.fadeIn()
@@ -1459,7 +1713,8 @@ class SongSelect{
 		this.redrawRunning = false
 		this.endPreview()
 		pageEvents.keyRemove(this, "all")
-		pageEvents.remove(loader.screen, ["mousemove", "mousedown", "touchstart"])
+		pageEvents.remove(loader.screen, ["mousemove", "mouseleave", "mousedown", "touchstart"])
+		pageEvents.remove(p2, "message")
 		if(this.touchEnabled && fullScreenSupported){
 			pageEvents.remove(this.touchFullBtn, "click")
 			delete this.touchFullBtn

@@ -12,6 +12,13 @@ class Titlescreen{
 				this.onPressed()
 			}
 		})
+		if(p2.session){
+			pageEvents.add(p2, "message", response => {
+				if(response.type === "songsel"){
+					this.goNext(true)
+				}
+			})
+		}
 	}
 	keyDown(event, code){
 		if(!code){
@@ -34,13 +41,20 @@ class Titlescreen{
 		this.titleScreen.style.cursor = "auto"
 		this.clean()
 		assets.sounds["don"].play()
-		setTimeout(this.goNext.bind(this), 500)
+		this.goNext()
 	}
-	goNext(){
-		if(this.touched || localStorage.getItem("tutorial") === "true"){
-			new SongSelect(false, false, this.touched)
+	goNext(fromP2){
+		if(p2.session && !fromP2){
+			p2.send("songsel")
+		}else if(fromP2 || this.touched || localStorage.getItem("tutorial") === "true"){
+			pageEvents.remove(p2, "message")
+			setTimeout(() => {
+				new SongSelect(false, false, this.touched)
+			}, 500)
 		}else{
-			new Tutorial()
+			setTimeout(() => {
+				new Tutorial()
+			}, 500)
 		}
 	}
 	clean(){

@@ -1,11 +1,12 @@
 class Scoresheet{
-	constructor(controller, results, multiplayer){
+	constructor(controller, results, multiplayer, touchEnabled){
 		this.controller = controller
 		this.results = {}
 		for(var i in results){
 			this.results[i] = results[i].toString()
 		}
 		this.multiplayer = multiplayer
+		this.touchEnabled = touchEnabled
 		
 		this.canvas = document.getElementById("canvas")
 		this.ctx = this.canvas.getContext("2d")
@@ -15,7 +16,8 @@ class Scoresheet{
 			screen: "fadeIn",
 			screenMS: this.getMS(),
 			startDelay: 3300,
-			hasPointer: 0
+			hasPointer: 0,
+			scoreNext: false
 		}
 		this.frame = 1000 / 60
 		this.numbers = "001122334455667788900112233445".split("")
@@ -33,6 +35,17 @@ class Scoresheet{
 		
 		assets.sounds["results"].play()
 		assets.sounds["bgm_result"].playLoop(3, false, 0, 0.847, 17.689)
+		
+		if(p2.session){
+			if(p2.getMessage("songsel")){
+				this.toSongsel(true)
+			}
+			pageEvents.add(p2, "message", response => {
+				if(response.type === "songsel"){
+					this.toSongsel(true)
+				}
+			})
+		}
 	}
 	keyDown(event, code){
 		if(!code){
@@ -68,17 +81,28 @@ class Scoresheet{
 		this.toNext()
 	}
 	toNext(){
-		var ms = this.getMS()
-		var elapsed = ms - this.state.screenMS
+		var elapsed = this.getMS() - this.state.screenMS
 		if(this.state.screen === "fadeIn" && elapsed >= this.state.startDelay){
-			this.state.screen = "scoresShown"
-			this.state.screenMS = ms
-			assets.sounds["note_don"].play()
+			this.toScoresShown()
 		}else if(this.state.screen === "scoresShown" && elapsed >= 1000){
+			this.toSongsel()
+		}
+	}
+	toScoresShown(){
+		if(!p2.session){
+			this.state.screen = "scoresShown"
+			this.state.screenMS = this.getMS()
+			assets.sounds["note_don"].play()
+		}
+	}
+	toSongsel(fromP2){
+		if(!p2.session || fromP2){
 			snd.musicGain.fadeOut(0.5)
 			this.state.screen = "fadeOut"
-			this.state.screenMS = ms
-			assets.sounds["note_don"].play()
+			this.state.screenMS = this.getMS()
+			if(!fromP2){
+				assets.sounds["note_don"].play()
+			}
 		}
 	}
 	
@@ -232,7 +256,7 @@ class Scoresheet{
 		if(elapsed >= 0){
 			if(this.state.hasPointer === 0){
 				this.state.hasPointer = 1
-				if(!this.state.pointerLocked){
+				if(!this.state.pointerLocked && !p2.session){
 					this.canvas.style.cursor = "pointer"
 				}
 			}
@@ -615,6 +639,11 @@ class Scoresheet{
 			ctx.restore()
 		}
 		
+		if(p2.session && !this.state.scoreNext && this.state.screen === "scoresShown" && ms - this.state.screenMS >= 10000){
+			this.state.scoreNext = true
+			p2.send("songsel")
+		}
+		
 		if(this.state.screen === "fadeOut"){
 			ctx.save()
 			if(this.state.hasPointer === 1){
@@ -631,7 +660,7 @@ class Scoresheet{
 			
 			if(elapsed >= 1000){
 				this.clean()
-				this.controller.songSelection(true, false, this.state.pointerLocked)
+				this.controller.songSelection(true, false, p2.session ? this.touchEnabled : this.state.pointerLocked)
 			}
 		}
 		

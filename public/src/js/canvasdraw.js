@@ -188,6 +188,11 @@
 		
 		ctx.restore()
 		
+		if(config.disabled){
+			ctx.fillStyle = "rgba(0, 0, 0, 0.5)"
+			ctx.fillRect(x, y, w, h)
+		}
+		
 		if(config.highlight){
 			this.highlight({
 				ctx: ctx,
