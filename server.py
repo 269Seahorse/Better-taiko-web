@@ -4,6 +4,7 @@ import asyncio
 import websockets
 import json
 import random
+import sys
 
 server_status = {
 	"waiting": {},
@@ -314,7 +315,9 @@ async def connection(ws, path):
 		elif user["action"] == "invite" and user["session"] in server_status["invites"]:
 			del server_status["invites"][user["session"]]
 
+port = int(sys.argv[1]) if len(sys.argv) > 1 else 34802
+print('Starting server on port %d' % port)
 asyncio.get_event_loop().run_until_complete(
-	websockets.serve(connection, "localhost", 34802)
+	websockets.serve(connection, "localhost", port)
 )
 asyncio.get_event_loop().run_forever()
