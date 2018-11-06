@@ -132,7 +132,7 @@ class SongSelect{
 			})
 		}
 		this.songs.push({
-			title: "について",
+			title: "このシミュレータについて",
 			skin: this.songSkin.about,
 			action: "about",
 			category: "ランダム"
