@@ -454,7 +454,8 @@ class Scoresheet{
 						percentage: gaugePercent,
 						font: this.font,
 						scale: w / 788,
-						scoresheet: true
+						scoresheet: true,
+						blue: p === 1
 					})
 					this.draw.soul({
 						ctx: ctx,

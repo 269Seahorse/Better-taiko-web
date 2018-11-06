@@ -339,7 +339,8 @@
 				percentage: gaugePercent,
 				font: this.font,
 				scale: 0.7,
-				multiplayer: this.multiplayer === 2
+				multiplayer: this.multiplayer === 2,
+				blue: this.multiplayer === 2
 			})
 			this.draw.soul({
 				ctx: ctx,
@@ -411,7 +412,8 @@
 				clear: 25 / 50,
 				percentage: gaugePercent,
 				font: this.font,
-				multiplayer: this.multiplayer === 2
+				multiplayer: this.multiplayer === 2,
+				blue: this.multiplayer === 2
 			})
 			this.draw.soul({
 				ctx: ctx,

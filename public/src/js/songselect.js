@@ -1621,7 +1621,7 @@ class SongSelect{
 						return song.id === id
 					})
 					currentSong.p2Cursor = diffId
-					if(currentSong.stars){
+					if(p2.session && currentSong.stars){
 						this.selectedSong = index
 						this.state.move = 0
 						if(this.state.screen !== "difficulty"){
