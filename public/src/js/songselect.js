@@ -648,6 +648,9 @@ class SongSelect{
 		if(p2.session){
 			p2.send("gameend")
 		}else{
+			localStorage["selectedSong"] = this.selectedSong
+			localStorage["selectedDiff"] = 0
+
 			assets.sounds["don"].play()
 			this.clean()
 			setTimeout(() => {
