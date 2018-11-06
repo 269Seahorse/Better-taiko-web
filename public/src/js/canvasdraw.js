@@ -998,19 +998,19 @@
 		ctx.fill()
 		
 		if(gaugeFilled <= gaugeClear){
-			ctx.fillStyle = "#680000"
+			ctx.fillStyle = config.blue ? "#184d55" : "#680000"
 			var x = Math.max(0, gaugeFilled - 5)
 			ctx.fillRect(x, firstTop, gaugeClear - x + 2, 22)
 		}
 		if(gaugeFilled > 0){
 			var w = Math.min(gaugeClear + 1, gaugeFilled - 4)
-			ctx.fillStyle = "#ff3508"
+			ctx.fillStyle = config.blue ? "#00edff" : "#ff3408"
 			ctx.fillRect(0, firstTop + 2, w, 20)
-			ctx.fillStyle = "#ff9e94"
+			ctx.fillStyle = config.blue ? "#9cffff" : "#ffa191"
 			ctx.fillRect(0, firstTop, w, 3)
 		}
 		if(gaugeFilled < gaugeW - 4){
-			ctx.fillStyle = "#684c00"
+			ctx.fillStyle = "#684900"
 			var x = Math.max(gaugeClear + 9, gaugeFilled - gaugeClear + 9)
 			ctx.fillRect(x, secondTop, gaugeW - 4 - x, 44)
 		}
@@ -1021,7 +1021,7 @@
 			ctx.fillStyle = "#fff"
 			ctx.fillRect(gaugeClear + 9, secondTop, w, 3)
 		}
-		ctx.fillStyle = cleared ? "#ff0" : "#684c00"
+		ctx.fillStyle = cleared ? "#ff0" : "#684900"
 		ctx.beginPath()
 		if(config.multiplayer){
 			this.roundedCorner(ctx, gaugeClear, secondTop + 44, 10, 3)
