@@ -649,7 +649,6 @@ class SongSelect{
 			p2.send("gameend")
 		}else{
 			localStorage["selectedSong"] = this.selectedSong
-			localStorage["selectedDiff"] = 0
 
 			assets.sounds["don"].play()
 			this.clean()
