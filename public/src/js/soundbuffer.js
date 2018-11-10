@@ -206,4 +206,7 @@ class Sound{
 			}
 		}
 	}
+	clean(){
+		delete this.buffer
+	}
 }

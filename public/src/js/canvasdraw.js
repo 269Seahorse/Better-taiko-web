@@ -50,8 +50,9 @@
 			comma: /[,.]/,
 			ideographicComma: /[、。]/,
 			apostrophe: /['＇]/,
+			degree: /[ﾟ°]/,
 			brackets: /[\(（\)）「」『』]/,
-			tilde: /[\-－~～]/,
+			tilde: /[\-－~～〜]/,
 			tall: /[bｂdｄfｆh-lｈ-ｌtｔ0-9０-９♪]/,
 			uppercase: /[A-ZＡ-Ｚ]/,
 			lowercase: /[a-zａ-ｚ･]/,
@@ -283,15 +284,20 @@
 			}else if(symbol === "ー"){
 				// Long-vowel mark
 				drawn.push({realText: symbol, svg: this.longVowelMark, x: -4, y: 5, h: 33, scale: [mul, mul]})
+			}else if(symbol === "∀"){
+				drawn.push({text: symbol, x: 0, y: 3, h: 39, rotate: true})
 			}else if(r.comma.test(symbol)){
 				// Comma, full stop
-				drawn.push({text: symbol, x: 16, y: -7, h: 0, scale: [1.2, 0.7]})
+				drawn.push({text: symbol, x: 13, y: -9, h: 13, scale: [1.2, 0.7]})
 			}else if(r.ideographicComma.test(symbol)){
 				// Ideographic comma, full stop
 				drawn.push({text: symbol, x: 16, y: -16, h: 18})
 			}else if(r.apostrophe.test(symbol)){
 				// Apostrophe
 				drawn.push({realText: symbol, text: ",", x: 20, y: -39, h: 0, scale: [1.2, 0.7]})
+			}else if(r.degree.test(symbol)){
+				// Degree
+				drawn.push({text: symbol, x: 16, y: 3, h: 18})
 			}else if(r.brackets.test(symbol)){
 				// Rotated brackets
 				drawn.push({text: symbol, x: 0, y: -5, h: 25, rotate: true})
@@ -359,6 +365,10 @@
 			}
 		}
 		
+		if(config.align === "bottom"){
+			drawn.reverse()
+		}
+		
 		var drawnHeight = 0
 		for(let symbol of drawn){
 			if(config.letterSpacing){
@@ -382,9 +392,16 @@
 			style.transform = ""
 		}
 		
+		var scaling = 1
 		if(config.height && drawnHeight > config.height){
-			var scaling = config.height / drawnHeight
-			ctx.scale(1, scaling)
+			scaling = config.height / drawnHeight
+			if(config.align === "bottom"){
+				ctx.translate(40 * mul, 0)
+				ctx.scale(scaling, scaling)
+				ctx.translate(-40 * mul, 0)
+			}else{
+				ctx.scale(1, scaling)
+			}
 			if(config.selectable){
 				style.transform = "scale(1, " + scaling + ")"
 				style.top = (config.y + (config.height - drawnHeight) / 2 - 15 / 2 * scaling) * scale + "px"
@@ -407,12 +424,19 @@
 			if(action === "stroke"){
 				ctx.strokeStyle = config.outline
 				ctx.lineWidth = config.outlineSize * mul
+				if(config.align === "bottom"){
+					ctx.lineWidth /= scaling
+				}
 				ctx.lineJoin = "round"
 				ctx.miterLimit = 1
 			}else if(action === "fill"){
 				ctx.fillStyle = config.fill
 			}
-			var offsetY = 0
+			if(config.align === "bottom"){
+				var offsetY = drawnHeight > config.height ? drawnHeight : config.height
+			}else{
+				var offsetY = 0
+			}
 			
 			for(let symbol of drawn){
 				var saved = false
@@ -421,7 +445,10 @@
 					currentX += 20 * mul
 				}
 				var currentY = offsetY + symbol.y * mul
-				offsetY += symbol.h * mul
+				if(config.align === "bottom"){
+					currentY -= symbol.h * mul
+				}
+				offsetY = offsetY + symbol.h * mul * (config.align === "bottom" ? -1 : 1)
 				if(action === "selectable"){
 					let div = document.createElement("div")
 					div.classList.add("stroke-sub")

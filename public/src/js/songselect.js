@@ -91,6 +91,7 @@ class SongSelect{
 			this.songs.push({
 				id: song.id,
 				title: song.title,
+				subtitle: song.subtitle,
 				skin: song.category in this.songSkin ? this.songSkin[song.category] : this.songSkin.default,
 				stars: song.stars,
 				category: song.category,
@@ -218,6 +219,8 @@ class SongSelect{
 		this.songSelect.style.backgroundImage = "url('" + assets.image["bg_genre_" + sort].src + "')"
 		
 		this.previewId = 0
+		this.previewList = Array(5)
+		
 		var skipStart = fromTutorial || p2.session
 		this.state = {
 			screen: fadeIn ? "titleFadeIn" : (skipStart ? "song" : "title"),
@@ -708,7 +711,11 @@ class SongSelect{
 			this.canvas.style.height = (winH / this.pixelRatio) + "px"
 			
 			var borders = (this.songAsset.border + this.songAsset.innerBorder) * 2
-			this.songTitleCache.resize((this.songAsset.width - borders + 1) * this.songs.length, (this.songAsset.height - borders + 1) * 2, ratio + 0.5)
+			this.songTitleCache.resize(
+				(this.songAsset.width - borders + 1) * this.songs.length,
+				(this.songAsset.height - borders + 1) * 3,
+				ratio + 0.5
+			)
 			
 			this.selectTextCache.resize((280 + 53 + 60 + 1) * 2, this.songAsset.marginTop + 15, ratio + 0.5)
 			
@@ -1285,30 +1292,55 @@ class SongSelect{
 						drawDifficulty(ctx, i, currentUra)
 					}
 				}
+				
+				var borders = (this.songAsset.border + this.songAsset.innerBorder) * 2
+				var textW = this.songAsset.width - borders
+				var textH = this.songAsset.height - borders
+				var textX = Math.max(w - 37 - textW / 2, w / 2 - textW / 2)
+				var textY = opened * 12 + (1 - opened) * 7
+				
+				if(currentSong.subtitle){
+					this.songTitleCache.get({
+						ctx: ctx,
+						x: x + textX - textW,
+						y: y + textY,
+						w: textW,
+						h: textH,
+						id: currentSong.subtitle,
+					}, ctx => {
+						this.draw.verticalText({
+							ctx: ctx,
+							text: currentSong.subtitle,
+							x: textW / 2,
+							y: 7,
+							width: textW,
+							height: textH - 35,
+							fill: "#fff",
+							outline: "#000",
+							outlineSize: 14,
+							fontSize: 28,
+							fontFamily: this.font,
+							align: "bottom"
+						})
+					})
+				}
+				
 				if(!songSel && currentSong.stars[4]){
 					var fade = ((ms - this.state.screenMS) % 1200) / 1200
 					var _x = x + 402 + 4 * 100 + fade * 25
 					var _y = y + 258
-					ctx.save()
-					ctx.globalAlpha = this.draw.easeInOut(1 - fade)
-					ctx.fillStyle = "#e0be28"
+					ctx.fillStyle = "rgba(0, 0, 0, " + 0.2 * this.draw.easeInOut(1 - fade) + ")"
 					ctx.beginPath()
 					ctx.moveTo(_x - 35, _y - 25)
 					ctx.lineTo(_x - 10, _y)
 					ctx.lineTo(_x - 35, _y + 25)
 					ctx.fill()
-					ctx.restore()
 				}
 				
 				ctx.globalAlpha = 1 - Math.max(0, opened - 0.5) * 2
 				ctx.fillStyle = selectedSkin.background
 				ctx.fillRect(x, y, w, h)
 				ctx.globalAlpha = 1
-				var borders = (this.songAsset.border + this.songAsset.innerBorder) * 2
-				var textW = this.songAsset.width - borders
-				var textH = this.songAsset.height - borders
-				var textX = Math.max(w - 37 - textW / 2, w / 2 - textW / 2)
-				var textY = opened * 12 + (1 - opened) * 7
 				this.songTitleCache.get({
 					ctx: ctx,
 					x: x + textX,
@@ -1551,15 +1583,17 @@ class SongSelect{
 				var currentId = this.previewId
 				this.previewing = this.selectedSong
 			}
-			var songObj = assets.songs.find(song => song.id == id)
+			var songObj = this.previewList.find(song => song && song.id === id)
 			
-			if(songObj.preview_sound){
+			if(songObj){
 				if(!loadOnly){
 					this.preview = songObj.preview_sound
 					this.preview.gain = snd.previewGain
 					this.previewLoaded(startLoad, songObj.preview_time)
 				}
 			}else{
+				songObj = {id: id}
+				
 				var previewFilename = prvTime > 0.1 ? "/preview.mp3" : "/main.mp3"
 				
 				var loadPreview = previewFilename => {
@@ -1575,6 +1609,14 @@ class SongSelect{
 						songObj.preview_sound = sound
 						this.preview = sound
 						this.previewLoaded(startLoad, songObj.preview_time)
+						
+						var oldPreview = this.previewList.shift()
+						if(oldPreview){
+							oldPreview.preview_sound.clean()
+						}
+						this.previewList.push(songObj)
+					}else{
+						sound.clean()
 					}
 				})
 			}
@@ -1714,6 +1756,11 @@ class SongSelect{
 		}
 		this.redrawRunning = false
 		this.endPreview()
+		this.previewList.forEach(song => {
+			if(song){
+				song.preview_sound.clean()
+			}
+		})
 		pageEvents.keyRemove(this, "all")
 		pageEvents.remove(loader.screen, ["mousemove", "mouseleave", "mousedown", "touchstart"])
 		pageEvents.remove(p2, "message")
