@@ -394,12 +394,13 @@
 		
 		var scaling = 1
 		if(config.height && drawnHeight > config.height){
-			scaling = config.height / drawnHeight
 			if(config.align === "bottom"){
+				scaling = Math.max(0.6, config.height / drawnHeight)
 				ctx.translate(40 * mul, 0)
-				ctx.scale(scaling, scaling)
+				ctx.scale(scaling, config.height / drawnHeight)
 				ctx.translate(-40 * mul, 0)
 			}else{
+				scaling = config.height / drawnHeight
 				ctx.scale(1, scaling)
 			}
 			if(config.selectable){
