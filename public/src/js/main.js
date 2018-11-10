@@ -85,7 +85,8 @@ pageEvents.add(versionDiv, ["click", "touchend"], () => {
 resizeRoot()
 setInterval(resizeRoot, 100)
 pageEvents.keyAdd(debugObj, "all", "down", event => {
-	if(event.keyCode === 186 && event.ctrlKey && event.shiftKey && !event.altKey){
+	if((event.keyCode === 186 || event.keyCode === 59) && event.ctrlKey && event.shiftKey && !event.altKey){
+		// Semicolon
 		if(debugObj.state === "open"){
 			debugObj.debug.minimise()
 		}else if(debugObj.state === "minimised"){
@@ -95,6 +96,7 @@ pageEvents.keyAdd(debugObj, "all", "down", event => {
 		}
 	}
 	if(event.keyCode === 82 && debugObj.debug && debugObj.controller){
+		// R
 		debugObj.controller.restartSong()
 	}
 })
