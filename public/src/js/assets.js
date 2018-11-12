@@ -32,10 +32,12 @@ var assets = {
 		"bg_score_p1.png",
 		"bg_score_p2.png",
 		"bg_settings.png",
+		"bg_pause.png",
 		"badge_auto.png",
 		"touch_drum.png",
 		"touch_pause.png",
-		"touch_fullscreen.png"
+		"touch_fullscreen.png",
+		"mimizu.png"
 	],
 	"audioSfx": [
 		"don.wav",

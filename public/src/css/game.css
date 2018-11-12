@@ -15,36 +15,6 @@
 	width: 100%;
 	height: 100%;
 }
-#pause-menu{
-	display: none;
-	width: 100%;
-	height: 100%;
-	position: absolute;
-	top: 0;
-	left: 0;
-	background: rgba(0, 0, 0, 0.75);
-	z-index: 5;
-}
-#pause-menu button{
-	width: 90%;
-	height: 25%;
-	display: block;
-	margin: 0 auto;
-	cursor: pointer;
-	border:.5vmin solid #ae7a26;
-	background: #fff;
-	color: #000;
-	font-family: TnT, Meiryo, sans-serif;
-	font-size: 3.5vmin;
-	border-radius: 1.5vmin;
-	outline: none;
-}
-#pause-menu button:hover,
-#pause-menu .window:not(:hover) button.selected{
-	color:white;
-	background:#0c6577;
-	border-color:#fa5d3a;
-}
 #cursor{
 	position: fixed;
 	width: 1px;

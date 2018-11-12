@@ -5,12 +5,17 @@
 		this.canvas = document.getElementById("canvas")
 		this.ctx = this.canvas.getContext("2d")
 		
-		this.pauseMenu = document.getElementById("pause-menu")
 		this.cursor = document.getElementById("cursor")
 		this.gameDiv = document.getElementById("game")
 		
 		this.portraitClass = false
 		this.touchp2Class = false
+		
+		this.pauseOptions = [
+			"演奏をつづける",
+			"はじめからやりなおす",
+			"「曲をえらぶ」にもどる"
+		]
 		
 		this.currentScore = {
 			ms: -Infinity,
@@ -19,6 +24,12 @@
 		this.noteFace = {
 			small: 0,
 			big: 3
+		}
+		this.state = {
+			pausePos: 0,
+			moveMS: 0,
+			moveHover: null,
+			hasPointer: false
 		}
 		this.nextBeat = 0
 		this.gogoTime = 0
@@ -32,6 +43,7 @@
 		
 		this.titleCache = new CanvasCache()
 		this.comboCache = new CanvasCache()
+		this.pauseCache = new CanvasCache()
 		
 		this.multiplayer = this.controller.multiplayer
 		
@@ -39,12 +51,6 @@
 		this.touch = -Infinity
 		
 		if(this.multiplayer !== 2){
-			pageEvents.add(window, "resize", () => {
-				if(this.controller.game.isPaused()){
-					this.refresh()
-					setTimeout(this.refresh.bind(this), 100)
-				}
-			})
 			
 			if(this.controller.touchEnabled){
 				this.touchDrumDiv = document.getElementById("touch-drum")
@@ -67,12 +73,15 @@
 				
 				this.touchPauseBtn = document.getElementById("touch-pause-btn")
 				pageEvents.add(this.touchPauseBtn, "touchend", () => {
-					this.controller.togglePauseMenu()
+					this.controller.togglePause()
 				})
 				if(this.multiplayer){
 					this.touchPauseBtn.style.display = "none"
 				}
 			}
+		}
+		if(!this.multiplayer){
+			pageEvents.add(this.canvas, ["mousedown", "touchstart"], this.onmousedown.bind(this))
 		}
 	}
 	run(){
@@ -122,7 +131,12 @@
 				
 				this.titleCache.resize(640, 80, ratio)
 			}
+			if(!this.multiplayer){
+				this.pauseCache.resize(81 * this.pauseOptions.length * 2, 464, ratio)
+			}
 			this.fillComboCache()
+		}else if(this.controller.game.paused && !document.hasFocus()){
+			return
 		}else if(this.multiplayer !== 2){
 			ctx.clearRect(0, 0, winW / ratio, winH / ratio)
 		}
@@ -749,6 +763,125 @@
 		if(!this.touchEnabled && !this.portrait && !this.multiplayer){
 			this.assets.drawAssets("foreground")
 		}
+		
+		// Pause screen
+		if(!this.multiplayer && this.controller.game.paused){
+			ctx.fillStyle = "rgba(0, 0, 0, 0.5)"
+			ctx.fillRect(0, 0, winW, winH)
+			
+			if(this.portrait){
+				ctx.save()
+				var pauseScale = 720 / 766
+				ctx.scale(pauseScale, pauseScale)
+				ctx.translate(-257, 328)
+			}
+			
+			var pauseRect = (ctx, mul) => {
+				this.draw.roundedRect({
+					ctx: ctx,
+					x: (frameLeft + 269) * mul,
+					y: (frameTop + 93) * mul,
+					w: 742 * mul,
+					h: 494 * mul,
+					radius: 17 * mul
+				})
+			}
+			pauseRect(ctx, 1)
+			ctx.strokeStyle = "#fff"
+			ctx.lineWidth = 24
+			ctx.stroke()
+			ctx.strokeStyle = "#000"
+			ctx.lineWidth = 12
+			ctx.stroke()
+			this.draw.pattern({
+				ctx: ctx,
+				img: assets.image["bg_pause"],
+				shape: pauseRect,
+				dx: frameLeft + 68,
+				dy: frameTop + 11
+			})
+			
+			ctx.drawImage(assets.image["mimizu"],
+				frameLeft + 313, frameTop + 247,
+				136, 315
+			)
+			
+			var _y = frameTop + 108
+			var _w = 80
+			var _h = 464
+			for(var i = 0; i < this.pauseOptions.length; i++){
+				var _x = frameLeft + 520 + 110 * i
+				if(this.state.moveHover !== null){
+					var selected = i === this.state.moveHover
+				}else{
+					var selected = i === this.state.pausePos
+				}
+				if(selected){
+					ctx.fillStyle = "#ffb447"
+					this.draw.roundedRect({
+						ctx: ctx,
+						x: _x - _w / 2,
+						y: _y,
+						w: _w,
+						h: _h,
+						radius: 30
+					})
+					ctx.fill()
+				}
+				this.pauseCache.get({
+					ctx: ctx,
+					x: _x - _w / 2,
+					y: _y,
+					w: _w,
+					h: _h,
+					id: this.pauseOptions[i] + (selected ? "1" : "0")
+				}, ctx => {
+					var textConfig = {
+						ctx: ctx,
+						text: this.pauseOptions[i],
+						x: _w / 2,
+						y: 18,
+						width: _w,
+						height: _h,
+						fontSize: 40,
+						fontFamily: this.font,
+						letterSpacing: -1
+					}
+					if(selected){
+						textConfig.fill = "#fff"
+						textConfig.outline = "#000"
+						textConfig.outlineSize = 10
+					}else{
+						textConfig.fill = "#000"
+					}
+					this.draw.verticalText(textConfig)
+				})
+				
+				var highlight = 0
+				if(this.state.moveHover === i){
+					highlight = 2
+				}else if(selected){
+					highlight = 1
+				}
+				if(highlight){
+					this.draw.highlight({
+						ctx: ctx,
+						x: _x - _w / 2 - 3.5,
+						y: _y - 3.5,
+						w: _w + 7,
+						h: _h + 7,
+						animate: highlight === 1,
+						animateMS: this.state.moveMS,
+						opacity: highlight === 2 ? 0.8 : 1,
+						radius: 30
+					})
+				}
+			}
+			
+			if(this.portrait){
+				ctx.restore()
+			}
+		}
 	}
 	setBackground(){
 		var gameDiv = document.getElementById("game")
@@ -1196,16 +1329,6 @@
 		var circleSize = 70 * this.slotPos.size / 106 / 2
 		return speed / (140 / circleSize) * ms
 	}
-	togglePauseMenu(){
-		if(this.controller.game.isPaused()){
-			this.pauseMenu.style.display = "block"
-			this.lastMousemove = this.controller.getElapsedTime()
-			this.cursorHidden = false
-			this.mouseIdle()
-		}else{
-			this.pauseMenu.style.display = ""
-		}
-	}
 	drawTouch(){
 		if(this.touchEnabled){
 			var ms = this.getMS()
@@ -1266,9 +1389,90 @@
 		keyboard.setKey(kbd[note], false)
 		keyboard.setKey(kbd[note], true, ms)
 	}
+	mod(length, index){
+		return ((index % length) + length) % length
+	}
+	pauseMove(pos, absolute){
+		if(absolute){
+			this.state.pausePos = pos
+		}else{
+			this.state.pausePos = this.mod(this.pauseOptions.length, this.state.pausePos + pos)
+		}
+		this.state.moveMS = +new Date - (absolute ? 0 : 500)
+		this.state.moveHover = null
+	}
+	pauseConfirm(pos){
+		if(typeof pos === "undefined"){
+			pos = this.state.pausePos
+		}
+		switch(pos){
+			case 1:
+				return this.controller.restartSong()
+			case 2:
+				return this.controller.songSelection()
+			default:
+				return this.controller.togglePause()
+		}
+	}
+	onmousedown(event){
+		if(this.controller.game.paused){
+			if(event.type === "mousedown"){
+				if(event.which !== 1){
+					return
+				}
+				var mouse = this.mouseOffset(event.offsetX, event.offsetY)
+			}else{
+				event.preventDefault()
+				var mouse = this.mouseOffset(event.touches[0].pageX, event.touches[0].pageY)
+			}
+			var moveTo = this.pauseMouse(mouse.x, mouse.y)
+			if(moveTo !== null){
+				this.pauseConfirm(moveTo)
+			}
+		}
+	}
 	onmousemove(event){
 		this.lastMousemove = this.controller.getElapsedTime()
 		this.cursorHidden = false
+		
+		if(!this.multiplayer && this.controller.game.paused){
+			var mouse = this.mouseOffset(event.offsetX, event.offsetY)
+			var moveTo = this.pauseMouse(mouse.x, mouse.y)
+			if(moveTo === null && this.state.moveHover === this.state.pausePos){
+				this.state.moveMS = +new Date - 500
+			}
+			this.state.moveHover = moveTo
+			this.pointer(moveTo !== null)
+		}
+	}
+	mouseOffset(offsetX, offsetY){
+		return {
+			x: (offsetX * this.pixelRatio - this.winW / 2) / this.ratio + (this.portrait ? 720 : 1280) / 2,
+			y: (offsetY * this.pixelRatio - this.winH / 2) / this.ratio + (this.portrait ? 1280 : 720) / 2
+		}
+	}
+	pointer(enabled){
+		if(!this.canvas){
+			return
+		}
+		if(enabled && this.state.hasPointer === false){
+			this.canvas.style.cursor = "pointer"
+			this.state.hasPointer = true
+		}else if(!enabled && this.state.hasPointer === true){
+			this.canvas.style.cursor = ""
+			this.state.hasPointer = false
+		}
+	}
+	pauseMouse(x, y){
+		if(this.portrait){
+			var pauseScale = 766 / 720
+			x = x * pauseScale + 257
+			y = y * pauseScale - 328
+		}
+		if(104 <= y && y <= 575 && 465 <= x && x <= 465 + 110 * this.pauseOptions.length){
+			return Math.floor((x - 465) / 110)
+		}
+		return null
 	}
 	mouseIdle(){
 		var lastMouse = pageEvents.getMouse()
@@ -1299,7 +1503,6 @@
 		this.comboCache.clean()
 		
 		if(this.multiplayer !== 2){
-			pageEvents.remove(window, "resize")
 			if(this.touchEnabled){
 				pageEvents.remove(this.canvas, "touchstart")
 				pageEvents.remove(this.touchFullBtn, "touchend")
@@ -1311,6 +1514,9 @@
 				delete this.touchFullBtn
 				delete this.touchPauseBtn
 			}
+		}
+		if(!this.multiplayer){
+			pageEvents.remove(this.canvas, ["mousedown", "touchstart"])
 		}
 		pageEvents.mouseRemove(this)
 		delete this.pauseMenu

@@ -217,35 +217,33 @@
 		var _y = config.y + 3.5
 		var _w = config.w - 7
 		var _h = config.h - 7
-		var rect = () => {
-			if(config.radius){
-				this.roundedRect({
-					ctx: ctx,
-					x: _x,
-					y: _y,
-					w: _w,
-					h: _h,
-					radius: config.radius
-				})
-				ctx.stroke()
-			}else{
-				ctx.strokeRect(_x, _y, _w, _h)
-			}
-		}
 		if(config.animate){
 			ctx.globalAlpha = this.fade((this.getMS() - config.animateMS) % 2000 / 2000)
 		}else if(config.opacity){
 			ctx.globalAlpha = config.opacity
 		}
+		if(config.radius){
+			this.roundedRect({
+				ctx: ctx,
+				x: _x,
+				y: _y,
+				w: _w,
+				h: _h,
+				radius: config.radius
+			})
+		}else{
+			ctx.beginPath()
+			ctx.rect(_x, _y, _w, _h)
+		}
 		ctx.strokeStyle = "rgba(255, 249, 1, 0.45)"
 		ctx.lineWidth = 14
-		rect()
+		ctx.stroke()
 		ctx.strokeStyle = "rgba(255, 249, 1, .8)"
 		ctx.lineWidth = 8
-		rect()
+		ctx.stroke()
 		ctx.strokeStyle = "#fff"
 		ctx.lineWidth = 6
-		rect()
+		ctx.stroke()
 		
 		ctx.restore()
 	}

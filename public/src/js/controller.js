@@ -30,7 +30,6 @@ class Controller{
 		this.playedSounds = {}
 	}
 	run(syncWith){
-		this.loadUIEvents()
 		this.game.run()
 		this.view.run()
 		this.startMainLoop()
@@ -46,22 +45,6 @@ class Controller{
 				debugObj.debug.updateStatus()
 			}
 		}
-	}
-	loadUIEvents(){
-		this.pauseMenu = document.getElementById("pause-menu")
-		this.continueBtn = document.getElementById("continue-butt")
-		this.restartBtn = document.getElementById("restart-butt")
-		this.songSelBtn = document.getElementById("song-selection-butt")
-		pageEvents.add(this.pauseMenu, "touchstart", event => event.preventDefault())
-		pageEvents.add(this.continueBtn, ["click", "touchend"], this.togglePauseMenu.bind(this))
-		pageEvents.add(this.restartBtn, ["click", "touchend"], () => {
-			assets.sounds["don"].play()
-			this.restartSong()
-		})
-		pageEvents.add(this.songSelBtn, ["click", "touchend"], () => {
-			assets.sounds["don"].play()
-			this.songSelection()
-		})
 	}
 	startMainLoop(){
 		this.mainLoopStarted = false
@@ -115,14 +98,10 @@ class Controller{
 					}
 					this.game.playMainMusic()
 				}
-				this.view.refresh()
 			}
+			this.view.refresh()
 			this.keyboard.checkMenuKeys()
 		}
-	}
-	togglePauseMenu(){
-		this.togglePause()
-		this.view.togglePauseMenu()
 	}
 	gameEnded(){
 		var score = this.getGlobalScore()
@@ -230,15 +209,6 @@ class Controller{
 		this.stopMainLoop()
 		this.keyboard.clean()
 		this.view.clean()
-		
-		pageEvents.remove(this.pauseMenu, "touchstart")
-		delete this.pauseMenu
-		pageEvents.remove(this.continueBtn, ["click", "touchend"])
-		delete this.continueBtn
-		pageEvents.remove(this.restartBtn, ["click", "touchend"])
-		delete this.restartBtn
-		pageEvents.remove(this.songSelBtn, ["click", "touchend"])
-		delete this.songSelBtn
 		
 		if(!this.multiplayer){
 			debugObj.controller = null
