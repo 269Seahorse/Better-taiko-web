@@ -6,6 +6,7 @@ import json
 import sqlite3
 import re
 import os
+import urlparse
 from flask import Flask, g, jsonify, render_template, request, abort, redirect
 from ffmpy import FFmpeg
 
@@ -145,9 +146,9 @@ def route_api_preview():
     song_type = song_row[0][10]
     prev_path = make_preview(song_id, song_type)
     if not prev_path:
-        return redirect(''.join([request.host_url, '/songs/%s/main.mp3' % song_id]))
+        return redirect(urlparse.urljoin(request.host_url, '/songs/%s/main.mp3' % song_id))
 
-    return redirect(''.join([request.host_url, '/songs/%s/preview.mp3' % song_id]))
+    return redirect(urlparse.urljoin(request.host_url, '/songs/%s/preview.mp3' % song_id))
 
 
 @app.route('/api/songs')
