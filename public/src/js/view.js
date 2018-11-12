@@ -1407,8 +1407,10 @@
 		}
 		switch(pos){
 			case 1:
+				assets.sounds["don"].play()
 				return this.controller.restartSong()
 			case 2:
+				assets.sounds["don"].play()
 				return this.controller.songSelection()
 			default:
 				return this.controller.togglePause()
