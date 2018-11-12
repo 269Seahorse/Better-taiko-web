@@ -325,6 +325,7 @@ class Game{
 			this.latestDate = +new Date
 			this.mainAsset.stop()
 			this.mainMusicPlaying = false
+			this.view.pauseMove(0, true)
 		}else{
 			assets.sounds["cancel"].play()
 			this.paused = false
