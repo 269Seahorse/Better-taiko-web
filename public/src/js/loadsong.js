@@ -65,12 +65,18 @@ class loadSong{
 			loadingText.firstChild.data = waitingText
 			loadingText.setAttribute("alt", waitingText)
 			
+			this.cancelButton = document.getElementById("p2-cancel-button")
+			this.cancelButton.style.display = "inline-block"
+			pageEvents.add(this.cancelButton, ["mousedown", "touchstart"], this.cancelLoad.bind(this))
+			
 			this.song2Data = this.songData
 			this.selectedSong2 = this.selectedSong
 			pageEvents.add(p2, "message", event => {
 				if(event.type === "gameload"){
+					this.cancelButton.style.display = ""
+					
 					if(event.value === this.selectedSong.difficulty){
-						p2.send("gamestart")
+						this.startMultiplayer()
 					}else{
 						this.selectedSong2 = {
 							title: this.selectedSong.title,
@@ -80,13 +86,13 @@ class loadSong{
 							offset: this.selectedSong.offset
 						}
 						if(this.selectedSong.type === "tja"){
-							p2.send("gamestart")
+							this.startMultiplayer()
 						}else{
 							loader.ajax(this.getSongPath(this.selectedSong2)).then(data => {
 								this.song2Data = data.replace(/\0/g, "").split("\n")
-								p2.send("gamestart")
+								this.startMultiplayer()
 							}, () => {
-								p2.send("gamestart")
+								this.startMultiplayer()
 							})
 						}
 					}
@@ -97,6 +103,9 @@ class loadSong{
 					var taikoGame1 = new Controller(this.selectedSong, this.songData, false, 1, this.touchEnabled)
 					var taikoGame2 = new Controller(this.selectedSong2, this.song2Data, true, 2, this.touchEnabled)
 					taikoGame1.run(taikoGame2)
+				}else if(event.type === "left" || event.type === "gameend"){
+					this.clean()
+					new SongSelect(false, false, this.touchEnabled)
 				}
 			})
 			p2.send("join", {
@@ -110,7 +119,37 @@ class loadSong{
 			taikoGame.run()
 		}
 	}
+	startMultiplayer(repeat){
+		if(document.hasFocus()){
+			p2.send("gamestart")
+		}else{
+			if(!repeat){
+				for(var i = 0; i < 3; i++){
+					assets.sounds["note_don"].play(i * 0.2)
+				}
+			}
+			setTimeout(() => {
+				this.startMultiplayer(true)
+			}, 100)
+		}
+	}
+	cancelLoad(event){
+		if(event.type === "mousedown"){
+			if(event.which !== 1){
+				return
+			}
+		}else{
+			event.preventDefault()
+		}
+		p2.send("leave")
+		assets.sounds["don"].play()
+		this.cancelButton.style.pointerEvents = "none"
+	}
 	clean(){
 		pageEvents.remove(p2, "message")
+		if(this.cancelButton){
+			pageEvents.remove(this.cancelButton, ["mousedown", "touchstart"])
+			delete this.cancelButton
+		}
 	}
 }

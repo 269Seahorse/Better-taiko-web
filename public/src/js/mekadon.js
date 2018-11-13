@@ -20,15 +20,19 @@ class Mekadon{
 			this.playAt(circle, 0, 450)
 		}
 	}
-	playAt(circle, ms, score, dai){
+	playAt(circle, ms, score, dai, reverse){
 		var currentMs = circle.getMS() - this.getMS()
 		if(ms > currentMs - 10){
-			return this.playNow(circle, score, dai)
+			return this.playNow(circle, score, dai, reverse)
 		}
 	}
-	playDrumrollAt(circle, ms, pace){
+	playDrumrollAt(circle, ms, pace, kaAmount){
 		if(pace && this.getMS() >= this.lastHit + pace){
-			this.playAt(circle, ms)
+			var score = 1
+			if(kaAmount > 0){
+				score = Math.random() > kaAmount ? 1 : 2
+			}
+			this.playAt(circle, ms, score)
 		}
 	}
 	miss(circle){
@@ -41,7 +45,7 @@ class Mekadon{
 			return true
 		}
 	}
-	playNow(circle, score, dai){
+	playNow(circle, score, dai, reverse){
 		var kbd = this.controller.getBindings()
 		var type = circle.getType()
 		var keyDai = false
@@ -54,12 +58,19 @@ class Mekadon{
 			var ms = circle.getMS()
 		}
 		
+		if(reverse){
+			if(type === "don" || type === "daiDon"){
+				type = "ka"
+			}else if(type === "ka" || type === "daiKa"){
+				type = "don"
+			}
+		}
 		if(type == "daiDon" && playDai){
 			this.setKey(kbd["don_l"], ms)
 			this.setKey(kbd["don_r"], ms)
 			this.lr = false
 			keyDai = true
-		}else if(type == "don" || type == "daiDon" || drumrollNotes){
+		}else if(type == "don" || type == "daiDon" || drumrollNotes && score !== 2){
 			this.setKey(this.lr ? kbd["don_l"] : kbd["don_r"], ms)
 			this.lr = !this.lr
 		}else if(type == "daiKa" && playDai){
@@ -67,7 +78,7 @@ class Mekadon{
 			this.setKey(kbd["ka_r"], ms)
 			this.lr = false
 			keyDai = true
-		}else if(type == "ka" || type == "daiKa"){
+		}else if(type == "ka" || type == "daiKa" || drumrollNotes){
 			this.setKey(this.lr ? kbd["ka_l"] : kbd["ka_r"], ms)
 			this.lr = !this.lr
 		}
@@ -77,7 +88,7 @@ class Mekadon{
 			}
 			this.game.checkBalloon(circle)
 		}else if(type === "drumroll" || type === "daiDrumroll"){
-			this.game.checkDrumroll(circle)
+			this.game.checkDrumroll(circle, score === 2)
 		}else{
 			this.controller.displayScore(score)
 			this.game.updateCombo(score)

@@ -170,6 +170,7 @@ kbd{
 }
 .taibtn{
 	display: inline-block;
+	background: #f6ead4;
 	padding: 0.4em 0.4em;
 	border-radius: 0.5em;
 	border: 0.1em rgba(218, 205, 178, 1) solid;
