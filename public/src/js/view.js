@@ -81,7 +81,7 @@
 			}
 		}
 		if(!this.multiplayer){
-			pageEvents.add(this.canvas, ["mousedown", "touchstart"], this.onmousedown.bind(this))
+			pageEvents.add(this.canvas, "mousedown", this.onmousedown.bind(this))
 		}
 	}
 	run(){
@@ -1356,27 +1356,35 @@
 	ontouch(event){
 		for(let touch of event.changedTouches){
 			event.preventDefault()
-			var pageX = touch.pageX * this.pixelRatio
-			var pageY = touch.pageY * this.pixelRatio
-			
-			var c = this.touchCircle
-			var pi = Math.PI
-			var inPath = () => this.ctx.isPointInPath(pageX, pageY)
-			
-			this.ctx.beginPath()
-			this.ctx.ellipse(c.x, c.y, c.rx, c.ry, 0, pi, 0)
-			
-			if(inPath()){
-				if(pageX < this.winW / 2){
-					this.touchNote("don_l")
-				}else{
-					this.touchNote("don_r")
+			if(this.controller.game.paused){
+				var mouse = this.mouseOffset(event.touches[0].pageX, event.touches[0].pageY)
+				var moveTo = this.pauseMouse(mouse.x, mouse.y)
+				if(moveTo !== null){
+					this.pauseConfirm(moveTo)
 				}
 			}else{
-				if(pageX < this.winW / 2){
-					this.touchNote("ka_l")
+				var pageX = touch.pageX * this.pixelRatio
+				var pageY = touch.pageY * this.pixelRatio
+				
+				var c = this.touchCircle
+				var pi = Math.PI
+				var inPath = () => this.ctx.isPointInPath(pageX, pageY)
+				
+				this.ctx.beginPath()
+				this.ctx.ellipse(c.x, c.y, c.rx, c.ry, 0, pi, 0)
+				
+				if(inPath()){
+					if(pageX < this.winW / 2){
+						this.touchNote("don_l")
+					}else{
+						this.touchNote("don_r")
+					}
 				}else{
-					this.touchNote("ka_r")
+					if(pageX < this.winW / 2){
+						this.touchNote("ka_l")
+					}else{
+						this.touchNote("ka_r")
+					}
 				}
 			}
 		}
@@ -1418,15 +1426,10 @@
 	}
 	onmousedown(event){
 		if(this.controller.game.paused){
-			if(event.type === "mousedown"){
-				if(event.which !== 1){
-					return
-				}
-				var mouse = this.mouseOffset(event.offsetX, event.offsetY)
-			}else{
-				event.preventDefault()
-				var mouse = this.mouseOffset(event.touches[0].pageX, event.touches[0].pageY)
+			if(event.which !== 1){
+				return
 			}
+			var mouse = this.mouseOffset(event.offsetX, event.offsetY)
 			var moveTo = this.pauseMouse(mouse.x, mouse.y)
 			if(moveTo !== null){
 				this.pauseConfirm(moveTo)
@@ -1518,7 +1521,7 @@
 			}
 		}
 		if(!this.multiplayer){
-			pageEvents.remove(this.canvas, ["mousedown", "touchstart"])
+			pageEvents.remove(this.canvas, "mousedown")
 		}
 		pageEvents.mouseRemove(this)
 		delete this.pauseMenu
