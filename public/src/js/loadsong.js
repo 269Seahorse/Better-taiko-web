@@ -124,9 +124,7 @@ class loadSong{
 			p2.send("gamestart")
 		}else{
 			if(!repeat){
-				for(var i = 0; i < 3; i++){
-					assets.sounds["note_don"].play(i * 0.2)
-				}
+				assets.sounds["sanka"].play()
 			}
 			setTimeout(() => {
 				this.startMultiplayer(true)
