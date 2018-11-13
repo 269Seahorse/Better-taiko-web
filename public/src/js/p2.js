@@ -106,6 +106,7 @@ class P2Connection{
 				this.notes = []
 				this.drumrollPace = 45
 				this.dai = 2
+				this.kaAmount = 0
 				this.results = false
 				break
 			case "gameend":
@@ -130,6 +131,9 @@ class P2Connection{
 				break
 			case "drumroll":
 				this.drumrollPace = response.value.pace
+				if("kaAmount" in response.value){
+					this.kaAmount = response.value.kaAmount
+				}
 				break
 			case "session":
 				this.clearMessage("users")
@@ -160,7 +164,7 @@ class P2Connection{
 			}
 			
 			if(drumrollNotes){
-				mekadon.playDrumrollAt(circle, 0, this.drumrollPace)
+				mekadon.playDrumrollAt(circle, 0, this.drumrollPace, type === "drumroll" || type === "daiDrumroll" ? this.kaAmount : 0)
 			}else if(this.notes.length === 0){
 				mekadon.play(circle)
 			}else{
@@ -170,7 +174,7 @@ class P2Connection{
 					if(circle.getType() === "daiDon" || circle.getType() === "daiKa"){
 						dai = this.dai
 					}
-					if(mekadon.playAt(circle, note.ms, note.score, dai)){
+					if(mekadon.playAt(circle, note.ms, note.score, dai, note.reverse)){
 						this.notes.shift()
 					}
 				}else{

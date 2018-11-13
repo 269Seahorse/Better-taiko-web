@@ -145,15 +145,30 @@ async def connection(ws, path):
 							await ws.send(msgobj("gameend"))
 				elif action == "waiting" or action == "loading" or action == "loaded":
 					# Waiting for another user
-					if type == "leave" and not user["session"]:
+					if type == "leave":
 						# Stop waiting
-						del server_status["waiting"][user["gameid"]]
-						del user["gameid"]
-						user["action"] = "ready"
-						await asyncio.wait([
-							ws.send(msgobj("left")),
-							notify_status()
-						])
+						if user["session"]:
+							if "other_user" in user and "ws" in user["other_user"]:
+								user["action"] = "songsel"
+								await asyncio.wait([
+									ws.send(msgobj("left")),
+									user["other_user"]["ws"].send(msgobj("users", []))
+								])
+							else:
+								user["action"] = "ready"
+								user["session"] = False
+								await asyncio.wait([
+									ws.send(msgobj("gameend")),
+									ws.send(status_event())
+								])
+						else:
+							del server_status["waiting"][user["gameid"]]
+							del user["gameid"]
+							user["action"] = "ready"
+							await asyncio.wait([
+								ws.send(msgobj("left")),
+								notify_status()
+							])
 					if action == "loading":
 						if type == "gamestart":
 							user["action"] = "loaded"

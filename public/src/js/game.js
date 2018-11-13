@@ -54,7 +54,9 @@ class Game{
 		this.checkPlays()
 		// Event operations
 		this.whenFadeoutMusic()
-		this.whenLastCirclePlayed()
+		if(this.controller.multiplayer !== 2){
+			this.whenLastCirclePlayed()
+		}
 	}
 	getCircles(){
 		return this.songData.circles
@@ -91,9 +93,13 @@ class Game{
 							circle.played(-1, false)
 							this.updateCurrentCircle()
 							if(this.controller.multiplayer === 1){
-								p2.send("drumroll", {
+								var value = {
 									pace: (ms - circle.getMS()) / circle.timesHit
-								})
+								}
+								if(type === "drumroll" || type === "daiDrumroll"){
+									value.kaAmount = circle.timesKa / circle.timesHit
+								}
+								p2.send("drumroll", value)
 							}
 						}else{
 							var currentScore = 0
@@ -207,11 +213,15 @@ class Game{
 			this.updateGlobalScore(score, typeDai && keyDai ? 2 : 1, circle.gogoTime)
 			this.updateCurrentCircle()
 			if(this.controller.multiplayer == 1){
-				p2.send("note", {
+				var value = {
 					score: score,
 					ms: circle.getMS() - currentTime,
 					dai: typeDai ? keyDai ? 2 : 1 : 0
-				})
+				}
+				if((!keysDon || !typeDon) && (!keysKa || !typeKa)){
+					value.reverse = true
+				}
+				p2.send("note", value)
 			}
 		}else{
 			if(circle.getMS() > currentTime || currentTime > circle.getEndTime()){
@@ -223,9 +233,9 @@ class Game{
 					this.checkBalloon(circle)
 				}
 			}else if((keysDon || keysKa) && (type === "drumroll" || type === "daiDrumroll")){
-				this.checkDrumroll(circle)
+				this.checkDrumroll(circle, keysKa)
 				if(keyDai){
-					this.checkDrumroll(circle)
+					this.checkDrumroll(circle, keysKa)
 				}
 			}
 		}
@@ -249,11 +259,11 @@ class Game{
 		this.globalScore.drumroll ++
 		this.globalScore.points += score
 	}
-	checkDrumroll(circle){
+	checkDrumroll(circle, keysKa){
 		var ms = this.elapsedTime
 		var dai = circle.getType() === "daiDrumroll"
 		var score = 100
-		circle.hit()
+		circle.hit(keysKa)
 		var keyTime = this.controller.getKeyTime()
 		if(circle.getType() === "drumroll"){
 			var sound = keyTime["don"] > keyTime["ka"] ? "don" : "ka"
@@ -275,11 +285,24 @@ class Game{
 		this.globalScore.points += score * (dai ? 2 : 1)
 	}
 	whenLastCirclePlayed(){
-		var circles = this.songData.circles
-		var lastCircle = circles[circles.length - 1]
 		var ms = this.elapsedTime
-		if(!this.fadeOutStarted && ms >= lastCircle.getEndTime() + 2000){
+		if(!this.lastCircle){
+			var circles = this.songData.circles
+			this.lastCircle = circles[circles.length - 1].getEndTime()
+			if(this.controller.multiplayer){
+				var syncWith = this.controller.syncWith
+				var syncCircles = syncWith.game.songData.circles
+				var syncLastCircle = syncCircles[syncCircles.length - 1].getEndTime()
+				if(syncLastCircle > this.lastCircle){
+					this.lastCircle = syncLastCircle
+				}
+			}
+		}
+		if(!this.fadeOutStarted && ms >= this.lastCircle + 2000){
 			this.fadeOutStarted = ms
+			if(this.controller.multiplayer){
+				this.controller.syncWith.game.fadeOutStarted = ms
+			}
 		}
 	}
 	whenFadeoutMusic(){

@@ -16,6 +16,7 @@ class Circle{
 		this.lastFrame = this.ms + 100
 		this.animationEnded = false
 		this.timesHit = 0
+		this.timesKa = 0
 		this.requiredHits = config.requiredHits || 0
 		this.rendaPlayed = false
 		this.gogoTime = config.gogoTime
@@ -57,8 +58,11 @@ class Circle{
 		this.score = score
 		this.isPlayed = score <= 0 ? score - 1 : (big ? 2 : 1)
 	}
-	hit(){
+	hit(keysKa){
 		this.timesHit++
+		if(keysKa){
+			this.timesKa++
+		}
 	}
 	getScore(){
 		return this.score

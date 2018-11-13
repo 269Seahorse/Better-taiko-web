@@ -32,13 +32,13 @@ class Controller{
 	run(syncWith){
 		this.game.run()
 		this.view.run()
-		this.startMainLoop()
 		if(syncWith){
 			syncWith.run()
 			syncWith.game.elapsedTime = this.game.elapsedTime
 			syncWith.game.startDate = this.game.startDate
 			this.syncWith = syncWith
 		}
+		this.startMainLoop()
 		if(!this.multiplayer){
 			debugObj.controller = this
 			if(debugObj.debug){

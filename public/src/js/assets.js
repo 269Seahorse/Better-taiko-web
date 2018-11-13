@@ -65,7 +65,8 @@ var assets = {
 		"title.ogg",
 		"pause.wav",
 		"cancel.wav",
-		"results.ogg"
+		"results.ogg",
+		"sanka.wav"
 	],
 	"audioSfxLR": [
 		"note_don.ogg",

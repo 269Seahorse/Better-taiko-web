@@ -32,3 +32,8 @@
 	text-align: center;
 	z-index: 1;
 }
+#p2-cancel-button{
+	display: none;
+	position: absolute;
+	bottom: -55px;
+}
