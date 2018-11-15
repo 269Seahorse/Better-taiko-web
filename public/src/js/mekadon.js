@@ -90,7 +90,7 @@ class Mekadon{
 		}else if(type === "drumroll" || type === "daiDrumroll"){
 			this.game.checkDrumroll(circle, score === 2)
 		}else{
-			this.controller.displayScore(score)
+			this.controller.displayScore(score, false, keyDai)
 			this.game.updateCombo(score)
 			this.game.updateGlobalScore(score, keyDai ? 2 : 1, circle.gogoTime)
 			this.game.updateCurrentCircle()

@@ -5,6 +5,7 @@ var assets = {
 		"notes.png",
 		"notes_drumroll.png",
 		"notes_hit.png",
+		"notes_explosion.png",
 		"balloon.png",
 		"taiko.png",
 		"dancing-don.gif",
