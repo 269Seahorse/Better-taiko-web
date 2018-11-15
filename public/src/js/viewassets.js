@@ -5,6 +5,7 @@ class ViewAssets{
 		this.allAssets = []
 		this.ctx = this.view.ctx
 		
+		// Background
 		this.don = this.createAsset("background", frame => {
 			var imgw = 360
 			var imgh = 184
@@ -55,6 +56,8 @@ class ViewAssets{
 		}
 		this.don.addFrames("clear", 30, "don_anim_clear")
 		this.don.normalAnimation()
+		
+		// Bar
 		this.fire = this.createAsset("bar", frame => {
 			var imgw = 360
 			var imgh = 370
@@ -87,6 +90,42 @@ class ViewAssets{
 		})
 		this.fire.addFrames("normal", 7, "fire_anim")
 		this.fire.setUpdateSpeed(1 / 8)
+		
+		// Notes
+		this.explosion = this.createAsset("notes", frame => {
+			var w = 222
+			var h = 222
+			var mul = this.view.slotPos.size / 106
+			this.ctx.globalCompositeOperation = "screen"
+			var alpha = 1
+			if(this.explosion.type < 2){
+				if(frame < 2){
+					mul *= 1 - (frame + 1) * 0.2
+				}else if(frame > 9){
+					alpha = Math.max(0, 1 - (frame - 10) / 4)
+				}
+			}else if(frame > 5){
+				alpha = 0.5
+			}
+			if(alpha < 1 && !this.controller.touchEnabled){
+				this.ctx.globalAlpha = alpha
+			}
+			return {
+				sx: this.explosion.type * w,
+				sy: Math.min(3, Math.floor(frame / 2)) * h,
+				sw: w,
+				sh: h,
+				x: this.view.slotPos.x - w * mul / 2,
+				y: this.view.slotPos.y - h * mul / 2,
+				w: w * mul,
+				h: h * mul
+			}
+		})
+		this.explosion.type = null
+		this.explosion.addFrames("normal", 14, "notes_explosion")
+		this.explosion.setUpdateSpeed(1, true)
+		
+		// Foreground
 		this.fireworks = []
 		for(let i = 0; i < 5 ; i++){
 			var fireworksAsset = this.createAsset("foreground", frame => {
@@ -112,6 +151,7 @@ class ViewAssets{
 			fireworksAsset.setUpdateSpeed(1 / 16)
 			this.fireworks.push(fireworksAsset)
 		}
+		
 		this.changeBeatInterval(this.view.beatInterval, true)
 	}
 	createAsset(layer, position){

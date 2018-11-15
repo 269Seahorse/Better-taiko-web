@@ -14,14 +14,16 @@ class CanvasAsset{
 			var u = (a, b) => typeof a === "undefined" ? b : a
 			var frame = 0
 			var ms = this.controller.getElapsedTime()
+			var beatInterval = this.frameSpeed ? 1000 / 60 : this.beatInterval
+			
 			if(this.animationEnd){
-				if(ms > this.animationStart + this.animationEnd.frameCount * this.speed * this.beatInterval){
+				if(ms > this.animationStart + this.animationEnd.frameCount * this.speed * beatInterval){
 					this.animationEnd.callback()
 					this.animationEnd = false
 					return this.draw()
 				}
 			}
-			var index = Math.floor((ms - this.animationStart) / (this.speed * this.beatInterval))
+			var index = Math.floor((ms - this.animationStart) / (this.speed * beatInterval))
 			if(Array.isArray(this.animation)){
 				frame = this.animation[this.mod(this.animation.length, index)]
 			}else{
@@ -74,8 +76,9 @@ class CanvasAsset{
 			return frames
 		}
 	}
-	setUpdateSpeed(speed){
+	setUpdateSpeed(speed, frameSpeed){
 		this.speed = speed
+		this.frameSpeed = frameSpeed
 	}
 	setAnimationStart(ms){
 		this.animationStart = ms
@@ -91,8 +94,8 @@ class CanvasAsset{
 		}
 	}
 	changeBeatInterval(beatMS, initial){
-		var ms = this.controller.getElapsedTime()
-		if(!initial){
+		if(!initial && !this.frameSpeed){
+			var ms = this.controller.getElapsedTime()
 			this.animationStart = ms - (ms - this.animationStart) / this.beatInterval * beatMS
 		}
 		this.beatInterval = beatMS

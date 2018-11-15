@@ -58,9 +58,8 @@
 				
 				if(this.controller.autoPlayEnabled){
 					this.touchDrumDiv.style.display = "none"
-				}else{
-					pageEvents.add(this.canvas, "touchstart", this.ontouch.bind(this))
 				}
+				pageEvents.add(this.canvas, "touchstart", this.ontouch.bind(this))
 				
 				this.gameDiv.classList.add("touch-visible")
 				document.getElementById("version").classList.add("version-hide")
@@ -727,7 +726,7 @@
 		ctx.restore()
 		
 		// Hit notes explosion
-		
+		this.assets.drawAssets("notes")
 		
 		// Good, OK, Bad
 		if(scoreMS < 300){
@@ -1319,6 +1318,16 @@
 			this.currentScore.ms = this.getMS()
 			this.currentScore.type = score
 			this.currentScore.bigNote = bigNote
+			
+			if(score > 0){
+				var explosion = this.assets.explosion
+				explosion.type = (bigNote ? 0 : 2) + (score === 450 ? 0 : 1)
+				explosion.setAnimation("normal")
+				explosion.setAnimationStart(this.getMS())
+				explosion.setAnimationEnd(bigNote ? 14 : 7, () => {
+					explosion.setAnimation(false)
+				})
+			}
 		}
 	}
 	posToMs(pos, speed){
@@ -1362,7 +1371,7 @@
 				if(moveTo !== null){
 					this.pauseConfirm(moveTo)
 				}
-			}else{
+			}else if(!this.controller.autoPlayEnabled){
 				var pageX = touch.pageX * this.pixelRatio
 				var pageY = touch.pageY * this.pixelRatio
 				
