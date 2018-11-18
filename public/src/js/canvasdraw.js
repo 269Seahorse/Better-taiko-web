@@ -53,10 +53,12 @@
 			degree: /[ﾟ°]/,
 			brackets: /[\(（\)）「」『』]/,
 			tilde: /[\-－~～〜]/,
-			tall: /[bｂdｄfｆh-lｈ-ｌtｔ0-9０-９♪]/,
+			tall: /[bｂdｄfｆgｇhｈj-lｊ-ｌtｔ♪]/,
+			i: /[iｉ]/,
 			uppercase: /[A-ZＡ-Ｚ]/,
 			lowercase: /[a-zａ-ｚ･]/,
 			latin: /[A-ZＡ-Ｚa-zａ-ｚ･]/,
+			numbers: /[0-9０-９]/,
 			exclamation: /[!！\?？ ]/,
 			question: /[\?？]/,
 			smallHiragana: /[ぁぃぅぇぉっゃゅょァィゥェォッャュョ]/,
@@ -68,6 +70,14 @@
 			rWidth: /[abdfIjo-rtvａｂｄｆＩｊｏ-ｒｔｖ]/,
 			lWidth: /[ilｉｌ]/,
 			uppercaseDigit: /[A-ZＡ-Ｚ0-9０-９]/
+		}
+		
+		var numbersFull = "０１２３４５６７８９"
+		var numbersHalf = "0123456789"
+		this.numbersFullToHalf = {}
+		for(var i = 0; i < 10; i++){
+			this.numbersFullToHalf[numbersFull[i]] = numbersHalf[i]
+			this.numbersFullToHalf[numbersHalf[i]] = numbersHalf[i]
 		}
 		
 		this.songFrameCache = new CanvasCache()
@@ -283,7 +293,9 @@
 				// Long-vowel mark
 				drawn.push({realText: symbol, svg: this.longVowelMark, x: -4, y: 5, h: 33, scale: [mul, mul]})
 			}else if(symbol === "∀"){
-				drawn.push({text: symbol, x: 0, y: 3, h: 39, rotate: true})
+				drawn.push({text: symbol, x: 0, y: 0, h: 39, rotate: true})
+			}else if(symbol === "↓"){
+				drawn.push({text: symbol, x: 0, y: 12, h: 45})
 			}else if(r.comma.test(symbol)){
 				// Comma, full stop
 				drawn.push({text: symbol, x: 13, y: -9, h: 13, scale: [1.2, 0.7]})
@@ -303,14 +315,21 @@
 				// Rotated hyphen, tilde
 				drawn.push({realText: symbol, text: symbol === "~" ? "～" : symbol, x: 0, y: 2, h: 35, rotate: true})
 			}else if(r.tall.test(symbol)){
-				// Tall latin script lowercase, numbers
-				drawn.push({text: symbol, x: 0, y: 4, h: 34, scale: [1.05, 0.9]})
+				// Tall latin script lowercase
+				drawn.push({text: symbol, x: 0, y: 4, h: 34})
+			}else if(r.i.test(symbol)){
+				// Lowercase i
+				drawn.push({text: symbol, x: 0, y: 7, h: 34})
 			}else if(r.uppercase.test(symbol)){
 				// Latin script upper case
 				drawn.push({text: symbol, x: 0, y: 8, h: 37})
 			}else if(r.lowercase.test(symbol)){
 				// Latin script lower case
-				drawn.push({text: symbol, x: 0, y: -1, h: 28, scale: [1.05, 0.9]})
+				drawn.push({text: symbol, x: 0, y: -1, h: 28})
+			}else if(r.numbers.test(symbol)){
+				// Numbers
+				var number = this.numbersFullToHalf[symbol]
+				drawn.push({realText: symbol, text: number, x: 0, y: 4, h: 34})
 			}else if(r.exclamation.test(symbol)){
 				// Exclamation mark
 				var toDraw = [symbol]
@@ -342,14 +361,11 @@
 							text: text,
 							x: ((j - 1) - (repeat - 1) / 2) * 15,
 							y: y - (j === 1 ? 0 : h),
-							h: j === 1 ? h : 0,
-							scale: r.question.test(text) ? [0.6, 0.95] : false
+							h: j === 1 ? h : 0
 						})
 					}
 				}else{
-					drawn.push({text: symbol, x: 0, y: 8, h: 37,
-						scale: r.question.test(symbol) ? [0.7, 0.95] : false
-					})
+					drawn.push({text: symbol, x: 0, y: 8, h: 37})
 				}
 			}else if(r.smallHiragana.test(symbol)){
 				// Small hiragana, small katakana
@@ -359,7 +375,7 @@
 				drawn.push({text: symbol, x: 0, y: 5, h: 38, right: r.todo.test(symbol)})
 			}else{
 				// Kanji, other
-				drawn.push({text: symbol, x: 0, y: 3, h: 39, right: true})
+				drawn.push({text: symbol, x: 0, y: 3, h: 39})
 			}
 		}
 		
@@ -523,33 +539,36 @@
 			let symbol = string[i]
 			
 			if(symbol === "-"){
-				drawn.push({text: symbol, x: -4, y: 0, w: 28, scale: [0.8, 1]})
+				drawn.push({text: symbol, x: -2, y: 0, w: 28, scale: [0.8, 1]})
 			}else if(symbol === "™"){
 				drawn.push({text: symbol, x: -2, y: 0, w: 20, scale: [0.6, 0.5]})
 			}else if(symbol === " "){
 				drawn.push({text: symbol, x: 0, y: 0, w: 10})
 			}else if(symbol === "'"){
 				drawn.push({text: ",", x: 0, y: -15, w: 7, scale: [1, 0.7]})
-			}else if(symbol === "?"){
-				drawn.push({text: symbol, x: 0, y: -1, w: 12, scale: [0.7, 0.95]})
+			}else if(symbol === "∀"){
+				drawn.push({text: symbol, x: -3, y: 0, w: 55})
 			}else if(r.en.test(symbol)){
 				// n-width
-				drawn.push({text: symbol, x: 0, y: 0, w: 28, scale: [1, 0.95]})
+				drawn.push({text: symbol, x: 0, y: 0, w: 28})
 			}else if(r.em.test(symbol)){
 				// m-width
-				drawn.push({text: symbol, x: 0, y: 0, w: 38, scale: [1, 0.95]})
+				drawn.push({text: symbol, x: 0, y: 0, w: 38})
 			}else if(r.rWidth.test(symbol)){
 				// r-width
-				drawn.push({text: symbol, x: 0, y: 0, w: 24, scale: [1, 0.95]})
+				drawn.push({text: symbol, x: 0, y: 0, w: 24})
 			}else if(r.lWidth.test(symbol)){
 				// l-width
-				drawn.push({text: symbol, x: 0, y: -1, w: 12, scale: [1, 0.95]})
+				drawn.push({text: symbol, x: 0, y: 0, w: 12})
 			}else if(r.emCap.test(symbol)){
 				// m-width uppercase
-				drawn.push({text: symbol, x: 0, y: -2, w: 38})
+				drawn.push({text: symbol, x: 0, y: 0, w: 38})
+			}else if(r.degree.test(symbol)){
+				// Degree
+				drawn.push({text: symbol, x: 5, y: 0, w: 0})
 			}else if(r.uppercaseDigit.test(symbol)){
 				// Latin script uppercase, digits
-				drawn.push({text: symbol, x: 0, y: -2, w: 32})
+				drawn.push({text: symbol, x: 0, y: 0, w: 32})
 			}else if(r.exclamation.test(symbol)){
 				// Exclamation mark
 				var nextExclamation = string[i + 1] ? r.exclamation.test(string[i + 1]) : false
@@ -557,8 +576,7 @@
 					text: symbol,
 					x: nextExclamation ? 4 : -1,
 					y: 0,
-					w: nextExclamation ? 16 : 28,
-					scale: symbol === "？" ? [0.7, 0.95] : false
+					w: nextExclamation ? 16 : 28
 				})
 			}else if(r.smallHiragana.test(symbol)){
 				// Small hiragana, small katakana
@@ -713,7 +731,7 @@
 			var drawLine = y => {
 				ctx.beginPath()
 				ctx.moveTo(12, y)
-				ctx.arc(20.5, 25, 8.5, Math.PI, Math.PI * 2, true)
+				ctx.arc(20.5, 24, 8.5, Math.PI, Math.PI * 2, true)
 				ctx.lineTo(29, 18)
 				ctx.stroke()
 			}
@@ -728,9 +746,9 @@
 				}
 			}
 			ctx.strokeStyle = "#000"
-			ctx.lineWidth = 12
-			drawLine(9)
-			ctx.lineWidth = 5
+			ctx.lineWidth = 13
+			drawLine(8)
+			ctx.lineWidth = 6
 			drawTriangle(true)
 			ctx.stroke()
 			ctx.lineWidth = 7
