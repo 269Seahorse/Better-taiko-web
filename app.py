@@ -143,7 +143,7 @@ def route_api_preview():
     if not song_row:
         abort(400)
 
-    song_type = song_row[0][10]
+    song_type = song_row[0][12]
     prev_path = make_preview(song_id, song_type)
     if not prev_path:
         return redirect(urlparse.urljoin(request.host_url, '/songs/%s/main.mp3' % song_id))
