@@ -372,7 +372,7 @@ class SongSelect{
 			var touch = true
 		}
 		if(this.state.screen === "song"){
-			if(mouse.x > 513 && mouse.y > 603){
+			if(mouse.x > 641 && mouse.y > 603){
 				this.toSession()
 			}else{
 				var moveBy = this.songSelMouse(mouse.x, mouse.y)
@@ -384,7 +384,7 @@ class SongSelect{
 			}
 		}else if(this.state.screen === "difficulty"){
 			var moveBy = this.diffSelMouse(mouse.x, mouse.y)
-			if(mouse.x < 55 || mouse.x > 967 || mouse.y < 40 || mouse.y > 540){
+			if(mouse.x < 183 || mouse.x > 1095 || mouse.y < 40 || mouse.y > 540){
 				this.toSongSelect()
 			}else if(moveBy === 0){
 				this.selectedDiff = 0
@@ -406,7 +406,7 @@ class SongSelect{
 		var mouse = this.mouseOffset(event.offsetX, event.offsetY)
 		var moveTo = null
 		if(this.state.screen === "song"){
-			if(mouse.x > 513 && mouse.y > 603){
+			if(mouse.x > 641 && mouse.y > 603){
 				moveTo = "session"
 			}else{
 				var moveTo = this.songSelMouse(mouse.x, mouse.y)
@@ -426,7 +426,7 @@ class SongSelect{
 	}
 	mouseOffset(offsetX, offsetY){
 		return {
-			x: (offsetX * this.pixelRatio - this.winW / 2) / this.ratio + 1024 / 2,
+			x: (offsetX * this.pixelRatio - this.winW / 2) / this.ratio + 1280 / 2,
 			y: (offsetY * this.pixelRatio - this.winH / 2) / this.ratio + 720 / 2
 		}
 	}
@@ -445,7 +445,7 @@ class SongSelect{
 	
 	songSelMouse(x, y){
 		if(this.state.locked === 0 && this.songAsset.marginTop <= y && y <= this.songAsset.marginTop + this.songAsset.height){
-			x -= 1024 / 2
+			x -= 1280 / 2
 			var dir = x > 0 ? 1 : -1
 			x = Math.abs(x)
 			var selectedWidth = this.songAsset.selectedWidth
@@ -463,10 +463,10 @@ class SongSelect{
 	}
 	diffSelMouse(x, y){
 		if(this.state.locked === 0){
-			if(95 < x && x < 239 && 118 < y && y < 422){
-				return Math.floor((x - 95) / ((239 - 95) / 2))
-			}else if(422 < x && x < 922 && 95 < y && y < 524){
-				var moveBy = Math.floor((x - 422) / ((922 - 422) / 5)) + this.diffOptions.length
+			if(223 < x && x < 367 && 118 < y && y < 422){
+				return Math.floor((x - 223) / ((367 - 223) / 2))
+			}else if(550 < x && x < 1050 && 95 < y && y < 524){
+				var moveBy = Math.floor((x - 550) / ((1050 - 550) / 5)) + this.diffOptions.length
 				var currentSong = this.songs[this.selectedSong]
 				if(this.state.ura && moveBy === this.diffOptions + 3 || currentSong.stars[moveBy - this.diffOptions.length]){
 					return moveBy
@@ -740,17 +740,20 @@ class SongSelect{
 					h: 38,
 					id: id
 				}, ctx => {
-					var text = this.sessionText[id]
-					ctx.font = "28px " + this.font
-					ctx.textAlign = "center"
-					ctx.textBaseline = "middle"
-					ctx.strokeStyle = "#000"
-					ctx.lineWidth = 8
-					ctx.lineJoin = "round"
-					ctx.miterLimit = 1
-					ctx.strokeText(text, w / 2, 38 / 2)
-					ctx.fillStyle = "#fff"
-					ctx.fillText(text, w / 2, 38 / 2)
+					this.draw.layeredText({
+						ctx: ctx,
+						text: this.sessionText[id],
+						fontSize: 28,
+						fontFamily: this.font,
+						x: w / 2,
+						y: 38 / 2,
+						width: w - 30,
+						align: "center",
+						baseline: "middle"
+					}, [
+						{outline: "#000", letterBorder: 8},
+						{fill: "#fff"}
+					])
 				})
 			}
 			

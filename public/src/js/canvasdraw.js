@@ -617,7 +617,7 @@
 			ctx.scale(scale, 1)
 		}
 		ctx.font = config.fontSize + "px " + config.fontFamily
-		ctx.textBaseline = "top"
+		ctx.textBaseline = config.baseline || "top"
 		ctx.textAlign = "center"
 		
 		for(let layer of layers){
@@ -803,15 +803,15 @@
 		ctx.lineWidth = 6
 		ctx.beginPath()
 		if(!config.side){
-			var textX = config.two ? 20 : 17
+			var textX = config.two ? 22 : 20
 			ctx.moveTo(48, 120)
 			ctx.arc(48, 48.5, 45, Math.PI * 0.58, Math.PI * 0.42)
 		}else if(config.two){
-			var textX = 70
+			var textX = 72
 			ctx.moveTo(56, 115)
 			ctx.arc(98, 48.5, 45, Math.PI * 0.75, Math.PI * 0.59)
 		}else{
-			var textX = -33
+			var textX = -30
 			ctx.moveTo(39, 115)
 			ctx.arc(-2, 48.5, 45, Math.PI * 0.41, Math.PI * 0.25)
 		}
