@@ -68,8 +68,7 @@
 			em: /[mwｍｗ]/,
 			emCap: /[MWＭＷ]/,
 			rWidth: /[abdfIjo-rtvａｂｄｆＩｊｏ-ｒｔｖ]/,
-			lWidth: /[ilｉｌ]/,
-			uppercaseDigit: /[A-ZＡ-Ｚ0-9０-９]/
+			lWidth: /[ilｉｌ]/
 		}
 		
 		var numbersFull = "０１２３４５６７８９"
@@ -548,6 +547,9 @@
 				drawn.push({text: ",", x: 0, y: -15, w: 7, scale: [1, 0.7]})
 			}else if(symbol === "∀"){
 				drawn.push({text: symbol, x: -3, y: 0, w: 55})
+			}else if(r.comma.test(symbol)){
+				// Comma, full stop
+				drawn.push({text: symbol, x: 0, y: 0, w: 13})
 			}else if(r.en.test(symbol)){
 				// n-width
 				drawn.push({text: symbol, x: 0, y: 0, w: 28})
@@ -563,11 +565,15 @@
 			}else if(r.emCap.test(symbol)){
 				// m-width uppercase
 				drawn.push({text: symbol, x: 0, y: 0, w: 38})
+			}else if(r.numbers.test(symbol)){
+				// Numbers
+				var number = this.numbersFullToHalf[symbol]
+				drawn.push({text: number, x: 0, y: 0, w: 32})
 			}else if(r.degree.test(symbol)){
 				// Degree
 				drawn.push({text: symbol, x: 5, y: 0, w: 0})
-			}else if(r.uppercaseDigit.test(symbol)){
-				// Latin script uppercase, digits
+			}else if(r.uppercase.test(symbol)){
+				// Latin script uppercase
 				drawn.push({text: symbol, x: 0, y: 0, w: 32})
 			}else if(r.exclamation.test(symbol)){
 				// Exclamation mark
@@ -598,7 +604,7 @@
 			if(config.letterSpacing){
 				symbol.w += config.letterSpacing
 			}
-			drawnWidth += symbol.w
+			drawnWidth += symbol.w * mul
 		}
 		
 		ctx.translate(config.x, config.y)
@@ -651,7 +657,7 @@
 			var offsetX = 0
 			for(let symbol of drawn){
 				var saved = false
-				var currentX = offsetX + symbol.x + (layer.x || 0) + symbol.w / 2
+				var currentX = offsetX + symbol.x * mul + (layer.x || 0) + symbol.w * mul / 2
 				var currentY = symbol.y + (layer.y || 0)
 				var isLatin = r.latin.test(symbol.text)
 				
@@ -1104,7 +1110,7 @@
 			text: "クリア",
 			fontSize: 18,
 			fontFamily: config.font,
-			x: gaugeClear - 6,
+			x: gaugeClear + 3,
 			y: config.multiplayer ? 22 : 11,
 			letterSpacing: -2
 		}, [

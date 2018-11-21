@@ -48,6 +48,7 @@
 		
 		diag.push("```")
 		diag.push("Taiko-Web version: " + this.version)
+		diag.push("URL: " + location.href)
 		diag.push("User agent: " + navigator.userAgent)
 		diag.push("Screen size: " + innerWidth + "x" + innerHeight + ", outer: " + outerWidth + "x" + outerHeight + ", ratio: " + (window.devicePixelRatio || 1).toFixed(2))
 		if(this.touchEnabled){

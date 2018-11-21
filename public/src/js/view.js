@@ -16,6 +16,40 @@
 			"はじめからやりなおす",
 			"「曲をえらぶ」にもどる"
 		]
+		this.categories = {
+			"J-POP": {
+				sort: 0,
+				infoFill: "#004d68"
+			},
+			"アニメ": {
+				sort: 1,
+				infoFill: "#9c4002"
+			},
+			"ボーカロイド™曲": {
+				sort: 2,
+				infoFill: "#546184"
+			},
+			"バラエティ": {
+				sort: 3,
+				infoFill: "#3c6800"
+			},
+			"クラシック": {
+				sort: 4,
+				infoFill: "#865800"
+			},
+			"ゲームミュージック": {
+				sort: 5,
+				infoFill: "#4f2886"
+			},
+			"ナムコオリジナル": {
+				sort: 6,
+				infoFill: "#961e00"
+			},
+			"default": {
+				sort: 7,
+				infoFill: "#656565"
+			}
+		}
 		
 		this.currentScore = {
 			ms: -Infinity,
@@ -128,7 +162,7 @@
 				this.canvas.style.width = (winW / this.pixelRatio) + "px"
 				this.canvas.style.height = (winH / this.pixelRatio) + "px"
 				
-				this.titleCache.resize(640, 80, ratio)
+				this.titleCache.resize(640, 90, ratio)
 			}
 			if(!this.multiplayer){
 				this.pauseCache.resize(81 * this.pauseOptions.length * 2, 464, ratio)
@@ -179,12 +213,14 @@
 				x: winW - (touchMultiplayer && fullScreenSupported ? 750 : 650),
 				y: touchMultiplayer ? 75 : 10,
 				w: 640,
-				h: 80,
+				h: 90,
 				id: "title"
 			}, ctx => {
+				var selectedSong = this.controller.selectedSong
+				
 				this.draw.layeredText({
 					ctx: ctx,
-					text: this.controller.selectedSong.title,
+					text: selectedSong.title,
 					fontSize: 40,
 					fontFamily: this.font,
 					x: 620,
@@ -195,6 +231,38 @@
 					{outline: "#000", letterBorder: 10},
 					{fill: "#fff"}
 				])
+				
+				if(selectedSong.category){
+					var _w = 142
+					var _h = 22
+					var _x = 628 - _w
+					var _y = 88 - _h
+					if(selectedSong.category in this.categories){
+						ctx.fillStyle = this.categories[selectedSong.category].infoFill
+					}else{
+						ctx.fillStyle = this.categories.default.infoFill
+					}
+					this.draw.roundedRect({
+						ctx: ctx,
+						x: _x, y: _y,
+						w: _w, h: _h,
+						radius: 11
+					})
+					ctx.fill()
+					
+					this.draw.layeredText({
+						ctx: ctx,
+						text: selectedSong.category,
+						fontSize: 15,
+						fontFamily: this.font,
+						align: "center",
+						x: _x + _w / 2,
+						y: _y + 3,
+						width: 122
+					}, [
+						{fill: "#fff"}
+					])
+				}
 			})
 		}
 		
@@ -885,23 +953,16 @@
 	setBackground(){
 		var gameDiv = document.getElementById("game")
 		var selectedSong = this.controller.selectedSong
-		var bg = gameConfig.songs_baseurl + selectedSong.folder + "/bg.png"
 		if(selectedSong.defaultBg){
-			var categories = {
-				"J-POP": 0,
-				"アニメ": 1,
-				"ボーカロイド™曲": 2,
-				"バラエティ": 3,
-				"クラシック": 4,
-				"ゲームミュージック": 5,
-				"ナムコオリジナル": 6
+			if(selectedSong.category in this.categories){
+				var catId = this.categories[selectedSong.category].sort
+			}else{
+				var catId = this.categories.default.sort
 			}
-			var catId = 7
-			if(selectedSong.category in categories){
-				catId = categories[selectedSong.category]
-			}
-			bg = assets.image["bg_genre_" + catId].src
+			var bg = assets.image["bg_genre_" + catId].src
 			gameDiv.classList.add("default-bg")
+		}else{
+			var bg = gameConfig.songs_baseurl + selectedSong.folder + "/bg.png"
 		}
 		gameDiv.style.backgroundImage = "url('" + bg + "')"
 	}
