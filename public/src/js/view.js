@@ -256,8 +256,9 @@
 						fontSize: 15,
 						fontFamily: this.font,
 						align: "center",
+						baseline: "middle",
 						x: _x + _w / 2,
-						y: _y + 3,
+						y: _y + _h / 2,
 						width: 122
 					}, [
 						{fill: "#fff"}
@@ -1247,7 +1248,7 @@
 		var letterSpacing = fontSize * 0.67
 		var glyphW = 50
 		var glyphH = 64
-		var textX = 11
+		var textX = 5
 		var textY = 5
 		var letterBorder = fontSize * 0.15
 		
