@@ -36,13 +36,15 @@ class Controller{
 			syncWith.game.startDate = this.game.startDate
 			this.syncWith = syncWith
 		}
-		this.startMainLoop()
-		if(!this.multiplayer){
-			debugObj.controller = this
-			if(debugObj.debug){
-				debugObj.debug.updateStatus()
+		requestAnimationFrame(() => {
+			this.startMainLoop()
+			if(!this.multiplayer){
+				debugObj.controller = this
+				if(debugObj.debug){
+					debugObj.debug.updateStatus()
+				}
 			}
-		}
+		})
 	}
 	startMainLoop(){
 		this.mainLoopStarted = false
