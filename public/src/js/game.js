@@ -349,12 +349,14 @@ class Game{
 			this.mainAsset.stop()
 			this.mainMusicPlaying = false
 			this.view.pauseMove(0, true)
+			this.view.gameDiv.classList.add("game-paused")
 		}else{
 			assets.sounds["cancel"].play()
 			this.paused = false
 			var currentDate = +new Date
 			this.startDate += currentDate - this.latestDate
 			this.sndTime = currentDate - snd.buffer.getTime() * 1000
+			this.view.gameDiv.classList.remove("game-paused")
 		}
 	}
 	isPaused(){

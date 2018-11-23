@@ -1,0 +1,56 @@
+#songbg{
+	position: absolute;
+	right: 0;
+	bottom: 0;
+	left: 0;
+	width: 100%;
+	max-width: calc(100vh / 9 * 32);
+	height: 50.1%;
+	background-color: #000;
+	background-size: cover;
+	background-position: center;
+}
+.portrait #songbg{
+	height: 63.4%;
+}
+#songbg>*{
+	position: absolute;
+	top: 0;
+	right: 0;
+	bottom: 0;
+	left: 0;
+	background-size: cover;
+	background-position: center;
+}
+.game-paused *{
+	animation-play-state: paused !important;
+}
+@keyframes songbg-strobe{
+	0%{opacity: 1}
+	25%{opacity: 0}
+	50%{opacity: 0.66}
+	75%{opacity: 0}
+}
+@keyframes songbg-pulse{
+	0%{opacity: 1}
+	50%{opacity: 0}
+}
+.songbg-1 #layer2,
+.songbg-2 #layer2,
+.songbg-3 #layer2{
+	animation: 0.4s linear songbg-strobe infinite;
+	mix-blend-mode: difference;
+}
+.songbg-4 #layer2{
+	animation: 0.4s linear songbg-pulse infinite;
+	mix-blend-mode: difference;
+}
+.songbg-5 #layer2{
+	animation: 1s linear songbg-pulse infinite;
+	mix-blend-mode: color-dodge;
+}
+.touch-visible #layer2{
+	display: none;
+	background-image: none;
+	animation: none;
+}

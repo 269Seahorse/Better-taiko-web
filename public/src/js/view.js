@@ -953,19 +953,27 @@
 	}
 	setBackground(){
 		var gameDiv = document.getElementById("game")
+		var songBg = document.getElementById("songbg")
 		var selectedSong = this.controller.selectedSong
-		if(selectedSong.defaultBg){
-			if(selectedSong.category in this.categories){
-				var catId = this.categories[selectedSong.category].sort
-			}else{
-				var catId = this.categories.default.sort
-			}
-			var bg = assets.image["bg_genre_" + catId].src
-			gameDiv.classList.add("default-bg")
+		if(selectedSong.category in this.categories){
+			var catId = this.categories[selectedSong.category].sort
 		}else{
-			var bg = gameConfig.songs_baseurl + selectedSong.folder + "/bg.png"
+			var catId = this.categories.default.sort
 		}
-		gameDiv.style.backgroundImage = "url('" + bg + "')"
+		this.setBgImage(gameDiv, assets.image["bg_genre_" + catId].src)
+		
+		if(selectedSong.customBg){
+			var bg = gameConfig.songs_baseurl + selectedSong.folder + "/bg.png"
+			this.setBgImage(songBg, bg)
+		}else{
+			var id = selectedSong.songBg
+			songBg.classList.add("songbg-" + id)
+			this.setBgImage(document.getElementById("layer1"), assets.image["bg_song_" + id + "a"].src)
+			this.setBgImage(document.getElementById("layer2"), assets.image["bg_song_" + id + "b"].src)
+		}
+	}
+	setBgImage(element, url){
+		element.style.backgroundImage = "url('" + url + "')"
 	}
 	
 	drawMeasures(){

@@ -7,17 +7,37 @@ class loadSong{
 		loader.changePage("loadsong")
 		this.run()
 	}
+	songBg(){
+		return new Promise((resolve, reject) => {
+			var id = Math.floor(Math.random() * (5 - 1) + 1)
+			this.selectedSong.songBg = id
+			var filename = "bg_song_" + id
+			if(filename + "a" in assets.image && filename + "b" in assets.image){
+				resolve()
+			}else{
+				var promises = []
+				for(var i = 0; i < 2; i++){
+					let filenameAb = filename + (i === 0 ? "a" : "b")
+					let img = document.createElement("img")
+					promises.push(pageEvents.load(img).then(() => {
+						assets.image[filenameAb] = img
+					}))
+					img.src = gameConfig.assets_baseurl + "img/" + filenameAb + ".png"
+				}
+				return Promise.all(promises).then(resolve, reject)
+			}
+		})
+	}
 	run(){
 		var id = this.selectedSong.folder
 		var promises = []
 		assets.sounds["start"].play()
 		
-		promises.push(new Promise((resolve, reject) => {
+		promises.push(new Promise(resolve => {
 			var img = document.createElement("img")
-			pageEvents.load(img).then(resolve, () => {
-				this.selectedSong.defaultBg = true
-				resolve()
-			})
+			pageEvents.load(img).then(() => {
+				this.selectedSong.customBg = true
+			}, () => this.songBg(id)).then(resolve)
 			img.id = "music-bg"
 			img.src = gameConfig.songs_baseurl + id + "/bg.png"
 			document.getElementById("assets").appendChild(img)
