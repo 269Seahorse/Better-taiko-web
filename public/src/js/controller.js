@@ -7,8 +7,6 @@ class Controller{
 		this.touchEnabled = touchEnabled
 		this.snd = this.multiplayer ? "_p" + this.multiplayer : ""
 		
-		var backgroundURL = gameConfig.songs_baseurl + this.selectedSong.folder + "/bg.png"
-		
 		if(selectedSong.type === "tja"){
 			this.parsedSongData = new ParseTja(songData, selectedSong.difficulty, selectedSong.offset)
 		}else{
@@ -23,7 +21,7 @@ class Controller{
 		})
 		
 		this.game = new Game(this, this.selectedSong, this.parsedSongData)
-		this.view = new View(this, backgroundURL, this.selectedSong.title, this.selectedSong.difficulty)
+		this.view = new View(this)
 		this.mekadon = new Mekadon(this, this.game)
 		this.keyboard = new Keyboard(this)
 		
@@ -38,13 +36,15 @@ class Controller{
 			syncWith.game.startDate = this.game.startDate
 			this.syncWith = syncWith
 		}
-		this.startMainLoop()
-		if(!this.multiplayer){
-			debugObj.controller = this
-			if(debugObj.debug){
-				debugObj.debug.updateStatus()
+		requestAnimationFrame(() => {
+			this.startMainLoop()
+			if(!this.multiplayer){
+				debugObj.controller = this
+				if(debugObj.debug){
+					debugObj.debug.updateStatus()
+				}
 			}
-		}
+		})
 	}
 	startMainLoop(){
 		this.mainLoopStarted = false

@@ -113,12 +113,16 @@
 				}
 			}
 		}
-		if(!this.multiplayer){
+		if(this.multiplayer){
+			this.gameDiv.classList.add("multiplayer")
+		}else{
 			pageEvents.add(this.canvas, "mousedown", this.onmousedown.bind(this))
 		}
 	}
 	run(){
-		this.setBackground()
+		if(this.multiplayer !== 2){
+			this.setBackground()
+		}
 		
 		this.lastMousemove = this.controller.getElapsedTime()
 		pageEvents.mouseAdd(this, this.onmousemove.bind(this))
@@ -952,20 +956,31 @@
 		}
 	}
 	setBackground(){
-		var gameDiv = document.getElementById("game")
+		var songBg = document.getElementById("songbg")
+		var songStage = document.getElementById("song-stage")
+		
 		var selectedSong = this.controller.selectedSong
-		if(selectedSong.defaultBg){
-			if(selectedSong.category in this.categories){
-				var catId = this.categories[selectedSong.category].sort
-			}else{
-				var catId = this.categories.default.sort
-			}
-			var bg = assets.image["bg_genre_" + catId].src
-			gameDiv.classList.add("default-bg")
+		if(selectedSong.category in this.categories){
+			var catId = this.categories[selectedSong.category].sort
 		}else{
-			var bg = gameConfig.songs_baseurl + selectedSong.folder + "/bg.png"
+			var catId = this.categories.default.sort
 		}
-		gameDiv.style.backgroundImage = "url('" + bg + "')"
+		this.setBgImage(this.gameDiv, assets.image["bg_genre_" + catId].src)
+		
+		if(selectedSong.customBg){
+			var bg = gameConfig.songs_baseurl + selectedSong.folder + "/bg.png"
+			this.setBgImage(songBg, bg)
+		}else{
+			var id = selectedSong.songBg
+			songBg.classList.add("songbg-" + id)
+			this.setBgImage(document.getElementById("layer1"), assets.image["bg_song_" + id + "a"].src)
+			this.setBgImage(document.getElementById("layer2"), assets.image["bg_song_" + id + "b"].src)
+		}
+		
+		songStage.classList.add("song-stage-" + selectedSong.songStage)
+	}
+	setBgImage(element, url){
+		element.style.backgroundImage = "url('" + url + "')"
 	}
 	
 	drawMeasures(){

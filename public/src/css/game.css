@@ -3,11 +3,8 @@
 	height: 100%;
 	position: absolute;
 	overflow: hidden;
-	background-size: cover;
-	background-position: center;
-}
-#game.default-bg{
 	background-size: calc(100vh / 720 * 512);
+	background-position: center;
 }
 #canvas{
 	position: relative;
