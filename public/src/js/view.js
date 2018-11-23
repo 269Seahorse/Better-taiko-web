@@ -113,12 +113,16 @@
 				}
 			}
 		}
-		if(!this.multiplayer){
+		if(this.multiplayer){
+			this.gameDiv.classList.add("multiplayer")
+		}else{
 			pageEvents.add(this.canvas, "mousedown", this.onmousedown.bind(this))
 		}
 	}
 	run(){
-		this.setBackground()
+		if(this.multiplayer !== 2){
+			this.setBackground()
+		}
 		
 		this.lastMousemove = this.controller.getElapsedTime()
 		pageEvents.mouseAdd(this, this.onmousemove.bind(this))
@@ -952,7 +956,6 @@
 		}
 	}
 	setBackground(){
-		var gameDiv = document.getElementById("game")
 		var songBg = document.getElementById("songbg")
 		var songStage = document.getElementById("song-stage")
 		
@@ -962,7 +965,7 @@
 		}else{
 			var catId = this.categories.default.sort
 		}
-		this.setBgImage(gameDiv, assets.image["bg_genre_" + catId].src)
+		this.setBgImage(this.gameDiv, assets.image["bg_genre_" + catId].src)
 		
 		if(selectedSong.customBg){
 			var bg = gameConfig.songs_baseurl + selectedSong.folder + "/bg.png"

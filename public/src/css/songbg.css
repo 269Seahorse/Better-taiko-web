@@ -26,6 +26,18 @@
 }
 .portrait #songbg{
 	height: 63.4%;
+	max-height: calc(50% + 24vw);
+}
+.touchp2 #songbg{
+	height: calc(50% - 5.5vw);
+}
+.multiplayer.portrait #songbg{
+	height: calc(50% - 37vw);
+	min-height: calc(29% + 1px);
+}
+.multiplayer:not(.touchp2):not(.portrait) #songbg,
+.multiplayer:not(.touchp2):not(.portrait) #song-stage{
+	display: none;
 }
 .game-paused *{
 	animation-play-state: paused !important;
