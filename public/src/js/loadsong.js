@@ -7,31 +7,13 @@ class loadSong{
 		loader.changePage("loadsong")
 		this.run()
 	}
-	songBg(){
-		return new Promise((resolve, reject) => {
-			var id = Math.floor(Math.random() * (5 - 1) + 1)
-			this.selectedSong.songBg = id
-			var filename = "bg_song_" + id
-			if(filename + "a" in assets.image && filename + "b" in assets.image){
-				resolve()
-			}else{
-				var promises = []
-				for(var i = 0; i < 2; i++){
-					let filenameAb = filename + (i === 0 ? "a" : "b")
-					let img = document.createElement("img")
-					promises.push(pageEvents.load(img).then(() => {
-						assets.image[filenameAb] = img
-					}))
-					img.src = gameConfig.assets_baseurl + "img/" + filenameAb + ".png"
-				}
-				return Promise.all(promises).then(resolve, reject)
-			}
-		})
-	}
 	run(){
 		var id = this.selectedSong.folder
 		var promises = []
 		assets.sounds["start"].play()
+		
+		this.selectedSong.songBg = this.randInt(1, 5)
+		this.selectedSong.songStage = this.randInt(1, 3)
 		
 		promises.push(new Promise(resolve => {
 			var img = document.createElement("img")
@@ -69,6 +51,28 @@ class loadSong{
 			console.error(error)
 			alert("An error occurred, please refresh")
 		})
+	}
+	songBg(){
+		return new Promise((resolve, reject) => {
+			var filename = "bg_song_" + this.selectedSong.songBg
+			if(filename + "a" in assets.image && filename + "b" in assets.image){
+				resolve()
+			}else{
+				var promises = []
+				for(var i = 0; i < 2; i++){
+					let filenameAb = filename + (i === 0 ? "a" : "b")
+					let img = document.createElement("img")
+					promises.push(pageEvents.load(img).then(() => {
+						assets.image[filenameAb] = img
+					}))
+					img.src = gameConfig.assets_baseurl + "img/" + filenameAb + ".png"
+				}
+				return Promise.all(promises).then(resolve, reject)
+			}
+		})
+	}
+	randInt(min, max){
+		return Math.floor(Math.random() * (max - min + 1)) + min
 	}
 	getSongPath(selectedSong){
 		var directory = gameConfig.songs_baseurl + selectedSong.folder + "/"

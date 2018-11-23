@@ -954,6 +954,8 @@
 	setBackground(){
 		var gameDiv = document.getElementById("game")
 		var songBg = document.getElementById("songbg")
+		var songStage = document.getElementById("song-stage")
+		
 		var selectedSong = this.controller.selectedSong
 		if(selectedSong.category in this.categories){
 			var catId = this.categories[selectedSong.category].sort
@@ -971,6 +973,8 @@
 			this.setBgImage(document.getElementById("layer1"), assets.image["bg_song_" + id + "a"].src)
 			this.setBgImage(document.getElementById("layer2"), assets.image["bg_song_" + id + "b"].src)
 		}
+		
+		songStage.classList.add("song-stage-" + selectedSong.songStage)
 	}
 	setBgImage(element, url){
 		element.style.backgroundImage = "url('" + url + "')"
