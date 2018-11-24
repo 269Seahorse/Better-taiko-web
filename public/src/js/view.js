@@ -1523,7 +1523,7 @@
 		}
 	}
 	onmousemove(event){
-		this.lastMousemove = this.controller.getElapsedTime()
+		this.lastMousemove = this.getMS()
 		this.cursorHidden = false
 		
 		if(!this.multiplayer && this.controller.game.paused){
@@ -1568,7 +1568,7 @@
 	mouseIdle(){
 		var lastMouse = pageEvents.getMouse()
 		if(lastMouse && !this.cursorHidden){
-			if(this.controller.getElapsedTime() >= this.lastMousemove + 2000){
+			if(this.getMS() >= this.lastMousemove + 2000){
 				this.cursor.style.top = lastMouse.clientY + "px"
 				this.cursor.style.left = lastMouse.clientX + "px"
 				this.cursor.style.pointerEvents = "auto"

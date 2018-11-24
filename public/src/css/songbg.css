@@ -22,7 +22,8 @@
 }
 #song-stage{
 	height: calc(44 / 720 * 100vh);
-	background-position: center;
+	background-position: center bottom;
+	background-repeat-y: no-repeat;
 }
 .portrait #songbg{
 	height: 63.4%;

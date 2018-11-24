@@ -63,11 +63,31 @@ class loadSong{
 					let filenameAb = filename + (i === 0 ? "a" : "b")
 					let img = document.createElement("img")
 					promises.push(pageEvents.load(img).then(() => {
-						assets.image[filenameAb] = img
+						if(this.touchEnabled){
+							return new Promise((resolve, reject) => {
+								var canvas = document.createElement("canvas")
+								var w = Math.floor(img.width / 2)
+								var h = Math.floor(img.height / 2)
+								canvas.width = w
+								canvas.height = h
+								var ctx = canvas.getContext("2d")
+								ctx.drawImage(img, 0, 0, w, h)
+								canvas.toBlob(blob => {
+									let img2 = document.createElement("img")
+									pageEvents.load(img2).then(() => {
+										assets.image[filenameAb] = img2
+										resolve()
+									}, reject)
+									img2.src = URL.createObjectURL(blob)
+								})
+							})
+						}else{
+							assets.image[filenameAb] = img
+						}
 					}))
 					img.src = gameConfig.assets_baseurl + "img/" + filenameAb + ".png"
 				}
-				return Promise.all(promises).then(resolve, reject)
+				Promise.all(promises).then(resolve, reject)
 			}
 		})
 	}
