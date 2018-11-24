@@ -1,31 +1,9 @@
-# Taiko no Tatsujin Web
-A web version of Taiko no Tatsujin
+# taiko-web
+A web-based Taiko no Tatsujin simulator.
 
-Running instance: https://taiko.bui.pm
+Running instance: [https://taiko.bui.pm](https://taiko.bui.pm)
 
 Still in development. Works best with Chrome.
 
 ## Setup
-**Requirements**: Python 2.7, [Flask](https://pypi.org/project/Flask/)
-
-Create a SQLite database named `taiko.db` with the following schema:
-
-    CREATE TABLE "songs" ( `id` INTEGER NOT NULL PRIMARY KEY AUTOINCREMENT, `title` TEXT NOT NULL, `title_en` TEXT, `subtitle` TEXT, `subtitle_en` TEXT, `easy` INTEGER, `normal` INTEGER, `hard` INTEGER, `oni` INTEGER, `ura` INTEGER, `enabled` INTEGER NOT NULL, `category` INTEGER, `type` TEXT , `offset` REAL NOT NULL )
-    CREATE TABLE "categories" ( `id` INTEGER NOT NULL PRIMARY KEY AUTOINCREMENT, `title` TEXT NOT NULL, `title_en` TEXT NOT NULL )
-
-When inserting song rows, leave any difficulty columns as NULL if you don't intend to add note charts for them.
-
-Each song's data is contained within a directory under `public/songs/`. For example:
-
-    └───public
-        ├───songs
-        │   ├───1
-        │   │       bg.png
-        │   │       easy.osu
-        │   │       hard.osu
-        │   │       main.mp3
-        │   │       normal.osu
-        │   │       oni.osu
-        │   │
-
-Run `app.py`, and use any web server to serve `public/` as the root directory, while routing `/api/` to the Flask server.
+Please see the [Setup](https://github.com/bui/taiko-web/wiki/Setup) page for setup instructions.
