@@ -98,7 +98,7 @@ class SongSelect{
 				preview: song.preview || 0,
 				type: song.type,
 				offset: song.offset,
-				songSkin: song.song_skin
+				songSkin: song.song_skin || {}
 			})
 		}
 		this.songs.sort((a, b) => {
