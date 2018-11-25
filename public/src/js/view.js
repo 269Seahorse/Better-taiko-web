@@ -960,6 +960,8 @@
 		var songStage = document.getElementById("song-stage")
 		
 		var selectedSong = this.controller.selectedSong
+		var songSkinName = selectedSong.songSkin.name
+		
 		if(selectedSong.category in this.categories){
 			var catId = this.categories[selectedSong.category].sort
 		}else{
@@ -967,17 +969,31 @@
 		}
 		this.setBgImage(this.gameDiv, assets.image["bg_genre_" + catId].src)
 		
-		if(selectedSong.customBg){
-			var bg = gameConfig.songs_baseurl + selectedSong.folder + "/bg.png"
-			this.setBgImage(songBg, bg)
-		}else{
+		if(!selectedSong.songSkin.song){
 			var id = selectedSong.songBg
 			songBg.classList.add("songbg-" + id)
-			this.setBgImage(document.getElementById("layer1"), assets.image["bg_song_" + id + "a"].src)
-			this.setBgImage(document.getElementById("layer2"), assets.image["bg_song_" + id + "b"].src)
+			this.setLayers("bg_song_" + id, true)
+		}else if(selectedSong.songSkin.song !== "none"){
+			var notStatic = selectedSong.songSkin.song !== "static"
+			if(notStatic){
+				songBg.classList.add("songbg-" + selectedSong.songSkin.song)
+			}
+			this.setLayers("bg_song_" + songSkinName + (notStatic ? "_" : ""), notStatic)
 		}
 		
-		songStage.classList.add("song-stage-" + selectedSong.songStage)
+		if(!selectedSong.songSkin.stage){
+			songStage.classList.add("song-stage-" + selectedSong.songStage)
+		}else if(selectedSong.songSkin.stage !== "none"){
+			this.setBgImage(songStage, assets.image["bg_stage_" + songSkinName].src)
+		}
+	}
+	setLayers(file, ab){
+		if(ab){
+			this.setBgImage(document.getElementById("layer1"), assets.image[file + "a"].src)
+			this.setBgImage(document.getElementById("layer2"), assets.image[file + "b"].src)
+		}else{
+			this.setBgImage(document.getElementById("layer1"), assets.image[file].src)
+		}
 	}
 	setBgImage(element, url){
 		element.style.backgroundImage = "url('" + url + "')"

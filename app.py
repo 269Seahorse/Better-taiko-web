@@ -154,17 +154,26 @@ def route_api_preview():
 @app.route('/api/songs')
 def route_api_songs():
     songs = query_db('select * from songs where enabled = 1')
+    
     raw_categories = query_db('select * from categories')
     categories = {}
     def_category = {'title': None, 'title_en': None}
     for cat in raw_categories:
         categories[cat[0]] = {'title': cat[1], 'title_en': cat[2]}
+    
+    raw_song_skins = query_db('select * from song_skins')
+    song_skins = {}
+    for skin in raw_song_skins:
+        song_skins[skin[0]] = {'name': skin[1], 'song': skin[2], 'stage': skin[3]}
+    
     songs_out = []
     for song in songs:
         song_id = song[0]
         song_type = song[12]
         preview = get_preview(song_id, song_type)
+        
         category_out = categories[song[11]] if song[11] in categories else def_category
+        song_skin_out = song_skins[song[14]] if song[14] in categories else None
         
         songs_out.append({
             'id': song_id,
@@ -179,7 +188,8 @@ def route_api_songs():
             'category': category_out['title'],
             'category_en': category_out['title_en'],
             'type': song_type,
-            'offset': song[13]
+            'offset': song[13],
+            'song_skin': song_skin_out
         })
 
     return jsonify(songs_out)

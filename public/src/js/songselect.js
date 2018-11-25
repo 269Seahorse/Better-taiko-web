@@ -97,7 +97,8 @@ class SongSelect{
 				category: song.category,
 				preview: song.preview || 0,
 				type: song.type,
-				offset: song.offset
+				offset: song.offset,
+				songSkin: song.song_skin
 			})
 		}
 		this.songs.sort((a, b) => {
@@ -614,7 +615,8 @@ class SongSelect{
 			"difficulty": this.difficultyId[difficulty],
 			"category": selectedSong.category,
 			"type": selectedSong.type,
-			"offset": selectedSong.offset
+			"offset": selectedSong.offset,
+			"songSkin": selectedSong.songSkin
 		}, autoplay, multiplayer, touch)
 	}
 	toOptions(moveBy){
