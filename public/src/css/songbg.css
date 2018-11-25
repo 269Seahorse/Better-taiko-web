@@ -67,6 +67,15 @@
 	animation: 1s linear songbg-pulse infinite;
 	mix-blend-mode: color-dodge;
 }
+.songbg-strobe #layer2{
+	animation: 0.4s linear songbg-strobe infinite;
+}
+.songbg-pulse #layer2{
+	animation: 0.4s linear songbg-pulse infinite;
+}
+.songbg-slowfade #layer2{
+	animation: 2s cubic-bezier(0.68, -0.55, 0.27, 1.55) songbg-pulse infinite;
+}
 .touch-visible #layer2{
 	display: none;
 	background-image: none;
