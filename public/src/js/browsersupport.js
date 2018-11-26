@@ -29,6 +29,7 @@ function browserSupport(){
 				new window.Promise(function(r){resolve = r})
 				return typeof resolve === "function"
 			}
+			return false
 		},
 		"CSS Calc": function(){
 			var el = document.createElement("a")
