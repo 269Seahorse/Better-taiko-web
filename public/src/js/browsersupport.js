@@ -60,7 +60,7 @@ The following tests have failed:\
 + failedTests.join("")
 + '</ul>\
 Please use a supported browser such as \
-<a href="https://www.google.com/chrome/" target="_blank" id="unsupportedChrome">Google Chrome</a>\
+<a href="https://www.google.com/chrome/" id="unsupportedChrome">Google Chrome</a>\
 </div>'
 		
 		document.body.appendChild(div)
