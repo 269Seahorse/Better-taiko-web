@@ -407,7 +407,7 @@ class SongSelect{
 		var mouse = this.mouseOffset(event.offsetX, event.offsetY)
 		var moveTo = null
 		if(this.state.screen === "song"){
-			if(mouse.x > 641 && mouse.y > 603){
+			if(mouse.x > 641 && mouse.y > 603 && p2.socket.readyState === 1){
 				moveTo = "session"
 			}else{
 				var moveTo = this.songSelMouse(mouse.x, mouse.y)
@@ -591,8 +591,10 @@ class SongSelect{
 		assets.sounds["diffsel"].stop()
 		assets.sounds["don"].play()
 		
-		localStorage["selectedSong"] = this.selectedSong
-		localStorage["selectedDiff"] = difficulty + this.diffOptions.length
+		try{
+			localStorage["selectedSong"] = this.selectedSong
+			localStorage["selectedDiff"] = difficulty + this.diffOptions.length
+		}catch(e){}
 		
 		if(difficulty === 3 && this.state.ura){
 			difficulty = 4
@@ -623,7 +625,9 @@ class SongSelect{
 		if(!p2.session){
 			assets.sounds["ka"].play()
 			this.selectedDiff = 1
-			this.state.options = this.mod(this.optionsList.length, this.state.options + moveBy)
+			do{
+				this.state.options = this.mod(this.optionsList.length, this.state.options + moveBy)
+			}while(p2.socket.readyState !== 1 && this.state.options === 2)
 		}
 	}
 	toTitleScreen(){
@@ -650,6 +654,9 @@ class SongSelect{
 		}, 500)
 	}
 	toSession(){
+		if(p2.socket.readyState !== 1){
+			return
+		}
 		if(p2.session){
 			p2.send("gameend")
 		}else{
@@ -1470,7 +1477,7 @@ class SongSelect{
 		ctx.lineTo(x + 4, y + 4)
 		ctx.lineTo(x + 4, y + h)
 		ctx.fill()
-		if(screen !== "difficulty"){
+		if(screen !== "difficulty" && p2.socket.readyState === 1){
 			var elapsed = (ms - this.state.screenMS) % 3100
 			var fade = 1
 			if(!p2.session && screen === "song"){

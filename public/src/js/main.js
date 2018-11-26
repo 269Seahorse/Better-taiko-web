@@ -1,4 +1,4 @@
-addEventListener("error", err => {
+addEventListener("error", function(err){
 	var stack
 	if("error" in err){
 		stack = err.error.stack
@@ -109,3 +109,4 @@ if(location.hash.length === 6){
 var loader = new Loader(() => {
 	new Titlescreen()
 })
+

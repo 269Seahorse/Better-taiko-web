@@ -115,14 +115,21 @@ class loadSong{
 				canvas.height = h
 				var ctx = canvas.getContext("2d")
 				ctx.drawImage(img, 0, 0, w, h)
-				canvas.toBlob(blob => {
+				var saveScaled = url => {
 					let img2 = document.createElement("img")
 					pageEvents.load(img2).then(() => {
 						assets.image[filename] = img2
 						resolve()
 					}, reject)
-					img2.src = URL.createObjectURL(blob)
-				})
+					img2.src = url
+				}
+				if("toBlob" in canvas){
+					canvas.toBlob(blob => {
+						saveScaled(URL.createObjectURL(blob))
+					})
+				}else{
+					saveScaled(canvas.toDataURL())
+				}
 			}else{
 				assets.image[filename] = img
 				resolve()

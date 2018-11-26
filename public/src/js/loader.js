@@ -109,6 +109,13 @@ class Loader{
 							}
 						})
 						p2.send("invite", location.hash.slice(1).toLowerCase())
+						setTimeout(() => {
+							if(p2.socket.readyState !== 1){
+								p2.hash("")
+								p2.hashLock = false
+								resolve()
+							}
+						}, 10000)
 					}).then(() => {
 						pageEvents.remove(p2, "message")
 					}))
