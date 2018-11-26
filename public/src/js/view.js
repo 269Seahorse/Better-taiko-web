@@ -961,6 +961,7 @@
 		
 		var selectedSong = this.controller.selectedSong
 		var songSkinName = selectedSong.songSkin.name
+		var supportsBlend = "mixBlendMode" in songBg.style
 		
 		if(selectedSong.category in this.categories){
 			var catId = this.categories[selectedSong.category].sort
@@ -972,7 +973,7 @@
 		if(!selectedSong.songSkin.song){
 			var id = selectedSong.songBg
 			songBg.classList.add("songbg-" + id)
-			this.setLayers("bg_song_" + id, true)
+			this.setLayers("bg_song_" + id + (supportsBlend ? "" : "a"), supportsBlend)
 		}else if(selectedSong.songSkin.song !== "none"){
 			var notStatic = selectedSong.songSkin.song !== "static"
 			if(notStatic){
@@ -1456,10 +1457,14 @@
 		}
 	}
 	ontouch(event){
-		for(let touch of event.changedTouches){
+		if(!("changedTouches" in event)){
+			event.changedTouches = [event]
+		}
+		for(var i = 0; i < event.changedTouches.length; i++){
+			var touch = event.changedTouches[i]
 			event.preventDefault()
 			if(this.controller.game.paused){
-				var mouse = this.mouseOffset(event.touches[0].pageX, event.touches[0].pageY)
+				var mouse = this.mouseOffset(touch.pageX, touch.pageY)
 				var moveTo = this.pauseMouse(mouse.x, mouse.y)
 				if(moveTo !== null){
 					this.pauseConfirm(moveTo)
