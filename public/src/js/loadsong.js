@@ -42,6 +42,9 @@ class loadSong{
 			var skinBase = gameConfig.assets_baseurl + "song_skins/"
 			for(var i = 0; i < imgLoad.length; i++){
 				let img = document.createElement("img")
+				if(this.touchEnabled && imgLoad[i].type === "song"){
+					img.crossOrigin = "Anonymous"
+				}
 				let filename = imgLoad[i].filename
 				let promise = pageEvents.load(img)
 				if(imgLoad[i].type === "song"){
@@ -96,7 +99,9 @@ class loadSong{
 				for(var i = 0; i < 2; i++){
 					let filenameAb = filename + (i === 0 ? "a" : "b")
 					let img = document.createElement("img")
-					img.crossOrigin = "Anonymous"
+					if(this.touchEnabled){
+						img.crossOrigin = "Anonymous"
+					}
 					promises.push(pageEvents.load(img).then(() => {
 						return this.scaleImg(img, filenameAb)
 					}))
