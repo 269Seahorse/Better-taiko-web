@@ -96,6 +96,7 @@ class loadSong{
 				for(var i = 0; i < 2; i++){
 					let filenameAb = filename + (i === 0 ? "a" : "b")
 					let img = document.createElement("img")
+					img.crossOrigin = "Anonymous"
 					promises.push(pageEvents.load(img).then(() => {
 						return this.scaleImg(img, filenameAb)
 					}))
