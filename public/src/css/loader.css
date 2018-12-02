@@ -41,6 +41,7 @@
 	background: #aef;
 	font-family: sans-serif;
 	font-size: 20px;
+	cursor: default;
 	z-index: 10;
 }
 #unsupportedBrowser::before{
@@ -76,6 +77,7 @@
 	margin: 10px 50px 0 50px;
 	border: 3px solid #39a;
 	padding: 5px;
+	cursor: auto;
 	user-select: text;
 }
 #unsupportedHide{

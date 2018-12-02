@@ -6,6 +6,10 @@
 	background-size: calc(100vh / 720 * 512);
 	background-position: center;
 }
+#screen.view{
+	background-image: none;
+	background-color: #000;
+}
 #canvas{
 	position: relative;
 	z-index: 1;
