@@ -1478,10 +1478,12 @@
 					explosion.setAnimation(false)
 				})
 			}
-			var miss = score === 0
+			this.setDarkBg(score === 0)
 		}else{
-			var miss = true
+			this.setDarkBg(true)
 		}
+	}
+	setDarkBg(miss){
 		if(!miss && this.darkDonBg){
 			this.darkDonBg = false
 			this.donBg.classList.remove("donbg-dark")

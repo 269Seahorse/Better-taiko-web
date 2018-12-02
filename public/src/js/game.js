@@ -258,6 +258,7 @@ class Game{
 		}
 		this.globalScore.drumroll ++
 		this.globalScore.points += score
+		this.view.setDarkBg(false)
 	}
 	checkDrumroll(circle, keysKa){
 		var ms = this.elapsedTime
@@ -283,6 +284,7 @@ class Game{
 		this.view.drumroll.push(circleAnim)
 		this.globalScore.drumroll++
 		this.globalScore.points += score * (dai ? 2 : 1)
+		this.view.setDarkBg(false)
 	}
 	whenLastCirclePlayed(){
 		var ms = this.elapsedTime
