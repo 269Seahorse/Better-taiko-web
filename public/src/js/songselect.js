@@ -179,6 +179,7 @@ class SongSelect{
 		this.categoryCache = new CanvasCache()
 		this.difficultyCache = new CanvasCache()
 		this.sessionCache = new CanvasCache()
+		this.currentSongCache = new CanvasCache()
 		
 		this.difficulty = ["かんたん", "ふつう", "むずかしい", "おに"]
 		this.difficultyId = ["easy", "normal", "hard", "oni", "ura"]
@@ -721,9 +722,15 @@ class SongSelect{
 			
 			var borders = (this.songAsset.border + this.songAsset.innerBorder) * 2
 			this.songTitleCache.resize(
-				(this.songAsset.width - borders + 1) * this.songs.length,
+				(this.songAsset.width - borders + 1) * Math.ceil(this.songs.length / 3),
 				(this.songAsset.height - borders + 1) * 3,
-				ratio + 0.5
+				ratio + 0.2
+			)
+			
+			this.currentSongCache.resize(
+				(this.songAsset.width - borders + 1) * 2,
+				this.songAsset.height - borders + 1,
+				ratio + 0.2
 			)
 			
 			this.selectTextCache.resize((280 + 53 + 60 + 1) * 2, this.songAsset.marginTop + 15, ratio + 0.5)
@@ -1014,6 +1021,11 @@ class SongSelect{
 			selectedWidth = this.songAsset.fullWidth
 			selectedHeight = this.songAsset.fullHeight
 			highlight = 0
+		}
+		
+		if(this.currentSongTitle !== currentSong.title){
+			this.currentSongTitle = currentSong.title
+			this.currentSongCache.clear()
 		}
 		
 		this.draw.songFrame({
@@ -1312,13 +1324,13 @@ class SongSelect{
 				var textY = opened * 12 + (1 - opened) * 7
 				
 				if(currentSong.subtitle){
-					this.songTitleCache.get({
+					this.currentSongCache.get({
 						ctx: ctx,
 						x: x + textX - textW,
 						y: y + textY,
 						w: textW,
 						h: textH,
-						id: currentSong.subtitle,
+						id: "subtitle",
 					}, ctx => {
 						this.draw.verticalText({
 							ctx: ctx,
@@ -1353,14 +1365,7 @@ class SongSelect{
 				ctx.fillStyle = selectedSkin.background
 				ctx.fillRect(x, y, w, h)
 				ctx.globalAlpha = 1
-				this.songTitleCache.get({
-					ctx: ctx,
-					x: x + textX,
-					y: y + textY - 7,
-					w: textW,
-					h: textH,
-					id: currentSong.title + selectedSkin.outline,
-				}, ctx => {
+				var verticalTitle = ctx => {
 					this.draw.verticalText({
 						ctx: ctx,
 						text: currentSong.title,
@@ -1374,7 +1379,26 @@ class SongSelect{
 						fontSize: 40,
 						fontFamily: this.font
 					})
-				})
+				}
+				if(selectedSkin.outline === "#000"){
+					this.currentSongCache.get({
+						ctx: ctx,
+						x: x + textX,
+						y: y + textY - 7,
+						w: textW,
+						h: textH,
+						id: "title",
+					}, verticalTitle)
+				}else{
+					this.songTitleCache.get({
+						ctx: ctx,
+						x: x + textX,
+						y: y + textY - 7,
+						w: textW,
+						h: textH,
+						id: currentSong.title + selectedSkin.outline,
+					}, verticalTitle)
+				}
 				if(!songSel && this.selectableText !== currentSong.title){
 					this.draw.verticalText({
 						ctx: ctx,
