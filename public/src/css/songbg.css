@@ -137,6 +137,14 @@
 	background-size: auto calc(var(--sh2) / var(--sh1) * 100%);
 	--raised: calc((var(--sh2) - var(--sh1)) / var(--sh2) * var(--h) * -1);
 }
+.donlayer3{
+	background-color: #000;
+	opacity: 0;
+	transition: 0.15s opacity linear;
+}
+.donbg-dark .donlayer3{
+	opacity: 0.5;
+}
 .donbg-1 .donlayer2,
 .donbg-2 .donlayer2,
 .donbg-4 .donlayer2,

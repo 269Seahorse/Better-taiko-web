@@ -102,6 +102,9 @@ class loadSong{
 			}
 			if(this.selectedSong.donBg !== null){
 				filenames.push("bg_don_" + this.selectedSong.donBg)
+				if(this.multiplayer){
+					filenames.push("bg_don2_" + this.selectedSong.donBg)
+				}
 			}
 			for(var i = 0; i < filenames.length; i++){
 				for(var letter = 0; letter < 2; letter++){

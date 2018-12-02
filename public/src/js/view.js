@@ -10,6 +10,7 @@
 		
 		this.portraitClass = false
 		this.touchp2Class = false
+		this.darkDonBg = false
 		
 		this.pauseOptions = [
 			"演奏をつづける",
@@ -1000,36 +1001,39 @@
 		var selectedSong = this.controller.selectedSong
 		var songSkinName = selectedSong.songSkin.name
 		var donLayers = []
+		var filename = this.multiplayer === 2 ? "bg_don2_" : "bg_don_"
 		
 		this.donBg = document.createElement("div")
 		this.donBg.classList.add("donbg")
 		if(this.multiplayer === 2){
 			this.donBg.classList.add("donbg-bottom")
 		}
-		for(var layer = 1; layer <= 2; layer++){
+		for(var layer = 1; layer <= 3; layer++){
 			var donLayer = document.createElement("div")
 			donLayer.classList.add("donlayer" + layer)
 			this.donBg.appendChild(donLayer)
-			donLayers.push(donLayer)
+			if(layer !== 3){
+				donLayers.push(donLayer)
+			}
 		}
 		songBg.parentNode.insertBefore(this.donBg, songBg)
 		var asset1, asset2
 		if(!selectedSong.songSkin.don){
 			this.donBg.classList.add("donbg-" + selectedSong.donBg)
-			this.setLayers(donLayers, "bg_don_" + selectedSong.donBg, true)
-			asset1 = "bg_don_" + selectedSong.donBg + "a"
-			asset2 = "bg_don_" + selectedSong.donBg + "b"
+			this.setLayers(donLayers, filename + selectedSong.donBg, true)
+			asset1 = filename + selectedSong.donBg + "a"
+			asset2 = filename + selectedSong.donBg + "b"
 		}else if(selectedSong.songSkin.don !== "none"){
 			var notStatic = selectedSong.songSkin.don !== "static"
 			if(notStatic){
 				this.donBg.classList.add("donbg-" + selectedSong.songSkin.don)
-				asset1 = "bg_don_" + songSkinName + "_a"
-				asset2 = "bg_don_" + songSkinName + "_b"
+				asset1 = filename + songSkinName + "_a"
+				asset2 = filename + songSkinName + "_b"
 			}else{
-				asset1 = "bg_don_" + songSkinName
-				asset2 = "bg_don_" + songSkinName
+				asset1 = filename + songSkinName
+				asset2 = filename + songSkinName
 			}
-			this.setLayers(donLayers, "bg_don_" + songSkinName + (notStatic ? "_" : ""), notStatic)
+			this.setLayers(donLayers, filename + songSkinName + (notStatic ? "_" : ""), notStatic)
 		}
 		var w1 = assets.image[asset1].width
 		var w2 = assets.image[asset2].width
@@ -1474,6 +1478,16 @@
 					explosion.setAnimation(false)
 				})
 			}
+			var miss = score === 0
+		}else{
+			var miss = true
+		}
+		if(!miss && this.darkDonBg){
+			this.darkDonBg = false
+			this.donBg.classList.remove("donbg-dark")
+		}else if(miss && !this.darkDonBg){
+			this.darkDonBg = true
+			this.donBg.classList.add("donbg-dark")
 		}
 	}
 	posToMs(pos, speed){
