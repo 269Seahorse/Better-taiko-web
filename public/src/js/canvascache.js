@@ -72,6 +72,14 @@ class CanvasCache{
 	set(config, callback){
 		return this.get(config, callback, true)
 	}
+	clear(){
+		this.x = 0
+		this.y = 0
+		this.lastW = 0
+		this.lastH = 0
+		this.map.clear()
+		this.ctx.clearRect(0, 0, this.canvas.width * this.scale, this.canvas.height * this.scale)
+	}
 	clean(){
 		delete this.map
 		delete this.ctx
