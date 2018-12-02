@@ -164,7 +164,7 @@ def route_api_songs():
     raw_song_skins = query_db('select * from song_skins')
     song_skins = {}
     for skin in raw_song_skins:
-        song_skins[skin[0]] = {'name': skin[1], 'song': skin[2], 'stage': skin[3]}
+        song_skins[skin[0]] = {'name': skin[1], 'song': skin[2], 'stage': skin[3], 'don': skin[4]}
     
     songs_out = []
     for song in songs:
@@ -173,7 +173,7 @@ def route_api_songs():
         preview = get_preview(song_id, song_type)
         
         category_out = categories[song[11]] if song[11] in categories else def_category
-        song_skin_out = song_skins[song[14]] if song[14] in categories else None
+        song_skin_out = song_skins[song[14]] if song[14] in song_skins else None
         
         songs_out.append({
             'id': song_id,

@@ -10,6 +10,7 @@
 		
 		this.portraitClass = false
 		this.touchp2Class = false
+		this.darkDonBg = false
 		
 		this.pauseOptions = [
 			"演奏をつづける",
@@ -123,6 +124,7 @@
 		if(this.multiplayer !== 2){
 			this.setBackground()
 		}
+		this.setDonBg()
 		
 		this.lastMousemove = this.controller.getElapsedTime()
 		pageEvents.mouseAdd(this, this.onmousemove.bind(this))
@@ -172,6 +174,7 @@
 				this.pauseCache.resize(81 * this.pauseOptions.length * 2, 464, ratio)
 			}
 			this.fillComboCache()
+			this.setDonBgHeight()
 		}else if(this.controller.game.paused && !document.hasFocus()){
 			return
 		}else if(this.multiplayer !== 2){
@@ -195,11 +198,13 @@
 			if(!this.touchp2Class){
 				this.touchp2Class = true
 				this.gameDiv.classList.add("touchp2")
+				this.setDonBgHeight()
 			}
 			frameTop -= 90
 		}else if(this.touchp2Class){
 			this.touchp2Class = false
 			this.gameDiv.classList.remove("touchp2")
+			this.setDonBgHeight()
 		}
 		
 		ctx.save()
@@ -288,6 +293,7 @@
 			if(!this.portraitClass){
 				this.portraitClass = true
 				this.gameDiv.classList.add("portrait")
+				this.setDonBgHeight()
 			}
 			
 			this.slotPos = {
@@ -448,6 +454,7 @@
 			if(this.portraitClass){
 				this.portraitClass = false
 				this.gameDiv.classList.remove("portrait")
+				this.setDonBgHeight()
 			}
 			
 			this.slotPos = {
@@ -962,24 +969,25 @@
 		var selectedSong = this.controller.selectedSong
 		var songSkinName = selectedSong.songSkin.name
 		var supportsBlend = "mixBlendMode" in songBg.style
+		var songLayers = [document.getElementById("layer1"), document.getElementById("layer2")]
 		
 		if(selectedSong.category in this.categories){
 			var catId = this.categories[selectedSong.category].sort
 		}else{
 			var catId = this.categories.default.sort
 		}
-		this.setBgImage(this.gameDiv, assets.image["bg_genre_" + catId].src)
+		loader.screen.classList.add("view")
 		
 		if(!selectedSong.songSkin.song){
 			var id = selectedSong.songBg
 			songBg.classList.add("songbg-" + id)
-			this.setLayers("bg_song_" + id + (supportsBlend ? "" : "a"), supportsBlend)
+			this.setLayers(songLayers, "bg_song_" + id + (supportsBlend ? "" : "a"), supportsBlend)
 		}else if(selectedSong.songSkin.song !== "none"){
 			var notStatic = selectedSong.songSkin.song !== "static"
 			if(notStatic){
 				songBg.classList.add("songbg-" + selectedSong.songSkin.song)
 			}
-			this.setLayers("bg_song_" + songSkinName + (notStatic ? "_" : ""), notStatic)
+			this.setLayers(songLayers, "bg_song_" + songSkinName + (notStatic ? "_" : ""), notStatic)
 		}
 		
 		if(!selectedSong.songSkin.stage){
@@ -988,12 +996,60 @@
 			this.setBgImage(songStage, assets.image["bg_stage_" + songSkinName].src)
 		}
 	}
-	setLayers(file, ab){
+	setDonBg(){
+		var songBg = document.getElementById("songbg")
+		var selectedSong = this.controller.selectedSong
+		var songSkinName = selectedSong.songSkin.name
+		var donLayers = []
+		var filename = this.multiplayer === 2 ? "bg_don2_" : "bg_don_"
+		
+		this.donBg = document.createElement("div")
+		this.donBg.classList.add("donbg")
+		if(this.multiplayer === 2){
+			this.donBg.classList.add("donbg-bottom")
+		}
+		for(var layer = 1; layer <= 3; layer++){
+			var donLayer = document.createElement("div")
+			donLayer.classList.add("donlayer" + layer)
+			this.donBg.appendChild(donLayer)
+			if(layer !== 3){
+				donLayers.push(donLayer)
+			}
+		}
+		songBg.parentNode.insertBefore(this.donBg, songBg)
+		var asset1, asset2
+		if(!selectedSong.songSkin.don){
+			this.donBg.classList.add("donbg-" + selectedSong.donBg)
+			this.setLayers(donLayers, filename + selectedSong.donBg, true)
+			asset1 = filename + selectedSong.donBg + "a"
+			asset2 = filename + selectedSong.donBg + "b"
+		}else if(selectedSong.songSkin.don !== "none"){
+			var notStatic = selectedSong.songSkin.don !== "static"
+			if(notStatic){
+				this.donBg.classList.add("donbg-" + selectedSong.songSkin.don)
+				asset1 = filename + songSkinName + "_a"
+				asset2 = filename + songSkinName + "_b"
+			}else{
+				asset1 = filename + songSkinName
+				asset2 = filename + songSkinName
+			}
+			this.setLayers(donLayers, filename + songSkinName + (notStatic ? "_" : ""), notStatic)
+		}
+		var w1 = assets.image[asset1].width
+		var w2 = assets.image[asset2].width
+		this.donBg.style.setProperty("--sw", w1 > w2 ? w1 : w2)
+		this.donBg.style.setProperty("--sh1", assets.image[asset1].height)
+		this.donBg.style.setProperty("--sh2", assets.image[asset2].height)
+	}
+	setDonBgHeight(){
+		this.donBg.style.setProperty("--h", getComputedStyle(this.donBg).height)
+	}
+	setLayers(elements, file, ab){
 		if(ab){
-			this.setBgImage(document.getElementById("layer1"), assets.image[file + "a"].src)
-			this.setBgImage(document.getElementById("layer2"), assets.image[file + "b"].src)
+			this.setBgImage(elements[0], assets.image[file + "a"].src)
+			this.setBgImage(elements[1], assets.image[file + "b"].src)
 		}else{
-			this.setBgImage(document.getElementById("layer1"), assets.image[file].src)
+			this.setBgImage(elements[0], assets.image[file].src)
 		}
 	}
 	setBgImage(element, url){
@@ -1422,6 +1478,18 @@
 					explosion.setAnimation(false)
 				})
 			}
+			this.setDarkBg(score === 0)
+		}else{
+			this.setDarkBg(true)
+		}
+	}
+	setDarkBg(miss){
+		if(!miss && this.darkDonBg){
+			this.darkDonBg = false
+			this.donBg.classList.remove("donbg-dark")
+		}else if(miss && !this.darkDonBg){
+			this.darkDonBg = true
+			this.donBg.classList.add("donbg-dark")
 		}
 	}
 	posToMs(pos, speed){
@@ -1631,6 +1699,8 @@
 			pageEvents.remove(this.canvas, "mousedown")
 		}
 		pageEvents.mouseRemove(this)
+		loader.screen.classList.remove("view")
+		delete this.donBg
 		delete this.pauseMenu
 		delete this.cursor
 		delete this.gameDiv

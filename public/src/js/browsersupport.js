@@ -31,9 +31,18 @@ function browserSupport(){
 			}
 			return false
 		},
-		"CSS Calc": function(){
+		"CSS calc": function(){
 			var el = document.createElement("a")
 			el.style.width = "calc(1px)"
+			return el.style.length !== 0
+		},
+		"let statement": function(){
+			eval("let a")
+			return true
+		},
+		"CSS custom property": function(){
+			var el = document.createElement("a")
+			el.style.setProperty("--a", 1)
 			return el.style.length !== 0
 		}
 	}

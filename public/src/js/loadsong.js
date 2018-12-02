@@ -16,6 +16,8 @@ class loadSong{
 		
 		song.songBg = this.randInt(1, 5)
 		song.songStage = this.randInt(1, 3)
+		song.donBg = this.randInt(1, 6)
+		
 		if(song.songSkin && song.songSkin.name){
 			var imgLoad = []
 			for(var type in song.songSkin){
@@ -36,6 +38,9 @@ class loadSong{
 							filename: filename + "_b",
 							type: type
 						})
+					}
+					if(type === "song"){
+						song.songBg = null
 					}
 				}
 			}
@@ -58,9 +63,8 @@ class loadSong{
 				}
 				img.src = skinBase + filename + ".png"
 			}
-		}else{
-			promises.push(this.songBg(id))
 		}
+		promises.push(this.loadSongBg(id))
 		
 		promises.push(new Promise((resolve, reject) => {
 			var songObj
@@ -89,26 +93,41 @@ class loadSong{
 			alert("An error occurred, please refresh")
 		})
 	}
-	songBg(){
+	loadSongBg(){
 		return new Promise((resolve, reject) => {
-			var filename = "bg_song_" + this.selectedSong.songBg
-			if(filename + "a" in assets.image && filename + "b" in assets.image){
-				resolve()
-			}else{
-				var promises = []
-				for(var i = 0; i < 2; i++){
-					let filenameAb = filename + (i === 0 ? "a" : "b")
-					let img = document.createElement("img")
-					if(this.touchEnabled){
-						img.crossOrigin = "Anonymous"
-					}
-					promises.push(pageEvents.load(img).then(() => {
-						return this.scaleImg(img, filenameAb)
-					}))
-					img.src = gameConfig.assets_baseurl + "img/" + filenameAb + ".png"
-				}
-				Promise.all(promises).then(resolve, reject)
+			var promises = []
+			var filenames = []
+			if(this.selectedSong.songBg !== null){
+				filenames.push("bg_song_" + this.selectedSong.songBg)
 			}
+			if(this.selectedSong.donBg !== null){
+				filenames.push("bg_don_" + this.selectedSong.donBg)
+				if(this.multiplayer){
+					filenames.push("bg_don2_" + this.selectedSong.donBg)
+				}
+			}
+			for(var i = 0; i < filenames.length; i++){
+				for(var letter = 0; letter < 2; letter++){
+					let filenameAb = filenames[i] + (letter === 0 ? "a" : "b")
+					if(!(filenameAb in assets.image)){
+						let img = document.createElement("img")
+						if(filenameAb.startsWith("bg_song_")){
+							if(this.touchEnabled){
+								img.crossOrigin = "Anonymous"
+							}
+							promises.push(pageEvents.load(img).then(() => {
+								return this.scaleImg(img, filenameAb)
+							}))
+						}else{
+							promises.push(pageEvents.load(img).then(() => {
+								assets.image[filenameAb] = img
+							}))
+						}
+						img.src = gameConfig.assets_baseurl + "img/" + filenameAb + ".png"
+					}
+				}
+			}
+			Promise.all(promises).then(resolve, reject)
 		})
 	}
 	scaleImg(img, filename){

@@ -1,16 +1,16 @@
 #songbg,
 #songbg>*,
+.donbg,
+.donbg *,
 #song-stage{
 	position: absolute;
 	right: 0;
-	bottom: 0;
 	left: 0;
 	width: 100%;
+	max-width: calc(100vh / 9 * 32);
 }
 #songbg{
-	max-width: calc(100vh / 9 * 32);
 	height: 50.1%;
-	background-color: #000;
 }
 #songbg>*{
 	top: 0;
@@ -19,11 +19,14 @@
 #songbg>*{
 	background-size: cover;
 	background-position: center;
+	background-repeat: no-repeat;
+	bottom: 0;
 }
 #song-stage{
 	height: calc(44 / 720 * 100vh);
 	background-position: center bottom;
 	background-repeat-y: no-repeat;
+	bottom: 0;
 }
 .portrait #songbg{
 	height: 63.4%;
@@ -80,4 +83,86 @@
 	display: none;
 	background-image: none;
 	animation: none;
+}
+.donbg{
+	top: 0;
+	height: calc(50% - 13.7vw);
+	min-height: 25.6%;
+}
+.portrait .donbg{
+	height: calc(50% - 48.9vw);
+	min-height: 22.5%;
+}
+.donbg *{
+	top: 0;
+	bottom: 0;
+	background-repeat-y: no-repeat;
+}
+.donbg.donbg-bottom{
+	top: auto;
+	bottom: 0;
+}
+.portrait .donbg.donbg-bottom {
+	top: calc(50% + -1vw);
+	bottom: auto;
+}
+@keyframes donbg-scroll{
+	from{background-position-x: 0}
+	to{background-position-x: calc(var(--h) / var(--sh1) * var(--sw) * -1)}
+}
+@keyframes donbg-raise{
+	from{background-position-y: 0}
+	to{background-position-y: var(--raised)}
+}
+@keyframes donbg-anim3{
+	0%{background-position-y: 0}
+	13%{background-position-y: var(--raised)}
+	15%{background-position-y: var(--raised)}
+	45%{background-position-y: 0}
+	50%{background-position-y: 0}
+	65%{background-position-y: calc(var(--raised) / 2)}
+	80%{background-position-y: 0}
+}
+@keyframes donbg-anim5{
+	0%{background-position-y: 0}
+	13%{background-position-y: var(--raised)}
+	17%{background-position-y: var(--raised)}
+	30%{background-position-y: 0}
+}
+.donlayer1{
+	animation: 5s linear donbg-scroll infinite;
+	background-size: auto 100%;
+}
+.donlayer2{
+	background-size: auto calc(var(--sh2) / var(--sh1) * 100%);
+	--raised: calc((var(--sh2) - var(--sh1)) / var(--sh2) * var(--h) * -1);
+}
+.donlayer3{
+	background-color: #000;
+	opacity: 0;
+	transition: 0.15s opacity linear;
+}
+.donbg-dark .donlayer3{
+	opacity: 0.5;
+}
+.donbg-1 .donlayer2,
+.donbg-2 .donlayer2,
+.donbg-4 .donlayer2,
+.donbg-6 .donlayer2,
+.donbg-raise .donlayer2{
+	animation: 5s linear donbg-scroll infinite, 1s linear donbg-raise infinite alternate;
+}
+.donbg-3 .donlayer2,
+.donbg-anim3 .donlayer2{
+	animation: 3.4s linear donbg-scroll infinite, 1.8s linear donbg-anim3 infinite;
+}
+.donbg-5 .donlayer2,
+.donbg-anim5 .donlayer2{
+	animation: 2.7s linear donbg-scroll infinite, 2.2s linear donbg-anim5 infinite;
+}
+.donbg-fastscroll .donlayer1{
+	animation: 2s linear donbg-scroll infinite;
+}
+.donbg-fastscroll .donlayer2{
+	animation: 1s linear donbg-scroll infinite;
 }
