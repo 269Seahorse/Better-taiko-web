@@ -295,9 +295,11 @@
 				drawn.push({text: symbol, x: 0, y: 0, h: 39, rotate: true})
 			}else if(symbol === "↓"){
 				drawn.push({text: symbol, x: 0, y: 12, h: 45})
+			}else if(symbol === "．"){
+				drawn.push({realText: symbol, text: ".", x: 13, y: -7, h: 15, scale: [1.2, 0.7]})
 			}else if(r.comma.test(symbol)){
 				// Comma, full stop
-				drawn.push({text: symbol, x: 13, y: -9, h: 13, scale: [1.2, 0.7]})
+				drawn.push({text: symbol, x: 13, y: -7, h: 15, scale: [1.2, 0.7]})
 			}else if(r.ideographicComma.test(symbol)){
 				// Ideographic comma, full stop
 				drawn.push({text: symbol, x: 16, y: -16, h: 18})
@@ -538,7 +540,7 @@
 			let symbol = string[i]
 			
 			if(symbol === "-"){
-				drawn.push({text: symbol, x: -2, y: 0, w: 28, scale: [0.8, 1]})
+				drawn.push({text: symbol, x: -2, y: 0, w: 28})
 			}else if(symbol === "™"){
 				drawn.push({text: symbol, x: -2, y: 0, w: 20, scale: [0.6, 0.5]})
 			}else if(symbol === " "){
@@ -547,9 +549,11 @@
 				drawn.push({text: ",", x: 0, y: -15, w: 7, scale: [1, 0.7]})
 			}else if(symbol === "∀"){
 				drawn.push({text: symbol, x: -3, y: 0, w: 55})
+			}else if(symbol === "．"){
+				drawn.push({text: symbol, x: -9, y: 0, w: 37})
 			}else if(r.comma.test(symbol)){
 				// Comma, full stop
-				drawn.push({text: symbol, x: 0, y: 0, w: 13})
+				drawn.push({text: symbol, x: -3, y: 13, w: 13, scale: [1.2, 0.7]})
 			}else if(r.en.test(symbol)){
 				// n-width
 				drawn.push({text: symbol, x: 0, y: 0, w: 28})
@@ -671,6 +675,9 @@
 					ctx.save()
 					ctx.translate(currentX, currentY)
 					if(symbol.scale){
+						if(config.baseline === "middle"){
+							ctx.translate(0, -ctx.lineWidth * (2 / symbol.scale[1]))
+						}
 						ctx.scale(symbol.scale[0], symbol.scale[1])
 						ctx.lineWidth /= symbol.scale[0]
 					}
