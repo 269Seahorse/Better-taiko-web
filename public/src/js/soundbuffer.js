@@ -10,6 +10,8 @@
 		}).then(response => {
 			return new Promise((resolve, reject) => {
 				return this.context.decodeAudioData(response, resolve, reject)
+			}).catch(error => {
+				throw [error, url]
 			})
 		}).then(buffer => {
 			return new Sound(gain || {soundBuffer: this}, buffer)

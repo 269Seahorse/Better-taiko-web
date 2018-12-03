@@ -151,7 +151,8 @@ class Loader{
 	getFilename(name){
 		return name.slice(0, name.lastIndexOf("."))
 	}
-	errorMsg(){
+	errorMsg(error){
+		console.error(error)
 		this.error = true
 		this.loaderPercentage.appendChild(document.createElement("br"))
 		this.loaderPercentage.appendChild(document.createTextNode("An error occurred, please refresh"))

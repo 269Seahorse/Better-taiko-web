@@ -90,6 +90,10 @@ class loadSong{
 			this.setupMultiplayer()
 		}, error => {
 			console.error(error)
+			if(Array.isArray(error) && error[1] instanceof HTMLElement){
+				error = error[0] + ": " + error[1].outerHTML
+			}
+			errorMessage(new Error(error).stack)
 			alert("An error occurred, please refresh")
 		})
 	}
@@ -194,13 +198,11 @@ class loadSong{
 					if(event.value === song.difficulty){
 						this.startMultiplayer()
 					}else{
-						this.selectedSong2 = {
-							title: song.title,
-							folder: song.folder,
-							difficulty: event.value,
-							type: song.type,
-							offset: song.offset
+						this.selectedSong2 = {}
+						for(var i in this.selectedSong){
+							this.selectedSong2[i] = this.selectedSong[i]
 						}
+						this.selectedSong2.difficulty = event.value
 						if(song.type === "tja"){
 							this.startMultiplayer()
 						}else{

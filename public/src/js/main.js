@@ -5,11 +5,15 @@ addEventListener("error", function(err){
 	}else{
 		stack = err.message + "\n    at " + err.filename + ":" + err.lineno + ":" + err.colno
 	}
+	errorMessage(stack)
+})
+
+function errorMessage(stack){
 	localStorage["lastError"] = JSON.stringify({
 		timestamp: +new Date,
 		stack: stack
 	})
-})
+}
 
 function toggleFullscreen(){
 	if("requestFullscreen" in root){

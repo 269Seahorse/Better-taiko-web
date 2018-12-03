@@ -68,10 +68,14 @@ class PageEvents{
 	load(target){
 		return new Promise((resolve, reject) => {
 			this.race(target, "load", "error", "abort").then(response => {
-				if(response.type === "load"){
-					return resolve(response.event)
+				switch(response.type){
+					case "load":
+						return resolve(response.event)
+					case "error":
+						return reject(["Loading error", target])
+					case "abort":
+						return reject("Loading aborted")
 				}
-				return reject()
 			})
 		})
 	}
