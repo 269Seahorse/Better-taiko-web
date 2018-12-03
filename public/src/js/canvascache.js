@@ -78,7 +78,7 @@ class CanvasCache{
 		this.lastW = 0
 		this.lastH = 0
 		this.map.clear()
-		this.ctx.clearRect(0, 0, this.canvas.width * this.scale, this.canvas.height * this.scale)
+		this.ctx.clearRect(0, 0, this.w, this.h)
 	}
 	clean(){
 		delete this.map
