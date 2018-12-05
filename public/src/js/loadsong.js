@@ -66,16 +66,17 @@ class loadSong{
 		}
 		promises.push(this.loadSongBg(id))
 		
+		var songObj = assets.songs.find(song => song.id === id)
+		
 		promises.push(new Promise((resolve, reject) => {
-			var songObj
-			assets.songs.forEach(song => {
-				if(song.id == id){
-					songObj = song
-				}
-			})
 			if(songObj.sound){
 				songObj.sound.gain = snd.musicGain
 				resolve()
+			}else if(songObj.music){
+				snd.musicGain.load(songObj.music, true).then(sound => {
+					songObj.sound = sound
+					resolve()
+				}, reject)
 			}else{
 				snd.musicGain.load(gameConfig.songs_baseurl + id + "/main.mp3").then(sound => {
 					songObj.sound = sound
@@ -83,9 +84,13 @@ class loadSong{
 				}, reject)
 			}
 		}))
-		promises.push(loader.ajax(this.getSongPath(song)).then(data => {
-			this.songData = data.replace(/\0/g, "").split("\n")
-		}))
+		if(songObj.chart){
+			this.songData = songObj.chart
+		}else{
+			promises.push(loader.ajax(this.getSongPath(song)).then(data => {
+				this.songData = data.replace(/\0/g, "").split("\n")
+			}))
+		}
 		Promise.all(promises).then(() => {
 			this.setupMultiplayer()
 		}, error => {

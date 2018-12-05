@@ -78,7 +78,8 @@ class Loader{
 				})
 				
 				this.promises.push(this.ajax("/api/songs").then(songs => {
-					assets.songs = JSON.parse(songs)
+					assets.songsDefault = JSON.parse(songs)
+					assets.songs = assets.songsDefault
 				}))
 
 				assets.views.forEach(name => {

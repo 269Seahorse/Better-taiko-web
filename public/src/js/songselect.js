@@ -35,6 +35,12 @@ class SongSelect{
 				border: ["#dff0ff", "#6890b2"],
 				outline: "#217abb"
 			},
+			"browse": {
+				sort: 7,
+				background: "#9791ff",
+				border: ["#e2dfff", "#6d68b2"],
+				outline: "#5350ba"
+			},
 			"J-POP": {
 				sort: 0,
 				background: "#219fbb",
@@ -98,7 +104,8 @@ class SongSelect{
 				preview: song.preview || 0,
 				type: song.type,
 				offset: song.offset,
-				songSkin: song.song_skin || {}
+				songSkin: song.song_skin || {},
+				music: song.music
 			})
 		}
 		this.songs.sort((a, b) => {
@@ -139,6 +146,17 @@ class SongSelect{
 			action: "about",
 			category: "ランダム"
 		})
+		if("webkitdirectory" in HTMLInputElement.prototype && !(/Android|iPhone|iPad/.test(navigator.userAgent))){
+			this.browse = document.getElementById("browse")
+			pageEvents.add(this.browse, "change", this.browseChange.bind(this))
+			
+			this.songs.push({
+				title: assets.customSongs ? "デフォルト曲リスト" : "参照する…",
+				skin: this.songSkin.browse,
+				action: "browse",
+				category: "ランダム"
+			})
+		}
 		this.songs.push({
 			title: "もどる",
 			skin: this.songSkin.back,
@@ -204,8 +222,10 @@ class SongSelect{
 			this.selectedSong = this.songs.findIndex(song => song.action === fromTutorial)
 			this.playBgm(true)
 		}else{
-			if((!p2.session || fadeIn) && "selectedSong" in localStorage){
-				this.selectedSong = Math.min(Math.max(0, localStorage["selectedSong"] |0), this.songs.length)
+			if(assets.customSongs){
+				this.selectedSong = assets.customSelected
+			}else if((!p2.session || fadeIn) && "selectedSong" in localStorage){
+				this.selectedSong = Math.min(Math.max(0, localStorage["selectedSong"] |0), this.songs.length - 1)
 			}
 			assets.sounds["song-select"].play()
 			snd.musicGain.fadeOut()
@@ -265,6 +285,7 @@ class SongSelect{
 			this.state.moveHover = null
 		})
 		pageEvents.add(loader.screen, ["mousedown", "touchstart"], this.mouseDown.bind(this))
+		pageEvents.add(this.canvas, "touchend", this.touchEnd.bind(this))
 		if(touchEnabled && fullScreenSupported){
 			this.touchFullBtn = document.getElementById("touch-full-btn")
 			this.touchFullBtn.style.display = "block"
@@ -404,6 +425,19 @@ class SongSelect{
 			}
 		}
 	}
+	touchEnd(event){
+		event.preventDefault()
+		if(this.state.screen === "song"){
+			var currentSong = this.songs[this.selectedSong]
+			if(currentSong.action === "browse"){
+				var mouse = this.mouseOffset(event.changedTouches[0].pageX, event.changedTouches[0].pageY)
+				var moveBy = this.songSelMouse(mouse.x, mouse.y)
+				if(moveBy === 0){
+					this.toBrowse()
+				}
+			}
+		}
+	}
 	mouseMove(event){
 		var mouse = this.mouseOffset(event.offsetX, event.offsetY)
 		var moveTo = null
@@ -521,6 +555,119 @@ class SongSelect{
 			assets.sounds["ka"].play()
 		}
 	}
+	
+	browseChange(event){
+		var files = event.target.files
+		var promises = []
+		var tjaFiles = []
+		var osuFiles = []
+		var otherFiles = {}
+		
+		for(var i = 0; i < files.length; i++){
+			var file = files[i]
+			var name = file.name.toLowerCase()
+			if(name.endsWith(".tja")){
+				tjaFiles.push([file, i])
+			}else if(name.endsWith(".osu")){
+				osuFiles.push([file, i])
+			}else{
+				otherFiles[file.webkitRelativePath.toLowerCase()] = file
+			}
+		}
+		var songs = []
+		var courseTypes = {"easy": 0, "normal": 1, "hard": 2, "oni": 3, "ura": 4}
+		for(var i = 0; i < tjaFiles.length; i++){
+			let file = tjaFiles[i][0]
+			let index = tjaFiles[i][1]
+			var reader = new FileReader()
+			promises.push(pageEvents.load(reader).then(event => {
+				var data = event.target.result.replace(/\0/g, "").split("\n")
+				var tja = new ParseTja(data, "oni", 0, true)
+				var songObj = {
+					id: index + 1,
+					type: "tja",
+					chart: data,
+					stars: []
+				}
+				var dir = file.webkitRelativePath.toLowerCase()
+				dir = dir.slice(0, dir.lastIndexOf("/") + 1)
+				for(var diff in tja.metadata){
+					var meta = tja.metadata[diff]
+					songObj.title = songObj.title_en = meta.title || file.name.slice(0, file.name.lastIndexOf("."))
+					var subtitle = meta.subtitle || ""
+					if(subtitle.startsWith("--")){
+						subtitle = subtitle.slice(2)
+					}
+					songObj.subtitle = songObj.subtitle_en = subtitle
+					songObj.preview = meta.demostart ? Math.floor(meta.demostart * 1000) : 0
+					if(meta.level){
+						songObj.stars[courseTypes[diff]] = meta.level
+					}
+					if(meta.wave){
+						songObj.music = otherFiles[dir + meta.wave.toLowerCase()]
+					}
+				}
+				if(songObj.music && songObj.stars.filter(star => star).length !== 0){
+					songs[index] = songObj
+				}
+			}))
+			reader.readAsText(file, "sjis")
+		}
+		for(var i = 0; i < osuFiles.length; i++){
+			let file = osuFiles[i][0]
+			let index = osuFiles[i][1]
+			var reader = new FileReader()
+			promises.push(pageEvents.load(reader).then(event => {
+				var data = event.target.result.replace(/\0/g, "").split("\n")
+				var osu = new ParseOsu(data, 0, true)
+				var dir = file.webkitRelativePath.toLowerCase()
+				dir = dir.slice(0, dir.lastIndexOf("/") + 1)
+				var songObj = {
+					id: index + 1,
+					type: "osu",
+					chart: data,
+					subtitle: osu.metadata.ArtistUnicode || osu.metadata.Artist,
+					subtitle_en: osu.metadata.Artist || osu.metadata.ArtistUnicode,
+					preview: osu.generalInfo.PreviewTime,
+					stars: [null, null, null, parseInt(osu.difficulty.overallDifficulty) || 1],
+					music: otherFiles[dir + osu.generalInfo.AudioFilename.toLowerCase()]
+				}
+				var filename = file.name.slice(0, file.name.lastIndexOf("."))
+				var title = osu.metadata.TitleUnicode || osu.metadata.Title
+				if(title){
+					var suffix = ""
+					var matches = filename.match(/\[.+?\]$/)
+					if(matches){
+						suffix = " " + matches[0]
+					}
+					songObj.title = title + suffix
+					songObj.title_en = (osu.metadata.Title || osu.metadata.TitleUnicode) + suffix
+				}else{
+					songObj.title = filename
+				}
+				if(songObj.music){
+					songs[index] = songObj
+				}
+			}).catch(() => {}))
+			reader.readAsText(file)
+		}
+		Promise.all(promises).then(() => {
+			songs = songs.filter(song => typeof song !== "undefined")
+			if(songs.length){
+				assets.songs = songs
+				assets.customSongs = true
+				assets.customSelected = 0
+				assets.sounds["don"].play()
+				this.clean()
+				setTimeout(() => {
+					new SongSelect("browse", false, this.touchEnabled)
+				}, 500)
+			}else{
+				this.browse.parentNode.reset()
+			}
+		})
+	}
+	
 	toSelectDifficulty(fromP2){
 		var currentSong = this.songs[this.selectedSong]
 		if(p2.session && !fromP2 && currentSong.action !== "random"){
@@ -564,6 +711,8 @@ class SongSelect{
 				this.toTutorial()
 			}else if(currentSong.action === "about"){
 				this.toAbout()
+			}else if(currentSong.action === "browse"){
+				this.toBrowse()
 			}
 		}
 		this.pointer(false)
@@ -593,7 +742,11 @@ class SongSelect{
 		assets.sounds["don"].play()
 		
 		try{
-			localStorage["selectedSong"] = this.selectedSong
+			if(assets.customSongs){
+				assets.customSelected = this.selectedSong
+			}else{
+				localStorage["selectedSong"] = this.selectedSong
+			}
 			localStorage["selectedDiff"] = difficulty + this.diffOptions.length
 		}catch(e){}
 		
@@ -668,6 +821,19 @@ class SongSelect{
 			setTimeout(() => {
 				new Session(this.touchEnabled)
 			}, 500)
+		}
+	}
+	toBrowse(){
+		if(assets.customSongs){
+			assets.customSongs = false
+			assets.songs = assets.songsDefault
+			assets.sounds["don"].play()
+			this.clean()
+			setTimeout(() => {
+				new SongSelect("browse", false, this.touchEnabled)
+			}, 500)
+		}else{
+			this.browse.click()
 		}
 	}
 	
@@ -1636,10 +1802,16 @@ class SongSelect{
 					return snd.previewGain.load(gameConfig.songs_baseurl + id + previewFilename)
 				}
 				
-				songObj.preview_time = 0
-				loadPreview(previewFilename).catch(() => {
-					songObj.preview_time = prvTime
-					return loadPreview("/main.mp3")
+				new Promise((resolve, reject) => {
+					if(currentSong.music){
+						snd.previewGain.load(currentSong.music, true).then(resolve, reject)
+					}else{
+						songObj.preview_time = 0
+						loadPreview(previewFilename).catch(() => {
+							songObj.preview_time = prvTime
+							return loadPreview("/main.mp3")
+						}).then(resolve, reject)
+					}
 				}).then(sound => {
 					if(currentId === this.previewId){
 						songObj.preview_sound = sound
@@ -1799,11 +1971,14 @@ class SongSelect{
 		})
 		pageEvents.keyRemove(this, "all")
 		pageEvents.remove(loader.screen, ["mousemove", "mouseleave", "mousedown", "touchstart"])
+		pageEvents.remove(this.canvas, "touchend")
 		pageEvents.remove(p2, "message")
 		if(this.touchEnabled && fullScreenSupported){
 			pageEvents.remove(this.touchFullBtn, "click")
 			delete this.touchFullBtn
 		}
+		pageEvents.remove(this.browse, "change")
+		delete this.browse
 		delete this.selectable
 		delete this.ctx
 		delete this.canvas

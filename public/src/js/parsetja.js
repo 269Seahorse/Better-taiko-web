@@ -1,5 +1,5 @@
 ﻿class ParseTja{
-	constructor(file, difficulty, offset){
+	constructor(file, difficulty, offset, metaOnly){
 		this.data = []
 		for(let line of file){
 			line = line.replace(/\/\/.*/, "").trim()
@@ -34,10 +34,12 @@
 		this.metadata = this.parseMetadata()
 		this.measures = []
 		this.beatInfo = {}
-		this.circles = this.parseCircles()
+		if(!metaOnly){
+			this.circles = this.parseCircles()
+		}
 	}
 	parseMetadata(){
-		var metaNumbers = ["bpm", "offset"]
+		var metaNumbers = ["bpm", "offset", "demostart", "level"]
 		var inSong = false
 		var courses = {}
 		var currentCourse = {}
