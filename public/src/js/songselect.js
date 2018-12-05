@@ -211,7 +211,7 @@ class SongSelect{
 		this.selectedDiff = 0
 		assets.sounds["bgm_songsel"].playLoop(0.1, false, 0, 1.442, 3.506)
 		
-		if(!fromTutorial && !("selectedSong" in localStorage)){
+		if(!assets.customSongs && !fromTutorial && !("selectedSong" in localStorage)){
 			fromTutorial = touchEnabled ? "about" : "tutorial"
 		}
 		if(p2.session){
@@ -442,7 +442,7 @@ class SongSelect{
 		var mouse = this.mouseOffset(event.offsetX, event.offsetY)
 		var moveTo = null
 		if(this.state.screen === "song"){
-			if(mouse.x > 641 && mouse.y > 603 && p2.socket.readyState === 1){
+			if(mouse.x > 641 && mouse.y > 603 && p2.socket.readyState === 1 && !assets.customSongs){
 				moveTo = "session"
 			}else{
 				var moveTo = this.songSelMouse(mouse.x, mouse.y)
@@ -557,6 +557,9 @@ class SongSelect{
 	}
 	
 	browseChange(event){
+		var loaderDiv = document.createElement("div")
+		loaderDiv.innerHTML = assets.pages["loadsong"]
+		loader.screen.appendChild(loaderDiv)
 		var files = event.target.files
 		var promises = []
 		var tjaFiles = []
@@ -610,7 +613,7 @@ class SongSelect{
 				if(songObj.music && songObj.stars.filter(star => star).length !== 0){
 					songs[index] = songObj
 				}
-			}))
+			}).catch(() => {}))
 			reader.readAsText(file, "sjis")
 		}
 		for(var i = 0; i < osuFiles.length; i++){
@@ -660,9 +663,11 @@ class SongSelect{
 				assets.sounds["don"].play()
 				this.clean()
 				setTimeout(() => {
+					loader.screen.removeChild(loaderDiv)
 					new SongSelect("browse", false, this.touchEnabled)
 				}, 500)
 			}else{
+				loader.screen.removeChild(loaderDiv)
 				this.browse.parentNode.reset()
 			}
 		})
@@ -781,7 +786,7 @@ class SongSelect{
 			this.selectedDiff = 1
 			do{
 				this.state.options = this.mod(this.optionsList.length, this.state.options + moveBy)
-			}while(p2.socket.readyState !== 1 && this.state.options === 2)
+			}while((p2.socket.readyState !== 1 || assets.customSongs) && this.state.options === 2)
 		}
 	}
 	toTitleScreen(){
@@ -808,7 +813,7 @@ class SongSelect{
 		}, 500)
 	}
 	toSession(){
-		if(p2.socket.readyState !== 1){
+		if(p2.socket.readyState !== 1 || assets.customSongs){
 			return
 		}
 		if(p2.session){
@@ -1667,7 +1672,7 @@ class SongSelect{
 		ctx.lineTo(x + 4, y + 4)
 		ctx.lineTo(x + 4, y + h)
 		ctx.fill()
-		if(screen !== "difficulty" && p2.socket.readyState === 1){
+		if(screen !== "difficulty" && p2.socket.readyState === 1 && !assets.customSongs){
 			var elapsed = (ms - this.state.screenMS) % 3100
 			var fade = 1
 			if(!p2.session && screen === "song"){
