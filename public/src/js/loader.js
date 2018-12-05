@@ -84,7 +84,7 @@ class Loader{
 
 				assets.views.forEach(name => {
 					var id = this.getFilename(name)
-					var qs = gameConfig._game_version ? '?' + gameConfig._game_version.commit_short : '?'
+					var qs = gameConfig._version ? '?' + gameConfig._version.commit_short : '?'
 					this.promises.push(this.ajax("src/views/" + name + qs).then(page => {
 						assets.pages[id] = page
 					}))

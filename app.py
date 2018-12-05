@@ -44,7 +44,7 @@ def get_config():
     if not config.get('assets_baseurl'):
         config['assets_baseurl'] = ''.join([request.host_url, 'assets']) + '/'
 
-    config['_game_version'] = get_version()
+    config['_version'] = get_version()
     return config
 
 
