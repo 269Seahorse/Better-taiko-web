@@ -1,5 +1,5 @@
 class ParseOsu{
-	constructor(fileContent, offset){
+	constructor(fileContent, offset, metaOnly){
 		this.osu = {
 			OFFSET: 0,
 			MSPERBEAT: 1,
@@ -52,9 +52,11 @@ class ParseOsu{
 		this.metadata = this.parseMetadata()
 		this.editor = this.parseEditor()
 		this.difficulty = this.parseDifficulty()
-		this.timingPoints = this.parseTiming()
-		this.circles = this.parseCircles()
-		this.measures = this.parseMeasures()
+		if(!metaOnly){
+			this.timingPoints = this.parseTiming()
+			this.circles = this.parseCircles()
+			this.measures = this.parseMeasures()
+		}
 	}
 	getStartEndIndexes(type){
 		var indexes = {
@@ -186,40 +188,20 @@ class ParseOsu{
 		return measures
 	}
 	parseGeneralInfo(){
-		var generalInfo = {
-			audioFilename: "",
-			audioWait: 0
-		}
+		var generalInfo = {}
 		var indexes = this.getStartEndIndexes("General")
 		for(var i = indexes.start; i<= indexes.end; i++){
 			var [item, key] = this.data[i].split(":")
-			switch(item){
-				case "SliderMultiple":
-					generalInfo.audioFilename = key
-					break
-				case "AudioWait":
-					generalInfo.audioWait = parseInt(key)
-					break
-			}
+			generalInfo[item] = key.trim()
 		}
 		return generalInfo
 	}
 	parseMetadata(){
-		var metadata = {
-			title: "",
-			artist: ""
-		}
+		var metadata = {}
 		var indexes = this.getStartEndIndexes("Metadata")
 		for(var i = indexes.start; i <= indexes.end; i++){
 			var [item, key] = this.data[i].split(":")
-			switch(item){
-				case "TitleUnicode":
-					metadata.title = key
-					break
-				case "ArtistUnicode":
-					metadata.artist = key
-					break
-			}
+			metadata[item] = key.trim()
 		}
 		return metadata
 	}

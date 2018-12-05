@@ -51,8 +51,8 @@
 			ideographicComma: /[、。]/,
 			apostrophe: /['＇]/,
 			degree: /[ﾟ°]/,
-			brackets: /[\(（\)）「」『』]/,
-			tilde: /[\-－~～〜]/,
+			brackets: /[\(（\)）\[\]「」『』【】]/,
+			tilde: /[\-－~～〜_]/,
 			tall: /[bｂdｄfｆgｇhｈj-lｊ-ｌtｔ♪]/,
 			i: /[iｉ]/,
 			uppercase: /[A-ZＡ-Ｚ]/,
@@ -68,7 +68,8 @@
 			em: /[mwｍｗ]/,
 			emCap: /[MWＭＷ]/,
 			rWidth: /[abdfIjo-rtvａｂｄｆＩｊｏ-ｒｔｖ]/,
-			lWidth: /[ilｉｌ]/
+			lWidth: /[ilｉｌ]/,
+			ura: /\s*[\(（]裏[\)）]$/
 		}
 		
 		var numbersFull = "０１２３４５６７８９"
@@ -276,12 +277,17 @@
 		var ctx = config.ctx
 		var inputText = config.text
 		var mul = config.fontSize / 40
+		var ura = false
+		var r = this.regex
+		
+		var matches = inputText.match(r.ura)
+		if(matches){
+			inputText = inputText.slice(0, matches.index)
+			ura = matches[0]
+		}
 		
 		var string = inputText.split("")
 		var drawn = []
-		
-		var r = this.regex
-		var previousSymbol = ""
 		
 		for(var i = 0; i < string.length; i++){
 			let symbol = string[i]
@@ -297,6 +303,8 @@
 				drawn.push({text: symbol, x: 0, y: 12, h: 45})
 			}else if(symbol === "．"){
 				drawn.push({realText: symbol, text: ".", x: 13, y: -7, h: 15, scale: [1.2, 0.7]})
+			}else if(symbol === "…"){
+				drawn.push({text: symbol, x: 0, y: 5, h: 25, rotate: true})
 			}else if(r.comma.test(symbol)){
 				// Comma, full stop
 				drawn.push({text: symbol, x: 13, y: -7, h: 15, scale: [1.2, 0.7]})
@@ -408,20 +416,26 @@
 		}
 		
 		var scaling = 1
-		if(config.height && drawnHeight > config.height){
+		var height = config.height - (ura ? 52 * mul : 0)
+		if(height && drawnHeight > height){
 			if(config.align === "bottom"){
-				scaling = Math.max(0.6, config.height / drawnHeight)
+				scaling = Math.max(0.6, height / drawnHeight)
 				ctx.translate(40 * mul, 0)
-				ctx.scale(scaling, config.height / drawnHeight)
+				ctx.scale(scaling, height / drawnHeight)
 				ctx.translate(-40 * mul, 0)
 			}else{
-				scaling = config.height / drawnHeight
+				scaling = height / drawnHeight
 				ctx.scale(1, scaling)
 			}
 			if(config.selectable){
 				style.transform = "scale(1, " + scaling + ")"
-				style.top = (config.y + (config.height - drawnHeight) / 2 - 15 / 2 * scaling) * scale + "px"
+				style.top = (config.y + (height - drawnHeight) / 2 - 15 / 2 * scaling) * scale + "px"
 			}
+		}
+		
+		if(ura){
+			// Circled ura
+			drawn.push({realText: ura, text: "裏", x: 0, y: 18, h: 52, ura: true, scale: [1, 1 / scale]})
 		}
 		
 		var actions = []
@@ -492,7 +506,7 @@
 					config.selectable.appendChild(div)
 					continue
 				}
-				if(symbol.rotate || symbol.scale || symbol.svg){
+				if(symbol.rotate || symbol.scale || symbol.svg || symbol.ura){
 					saved = true
 					ctx.save()
 					
@@ -517,7 +531,23 @@
 					}else{
 						ctx.textAlign = "center"
 					}
-					ctx[action + "Text"](symbol.text, currentX, currentY)
+					if(symbol.ura){
+						ctx.font = (30 * mul) + "px Meiryo, sans-serif"
+						ctx.textBaseline = "center"
+						ctx.beginPath()
+						ctx.arc(currentX, currentY + (21.5 * mul), (18 * mul), 0, Math.PI * 2)
+						if(action === "stroke"){
+							ctx.fillStyle = config.outline
+							ctx.fill()
+						}else if(action === "fill"){
+							ctx.strokeStyle = config.fill
+							ctx.lineWidth = 2.5 * mul
+							ctx.fillText(symbol.text, currentX, currentY)
+						}
+						ctx.stroke()
+					}else{
+						ctx[action + "Text"](symbol.text, currentX, currentY)
+					}
 				}
 				if(saved){
 					ctx.restore()

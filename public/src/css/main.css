@@ -19,7 +19,8 @@ body{
 	background-size: 30vh;
 	font-family: TnT, Meiryo, sans-serif;
 }
-#assets{
+#assets,
+#browse{
 	display: none;
 }
 .window{
