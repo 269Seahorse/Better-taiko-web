@@ -44,6 +44,7 @@ def get_config():
     if not config.get('assets_baseurl'):
         config['assets_baseurl'] = ''.join([request.host_url, 'assets']) + '/'
 
+    config['_game_version'] = get_version()
     return config
 
 
@@ -118,6 +119,14 @@ def get_tja_preview(tja):
     return 0
 
 
+def get_version():
+    version = None
+    if os.path.isfile('version.json'):
+        version = json.load(open('version.json', 'r'))
+
+    return version
+
+
 @app.teardown_appcontext
 def close_connection(exception):
     db = getattr(g, '_database', None)
@@ -127,9 +136,7 @@ def close_connection(exception):
 
 @app.route('/')
 def route_index():
-    version = None
-    if os.path.isfile('version.json'):
-        version = json.load(open('version.json', 'r'))
+    version = get_version()
     return render_template('index.html', version=version, config=get_config())
 
 
