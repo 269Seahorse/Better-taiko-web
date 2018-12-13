@@ -388,10 +388,6 @@
 			}
 		}
 		
-		if(config.align === "bottom"){
-			drawn.reverse()
-		}
-		
 		var drawnHeight = 0
 		for(let symbol of drawn){
 			if(config.letterSpacing){
@@ -418,13 +414,12 @@
 		var scaling = 1
 		var height = config.height - (ura ? 52 * mul : 0)
 		if(height && drawnHeight > height){
+			scaling = height / drawnHeight
 			if(config.align === "bottom"){
-				scaling = Math.max(0.6, height / drawnHeight)
 				ctx.translate(40 * mul, 0)
-				ctx.scale(scaling, height / drawnHeight)
+				ctx.scale(Math.max(0.6, height / drawnHeight), scaling)
 				ctx.translate(-40 * mul, 0)
 			}else{
-				scaling = height / drawnHeight
 				ctx.scale(1, scaling)
 			}
 			if(config.selectable){
@@ -435,7 +430,11 @@
 		
 		if(ura){
 			// Circled ura
-			drawn.push({realText: ura, text: "裏", x: 0, y: 18, h: 52, ura: true, scale: [1, 1 / scale]})
+			drawn.push({realText: ura, text: "裏", x: 0, y: 25, h: 52, ura: true, scale: [1, 1 / scaling]})
+		}
+		
+		if(config.align === "bottom"){
+			drawn.reverse()
 		}
 		
 		var actions = []
@@ -499,6 +498,9 @@
 					}else{
 						currentX = currentX + config.width / 2 - textWidth / 2
 					}
+					if(symbol.ura){
+						div.style.font = (30 / (40 * mul)) + "em Meiryo, sans-serif"
+					}
 					div.style.left = currentX * scale + "px"
 					div.style.top = currentY * scale + "px"
 					div.appendChild(document.createTextNode(text))
@@ -535,7 +537,7 @@
 						ctx.font = (30 * mul) + "px Meiryo, sans-serif"
 						ctx.textBaseline = "center"
 						ctx.beginPath()
-						ctx.arc(currentX, currentY + (21.5 * mul), (18 * mul), 0, Math.PI * 2)
+						ctx.arc(currentX, currentY + (17 * mul), (18 * mul), 0, Math.PI * 2)
 						if(action === "stroke"){
 							ctx.fillStyle = config.outline
 							ctx.fill()
@@ -559,13 +561,20 @@
 	
 	layeredText(config, layers){
 		var ctx = config.ctx
+		var inputText = config.text
 		var mul = config.fontSize / 40
-		ctx.save()
+		var ura = false
+		var r = this.regex
 		
-		var string = config.text.split("")
+		var matches = inputText.match(r.ura)
+		if(matches){
+			inputText = inputText.slice(0, matches.index)
+			ura = matches[0]
+		}
+		
+		var string = inputText.split("")
 		var drawn = []
 		
-		var r = this.regex
 		for(var i = 0; i < string.length; i++){
 			let symbol = string[i]
 			
@@ -629,10 +638,6 @@
 			}
 		}
 		
-		if(config.align === "right"){
-			drawn.reverse()
-		}
-		
 		var drawnWidth = 0
 		for(let symbol of drawn){
 			if(config.letterSpacing){
@@ -641,15 +646,28 @@
 			drawnWidth += symbol.w * mul
 		}
 		
+		ctx.save()
 		ctx.translate(config.x, config.y)
+		
 		if(config.scale){
 			ctx.scale(config.scale[0], config.scale[1])
 		}
-		var scale = 1
-		if(config.width && drawnWidth > config.width){
-			scale = config.width / drawnWidth
-			ctx.scale(scale, 1)
+		var scaling = 1
+		var width = config.width - (ura ? 55 * mul : 0)
+		if(width && drawnWidth > width){
+			scaling = width / drawnWidth
+			ctx.scale(scaling, 1)
 		}
+		
+		if(ura){
+			// Circled ura
+			drawn.push({text: "裏", x: 0, y: 3, w: 55, ura: true, scale: [1 / scaling, 1]})
+		}
+		
+		if(config.align === "right"){
+			drawn.reverse()
+		}
+		
 		ctx.font = config.fontSize + "px " + config.fontFamily
 		ctx.textBaseline = config.baseline || "top"
 		ctx.textAlign = "center"
@@ -693,14 +711,13 @@
 				var saved = false
 				var currentX = offsetX + symbol.x * mul + (layer.x || 0) + symbol.w * mul / 2
 				var currentY = symbol.y + (layer.y || 0)
-				var isLatin = r.latin.test(symbol.text)
 				
 				if(config.align === "center"){
 					currentX -= drawnWidth / 2
 				}else if(config.align === "right"){
 					currentX = -offsetX + symbol.x + (layer.x || 0) - symbol.w / 2
 				}
-				if(symbol.scale || isLatin){
+				if(symbol.scale || symbol.ura){
 					saved = true
 					ctx.save()
 					ctx.translate(currentX, currentY)
@@ -714,17 +731,23 @@
 					currentX = 0
 					currentY = 0
 				}
-				if(isLatin){
+				if(symbol.ura){
+					ctx.font = (30 * mul) + "px Meiryo, sans-serif"
+					ctx.textBaseline = "center"
+					ctx.beginPath()
+					ctx.arc(currentX, currentY + (17 * mul), (18 * mul), 0, Math.PI * 2)
 					if(action === "strokeText"){
-						ctx.lineWidth *= 1.05
-						ctx.strokeText(symbol.text, currentX, currentY)
-					}else{
-						ctx.lineWidth *= 0.05
-						ctx.strokeStyle = ctx.fillStyle
-						ctx.strokeText(symbol.text, currentX, currentY)
+						ctx.fillStyle = layer.outline
+						ctx.fill()
+					}else if(action === "fillText"){
+						ctx.strokeStyle = layer.fill
+						ctx.lineWidth = 2.5 * mul
+						ctx.fillText(symbol.text, currentX, currentY)
 					}
+					ctx.stroke()
+				}else{
+					ctx[action](symbol.text, currentX, currentY)
 				}
-				ctx[action](symbol.text, currentX, currentY)
 				if(saved){
 					ctx.restore()
 				}
@@ -1230,7 +1253,7 @@
 	}
 	
 	getMS(){
-		return +new Date
+		return Date.now()
 	}
 	
 	clean(){

@@ -297,9 +297,13 @@
 										scroll: scroll
 									})
 									lastDrumroll = false
-									break
+								}else{
+									currentMeasure.push({
+										bpm: bpm,
+										scroll: scroll
+									})
 								}
-								circleObj.endDrumroll = lastDrumroll
+								break
 							}
 							if(symbol === "7" || symbol === "9"){
 								var hits = balloons[balloonID]

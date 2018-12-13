@@ -1,4 +1,4 @@
-class loadSong{
+class LoadSong{
 	constructor(selectedSong, autoPlayEnabled, multiplayer, touchEnabled){
 		this.selectedSong = selectedSong
 		this.autoPlayEnabled = autoPlayEnabled

@@ -104,15 +104,17 @@ class Keyboard{
 		}
 	}
 	checkMenuKeys(){
-		if(!this.controller.multiplayer){
+		if(!this.controller.multiplayer && !this.locked){
 			var moveMenu = 0
 			var ms = this.game.getAccurateTime()
 			this.gamepadMenu.play((pressed, keyCode) => {
 				if(pressed){
 					if(this.game.isPaused()){
 						if(keyCode === "cancel"){
+							this.locked = true
 							return setTimeout(() => {
 								this.controller.togglePause()
+								this.locked = false
 							}, 200)
 						}
 					}
@@ -139,12 +141,11 @@ class Keyboard{
 			}
 			var moveMenuConfirm = () => {
 				if(this.game.isPaused()){
+					this.locked = true
 					setTimeout(() => {
 						this.controller.view.pauseConfirm()
+						this.locked = false
 					}, 200)
-					for(var key in this.keyTime){
-						this.keyTime[key] = null
-					}
 				}
 			}
 			this.checkKey(this.kbd["previous"], "menu", moveMenuMinus)
@@ -199,6 +200,9 @@ class Keyboard{
 	setKey(keyCode, down, ms){
 		if(down){
 			this.keys[keyCode] = true
+			if(this.game.isPaused()){
+				return
+			}
 			this.keyTime[keyCode] = ms
 			if(keyCode == this.kbd.don_l || keyCode == this.kbd.don_r){
 				this.checkKeySound(keyCode, "don")

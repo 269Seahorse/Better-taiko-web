@@ -654,7 +654,7 @@
 		var barH = 130 * mul
 		
 		if(this.gogoTime || ms <= this.gogoTimeStarted + 100){
-			var grd = ctx.createLinearGradient(0, 0, this.winW, 0)
+			var grd = ctx.createLinearGradient(padding, 0, this.winW, 0)
 			grd.addColorStop(0, "#512a2c")
 			grd.addColorStop(0.46, "#6f2a2d")
 			grd.addColorStop(0.76, "#8a4763")
@@ -669,17 +669,23 @@
 			}
 			ctx.fillRect(padding, barY, winW - padding, barH)
 		}
-		if(keyTime[sound] > ms - 200){
+		if(keyTime[sound] > ms - 130){
 			var gradients = {
-				"don": ["#f54c25", "#232323"],
-				"ka": ["#75cee9", "#232323"]
+				"don": "255, 0, 0",
+				"ka": "0, 170, 255"
 			}
-			var grd = ctx.createLinearGradient(0, 0, this.winW, 0)
-			grd.addColorStop(0, gradients[sound][0])
-			grd.addColorStop(1, gradients[sound][1])
-			ctx.fillStyle = grd
-			ctx.globalAlpha = 1 - (ms - keyTime[sound]) / 200
-			ctx.fillRect(padding, barY, winW - padding, barH)
+			var yellow = "255, 231, 0"
+			var currentGradient = gradients[sound]
+			ctx.globalCompositeOperation = "lighter"
+			do{
+				var grd = ctx.createLinearGradient(padding, 0, this.winW, 0)
+				grd.addColorStop(0, "rgb(" + currentGradient + ")")
+				grd.addColorStop(1, "rgba(" + currentGradient + ", 0)")
+				ctx.fillStyle = grd
+				ctx.globalAlpha = (1 - (ms - keyTime[sound]) / 130) / 5
+				ctx.fillRect(padding, barY, winW - padding, barH)
+			}while(this.currentScore.ms > ms - 130 && currentGradient !== yellow && (currentGradient = yellow))
+			ctx.globalCompositeOperation = "source-over"
 		}
 		ctx.globalAlpha = 1
 		
@@ -768,6 +774,7 @@
 		
 		// Measures
 		ctx.save()
+		ctx.beginPath()
 		ctx.rect(this.slotPos.paddingLeft, 0, winW - this.slotPos.paddingLeft, winH)
 		ctx.clip()
 		this.drawMeasures()
@@ -799,6 +806,7 @@
 		// Future notes
 		this.updateNoteFaces()
 		ctx.save()
+		ctx.beginPath()
 		ctx.rect(this.slotPos.paddingLeft, 0, winW - this.slotPos.paddingLeft, winH)
 		ctx.clip()
 		
@@ -848,18 +856,20 @@
 			ctx.fillStyle = "rgba(0, 0, 0, 0.5)"
 			ctx.fillRect(0, 0, winW, winH)
 			
+			ctx.save()
 			if(this.portrait){
-				ctx.save()
+				ctx.translate(frameLeft - 242, frameTop + 308)
 				var pauseScale = 720 / 766
 				ctx.scale(pauseScale, pauseScale)
-				ctx.translate(-257, 328)
+			}else{
+				ctx.translate(frameLeft, frameTop)
 			}
 			
 			var pauseRect = (ctx, mul) => {
 				this.draw.roundedRect({
 					ctx: ctx,
-					x: (frameLeft + 269) * mul,
-					y: (frameTop + 93) * mul,
+					x: 269 * mul,
+					y: 93 * mul,
 					w: 742 * mul,
 					h: 494 * mul,
 					radius: 17 * mul
@@ -876,20 +886,19 @@
 				ctx: ctx,
 				img: assets.image["bg_pause"],
 				shape: pauseRect,
-				dx: frameLeft + 68,
-				dy: frameTop + 11
+				dx: 68,
+				dy: 11
 			})
 			
 			ctx.drawImage(assets.image["mimizu"],
-				frameLeft + 313, frameTop + 247,
-				136, 315
+				313, 247, 136, 315
 			)
 			
-			var _y = frameTop + 108
+			var _y = 108
 			var _w = 80
 			var _h = 464
 			for(var i = 0; i < this.pauseOptions.length; i++){
-				var _x = frameLeft + 520 + 110 * i
+				var _x = 520 + 110 * i
 				if(this.state.moveHover !== null){
 					var selected = i === this.state.moveHover
 				}else{
@@ -957,9 +966,7 @@
 				}
 			}
 			
-			if(this.portrait){
-				ctx.restore()
-			}
+			ctx.restore()
 		}
 	}
 	setBackground(){
@@ -1066,7 +1073,9 @@
 		
 		measures.forEach(measure => {
 			var timeForDistance = this.posToMs(distanceForCircle, measure.speed)
-			if(ms >= measure.ms - timeForDistance && ms <= measure.ms + 350){
+			var startingTime = measure.ms - timeForDistance
+			var finishTime = measure.ms + this.posToMs(this.slotPos.x - this.slotPos.paddingLeft + 3, measure.speed)
+			if(ms >= startingTime && ms <= finishTime){
 				var measureX = this.slotPos.x + this.msToPos(measure.ms - ms, measure.speed)
 				this.ctx.strokeStyle = "#bdbdbd"
 				this.ctx.lineWidth = 3
@@ -1581,7 +1590,7 @@
 		}else{
 			this.state.pausePos = this.mod(this.pauseOptions.length, this.state.pausePos + pos)
 		}
-		this.state.moveMS = +new Date - (absolute ? 0 : 500)
+		this.state.moveMS = Date.now() - (absolute ? 0 : 500)
 		this.state.moveHover = null
 	}
 	pauseConfirm(pos){
@@ -1619,7 +1628,7 @@
 			var mouse = this.mouseOffset(event.offsetX, event.offsetY)
 			var moveTo = this.pauseMouse(mouse.x, mouse.y)
 			if(moveTo === null && this.state.moveHover === this.state.pausePos){
-				this.state.moveMS = +new Date - 500
+				this.state.moveMS = Date.now() - 500
 			}
 			this.state.moveHover = moveTo
 			this.pointer(moveTo !== null)

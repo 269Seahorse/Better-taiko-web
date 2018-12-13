@@ -5,7 +5,10 @@ function browserSupport(){
 			return true
 		},
 		"AudioContext": function(){
-			return "AudioContext" in window || "webkitAudioContext" in window
+			if("AudioContext" in window || "webkitAudioContext" in window){
+				return typeof (window.AudioContext || window.webkitAudioContext) === "function"
+			}
+			return false
 		},
 		"Class": function(){
 			eval("class a{}")

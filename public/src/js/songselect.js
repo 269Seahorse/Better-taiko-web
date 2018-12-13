@@ -313,7 +313,7 @@ class SongSelect{
 				ctrl: event.ctrlKey
 			}
 		}
-		if(code === "ctrl" || code === "shift"){
+		if(code === "ctrl" || code === "shift" || !this.redrawRunning){
 			return
 		}
 
@@ -376,7 +376,7 @@ class SongSelect{
 			getSelection().removeAllRanges()
 			this.selectable.blur()
 		}
-		if(event.target !== this.canvas){
+		if(event.target !== this.canvas || !this.redrawRunning){
 			return
 		}
 		if(event.type === "mousedown"){
@@ -427,7 +427,7 @@ class SongSelect{
 	}
 	touchEnd(event){
 		event.preventDefault()
-		if(this.state.screen === "song"){
+		if(this.state.screen === "song" && this.redrawRunning){
 			var currentSong = this.songs[this.selectedSong]
 			if(currentSong.action === "browse"){
 				var mouse = this.mouseOffset(event.changedTouches[0].pageX, event.changedTouches[0].pageY)
@@ -557,6 +557,9 @@ class SongSelect{
 	}
 	
 	browseChange(event){
+		this.redrawRunning = false
+		this.pointer(false)
+		
 		var loaderDiv = document.createElement("div")
 		loaderDiv.innerHTML = assets.pages["loadsong"]
 		loader.screen.appendChild(loaderDiv)
@@ -669,6 +672,7 @@ class SongSelect{
 			}else{
 				loader.screen.removeChild(loaderDiv)
 				this.browse.parentNode.reset()
+				this.redrawRunning = true
 			}
 		})
 	}
@@ -770,7 +774,7 @@ class SongSelect{
 			multiplayer = ctrl
 		}
 		
-		new loadSong({
+		new LoadSong({
 			"title": selectedSong.title,
 			"folder": selectedSong.id,
 			"difficulty": this.difficultyId[difficulty],
@@ -1077,6 +1081,7 @@ class SongSelect{
 					selectedWidth = this.songAsset.width
 				}
 			}else{
+				this.playBgm(!this.songs[this.selectedSong].stars)
 				this.state.locked = 0
 			}
 		}else if(screen === "difficulty"){
@@ -1809,6 +1814,7 @@ class SongSelect{
 				
 				new Promise((resolve, reject) => {
 					if(currentSong.music){
+						songObj.preview_time = prvTime
 						snd.previewGain.load(currentSong.music, true).then(resolve, reject)
 					}else{
 						songObj.preview_time = 0
@@ -1950,7 +1956,7 @@ class SongSelect{
 	}
 	
 	getMS(){
-		return +new Date
+		return Date.now()
 	}
 	
 	clean(){
