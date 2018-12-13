@@ -135,7 +135,7 @@ class Controller{
 	restartSong(){
 		this.clean()
 		if(this.multiplayer){
-			new loadSong(this.selectedSong, false, true, this.touchEnabled)
+			new LoadSong(this.selectedSong, false, true, this.touchEnabled)
 		}else{
 			loader.changePage("game")
 			var taikoGame = new Controller(this.selectedSong, this.songData, this.autoPlayEnabled, false, this.touchEnabled)
@@ -143,7 +143,7 @@ class Controller{
 		}
 	}
 	playSound(id, time){
-		var ms = (+new Date) + (time || 0) * 1000
+		var ms = Date.now() + (time || 0) * 1000
 		if(!(id in this.playedSounds) || ms > this.playedSounds[id] + 30){
 			assets.sounds[id + this.snd].play(time)
 			this.playedSounds[id] = ms

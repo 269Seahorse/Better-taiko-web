@@ -703,7 +703,7 @@ class Scoresheet{
 	}
 	
 	getMS(){
-		return +new Date
+		return Date.now()
 	}
 	
 	clean(){

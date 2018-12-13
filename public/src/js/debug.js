@@ -106,7 +106,7 @@ class Debug{
 				var measureMS = measures[this.measureNum].ms
 				var game = this.controller.game
 				game.started = true
-				var timestamp = +new Date
+				var timestamp = Date.now()
 				var currentDate = timestamp - measureMS
 				game.startDate = currentDate
 				game.sndTime = timestamp - snd.buffer.getTime() * 1000

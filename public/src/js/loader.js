@@ -4,9 +4,9 @@ class Loader{
 		this.loadedAssets = 0
 		this.assetsDiv = document.getElementById("assets")
 		this.canvasTest = new CanvasTest()
-		this.startTime = +new Date
+		this.startTime = Date.now()
 		
-		this.ajax("src/views/loader.html").then(this.run.bind(this))
+		this.ajax("/src/views/loader.html").then(this.run.bind(this))
 	}
 	run(page){
 		this.promises = []
@@ -47,8 +47,6 @@ class Loader{
 						FontDetect.onFontLoaded(name, resolve, reject, {msTimeout: 90000})
 					}))
 				})
-				var fontDetectDiv = document.getElementById("fontdetectHelper")
-				fontDetectDiv.parentNode.removeChild(fontDetectDiv)
 				
 				assets.img.forEach(name => {
 					var id = this.getFilename(name)
@@ -85,7 +83,7 @@ class Loader{
 				assets.views.forEach(name => {
 					var id = this.getFilename(name)
 					var qs = gameConfig._version ? '?' + gameConfig._version.commit_short : '?'
-					this.promises.push(this.ajax("src/views/" + name + qs).then(page => {
+					this.promises.push(this.ajax("/src/views/" + name + qs).then(page => {
 						assets.pages[id] = page
 					}))
 				})
@@ -130,7 +128,7 @@ class Loader{
 				Promise.all(this.promises).then(() => {
 					this.canvasTest.drawAllImages().then(result => {
 						perf.allImg = result
-						perf.load = (+new Date) - this.startTime
+						perf.load = Date.now() - this.startTime
 						this.canvasTest.clean()
 						this.clean()
 						this.callback()
@@ -185,6 +183,8 @@ class Loader{
 		})
 	}
 	clean(){
+		var fontDetectDiv = document.getElementById("fontdetectHelper")
+		fontDetectDiv.parentNode.removeChild(fontDetectDiv)
 		delete this.assetsDiv
 		delete this.loaderPercentage
 		delete this.loaderProgress

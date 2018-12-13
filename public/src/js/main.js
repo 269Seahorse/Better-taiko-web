@@ -10,7 +10,7 @@ addEventListener("error", function(err){
 
 function errorMessage(stack){
 	localStorage["lastError"] = JSON.stringify({
-		timestamp: +new Date,
+		timestamp: Date.now(),
 		stack: stack
 	})
 }

@@ -45,7 +45,7 @@ class Game{
 		var offsetTime = Math.max(0, this.timeForDistanceCircle - this.songData.circles[0].ms) |0
 		this.elapsedTime = -offsetTime
 		// The real start for the game will start when chrono will reach 0
-		this.startDate = +(new Date) + offsetTime
+		this.startDate = Date.now() + offsetTime
 	}
 	update(){
 		// Main operations
@@ -347,7 +347,7 @@ class Game{
 		if(!this.paused){
 			assets.sounds["pause"].play()
 			this.paused = true
-			this.latestDate = +new Date
+			this.latestDate = Date.now()
 			this.mainAsset.stop()
 			this.mainMusicPlaying = false
 			this.view.pauseMove(0, true)
@@ -357,7 +357,7 @@ class Game{
 		}else{
 			assets.sounds["cancel"].play()
 			this.paused = false
-			var currentDate = +new Date
+			var currentDate = Date.now()
 			this.startDate += currentDate - this.latestDate
 			this.sndTime = currentDate - snd.buffer.getTime() * 1000
 			this.view.gameDiv.classList.remove("game-paused")
@@ -371,12 +371,12 @@ class Game{
 		// Refreshed date
 		var ms = this.elapsedTime
 		if(ms >= 0 && !this.started){
-			this.startDate = +new Date
+			this.startDate = Date.now()
 			this.elapsedTime = this.getAccurateTime()
 			this.started = true
 			this.sndTime = this.startDate - snd.buffer.getTime() * 1000
 		}else if(ms < 0 || ms >= 0 && this.started){
-			var currentDate = +new Date
+			var currentDate = Date.now()
 			if(!this.controller.touchEnabled){
 				var sndTime = currentDate - snd.buffer.getTime() * 1000
 				var lag = sndTime - this.sndTime
@@ -392,7 +392,7 @@ class Game{
 		if(this.isPaused()){
 			return this.elapsedTime
 		}else{
-			return (+new Date) - this.startDate
+			return Date.now() - this.startDate
 		}
 	}
 	getCircles(){

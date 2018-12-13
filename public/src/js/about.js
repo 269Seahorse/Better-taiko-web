@@ -78,7 +78,7 @@
 			}catch(e){}
 		}
 		if(errorObj.timestamp && errorObj.stack){
-			if(errorObj.timestamp + 1000 * 60 * 60 * 24 > (+new Date)){
+			if(errorObj.timestamp + 1000 * 60 * 60 * 24 > Date.now()){
 				diag.push("Last error: " + errorObj.stack)
 				diag.push("Error date: " + new Date(errorObj.timestamp).toGMTString())
 			}else{

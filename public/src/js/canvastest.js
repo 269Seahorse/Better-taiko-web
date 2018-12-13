@@ -46,7 +46,7 @@ class CanvasTest{
 	blurIteration(){
 		return new Promise(resolve => {
 			requestAnimationFrame(() => {
-				var startTime = +new Date
+				var startTime = Date.now()
 				var ctx = this.ctx
 				ctx.clearRect(0, 0, this.canvas.width, this.canvas.height)
 				
@@ -84,14 +84,14 @@ class CanvasTest{
 						{fill: "#fff", shadow: [-1, 1, 3, 1.5]}
 					])
 				}
-				resolve((+new Date) - startTime)
+				resolve(Date.now() - startTime)
 			})
 		})
 	}
 	drawAllImages(){
 		return new Promise(resolve => {
 			requestAnimationFrame(() => {
-				var startTime = +new Date
+				var startTime = Date.now()
 				var ctx = this.ctx
 				ctx.save()
 				ctx.clearRect(0, 0, this.canvas.width, this.canvas.height)
@@ -132,7 +132,7 @@ class CanvasTest{
 				}
 				
 				ctx.restore()
-				resolve((+new Date) - startTime)
+				resolve(Date.now() - startTime)
 			})
 		})
 	}
