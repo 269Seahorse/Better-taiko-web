@@ -32,6 +32,9 @@ class Gamepad{
 		}
 	}
 	play(callback){
+		if(pageEvents.lastKeyEvent + 5000 > Date.now()){
+			return
+		}
 		if("getGamepads" in navigator){
 			var gamepads = navigator.getGamepads()
 		}else{

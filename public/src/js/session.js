@@ -59,6 +59,7 @@ class Session{
 		this.gamepad.clean()
 		pageEvents.remove(window, ["mousedown", "touchstart"])
 		pageEvents.keyRemove(this, 27)
+		pageEvents.remove(p2, "message")
 		delete this.endButton
 		delete this.sessionInvite
 	}
