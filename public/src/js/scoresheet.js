@@ -714,6 +714,9 @@ class Scoresheet{
 		this.redrawRunning = false
 		pageEvents.keyRemove(this, "all")
 		pageEvents.remove(this.canvas, ["mousedown", "touchstart"])
+		if(p2.session){
+			pageEvents.remove(p2, "message")
+		}
 		delete this.ctx
 		delete this.canvas
 	}

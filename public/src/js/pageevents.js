@@ -3,6 +3,7 @@ class PageEvents{
 		this.allEvents = new Map()
 		this.keyListeners = new Map()
 		this.mouseListeners = new Map()
+		this.lastKeyEvent = -Infinity
 		this.add(window, "keydown", this.keyEvent.bind(this))
 		this.add(window, "keyup", this.keyEvent.bind(this))
 		this.add(window, "mousemove", this.mouseEvent.bind(this))
@@ -80,6 +81,7 @@ class PageEvents{
 		})
 	}
 	keyEvent(event){
+		this.lastKeyEvent = Date.now()
 		this.keyListeners.forEach(addedKeyCode => {
 			this.checkListener(addedKeyCode.get("all"), event)
 			this.checkListener(addedKeyCode.get(event.keyCode), event)
