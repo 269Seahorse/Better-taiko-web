@@ -81,7 +81,9 @@ class PageEvents{
 		})
 	}
 	keyEvent(event){
-		this.lastKeyEvent = Date.now()
+		if ([68, 70, 74, 75].indexOf(event.keyCode) > -1) {  // D, F, J, K
+			this.lastKeyEvent = Date.now()
+		}
 		this.keyListeners.forEach(addedKeyCode => {
 			this.checkListener(addedKeyCode.get("all"), event)
 			this.checkListener(addedKeyCode.get(event.keyCode), event)
