@@ -1008,7 +1008,7 @@
 		var selectedSong = this.controller.selectedSong
 		var songSkinName = selectedSong.songSkin.name
 		var donLayers = []
-		var filename = this.multiplayer === 2 ? "bg_don2_" : "bg_don_"
+		var filename = !selectedSong.songSkin.don && this.multiplayer === 2 ? "bg_don2_" : "bg_don_"
 		
 		this.donBg = document.createElement("div")
 		this.donBg.classList.add("donbg")
