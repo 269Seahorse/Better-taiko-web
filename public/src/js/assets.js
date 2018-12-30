@@ -63,6 +63,7 @@ var assets = {
 		"combo-1200-meka.wav",
 		"combo-1300-meka.wav",
 		"combo-1400-meka.wav",
+		"combo-over1500-meka.wav",
 		"fullcombo-meka.wav",
 
 		"song-select.wav",
@@ -94,7 +95,8 @@ var assets = {
 		"combo-1200.wav",
 		"combo-1300.wav",
 		"combo-1400.wav",
-		
+		"combo-over1500.wav",
+	
 		"fullcombo.wav",
 		"gamefullcombo.wav",
 		"gameclear.wav",
