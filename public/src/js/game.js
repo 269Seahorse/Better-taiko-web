@@ -413,7 +413,7 @@ class Game{
 		if(this.combo > this.globalScore.maxCombo){
 			this.globalScore.maxCombo = this.combo
 		}
-		if(this.combo === 50 || this.combo > 0 && this.combo % 100 === 0 && this.combo < 1500 || this.combo % 500 === 0){
+		if(this.combo === 50 || this.combo > 0 && this.combo % 100 === 0 && this.combo < 1500 || this.combo > 0 && this.combo % 500 === 0){
 			this.controller.playSoundMeka("combo-" + (this.combo <= 1400 ? this.combo : "over1500"))
 		}
 		this.view.updateCombo(this.combo)
