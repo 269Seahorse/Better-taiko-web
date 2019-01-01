@@ -180,7 +180,7 @@ class Scoresheet{
 				this.canvasCache.resize(winW / ratio, 80 + 1, ratio)
 				
 				if(!this.multiplayer){
-					this.tetsuoHana.style.setProperty("--scale", ratio)
+					this.tetsuoHana.style.setProperty("--scale", ratio / this.pixelRatio)
 				}
 			}else if(!document.hasFocus() && this.state.screen === "scoresShown"){
 				return
