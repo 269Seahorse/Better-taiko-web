@@ -752,7 +752,7 @@ class Scoresheet{
 			
 			if(elapsed >= 1000){
 				this.clean()
-				this.controller.songSelection(true, false, p2.session ? this.touchEnabled : this.state.pointerLocked)
+				this.controller.songSelection(true)
 			}
 		}
 		
@@ -811,7 +811,6 @@ class Scoresheet{
 		if(p2.session){
 			pageEvents.remove(p2, "message")
 		}
-		loader.screen.classList.remove("view")
 		if(!this.multiplayer){
 			delete this.tetsuoHana
 		}
