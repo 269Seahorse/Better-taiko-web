@@ -247,6 +247,14 @@
 	50%{transform: translateY(0)}
 	100%{transform: translateY(var(--low))}
 }
+@keyframes tetsuohana-failed1{
+	0%{transform: translateY(calc(10px * var(--scale)))}
+	50%{transform: translateY(0)}
+}
+@keyframes tetsuohana-failed2{
+	50%{transform: translateY(calc(5px * var(--scale)))}
+	100%{transform: translateY(calc(15px * var(--scale)))}
+}
 @keyframes tetsuohana-flowers{
 	0%{--frame: 0}
 	50%{--frame: 1}
@@ -272,6 +280,7 @@
 #tetsuohana.failed #tetsuo,
 #tetsuohana.failed #hana{
 	--frame: 2;
-	transition: 0.5s transform cubic-bezier(0.2, 0.6, 0.4, 1.2);
-	transform: translateY(var(--low));
+	top: calc(26px * var(--scale));
+	transform: translateY(calc(46px * var(--scale)));
+	animation: 1.25s ease-out tetsuohana-failed1 both infinite, 1.25s ease-in tetsuohana-failed2 both infinite;
 }

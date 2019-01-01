@@ -281,7 +281,7 @@ class Scoresheet{
 			var elapsed = 0
 		}
 		
-		var gaugePercent = [Math.round(this.results.gauge / 2) / 50]
+		var gaugePercent = Math.round(this.results.gauge / 2) / 50
 		if(players === 2){
 			var gauge2 = Math.round(p2.results.gauge / 2) / 50
 			if(gauge2 > gaugePercent){
@@ -296,17 +296,17 @@ class Scoresheet{
 				var results = this.results
 				if(p === 1){
 					results = p2.results
-				}else if(this.multiplayer){
-					ctx.translate(0, -290)
 				}
 				var resultGauge = Math.round(results.gauge / 2) / 50
 				var clear = resultGauge >= gaugeClear
-				var p1Offset = this.multiplayer && p === 0 ? 10 : 0
+				if(p === 1 || !this.multiplayer && clear){
+					ctx.translate(0, 290)
+				}
 				if(clear){
 					ctx.globalCompositeOperation = "lighter"
 				}
 				ctx.globalAlpha = Math.min(1, Math.max(0, (elapsed - (3100 + failedOffset)) / 500)) * 0.5
-				var grd = ctx.createLinearGradient(0, frameTop + 362, 0, frameTop + 658)
+				var grd = ctx.createLinearGradient(0, frameTop + 72, 0, frameTop + 368)
 				grd.addColorStop(0, "#000")
 				if(clear){
 					grd.addColorStop(1, "#ffffba")
@@ -314,7 +314,7 @@ class Scoresheet{
 					grd.addColorStop(1, "transparent")
 				}
 				ctx.fillStyle = grd
-				ctx.fillRect(0, frameTop + 362, winW, 286)
+				ctx.fillRect(0, frameTop + 72, winW, 286)
 				ctx.restore()
 			}
 		}
