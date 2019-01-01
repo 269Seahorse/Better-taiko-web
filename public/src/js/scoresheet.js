@@ -10,6 +10,11 @@ class Scoresheet{
 		
 		this.canvas = document.getElementById("canvas")
 		this.ctx = this.canvas.getContext("2d")
+		this.game = document.getElementById("game")
+		
+		this.fadeScreen = document.createElement("div")
+		this.fadeScreen.id = "fade-screen"
+		this.game.appendChild(this.fadeScreen)
 		
 		this.font = "TnT, Meiryo, sans-serif"
 		this.state = {
@@ -114,6 +119,23 @@ class Scoresheet{
 		
 		pageEvents.keyAdd(this, "all", "down", this.keyDown.bind(this))
 		pageEvents.add(this.canvas, ["mousedown", "touchstart"], this.mouseDown.bind(this))
+		
+		if(!this.multiplayer){
+			this.tetsuoHana = document.createElement("div")
+			this.tetsuoHana.id = "tetsuohana"
+			var flowersBg = "url('" + assets.image["results_flowers"].src + "')"
+			var mikoshiBg = "url('" + assets.image["results_mikoshi"].src + "')"
+			var tetsuoHanaBg = "url('" + assets.image["results_tetsuohana"].src + "')"
+			var id = ["flowers1", "flowers2", "mikoshi", "tetsuo", "hana"]
+			var bg = [flowersBg, flowersBg, mikoshiBg, tetsuoHanaBg, tetsuoHanaBg]
+			for(var i = 0; i < id.length; i++){
+				var div = document.createElement("div")
+				div.id = id[i]
+				div.style.backgroundImage = bg[i]
+				this.tetsuoHana.appendChild(div)
+			}
+			this.game.appendChild(this.tetsuoHana)
+		}
 	}
 	
 	redraw(){
@@ -156,6 +178,10 @@ class Scoresheet{
 				this.canvas.style.height = (winH / this.pixelRatio) + "px"
 				
 				this.canvasCache.resize(winW / ratio, 80 + 1, ratio)
+				
+				if(!this.multiplayer){
+					this.tetsuoHana.style.setProperty("--scale", ratio)
+				}
 			}else if(!document.hasFocus() && this.state.screen === "scoresShown"){
 				return
 			}else{
@@ -249,8 +275,48 @@ class Scoresheet{
 		
 		if(this.state.screen === "scoresShown" || this.state.screen === "fadeOut"){
 			var elapsed = Infinity
-		}else{
+		}else if(this.redrawing){
 			var elapsed = ms - this.state.screenMS - this.state.startDelay
+		}else{
+			var elapsed = 0
+		}
+		
+		var gaugePercent = [Math.round(this.results.gauge / 2) / 50]
+		if(players === 2){
+			var gauge2 = Math.round(p2.results.gauge / 2) / 50
+			if(gauge2 > gaugePercent){
+				gaugePercent = gauge2
+			}
+		}
+		var gaugeClear = 25 / 50
+		var failedOffset = gaugePercent >= gaugeClear ? 0 : -2000
+		if(elapsed >= 3100 + failedOffset){
+			for(var p = 0; p < players; p++){
+				ctx.save()
+				var results = this.results
+				if(p === 1){
+					results = p2.results
+				}else if(this.multiplayer){
+					ctx.translate(0, -290)
+				}
+				var resultGauge = Math.round(results.gauge / 2) / 50
+				var clear = resultGauge >= gaugeClear
+				var p1Offset = this.multiplayer && p === 0 ? 10 : 0
+				if(clear){
+					ctx.globalCompositeOperation = "lighter"
+				}
+				ctx.globalAlpha = Math.min(1, Math.max(0, (elapsed - (3100 + failedOffset)) / 500)) * 0.5
+				var grd = ctx.createLinearGradient(0, frameTop + 362, 0, frameTop + 658)
+				grd.addColorStop(0, "#000")
+				if(clear){
+					grd.addColorStop(1, "#ffffba")
+				}else{
+					grd.addColorStop(1, "transparent")
+				}
+				ctx.fillStyle = grd
+				ctx.fillRect(0, frameTop + 362, winW, 286)
+				ctx.restore()
+			}
 		}
 		
 		if(elapsed >= 0){
@@ -429,6 +495,23 @@ class Scoresheet{
 				ctx.restore()
 			})
 			ctx.restore()
+		}
+		
+		if(!this.multiplayer){
+			if(elapsed >= 400 && elapsed < 3100 + failedOffset){
+				if(this.tetsuoHanaClass !== "fadein"){
+					this.tetsuoHana.classList.add("fadein")
+					this.tetsuoHanaClass = "fadein"
+				}
+			}else if(elapsed >= 3100 + failedOffset){
+				if(this.tetsuoHanaClass !== "dance"){
+					if(this.tetsuoHanaClass){
+						this.tetsuoHana.classList.remove(this.tetsuoHanaClass)
+					}
+					this.tetsuoHana.classList.add(gaugePercent >= gaugeClear ? "dance" : "failed")
+					this.tetsuoHanaClass = "dance"
+				}
+			}
 		}
 		
 		if(elapsed >= 800){
@@ -646,18 +729,16 @@ class Scoresheet{
 		}
 		
 		if(this.state.screen === "fadeOut"){
-			ctx.save()
 			if(this.state.hasPointer === 1){
 				this.state.hasPointer = 2
 				this.canvas.style.cursor = ""
 			}
 			
+			if(!this.fadeScreenBlack){
+				this.fadeScreenBlack = true
+				this.fadeScreen.style.backgroundColor = "#000"
+			}
 			var elapsed = ms - this.state.screenMS
-			ctx.globalAlpha = Math.max(0, Math.min(1, elapsed / 1000))
-			ctx.fillStyle = "#000"
-			ctx.fillRect(0, 0, winW, winH)
-			
-			ctx.restore()
 			
 			if(elapsed >= 1000){
 				this.clean()
@@ -714,10 +795,18 @@ class Scoresheet{
 		this.redrawRunning = false
 		pageEvents.keyRemove(this, "all")
 		pageEvents.remove(this.canvas, ["mousedown", "touchstart"])
+		if(this.multiplayer !== 2 && this.touchEnabled){
+			pageEvents.remove(document.getElementById("touch-full-btn"), "touchend")
+		}
 		if(p2.session){
 			pageEvents.remove(p2, "message")
 		}
+		loader.screen.classList.remove("view")
+		if(!this.multiplayer){
+			delete this.tetsuoHana
+		}
 		delete this.ctx
 		delete this.canvas
+		delete this.fadeScreen
 	}
 }

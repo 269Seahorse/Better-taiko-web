@@ -39,6 +39,9 @@ class LoadSong{
 							type: type
 						})
 					}
+					if(type === "don"){
+						song.donBg = null
+					}
 					if(type === "song"){
 						song.songBg = null
 					}
