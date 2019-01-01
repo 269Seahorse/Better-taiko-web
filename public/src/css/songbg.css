@@ -246,6 +246,7 @@
 }
 #tetsuohana.fadein,
 #tetsuohana.dance,
+#tetsuohana.dance2,
 #tetsuohana.failed{
 	height: calc(461px * var(--scale));
 }
@@ -280,13 +281,17 @@
 	100%{transform: translateY(0)}
 }
 #tetsuohana.dance #tetsuo,
-#tetsuohana.dance #hana{
+#tetsuohana.dance #hana,
+#tetsuohana.dance2 #tetsuo,
+#tetsuohana.dance2 #hana{
 	--frame: 1;
 	transform: translateY(var(--low));
 	animation: 0.5s ease-out tetsuohana-dance infinite forwards;
 }
 #tetsuohana.dance #tetsuo-in,
-#tetsuohana.dance #hana-in{
+#tetsuohana.dance #hana-in,
+#tetsuohana.dance2 #tetsuo-in,
+#tetsuohana.dance2 #hana-in{
 	transform: translateY(0);
 	animation: 0.5s ease-out tetsuohana-dance infinite forwards reverse;
 }
@@ -295,9 +300,17 @@
 	transform: translateY(0) scaleX(var(--flip));
 	transition: 0.34s transform ease-out;
 }
+#tetsuohana.dance2 #flowers1,
+#tetsuohana.dance2 #flowers2{
+	transform: translateY(0) scaleX(var(--flip));
+}
 #tetsuohana.dance #flowers1-in,
 #tetsuohana.dance #flowers2-in{
 	animation: 0.25s 0.4s step-end tetsuohana-flowers both;
+}
+#tetsuohana.dance2 #flowers1-in,
+#tetsuohana.dance2 #flowers2-in{
+	background-position-y: calc(-318px * var(--scale));
 }
 #tetsuohana.dance #mikoshi-out{
 	animation: 0.4s 0.4s ease-out tetsuohana-mikoshi both;
@@ -309,6 +322,14 @@
 #tetsuohana.dance #mikoshi-in{
 	transform: translateY(0);
 	animation: 0.5s 0.8s ease-out tetsuohana-dance infinite forwards reverse;
+}
+#tetsuohana.dance2 #mikoshi{
+	transform: translateY(var(--low));
+	animation: 0.5s -0.2s ease-out tetsuohana-dance infinite forwards;
+}
+#tetsuohana.dance2 #mikoshi-in{
+	transform: translateY(0);
+	animation: 0.5s -0.2s ease-out tetsuohana-dance infinite forwards reverse;
 }
 #tetsuohana.failed #tetsuo,
 #tetsuohana.failed #hana{
