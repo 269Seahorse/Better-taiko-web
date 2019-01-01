@@ -191,6 +191,17 @@ class Scoresheet{
 				
 				if(!this.multiplayer){
 					this.tetsuoHana.style.setProperty("--scale", ratio / this.pixelRatio)
+					if(this.tetsuoHanaClass === "dance"){
+						this.tetsuoHana.classList.remove("dance", "dance2")
+						setTimeout(()=>{
+							this.tetsuoHana.classList.add("dance2")
+						},50)
+					}else if(this.tetsuoHanaClass === "failed"){
+						this.tetsuoHana.classList.remove("failed")
+						setTimeout(()=>{
+							this.tetsuoHana.classList.add("failed")
+						},50)
+					}
 				}
 			}else if(!document.hasFocus() && this.state.screen === "scoresShown"){
 				return
@@ -514,12 +525,12 @@ class Scoresheet{
 					this.tetsuoHanaClass = "fadein"
 				}
 			}else if(elapsed >= 3100 + failedOffset){
-				if(this.tetsuoHanaClass !== "dance"){
+				if(this.tetsuoHanaClass !== "dance" && this.tetsuoHanaClass !== "failed"){
 					if(this.tetsuoHanaClass){
 						this.tetsuoHana.classList.remove(this.tetsuoHanaClass)
 					}
-					this.tetsuoHana.classList.add(gaugePercent >= gaugeClear ? "dance" : "failed")
-					this.tetsuoHanaClass = "dance"
+					this.tetsuoHanaClass = gaugePercent >= gaugeClear ? "dance" : "failed"
+					this.tetsuoHana.classList.add(this.tetsuoHanaClass)
 				}
 			}
 		}
