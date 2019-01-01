@@ -129,10 +129,20 @@ class Scoresheet{
 			var id = ["flowers1", "flowers2", "mikoshi", "tetsuo", "hana"]
 			var bg = [flowersBg, flowersBg, mikoshiBg, tetsuoHanaBg, tetsuoHanaBg]
 			for(var i = 0; i < id.length; i++){
+				if(id[i] === "mikoshi"){
+					var divOut = document.createElement("div")
+					divOut.id = id[i] + "-out"
+					this.tetsuoHana.appendChild(divOut)
+				}else{
+					var divOut = this.tetsuoHana
+				}
 				var div = document.createElement("div")
 				div.id = id[i]
-				div.style.backgroundImage = bg[i]
-				this.tetsuoHana.appendChild(div)
+				var divIn = document.createElement("div")
+				divIn.id = id[i] + "-in"
+				divIn.style.backgroundImage = bg[i]
+				div.appendChild(divIn)
+				divOut.appendChild(div)
 			}
 			this.game.appendChild(this.tetsuoHana)
 		}
