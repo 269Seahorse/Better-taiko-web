@@ -80,3 +80,17 @@
 	background: #fff;
 	border-color: #ae7a26;
 }
+.touch-results #touch-pause-btn{
+	display: none;
+}
+#fade-screen{
+	position: absolute;
+	top: 0;
+	right: 0;
+	bottom: 0;
+	left: 0;
+	background-color: transparent;
+	pointer-events: none;
+	z-index: 2;
+	transition: 1s background-color linear;
+}

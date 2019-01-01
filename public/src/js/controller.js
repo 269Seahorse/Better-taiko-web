@@ -130,6 +130,7 @@ class Controller{
 		if(!fadeIn){
 			this.clean()
 		}
+		loader.screen.classList.remove("view")
 		new SongSelect(false, fadeIn, this.touchEnabled)
 	}
 	restartSong(){

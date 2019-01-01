@@ -7,6 +7,8 @@
 		
 		this.cursor = document.getElementById("cursor")
 		this.gameDiv = document.getElementById("game")
+		this.songBg = document.getElementById("songbg")
+		this.songStage = document.getElementById("song-stage")
 		
 		this.portraitClass = false
 		this.touchp2Class = false
@@ -970,12 +972,9 @@
 		}
 	}
 	setBackground(){
-		var songBg = document.getElementById("songbg")
-		var songStage = document.getElementById("song-stage")
-		
 		var selectedSong = this.controller.selectedSong
 		var songSkinName = selectedSong.songSkin.name
-		var supportsBlend = "mixBlendMode" in songBg.style
+		var supportsBlend = "mixBlendMode" in this.songBg.style
 		var songLayers = [document.getElementById("layer1"), document.getElementById("layer2")]
 		
 		if(selectedSong.category in this.categories){
@@ -987,24 +986,23 @@
 		
 		if(!selectedSong.songSkin.song){
 			var id = selectedSong.songBg
-			songBg.classList.add("songbg-" + id)
+			this.songBg.classList.add("songbg-" + id)
 			this.setLayers(songLayers, "bg_song_" + id + (supportsBlend ? "" : "a"), supportsBlend)
 		}else if(selectedSong.songSkin.song !== "none"){
 			var notStatic = selectedSong.songSkin.song !== "static"
 			if(notStatic){
-				songBg.classList.add("songbg-" + selectedSong.songSkin.song)
+				this.songBg.classList.add("songbg-" + selectedSong.songSkin.song)
 			}
 			this.setLayers(songLayers, "bg_song_" + songSkinName + (notStatic ? "_" : ""), notStatic)
 		}
 		
 		if(!selectedSong.songSkin.stage){
-			songStage.classList.add("song-stage-" + selectedSong.songStage)
+			this.songStage.classList.add("song-stage-" + selectedSong.songStage)
 		}else if(selectedSong.songSkin.stage !== "none"){
-			this.setBgImage(songStage, assets.image["bg_stage_" + songSkinName].src)
+			this.setBgImage(this.songStage, assets.image["bg_stage_" + songSkinName].src)
 		}
 	}
 	setDonBg(){
-		var songBg = document.getElementById("songbg")
 		var selectedSong = this.controller.selectedSong
 		var songSkinName = selectedSong.songSkin.name
 		var donLayers = []
@@ -1023,7 +1021,7 @@
 				donLayers.push(donLayer)
 			}
 		}
-		songBg.parentNode.insertBefore(this.donBg, songBg)
+		this.songBg.parentNode.insertBefore(this.donBg, this.songBg)
 		var asset1, asset2
 		if(!selectedSong.songSkin.don){
 			this.donBg.classList.add("donbg-" + selectedSong.donBg)
@@ -1694,10 +1692,10 @@
 		if(this.multiplayer !== 2){
 			if(this.touchEnabled){
 				pageEvents.remove(this.canvas, "touchstart")
-				pageEvents.remove(this.touchFullBtn, "touchend")
 				pageEvents.remove(this.touchPauseBtn, "touchend")
-				this.gameDiv.classList.remove("touch-visible")
+				this.gameDiv.classList.add("touch-results")
 				document.getElementById("version").classList.remove("version-hide")
+				this.touchDrumDiv.parentNode.removeChild(this.touchDrumDiv)
 				delete this.touchDrumDiv
 				delete this.touchDrumImg
 				delete this.touchFullBtn
@@ -1708,8 +1706,12 @@
 			pageEvents.remove(this.canvas, "mousedown")
 		}
 		pageEvents.mouseRemove(this)
-		loader.screen.classList.remove("view")
+		this.donBg.parentNode.removeChild(this.donBg)
+		this.songBg.parentNode.removeChild(this.songBg)
+		this.songStage.parentNode.removeChild(this.songStage)
 		delete this.donBg
+		delete this.songBg
+		delete this.songStage
 		delete this.pauseMenu
 		delete this.cursor
 		delete this.gameDiv

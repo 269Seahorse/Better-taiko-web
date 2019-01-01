@@ -41,7 +41,10 @@ var assets = {
 		"touch_drum.png",
 		"touch_pause.png",
 		"touch_fullscreen.png",
-		"mimizu.png"
+		"mimizu.png",
+		"results_flowers.png",
+		"results_mikoshi.png",
+		"results_tetsuohana.png"
 	],
 	"audioSfx": [
 		"don.wav",
