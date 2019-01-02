@@ -1706,13 +1706,13 @@
 			pageEvents.remove(this.canvas, "mousedown")
 			this.songBg.parentNode.removeChild(this.songBg)
 			this.songStage.parentNode.removeChild(this.songStage)
+			this.donBg.parentNode.removeChild(this.donBg)
+			delete this.donBg
+			delete this.songBg
+			delete this.songStage
 		}
 		pageEvents.mouseRemove(this)
-		this.donBg.parentNode.removeChild(this.donBg)
 
-		delete this.donBg
-		delete this.songBg
-		delete this.songStage
 		delete this.pauseMenu
 		delete this.cursor
 		delete this.gameDiv
