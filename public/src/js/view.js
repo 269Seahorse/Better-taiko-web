@@ -1704,11 +1704,12 @@
 		}
 		if(!this.multiplayer){
 			pageEvents.remove(this.canvas, "mousedown")
+			this.songBg.parentNode.removeChild(this.songBg)
+			this.songStage.parentNode.removeChild(this.songStage)
 		}
 		pageEvents.mouseRemove(this)
 		this.donBg.parentNode.removeChild(this.donBg)
-		this.songBg.parentNode.removeChild(this.songBg)
-		this.songStage.parentNode.removeChild(this.songStage)
+
 		delete this.donBg
 		delete this.songBg
 		delete this.songStage
