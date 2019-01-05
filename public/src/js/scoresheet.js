@@ -363,7 +363,7 @@ class Scoresheet{
 				}, ctx => {
 					this.draw.layeredText({
 						ctx: ctx,
-						text: "成績発表",
+						text: strings.results,
 						fontSize: 48,
 						fontFamily: this.font,
 						x: 23,
@@ -459,8 +459,8 @@ class Scoresheet{
 					ctx.fillStyle = "#fff"
 					ctx.strokeStyle = "#000"
 					ctx.lineWidth = 0.5
-					ctx.fillText("点", 788, 284)
-					ctx.strokeText("点", 788, 284)
+					ctx.fillText(strings.points, 788, 284)
+					ctx.strokeText(strings.points, 788, 284)
 					
 					this.draw.score({
 						ctx: ctx,
@@ -487,7 +487,7 @@ class Scoresheet{
 					grd.addColorStop(0.9, "#f7fb00")
 					this.draw.layeredText({
 						ctx: ctx,
-						text: "最大コンボ数",
+						text: strings.maxCombo,
 						x: 1149,
 						y: 193,
 						fontSize: 29,
@@ -501,7 +501,7 @@ class Scoresheet{
 					])
 					this.draw.layeredText({
 						ctx: ctx,
-						text: "連打数",
+						text: strings.drumroll,
 						x: 1150,
 						y: 233,
 						fontSize: 29,

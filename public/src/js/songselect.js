@@ -118,15 +118,15 @@ class SongSelect{
 			}
 		})
 		this.songs.push({
-			title: "もどる",
+			title: strings.back,
 			skin: this.songSkin.back,
 			action: "back"
 		})
 		this.songs.push({
-			title: "ランダムに曲をえらぶ",
+			title: strings.randomSong,
 			skin: this.songSkin.random,
 			action: "random",
-			category: "ランダム"
+			category: strings.random
 		})
 		if(touchEnabled){
 			if(fromTutorial === "tutorial"){
@@ -134,31 +134,31 @@ class SongSelect{
 			}
 		}else{
 			this.songs.push({
-				title: "あそびかた説明",
+				title: strings.tutorial,
 				skin: this.songSkin.tutorial,
 				action: "tutorial",
-				category: "ランダム"
+				category: strings.random
 			})
 		}
 		this.songs.push({
-			title: "このシミュレータについて",
+			title: strings.aboutSimulator,
 			skin: this.songSkin.about,
 			action: "about",
-			category: "ランダム"
+			category: strings.random
 		})
 		if("webkitdirectory" in HTMLInputElement.prototype && !(/Android|iPhone|iPad/.test(navigator.userAgent))){
 			this.browse = document.getElementById("browse")
 			pageEvents.add(this.browse, "change", this.browseChange.bind(this))
 			
 			this.songs.push({
-				title: assets.customSongs ? "デフォルト曲リスト" : "参照する…",
+				title: assets.customSongs ? strings.defaultSongList : strings.browse,
 				skin: this.songSkin.browse,
 				action: "browse",
-				category: "ランダム"
+				category: strings.random
 			})
 		}
 		this.songs.push({
-			title: "もどる",
+			title: strings.back,
 			skin: this.songSkin.back,
 			action: "back"
 		})
@@ -177,19 +177,19 @@ class SongSelect{
 		}
 		
 		this.diffOptions = [{
-			text: "もどる",
+			text: strings.back,
 			fill: "#efb058",
 			iconName: "back",
 			iconFill: "#f7d39c",
 			letterSpacing: 4
 		}, {
-			text: "演奏オプション",
+			text: strings.songOptions,
 			fill: "#b2e442",
 			iconName: "options",
 			iconFill: "#d9f19f",
 			letterSpacing: 0
 		}]
-		this.optionsList = ["なし", "オート", "ネットプレイ"]
+		this.optionsList = [strings.none, strings.auto, strings.netplay]
 		
 		this.draw = new CanvasDraw()
 		this.songTitleCache = new CanvasCache()
@@ -199,12 +199,12 @@ class SongSelect{
 		this.sessionCache = new CanvasCache()
 		this.currentSongCache = new CanvasCache()
 		
-		this.difficulty = ["かんたん", "ふつう", "むずかしい", "おに"]
+		this.difficulty = [strings.easy, strings.normal, strings.hard, strings.oni]
 		this.difficultyId = ["easy", "normal", "hard", "oni", "ura"]
 		
 		this.sessionText = {
-			"sessionstart": "オンラインセッションを開始する！",
-			"sessionend": "オンラインセッションを終了する"
+			"sessionstart": strings.sessionStart,
+			"sessionend": strings.sessionEnd
 		}
 		
 		this.selectedSong = 0
@@ -557,124 +557,7 @@ class SongSelect{
 	}
 	
 	browseChange(event){
-		this.redrawRunning = false
-		this.pointer(false)
-		
-		var loaderDiv = document.createElement("div")
-		loaderDiv.innerHTML = assets.pages["loadsong"]
-		loader.screen.appendChild(loaderDiv)
-		var files = event.target.files
-		var promises = []
-		var tjaFiles = []
-		var osuFiles = []
-		var otherFiles = {}
-		
-		for(var i = 0; i < files.length; i++){
-			var file = files[i]
-			var name = file.name.toLowerCase()
-			if(name.endsWith(".tja")){
-				tjaFiles.push([file, i])
-			}else if(name.endsWith(".osu")){
-				osuFiles.push([file, i])
-			}else{
-				otherFiles[file.webkitRelativePath.toLowerCase()] = file
-			}
-		}
-		var songs = []
-		var courseTypes = {"easy": 0, "normal": 1, "hard": 2, "oni": 3, "ura": 4}
-		for(var i = 0; i < tjaFiles.length; i++){
-			let file = tjaFiles[i][0]
-			let index = tjaFiles[i][1]
-			var reader = new FileReader()
-			promises.push(pageEvents.load(reader).then(event => {
-				var data = event.target.result.replace(/\0/g, "").split("\n")
-				var tja = new ParseTja(data, "oni", 0, true)
-				var songObj = {
-					id: index + 1,
-					type: "tja",
-					chart: data,
-					stars: []
-				}
-				var dir = file.webkitRelativePath.toLowerCase()
-				dir = dir.slice(0, dir.lastIndexOf("/") + 1)
-				for(var diff in tja.metadata){
-					var meta = tja.metadata[diff]
-					songObj.title = songObj.title_en = meta.title || file.name.slice(0, file.name.lastIndexOf("."))
-					var subtitle = meta.subtitle || ""
-					if(subtitle.startsWith("--")){
-						subtitle = subtitle.slice(2)
-					}
-					songObj.subtitle = songObj.subtitle_en = subtitle
-					songObj.preview = meta.demostart ? Math.floor(meta.demostart * 1000) : 0
-					if(meta.level){
-						songObj.stars[courseTypes[diff]] = meta.level
-					}
-					if(meta.wave){
-						songObj.music = otherFiles[dir + meta.wave.toLowerCase()]
-					}
-				}
-				if(songObj.music && songObj.stars.filter(star => star).length !== 0){
-					songs[index] = songObj
-				}
-			}).catch(() => {}))
-			reader.readAsText(file, "sjis")
-		}
-		for(var i = 0; i < osuFiles.length; i++){
-			let file = osuFiles[i][0]
-			let index = osuFiles[i][1]
-			var reader = new FileReader()
-			promises.push(pageEvents.load(reader).then(event => {
-				var data = event.target.result.replace(/\0/g, "").split("\n")
-				var osu = new ParseOsu(data, 0, true)
-				var dir = file.webkitRelativePath.toLowerCase()
-				dir = dir.slice(0, dir.lastIndexOf("/") + 1)
-				var songObj = {
-					id: index + 1,
-					type: "osu",
-					chart: data,
-					subtitle: osu.metadata.ArtistUnicode || osu.metadata.Artist,
-					subtitle_en: osu.metadata.Artist || osu.metadata.ArtistUnicode,
-					preview: osu.generalInfo.PreviewTime,
-					stars: [null, null, null, parseInt(osu.difficulty.overallDifficulty) || 1],
-					music: otherFiles[dir + osu.generalInfo.AudioFilename.toLowerCase()]
-				}
-				var filename = file.name.slice(0, file.name.lastIndexOf("."))
-				var title = osu.metadata.TitleUnicode || osu.metadata.Title
-				if(title){
-					var suffix = ""
-					var matches = filename.match(/\[.+?\]$/)
-					if(matches){
-						suffix = " " + matches[0]
-					}
-					songObj.title = title + suffix
-					songObj.title_en = (osu.metadata.Title || osu.metadata.TitleUnicode) + suffix
-				}else{
-					songObj.title = filename
-				}
-				if(songObj.music){
-					songs[index] = songObj
-				}
-			}).catch(() => {}))
-			reader.readAsText(file)
-		}
-		Promise.all(promises).then(() => {
-			songs = songs.filter(song => typeof song !== "undefined")
-			if(songs.length){
-				assets.songs = songs
-				assets.customSongs = true
-				assets.customSelected = 0
-				assets.sounds["don"].play()
-				this.clean()
-				setTimeout(() => {
-					loader.screen.removeChild(loaderDiv)
-					new SongSelect("browse", false, this.touchEnabled)
-				}, 500)
-			}else{
-				loader.screen.removeChild(loaderDiv)
-				this.browse.parentNode.reset()
-				this.redrawRunning = true
-			}
-		})
+		new ImportSongs(this, event)
 	}
 	
 	toSelectDifficulty(fromP2){
@@ -996,7 +879,7 @@ class SongSelect{
 			}, ctx => {
 				this.draw.layeredText({
 					ctx: ctx,
-					text: "曲をえらぶ",
+					text: strings.selectSong,
 					fontSize: 48,
 					fontFamily: this.font,
 					x: 53,
@@ -1025,9 +908,14 @@ class SongSelect{
 					h: this.songAsset.marginTop,
 					id: category + selectedSong.skin.outline
 				}, ctx => {
+					if(category in strings.categories){
+						var categoryName = strings.categories[category]
+					}else{
+						var categoryName = category
+					}
 					this.draw.layeredText({
 						ctx: ctx,
-						text: category,
+						text: categoryName,
 						fontSize: 40,
 						fontFamily: this.font,
 						x: 280 / 2,
@@ -1236,7 +1124,7 @@ class SongSelect{
 					}, ctx => {
 						this.draw.layeredText({
 							ctx: ctx,
-							text: "むずかしさをえらぶ",
+							text: strings.selectDifficulty,
 							fontSize: 46,
 							fontFamily: this.font,
 							x: 53,

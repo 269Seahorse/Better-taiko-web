@@ -14,11 +14,7 @@
 		this.touchp2Class = false
 		this.darkDonBg = false
 		
-		this.pauseOptions = [
-			"演奏をつづける",
-			"はじめからやりなおす",
-			"「曲をえらぶ」にもどる"
-		]
+		this.pauseOptions = strings.pauseOptions
 		this.categories = {
 			"J-POP": {
 				sort: 0,

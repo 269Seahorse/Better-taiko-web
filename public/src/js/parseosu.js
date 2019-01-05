@@ -278,7 +278,7 @@ class ParseOsu{
 					id: circleID,
 					start: start + this.offset,
 					type: "balloon",
-					txt: "ふうせん",
+					txt: strings.note.balloon,
 					speed: speed,
 					endTime: endTime + this.offset,
 					requiredHits: requiredHits,
@@ -296,10 +296,10 @@ class ParseOsu{
 				
 				if(hitSound & this.osu.FINISH){
 					type = "daiDrumroll"
-					txt = "連打(大)ーっ!!"
+					txt = strings.note.daiDrumroll
 				}else{
 					type = "drumroll"
-					txt = "連打ーっ!!"
+					txt = strings.note.drumroll
 				}
 				circles.push(new Circle({
 					id: circleID,
@@ -328,10 +328,10 @@ class ParseOsu{
 					}
 				}else if(hitSound & this.osu.WHISTLE || hitSound & this.osu.CLAP){
 					type = "ka"
-					txt = "カッ"
+					txt = strings.note.ka
 				}else if(hitSound & this.osu.NORMAL || hitSound === 0){
 					type = "don"
-					txt = "ドン"
+					txt = strings.note.don
 				}else{
 					emptyValue = true
 				}
