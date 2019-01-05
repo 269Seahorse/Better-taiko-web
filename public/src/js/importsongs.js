@@ -148,13 +148,15 @@
 			}
 			if(category){
 				var metaPath = file.webkitRelativePath.toLowerCase().slice(0, file.name.length * -1)
-				this.tjaFiles.forEach(fileObj => {
+				var filesLoop = fileObj => {
 					var tjaPath = fileObj.file.webkitRelativePath.toLowerCase().slice(0, fileObj.file.name.length * -1)
 					if(tjaPath.startsWith(metaPath) && (!("categoryLevel" in fileObj) || fileObj.categoryLevel < level)){
 						fileObj.category = category
 						fileObj.categoryLevel = level
 					}
-				})
+				}
+				this.tjaFiles.forEach(filesLoop)
+				this.osuFiles.forEach(filesLoop)
 			}
 		}).catch(() => {})
 		reader.readAsText(file, "sjis")
@@ -193,8 +195,8 @@
 				if(meta.wave){
 					songObj.music = this.otherFiles[dir + meta.wave.toLowerCase()]
 				}
-				if(meta.genre in this.categories){
-					songObj.category = this.categories[meta.genre]
+				if(meta.genre){
+					songObj.category = this.categories[meta.genre.toLowerCase()] || meta.genre
 				}
 			}
 			if(!songObj.category){
