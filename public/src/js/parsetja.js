@@ -12,15 +12,15 @@
 		this.soundOffset = 0
 		this.noteTypes = [
 			{name: false, txt: false},
-			{name: "don", txt: "ドン"},
-			{name: "ka", txt: "カッ"},
-			{name: "daiDon", txt: "ドン(大)"},
-			{name: "daiKa", txt: "カッ(大)"},
-			{name: "drumroll", txt: "連打ーっ!!"},
-			{name: "daiDrumroll", txt: "連打(大)ーっ!!"},
-			{name: "balloon", txt: "ふうせん"},
+			{name: "don", txt: strings.note.don},
+			{name: "ka", txt: strings.note.ka},
+			{name: "daiDon", txt: strings.note.daiDon},
+			{name: "daiKa", txt: strings.note.daiKa},
+			{name: "drumroll", txt: strings.note.drumroll},
+			{name: "daiDrumroll", txt: strings.note.daiDrumroll},
+			{name: "balloon", txt: strings.note.balloon},
 			{name: false, txt: false},
-			{name: "balloon", txt: "ふうせん"}
+			{name: "balloon", txt: strings.note.balloon}
 		]
 		this.courseTypes = {
 			"0": "easy",
@@ -41,6 +41,7 @@
 	parseMetadata(){
 		var metaNumbers = ["bpm", "offset", "demostart", "level"]
 		var inSong = false
+		var hasSong = false
 		var courses = {}
 		var currentCourse = {}
 		var courseName = this.difficulty
@@ -53,18 +54,22 @@
 				if(name === "start" && !inSong){
 					
 					inSong = true
-					for(var name in currentCourse){
-						if(!(courseName in courses)){
-							courses[courseName] = {}
+					if(!hasSong){
+						for(var name in currentCourse){
+							if(!(courseName in courses)){
+								courses[courseName] = {}
+							}
+							courses[courseName][name] = currentCourse[name]
 						}
-						courses[courseName][name] = currentCourse[name]
+						courses[courseName].start = lineNum + 1
+						courses[courseName].end = this.data.length
 					}
-					courses[courseName].start = lineNum + 1
-					courses[courseName].end = this.data.length
-					
 				}else if(name === "end" && inSong){
 					inSong = false
-					courses[courseName].end = lineNum
+					if(!hasSong){
+						hasSong = true
+						courses[courseName].end = lineNum
+					}
 				}
 				
 			}else if(!inSong){
@@ -82,6 +87,7 @@
 						}else{
 							courseName = value
 						}
+						hasSong = false
 					}else if(name === "balloon"){
 						value = value ? value.split(",").map(digit => parseInt(digit)) : []
 					}else if(this.inArray(name, metaNumbers)){

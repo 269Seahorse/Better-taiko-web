@@ -1167,7 +1167,7 @@
 		ctx.stroke()
 		this.layeredText({
 			ctx: ctx,
-			text: "クリア",
+			text: strings.clear,
 			fontSize: 18,
 			fontFamily: config.font,
 			x: gaugeClear + 3,

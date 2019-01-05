@@ -6,6 +6,14 @@ class LoadSong{
 		this.touchEnabled = touchEnabled
 		
 		loader.changePage("loadsong")
+		var loadingText = document.getElementById("loading-text")
+		loadingText.appendChild(document.createTextNode(strings.loading))
+		loadingText.setAttribute("alt", strings.loading)
+		if(multiplayer){
+			var cancel = document.getElementById("p2-cancel-button")
+			cancel.appendChild(document.createTextNode(strings.cancel))
+			cancel.setAttribute("alt", strings.cancel)
+		}
 		this.run()
 	}
 	run(){
