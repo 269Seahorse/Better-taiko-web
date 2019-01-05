@@ -2,9 +2,9 @@ class Titlescreen{
 	constructor(){
 		loader.changePage("titlescreen")
 		this.titleScreen = document.getElementById("title-screen")
-		var proceed = document.getElementById("tilte-proceed")
-		proceed.appendChild(document.createTextNode(strings.tilteProceed))
-		proceed.setAttribute("alt", strings.tilteProceed)
+		var proceed = document.getElementById("title-proceed")
+		proceed.appendChild(document.createTextNode(strings.titleProceed))
+		proceed.setAttribute("alt", strings.titleProceed)
 		
 		pageEvents.keyAdd(this, "all", "down", this.keyDown.bind(this))
 		pageEvents.add(this.titleScreen, ["mousedown", "touchstart"], this.onPressed.bind(this))

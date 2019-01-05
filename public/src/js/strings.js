@@ -1,6 +1,6 @@
 ﻿class StringsJa{
 	constructor(){
-		this.tilteProceed = "Click or Press Enter!"
+		this.titleProceed = "Click or Press Enter!"
 		this.categories = {
 			"J-POP": "J-POP",
 			"アニメ": "アニメ",
