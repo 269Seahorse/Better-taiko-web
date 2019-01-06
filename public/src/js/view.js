@@ -652,7 +652,7 @@
 		var barH = 130 * mul
 		
 		if(this.gogoTime || ms <= this.gogoTimeStarted + 100){
-			var grd = ctx.createLinearGradient(padding, 0, this.winW, 0)
+			var grd = ctx.createLinearGradient(padding, 0, winW, 0)
 			grd.addColorStop(0, "#512a2c")
 			grd.addColorStop(0.46, "#6f2a2d")
 			grd.addColorStop(0.76, "#8a4763")
@@ -676,7 +676,7 @@
 			var currentGradient = gradients[sound]
 			ctx.globalCompositeOperation = "lighter"
 			do{
-				var grd = ctx.createLinearGradient(padding, 0, this.winW, 0)
+				var grd = ctx.createLinearGradient(padding, 0, winW, 0)
 				grd.addColorStop(0, "rgb(" + currentGradient + ")")
 				grd.addColorStop(1, "rgba(" + currentGradient + ", 0)")
 				ctx.fillStyle = grd
