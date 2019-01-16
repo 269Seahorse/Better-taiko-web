@@ -290,7 +290,7 @@ class ParseOsu{
 				
 				var extras = values.slice(this.osu.EXTRAS)
 				
-				var distance = parseFloat(extras[this.osu.PIXELLENGTH])
+				var distance = parseFloat(extras[this.osu.PIXELLENGTH]) * parseFloat(extras[this.osu.REPEAT])
 				var velocity = this.difficulty.sliderMultiplier * speed / 10
 				var endTime = start + distance / velocity
 				

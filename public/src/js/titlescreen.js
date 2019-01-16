@@ -1,6 +1,6 @@
 class Titlescreen{
 	constructor(){
-		loader.changePage("titlescreen")
+		loader.changePage("titlescreen", false)
 		this.titleScreen = document.getElementById("title-screen")
 		var proceed = document.getElementById("title-proceed")
 		proceed.appendChild(document.createTextNode(strings.titleProceed))

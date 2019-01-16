@@ -1,11 +1,11 @@
 class SongSelect{
 	constructor(fromTutorial, fadeIn, touchEnabled){
 		this.touchEnabled = touchEnabled
-
-		loader.changePage("songselect")
+		
+		loader.changePage("songselect", false)
 		this.canvas = document.getElementById("song-sel-canvas")
 		this.ctx = this.canvas.getContext("2d")
-
+		
 		this.songSkin = {
 			"selected": {
 				background: "#ffdb2c",

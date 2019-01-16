@@ -6,7 +6,7 @@
 		]
 		
 		this.touchEnabled = touchEnabled
-		loader.changePage("about")
+		loader.changePage("about", true)
 		cancelTouch = false
 		
 		this.endButton = document.getElementById("tutorial-end-button")

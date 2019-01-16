@@ -1,3 +1,31 @@
+html,
+body{
+	margin: 0;
+	width: 100%;
+	height: 100%;
+	background: #fe7839;
+	position: absolute;
+	user-select: none;
+	touch-action: none;
+	overflow: hidden;
+}
+#screen{
+	width: 100%;
+	height: 100%;
+	margin: 0;
+	padding: 0;
+	background-color: #000;
+	background-position: top center;
+	background-size: 30vh;
+	font-family: TnT, Meiryo, sans-serif;
+}
+#screen.pattern-bg{
+	background-color: #fe7839;
+}
+#assets,
+#browse{
+	display: none;
+}
 #loader{
 	width:90%;
 	height:10%;

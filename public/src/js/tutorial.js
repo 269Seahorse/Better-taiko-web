@@ -1,7 +1,7 @@
 class Tutorial{
 	constructor(fromSongSel){
 		this.fromSongSel = fromSongSel
-		loader.changePage("tutorial")
+		loader.changePage("tutorial", true)
 		assets.sounds["bgm_setsume"].playLoop(0.1, false, 0, 1.054, 16.054)
 		this.endButton = document.getElementById("tutorial-end-button")
 		

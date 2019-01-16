@@ -7,6 +7,10 @@ class Controller{
 		this.touchEnabled = touchEnabled
 		this.snd = this.multiplayer ? "_p" + this.multiplayer : ""
 		
+		if(this.multiplayer !== 2){
+			loader.changePage("game", false)
+		}
+		
 		if(selectedSong.type === "tja"){
 			this.parsedSongData = new ParseTja(songData, selectedSong.difficulty, selectedSong.offset)
 		}else{
@@ -47,27 +51,48 @@ class Controller{
 		})
 	}
 	startMainLoop(){
-		this.mainLoopStarted = false
 		this.mainLoopRunning = true
-		this.mainLoop()
+		this.gameLoop()
+		this.viewLoop()
+		this.gameInterval = setInterval(this.gameLoop.bind(this), 1000 / 60)
 	}
 	stopMainLoop(){
 		this.mainLoopRunning = false
 		this.mainAsset.stop()
+		clearInterval(this.gameInterval)
 	}
-	mainLoop(){
+	gameLoop(){
+		if(this.mainLoopRunning){
+			if(this.syncWith){
+				this.syncWith.game.elapsedTime = this.game.elapsedTime
+				this.syncWith.game.startDate = this.game.startDate
+			}
+			var ms = this.game.elapsedTime
+			
+			this.keyboard.checkMenuKeys()
+			if(!this.game.isPaused()){
+				this.keyboard.checkGameKeys()
+				
+				if(ms < 0){
+					this.game.updateTime()
+				}else{
+					this.game.update()
+					if(!this.mainLoopRunning){
+						return
+					}
+					this.game.playMainMusic()
+				}
+			}
+		}
+	}
+	viewLoop(){
 		if(this.mainLoopRunning){
 			if(this.multiplayer !== 2){
 				requestAnimationFrame(() => {
+					this.viewLoop()
 					if(this.syncWith){
-						this.syncWith.game.elapsedTime = this.game.elapsedTime
-						this.syncWith.game.startDate = this.game.startDate
+						this.syncWith.viewLoop()
 					}
-					this.mainLoop()
-					if(this.syncWith){
-						this.syncWith.mainLoop()
-					}
-					
 					if(this.scoresheet){
 						if(this.view.ctx){
 							this.view.ctx.save()
@@ -80,27 +105,7 @@ class Controller{
 					}
 				})
 			}
-			var ms = this.game.elapsedTime
-			
-			if(!this.game.isPaused()){
-				this.keyboard.checkGameKeys()
-				
-				if(ms >= 0 && !this.mainLoopStarted){
-					this.mainLoopStarted = true
-				}
-				if(ms < 0){
-					this.game.updateTime()
-				}
-				if(this.mainLoopStarted){
-					this.game.update()
-					if(!this.mainLoopRunning){
-						return
-					}
-					this.game.playMainMusic()
-				}
-			}
 			this.view.refresh()
-			this.keyboard.checkMenuKeys()
 		}
 	}
 	gameEnded(){
@@ -130,7 +135,6 @@ class Controller{
 		if(!fadeIn){
 			this.clean()
 		}
-		loader.screen.classList.remove("view")
 		new SongSelect(false, fadeIn, this.touchEnabled)
 	}
 	restartSong(){
@@ -138,7 +142,6 @@ class Controller{
 		if(this.multiplayer){
 			new LoadSong(this.selectedSong, false, true, this.touchEnabled)
 		}else{
-			loader.changePage("game")
 			var taikoGame = new Controller(this.selectedSong, this.songData, this.autoPlayEnabled, false, this.touchEnabled)
 			taikoGame.run()
 		}

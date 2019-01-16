@@ -5,7 +5,7 @@ class LoadSong{
 		this.multiplayer = multiplayer
 		this.touchEnabled = touchEnabled
 		
-		loader.changePage("loadsong")
+		loader.changePage("loadsong", true)
 		var loadingText = document.getElementById("loading-text")
 		loadingText.appendChild(document.createTextNode(strings.loading))
 		loadingText.setAttribute("alt", strings.loading)
@@ -233,7 +233,6 @@ class LoadSong{
 				}else if(event.type === "gamestart"){
 					this.clean()
 					p2.clearMessage("songsel")
-					loader.changePage("game")
 					var taikoGame1 = new Controller(song, this.songData, false, 1, this.touchEnabled)
 					var taikoGame2 = new Controller(this.selectedSong2, this.song2Data, true, 2, this.touchEnabled)
 					taikoGame1.run(taikoGame2)
@@ -248,7 +247,6 @@ class LoadSong{
 			})
 		}else{
 			this.clean()
-			loader.changePage("game")
 			var taikoGame = new Controller(song, this.songData, this.autoPlayEnabled, false, this.touchEnabled)
 			taikoGame.run()
 		}

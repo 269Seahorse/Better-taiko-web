@@ -493,7 +493,7 @@ class Scoresheet{
 						fontSize: 29,
 						fontFamily: this.font,
 						align: "right",
-						width: 215,
+						width: 154,
 						letterSpacing: 1
 					}, [
 						{outline: "#000", letterBorder: 8},

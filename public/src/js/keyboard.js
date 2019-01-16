@@ -35,6 +35,7 @@ class Keyboard{
 		gameBtn[this.kbd["ka_l"]] = ["lb", "lt"]
 		gameBtn[this.kbd["ka_r"]] = ["rb", "rt"]
 		this.gamepad = new Gamepad(gameBtn)
+		this.gamepadInterval = setInterval(this.gamepadKeys.bind(this), 1000 / 60 / 2)
 		
 		var menuBtn = {
 			"cancel": ["a"],
@@ -84,23 +85,25 @@ class Keyboard{
 		return true
 	}
 	checkGameKeys(){
-		if(!this.controller.autoPlayEnabled){
-			var ms = this.game.getAccurateTime()
+		if(this.controller.autoPlayEnabled){
+			this.checkKeySound(this.kbd["don_l"], "don")
+			this.checkKeySound(this.kbd["don_r"], "don")
+			this.checkKeySound(this.kbd["ka_l"], "ka")
+			this.checkKeySound(this.kbd["ka_r"], "ka")
+		}
+	}
+	gamepadKeys(){
+		if(!this.game.isPaused() && !this.controller.autoPlayEnabled){
 			this.gamepad.play((pressed, keyCode) => {
 				if(pressed){
 					if(this.keys[keyCode]){
 						this.setKey(keyCode, false)
 					}
-					this.setKey(keyCode, true, ms)
+					this.setKey(keyCode, true, this.game.getAccurateTime())
 				}else{
 					this.setKey(keyCode, false)
 				}
 			})
-		}else{
-			this.checkKeySound(this.kbd["don_l"], "don")
-			this.checkKeySound(this.kbd["don_r"], "don")
-			this.checkKeySound(this.kbd["ka_l"], "ka")
-			this.checkKeySound(this.kbd["ka_r"], "ka")
 		}
 	}
 	checkMenuKeys(){
@@ -239,5 +242,6 @@ class Keyboard{
 	}
 	clean(){
 		pageEvents.keyRemove(this, "all")
+		clearInterval(this.gamepadInterval)
 	}
 }

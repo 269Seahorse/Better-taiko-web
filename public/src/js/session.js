@@ -1,7 +1,7 @@
 class Session{
 	constructor(touchEnabled){
 		this.touchEnabled = touchEnabled
-		loader.changePage("session")
+		loader.changePage("session", true)
 		this.endButton = document.getElementById("tutorial-end-button")
 		if(touchEnabled){
 			document.getElementById("tutorial-outer").classList.add("touch-enabled")
