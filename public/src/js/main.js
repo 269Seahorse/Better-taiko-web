@@ -58,11 +58,16 @@ function debug(){
 }
 
 var root = document.documentElement
-var fullScreenSupported = "requestFullscreen" in root || "webkitRequestFullscreen" in root || "mozRequestFullScreen" in root
+
+if(/iPhone|iPad/.test(navigator.userAgent)){
+	var fullScreenSupported = false
+}else{
+	var fullScreenSupported = "requestFullscreen" in root || "webkitRequestFullscreen" in root || "mozRequestFullScreen" in root
+}
 
 var pageEvents = new PageEvents()
 var snd = {}
-var p2 = new P2Connection()
+var p2
 var disableBlur = false
 var cancelTouch = true
 var lastHeight
@@ -104,11 +109,6 @@ pageEvents.keyAdd(debugObj, "all", "down", event => {
 		debugObj.controller.restartSong()
 	}
 })
-if(location.hash.length === 6){
-	p2.hashLock = true
-}else{
-	p2.hash("")
-}
 
 var loader = new Loader(() => {
 	new Titlescreen()

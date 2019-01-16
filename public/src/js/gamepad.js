@@ -28,21 +28,23 @@ class Gamepad{
 		if(callback){
 			this.interval = setInterval(() => {
 				this.play(callback)
-			}, 100)
+			}, 1000 / 60)
 		}
 	}
 	play(callback){
-		if(pageEvents.lastKeyEvent + 5000 > Date.now()){
-			return
-		}
 		if("getGamepads" in navigator){
 			var gamepads = navigator.getGamepads()
+			if(gamepads.length === 0){
+				return
+			}
 		}else{
+			return
+		}
+		if(pageEvents.lastKeyEvent + 5000 > Date.now()){
 			return
 		}
 		
 		var bindings = this.bindings
-		
 		var force = {
 			lsu: false,
 			lsr: false,

@@ -1,7 +1,7 @@
 class CanvasAsset{
 	constructor(view, layer, position){
 		this.ctx = view.ctx
-		this.controller = view.controller
+		this.view = view
 		this.position = position
 		this.animationFrames = {}
 		this.speed = 1000 / 60
@@ -13,7 +13,7 @@ class CanvasAsset{
 		if(this.animation){
 			var u = (a, b) => typeof a === "undefined" ? b : a
 			var frame = 0
-			var ms = this.controller.getElapsedTime()
+			var ms = this.view.getMS()
 			var beatInterval = this.frameSpeed ? 1000 / 60 : this.beatInterval
 			
 			if(this.animationEnd){
@@ -95,7 +95,7 @@ class CanvasAsset{
 	}
 	changeBeatInterval(beatMS, initial){
 		if(!initial && !this.frameSpeed){
-			var ms = this.controller.getElapsedTime()
+			var ms = this.view.getMS()
 			this.animationStart = ms - (ms - this.animationStart) / this.beatInterval * beatMS
 		}
 		this.beatInterval = beatMS

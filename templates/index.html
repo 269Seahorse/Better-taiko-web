@@ -7,53 +7,20 @@
 	<meta name="viewport" content="width=device-width, user-scalable=no">
 	<meta name="description" content="パソコンとスマホのブラウザ向けの太鼓の達人シミュレータ 🥁 Taiko no Tatsujin rhythm game simulator for desktop and mobile browsers">
 
-	<link rel="stylesheet" href="/src/css/main.css?{{version.commit_short}}"/>
 	<link rel="stylesheet" href="/src/css/loader.css?{{version.commit_short}}">
-	<link rel="stylesheet" href="/src/css/titlescreen.css?{{version.commit_short}}">
-	<link rel="stylesheet" href="/src/css/loadsong.css?{{version.commit_short}}">
-	<link rel="stylesheet" href="/src/css/game.css?{{version.commit_short}}">
-	<link rel="stylesheet" href="/src/css/debug.css?{{version.commit_short}}">
-	<link rel="stylesheet" href="/src/css/songbg.css?{{version.commit_short}}">
 	<link rel="stylesheet" href="{{config.assets_baseurl}}fonts/fonts.css?{{version.commit_short}}">
 	<link rel="stylesheet" href="{{config.assets_baseurl}}img/img.css?{{version.commit_short}}">
 	
 	<script src="/src/js/lib/fontdetect.min.js?{{version.commit_short}}"></script>
 	
 	<script src="/src/js/assets.js?{{version.commit_short}}"></script>
-	<script src="/src/js/loadsong.js?{{version.commit_short}}"></script>
-	<script src="/src/js/parseosu.js?{{version.commit_short}}"></script>
-	<script src="/src/js/titlescreen.js?{{version.commit_short}}"></script>
-	<script src="/src/js/scoresheet.js?{{version.commit_short}}"></script>
-	<script src="/src/js/songselect.js?{{version.commit_short}}"></script>
-	<script src="/src/js/keyboard.js?{{version.commit_short}}"></script>
-	<script src="/src/js/game.js?{{version.commit_short}}"></script>
-	<script src="/src/js/controller.js?{{version.commit_short}}"></script>
-	<script src="/src/js/circle.js?{{version.commit_short}}"></script>
-	<script src="/src/js/view.js?{{version.commit_short}}"></script>
-	<script src="/src/js/mekadon.js?{{version.commit_short}}"></script>
-	<script src="/src/js/gamepad.js?{{version.commit_short}}"></script>
-	<script src="/src/js/tutorial.js?{{version.commit_short}}"></script>
-	<script src="/src/js/soundbuffer.js?{{version.commit_short}}"></script>
-	<script src="/src/js/p2.js?{{version.commit_short}}"></script>
-	<script src="/src/js/canvasasset.js?{{version.commit_short}}"></script>
 	<script src="/src/js/pageevents.js?{{version.commit_short}}"></script>
-	<script src="/src/js/viewassets.js?{{version.commit_short}}"></script>
-	<script src="/src/js/gamerules.js?{{version.commit_short}}"></script>
-	<script src="/src/js/canvasdraw.js?{{version.commit_short}}"></script>
 	<script src="/src/js/loader.js?{{version.commit_short}}"></script>
-	<script src="/src/js/canvastest.js?{{version.commit_short}}"></script>
-	<script src="/src/js/canvascache.js?{{version.commit_short}}"></script>
-	<script src="/src/js/parsetja.js?{{version.commit_short}}"></script>
-	<script src="/src/js/about.js?{{version.commit_short}}"></script>
-	<script src="/src/js/debug.js?{{version.commit_short}}"></script>
-	<script src="/src/js/session.js?{{version.commit_short}}"></script>
-	<script src="/src/js/strings.js?{{version.commit_short}}"></script>
-	<script src="/src/js/importsongs.js?{{version.commit_short}}"></script>
 	
 </head>
 <body>
 	<div id="assets"></div>
-	<div id="screen"></div>
+	<div id="screen" class="pattern-bg"></div>
 	<div id="version">
 		{% if version %}
 			<a href="https://github.com/bui/taiko-web/commit/{{version.commit}}" target="_blank" id="version-link" class="stroke-sub" alt="taiko-web ver.{{version.version}} ({{version.commit_short}})">taiko-web ver.{{version.version}} ({{version.commit_short}})</a>

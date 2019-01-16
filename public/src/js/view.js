@@ -124,7 +124,7 @@
 		}
 		this.setDonBg()
 		
-		this.lastMousemove = this.controller.getElapsedTime()
+		this.lastMousemove = this.controller.game.getAccurateTime()
 		pageEvents.mouseAdd(this, this.onmousemove.bind(this))
 		
 		this.refresh()
@@ -180,7 +180,10 @@
 		}
 		winW /= ratio
 		winH /= ratio
-		var ms = this.getMS()
+		if(!this.controller.game.paused){
+			this.ms = this.controller.game.getAccurateTime()
+		}
+		var ms = this.ms
 		
 		if(this.portrait){
 			var frameTop = winH / 2 - 1280 / 2
@@ -978,7 +981,6 @@
 		}else{
 			var catId = this.categories.default.sort
 		}
-		loader.screen.classList.add("view")
 		
 		if(!selectedSong.songSkin.song){
 			var id = selectedSong.songBg
@@ -1100,7 +1102,7 @@
 	}
 	drawCircles(circles){
 		var distanceForCircle = this.winW / this.ratio - this.slotPos.x
-		var ms = this.controller.getElapsedTime()
+		var ms = this.getMS()
 		
 		for(var i = circles.length; i--;){
 			var circle = circles[i]
@@ -1127,7 +1129,7 @@
 		}
 	}
 	drawAnimatedCircles(circles){
-		var ms = this.controller.getElapsedTime()
+		var ms = this.getMS()
 		
 		for(var i = 0; i < circles.length; i++){
 			var circle = circles[i]
@@ -1174,7 +1176,7 @@
 		
 		var fill, size, faceID
 		var type = circle.getType()
-		var ms = this.controller.getElapsedTime()
+		var ms = this.getMS()
 		var circleMs = circle.getMS()
 		var endTime = circle.getEndTime()
 		var animated = circle.isAnimated()
@@ -1458,7 +1460,7 @@
 			&& animation !== "gogo"
 		){
 			don.setAnimation("10combo")
-			var ms = this.controller.getElapsedTime()
+			var ms = this.getMS()
 			don.setAnimationStart(ms)
 			var length = don.getAnimationLength("normal")
 			don.setUpdateSpeed(4 / length)
@@ -1677,7 +1679,7 @@
 		this.assets.changeBeatInterval(beatMS)
 	}
 	getMS(){
-		return this.controller.getElapsedTime()
+		return this.ms
 	}
 	clean(){
 		this.draw.clean()

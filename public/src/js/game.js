@@ -64,7 +64,8 @@ class Game{
 	updateCirclesStatus(){
 		var nextSet = false
 		var circles = this.songData.circles
-		for(var i in circles){
+		var startIndex = this.currentCircle === 0 ? 0 : this.currentCircle - 1
+		for(var i = startIndex; i < circles.length && i < this.currentCircle + 2; i++){
 			var circle = circles[i]
 			if(!circle.getPlayed()){
 				var ms = this.elapsedTime
