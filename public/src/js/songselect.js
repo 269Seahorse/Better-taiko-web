@@ -277,7 +277,9 @@ class SongSelect{
 			"shift": ["x"]
 		})
 		
-		this.startP2()
+		if(!assets.customSongs){
+			this.startP2()
+		}
 		
 		pageEvents.keyAdd(this, "all", "down", this.keyDown.bind(this))
 		pageEvents.add(loader.screen, "mousemove", this.mouseMove.bind(this))
@@ -653,7 +655,7 @@ class SongSelect{
 			autoplay = true
 		}else if(shift){
 			autoplay = shift
-		}else{
+		}else if(p2.socket.readyState === 1 && !assets.customSongs){
 			multiplayer = ctrl
 		}
 		
@@ -1771,12 +1773,14 @@ class SongSelect{
 						index = i
 						return song.id === id
 					})
-					currentSong.p2Cursor = diffId
-					if(p2.session && currentSong.stars){
-						this.selectedSong = index
-						this.state.move = 0
-						if(this.state.screen !== "difficulty"){
-							this.toSelectDifficulty(true)
+					if(currentSong){
+						currentSong.p2Cursor = diffId
+						if(p2.session && currentSong.stars){
+							this.selectedSong = index
+							this.state.move = 0
+							if(this.state.screen !== "difficulty"){
+								this.toSelectDifficulty(true)
+							}
 						}
 					}
 				}
