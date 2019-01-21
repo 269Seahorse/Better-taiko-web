@@ -69,7 +69,7 @@
 		this.drumroll = []
 		
 		this.beatInterval = this.controller.parsedSongData.beatInfo.beatInterval
-		this.font = "TnT, Meiryo, sans-serif"
+		this.font = strings.font
 		
 		this.draw = new CanvasDraw()
 		this.assets = new ViewAssets(this)
@@ -260,9 +260,14 @@
 					})
 					ctx.fill()
 					
+					if(selectedSong.category in strings.categories){
+						var categoryName = strings.categories[selectedSong.category]
+					}else{
+						var categoryName = selectedSong.category
+					}
 					this.draw.layeredText({
 						ctx: ctx,
-						text: selectedSong.category,
+						text: categoryName,
 						fontSize: 15,
 						fontFamily: this.font,
 						align: "center",
@@ -629,7 +634,7 @@
 		
 		// Score
 		ctx.save()
-		ctx.font = "30px " + this.font
+		ctx.font = "30px TnT, Meiryo, sans-serif"
 		ctx.fillStyle = "#fff"
 		ctx.strokeStyle = "#fff"
 		ctx.lineWidth = 0.3
@@ -763,11 +768,13 @@
 			}else{
 				ctx.fillStyle = "#fff"
 			}
-			ctx.font = fontSize + "px " + this.font
+			ctx.font = this.draw.bold(this.font) + fontSize + "px " + this.font
 			ctx.lineWidth = 7 * mul
 			ctx.textAlign = "center"
-			ctx.strokeText("コンボ", comboX, comboTextY)
-			ctx.fillText("コンボ", comboX, comboTextY)
+			ctx.miterLimit = 1
+			ctx.strokeText(strings.combo, comboX, comboTextY)
+			ctx.miterLimit = 10
+			ctx.fillText(strings.combo, comboX, comboTextY)
 		}
 		
 		// Slot
@@ -931,7 +938,7 @@
 						x: _w / 2,
 						y: 18,
 						width: _w,
-						height: _h,
+						height: _h - 54,
 						fontSize: 40,
 						fontFamily: this.font,
 						letterSpacing: -1
@@ -1292,7 +1299,7 @@
 			var text = circle.getText()
 			var textX = circlePos.x
 			var textY = circlePos.y + 83 * mul
-			ctx.font = lyricsSize + "px Kozuka"
+			ctx.font = lyricsSize + "px Kozuka, Microsoft YaHei, sans-serif"
 			ctx.textBaseline = "middle"
 			ctx.textAlign = "center"
 			
@@ -1373,7 +1380,7 @@
 						ctx: ctx,
 						text: i.toString(),
 						fontSize: fontSize,
-						fontFamily: this.font,
+						fontFamily: "TnT, Meiryo, sans-serif",
 						x: textX,
 						y: textY
 					}, [

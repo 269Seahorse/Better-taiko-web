@@ -285,6 +285,7 @@
 			inputText = inputText.slice(0, matches.index)
 			ura = matches[0]
 		}
+		var bold = this.bold(config.fontFamily)
 		
 		var string = inputText.split("")
 		var drawn = []
@@ -296,30 +297,54 @@
 				drawn.push({text: symbol, x: 0, y: 0, h: 18})
 			}else if(symbol === "ー"){
 				// Long-vowel mark
-				drawn.push({realText: symbol, svg: this.longVowelMark, x: -4, y: 5, h: 33, scale: [mul, mul]})
+				if(bold){
+					drawn.push({text: symbol, x: -1, y: -1, h: 33, rotate: true})
+				}else{
+					drawn.push({realText: symbol, svg: this.longVowelMark, x: -4, y: 5, h: 33, scale: [mul, mul]})
+				}
 			}else if(symbol === "∀"){
 				drawn.push({text: symbol, x: 0, y: 0, h: 39, rotate: true})
 			}else if(symbol === "↓"){
 				drawn.push({text: symbol, x: 0, y: 12, h: 45})
 			}else if(symbol === "．"){
-				drawn.push({realText: symbol, text: ".", x: 13, y: -7, h: 15, scale: [1.2, 0.7]})
+				if(bold){
+					drawn.push({realText: symbol, text: ".", x: 13, y: -15, h: 15})
+				}else{
+					drawn.push({realText: symbol, text: ".", x: 13, y: -7, h: 15, scale: [1.2, 0.7]})
+				}
 			}else if(symbol === "…"){
-				drawn.push({text: symbol, x: 0, y: 5, h: 25, rotate: true})
+				drawn.push({text: symbol, x: bold ? 9 : 0, y: 5, h: 25, rotate: true})
 			}else if(r.comma.test(symbol)){
 				// Comma, full stop
-				drawn.push({text: symbol, x: 13, y: -7, h: 15, scale: [1.2, 0.7]})
+				if(bold){
+					drawn.push({text: symbol, x: 13, y: -15, h: 15})
+				}else{
+					drawn.push({text: symbol, x: 13, y: -7, h: 15, scale: [1.2, 0.7]})
+				}
 			}else if(r.ideographicComma.test(symbol)){
 				// Ideographic comma, full stop
 				drawn.push({text: symbol, x: 16, y: -16, h: 18})
 			}else if(r.apostrophe.test(symbol)){
 				// Apostrophe
-				drawn.push({realText: symbol, text: ",", x: 20, y: -39, h: 0, scale: [1.2, 0.7]})
+				if(bold){
+					drawn.push({text: symbol, x: 20, y: -25, h: 0})
+				}else{
+					drawn.push({realText: symbol, text: ",", x: 20, y: -39, h: 0, scale: [1.2, 0.7]})
+				}
 			}else if(r.degree.test(symbol)){
 				// Degree
-				drawn.push({text: symbol, x: 16, y: 3, h: 18})
+				if(bold){
+					drawn.push({text: symbol, x: 16, y: 9, h: 25})
+				}else{
+					drawn.push({text: symbol, x: 16, y: 3, h: 18})
+				}
 			}else if(r.brackets.test(symbol)){
 				// Rotated brackets
-				drawn.push({text: symbol, x: 0, y: -5, h: 25, rotate: true})
+				if(bold){
+					drawn.push({text: symbol, x: 0, y: 0, h: 35, rotate: true})
+				}else{
+					drawn.push({text: symbol, x: 0, y: -5, h: 25, rotate: true})
+				}
 			}else if(r.tilde.test(symbol)){
 				// Rotated hyphen, tilde
 				drawn.push({realText: symbol, text: symbol === "~" ? "～" : symbol, x: 0, y: 2, h: 35, rotate: true})
@@ -448,7 +473,7 @@
 			actions.push("selectable")
 		}
 		for(let action of actions){
-			ctx.font = config.fontSize + "px " + config.fontFamily
+			ctx.font = bold + config.fontSize + "px " + config.fontFamily
 			ctx.textBaseline = "top"
 			if(action === "stroke"){
 				ctx.strokeStyle = config.outline
@@ -571,6 +596,7 @@
 			inputText = inputText.slice(0, matches.index)
 			ura = matches[0]
 		}
+		var bold = this.bold(config.fontFamily)
 		
 		var string = inputText.split("")
 		var drawn = []
@@ -587,12 +613,20 @@
 			}else if(symbol === "'"){
 				drawn.push({text: ",", x: 0, y: -15, w: 7, scale: [1, 0.7]})
 			}else if(symbol === "∀"){
-				drawn.push({text: symbol, x: -3, y: 0, w: 55})
+				if(bold){
+					drawn.push({text: symbol, x: 0, y: 0, w: 40})
+				}else{
+					drawn.push({text: symbol, x: -3, y: 0, w: 55})
+				}
 			}else if(symbol === "．"){
 				drawn.push({text: symbol, x: -9, y: 0, w: 37})
 			}else if(r.comma.test(symbol)){
 				// Comma, full stop
-				drawn.push({text: symbol, x: -3, y: 13, w: 13, scale: [1.2, 0.7]})
+				if(bold){
+					drawn.push({text: symbol, x: -3, y: 0, w: 13})
+				}else{
+					drawn.push({text: symbol, x: -3, y: 13, w: 13, scale: [1.2, 0.7]})
+				}
 			}else if(r.en.test(symbol)){
 				// n-width
 				drawn.push({text: symbol, x: 0, y: 0, w: 28})
@@ -614,7 +648,11 @@
 				drawn.push({text: number, x: 0, y: 0, w: 32})
 			}else if(r.degree.test(symbol)){
 				// Degree
-				drawn.push({text: symbol, x: 5, y: 0, w: 0})
+				if(bold){
+					drawn.push({text: symbol, x: 0, y: 0, w: 20})
+				}else{
+					drawn.push({text: symbol, x: 5, y: 0, w: 0})
+				}
 			}else if(r.uppercase.test(symbol)){
 				// Latin script uppercase
 				drawn.push({text: symbol, x: 0, y: 0, w: 32})
@@ -668,7 +706,7 @@
 			drawn.reverse()
 		}
 		
-		ctx.font = config.fontSize + "px " + config.fontFamily
+		ctx.font = bold + config.fontSize + "px " + config.fontFamily
 		ctx.textBaseline = config.baseline || "top"
 		ctx.textAlign = "center"
 		
@@ -1250,6 +1288,10 @@
 				ctx.shadowOffsetY = config.y
 			}
 		}
+	}
+	
+	bold(font){
+		return font === "Microsoft YaHei, sans-serif" ? "bold " : ""
 	}
 	
 	getMS(){

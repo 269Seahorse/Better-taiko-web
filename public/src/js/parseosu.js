@@ -319,10 +319,10 @@ class ParseOsu{
 				if(hitSound & this.osu.FINISH){
 					if(hitSound & this.osu.WHISTLE || hitSound & this.osu.CLAP){
 						type = "daiKa"
-						txt = "カッ(大)"
+						txt = strings.note.daiKa
 					}else if(hitSound & this.osu.NORMAL || hitSound === this.osu.FINISH){
 						type = "daiDon"
-						txt = "ドン(大)"
+						txt = strings.note.daiDon
 					}else{
 						emptyValue = true
 					}

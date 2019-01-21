@@ -16,7 +16,7 @@ class Scoresheet{
 		this.fadeScreen.id = "fade-screen"
 		this.game.appendChild(this.fadeScreen)
 		
-		this.font = "TnT, Meiryo, sans-serif"
+		this.font = strings.font
 		this.state = {
 			screen: "fadeIn",
 			screenMS: this.getMS(),

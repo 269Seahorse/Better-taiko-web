@@ -82,7 +82,8 @@ var assets = {
 		"mimizu.png",
 		"results_flowers.png",
 		"results_mikoshi.png",
-		"results_tetsuohana.png"
+		"results_tetsuohana.png",
+		"globe.svg"
 	],
 	"audioSfx": [
 		"don.wav",

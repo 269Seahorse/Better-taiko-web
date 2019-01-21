@@ -90,14 +90,15 @@ class SongSelect{
 				outline: "#656565"
 			}
 		}
-		this.font = "TnT, Meiryo, sans-serif"
+		this.font = strings.font
 		
 		this.songs = []
 		for(let song of assets.songs){
+			var en = strings.id === "en"
 			this.songs.push({
 				id: song.id,
-				title: song.title,
-				subtitle: song.subtitle,
+				title: en ? song.title_en : song.title,
+				subtitle: en ? song.subtitle_en : song.subtitle,
 				skin: song.category in this.songSkin ? this.songSkin[song.category] : this.songSkin.default,
 				stars: song.stars,
 				category: song.category,
@@ -886,6 +887,7 @@ class SongSelect{
 					fontFamily: this.font,
 					x: 53,
 					y: 30,
+					width: 280,
 					letterSpacing: 2,
 					forceShadow: true
 				}, [
@@ -1089,8 +1091,7 @@ class SongSelect{
 			highlight = 0
 		}
 		
-		if(this.currentSongId !== currentSong.id || this.currentSongTitle !== currentSong.title){
-			this.currentSongId = currentSong.id
+		if(this.currentSongTitle !== currentSong.title){
 			this.currentSongTitle = currentSong.title
 			this.currentSongCache.clear()
 		}
@@ -1279,15 +1280,16 @@ class SongSelect{
 							h: (songSel ? 88 : 135) + 10,
 							id: this.difficulty[currentUra ? 4 : i] + (songSel ? "1" : "0")
 						}, ctx => {
+							var ja = strings.id === "ja"
 							this.draw.verticalText({
 								ctx: ctx,
 								text: this.difficulty[i],
 								x: offset,
 								y: 0,
 								width: songSel ? 44 : 56,
-								height: songSel ? (i === 1 ? 66 : 88) : (i === 0 ? 130 : (i === 1 ? 110 : 135)),
+								height: songSel ? (i === 1 && ja ? 66 : 88) : (ja ? 130 : (i === 1 && ja ? 110 : 135)),
 								fill: currentUra ? "#fff" : "#000",
-								fontSize: songSel ? 25 : (i === 2 ? 45 : 40),
+								fontSize: songSel ? 25 : (i === 2 && ja ? 45 : 40),
 								fontFamily: this.font,
 								outline: currentUra ? "#003C52" : false,
 								outlineSize: currentUra ? this.songAsset.letterBorder : 0
