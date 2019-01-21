@@ -454,13 +454,19 @@ class Scoresheet{
 					})
 					ctx.fillStyle = "#000"
 					ctx.fill()
-					ctx.font = "36px " + this.font
-					ctx.textAlign = "right"
-					ctx.fillStyle = "#fff"
-					ctx.strokeStyle = "#000"
-					ctx.lineWidth = 0.5
-					ctx.fillText(strings.points, 788, 284)
-					ctx.strokeText(strings.points, 788, 284)
+					this.draw.layeredText({
+						ctx: ctx,
+						text: strings.points,
+						x: 792,
+						y: 253,
+						fontSize: 36,
+						fontFamily: this.font,
+						align: "right",
+						width: 36
+					}, [
+						{fill: "#fff"},
+						{outline: "#000", letterBorder: 0.5}
+					])
 					
 					this.draw.score({
 						ctx: ctx,
@@ -494,7 +500,7 @@ class Scoresheet{
 						fontFamily: this.font,
 						align: "right",
 						width: 154,
-						letterSpacing: 1
+						letterSpacing: strings.id === "ja" ? 1 : 0
 					}, [
 						{outline: "#000", letterBorder: 8},
 						{fill: grd}
@@ -507,7 +513,8 @@ class Scoresheet{
 						fontSize: 29,
 						fontFamily: this.font,
 						letterSpacing: 4,
-						align: "right"
+						align: "right",
+						width: 154
 					}, [
 						{outline: "#000", letterBorder: 8},
 						{fill: "#ffc700"}
