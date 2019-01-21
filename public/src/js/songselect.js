@@ -1089,7 +1089,8 @@ class SongSelect{
 			highlight = 0
 		}
 		
-		if(this.currentSongTitle !== currentSong.title){
+		if(this.currentSongId !== currentSong.id || this.currentSongTitle !== currentSong.title){
+			this.currentSongId = currentSong.id
 			this.currentSongTitle = currentSong.title
 			this.currentSongCache.clear()
 		}
