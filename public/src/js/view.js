@@ -49,6 +49,13 @@
 				infoFill: "#656565"
 			}
 		}
+		this.difficulty = {
+			"easy": 0,
+			"normal": 1,
+			"hard": 2,
+			"oni": 3,
+			"ura": 4
+		}
 		
 		this.currentScore = {
 			ms: -Infinity,
@@ -394,13 +401,11 @@
 			ctx.fill()
 			
 			// Difficulty
-			var badgeImg = assets.image["muzu_" + this.controller.selectedSong.difficulty]
-			var badgeW = badgeImg.width / badgeImg.height * 53
-			ctx.drawImage(badgeImg,
-				157 - badgeW / 2,
-				this.multiplayer === 2 ? 497 : 228,
-				badgeW,
-				53
+			ctx.drawImage(assets.image["difficulty"],
+				0, 144 * this.difficulty[this.controller.selectedSong.difficulty],
+				168, 143,
+				126, this.multiplayer === 2 ? 497 : 228,
+				62, 53
 			)
 			
 			// Badges
@@ -545,11 +550,11 @@
 			ctx.globalAlpha = 1
 			
 			// Difficulty
-			var badgeImg = assets.image["muzu_" + this.controller.selectedSong.difficulty]
-			var badgeW = badgeImg.width / badgeImg.height * 120
-			ctx.drawImage(badgeImg,
-				87 - badgeW / 2, this.multiplayer === 2 ? 194 : 232,
-				badgeW, 120
+			ctx.drawImage(assets.image["difficulty"],
+				0, 144 * this.difficulty[this.controller.selectedSong.difficulty],
+				168, 143,
+				16, this.multiplayer === 2 ? 194 : 232,
+				141, 120
 			)
 			
 			// Badges

@@ -17,6 +17,7 @@ class Scoresheet{
 		this.game.appendChild(this.fadeScreen)
 		
 		this.font = strings.font
+		this.numbersFont = "TnT, Meiryo, sans-serif"
 		this.state = {
 			screen: "fadeIn",
 			screenMS: this.getMS(),
@@ -33,6 +34,14 @@ class Scoresheet{
 		this.gamepad = new Gamepad({
 			"13": ["a", "b", "start", "ls", "rs"]
 		})
+		
+		this.difficulty = {
+			"easy": 0,
+			"normal": 1,
+			"hard": 2,
+			"oni": 3,
+			"ura": 4
+		}
 		
 		this.redrawRunning = true
 		this.redrawBind = this.redraw.bind(this)
@@ -403,9 +412,10 @@ class Scoresheet{
 						ctx.translate(0, p2Offset)
 					}
 					
-					var imgScale = 1.35
-					ctx.drawImage(assets.image["muzu_" + results.difficulty],
-						276, 150, imgScale * 176, imgScale * 120
+					ctx.drawImage(assets.image["difficulty"],
+						0, 144 * this.difficulty[results.difficulty],
+						168, 143,
+						300, 150, 189, 162
 					)
 					
 					if(this.controller.autoPlayEnabled){
@@ -458,7 +468,7 @@ class Scoresheet{
 						ctx: ctx,
 						text: strings.points,
 						x: 792,
-						y: 253,
+						y: strings.id === "ko" ? 260 : 253,
 						fontSize: 36,
 						fontFamily: this.font,
 						align: "right",
@@ -472,19 +482,22 @@ class Scoresheet{
 						ctx: ctx,
 						score: "good",
 						x: 823,
-						y: 192
+						y: 192,
+						results: true
 					})
 					this.draw.score({
 						ctx: ctx,
 						score: "ok",
 						x: 823,
-						y: 233
+						y: 233,
+						results: true
 					})
 					this.draw.score({
 						ctx: ctx,
 						score: "bad",
 						x: 823,
-						y: 273
+						y: 273,
+						results: true
 					})
 					
 					ctx.textAlign = "right"
@@ -512,9 +525,9 @@ class Scoresheet{
 						y: 233,
 						fontSize: 29,
 						fontFamily: this.font,
-						letterSpacing: 4,
 						align: "right",
-						width: 154
+						width: 154,
+						letterSpacing: strings.id === "ja" ? 4 : 0
 					}, [
 						{outline: "#000", letterBorder: 8},
 						{fill: "#ffc700"}
@@ -689,7 +702,7 @@ class Scoresheet{
 				
 				var points = this.getNumber(results.points, 3100 + noCrownResultWait, elapsed)
 				var scale = 1.3
-				ctx.font = "35px " + this.font
+				ctx.font = "35px " + this.numbersFont
 				ctx.translate(760, 286)
 				ctx.scale(1 / scale, 1 * 1.1)
 				ctx.textAlign = "center"
@@ -721,7 +734,7 @@ class Scoresheet{
 						x: 971 + 270 * Math.floor(i / 3),
 						y: 196 + (40 * (i % 3)),
 						fontSize: 26,
-						fontFamily: this.font,
+						fontFamily: this.numbersFont,
 						letterSpacing: 1,
 						align: "right"
 					}, [

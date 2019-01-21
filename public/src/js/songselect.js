@@ -794,7 +794,8 @@ class SongSelect{
 				ratio + 0.2
 			)
 			
-			this.selectTextCache.resize((280 + 53 + 60 + 1) * 2, this.songAsset.marginTop + 15, ratio + 0.5)
+			var textW = strings.id === "en" ? 350 : 280
+			this.selectTextCache.resize((textW + 53 + 60 + 1) * 2, this.songAsset.marginTop + 15, ratio + 0.5)
 			
 			var categories = 0
 			var lastCategory
@@ -872,11 +873,12 @@ class SongSelect{
 		}
 		
 		if(screen === "title" || screen === "titleFadeIn" || screen === "song"){
+			var textW = strings.id === "en" ? 350 : 280
 			this.selectTextCache.get({
 				ctx: ctx,
 				x: frameLeft,
 				y: frameTop,
-				w: 280 + 53 + 60,
+				w: textW + 53 + 60,
 				h: this.songAsset.marginTop + 15,
 				id: "song"
 			}, ctx => {
@@ -887,7 +889,7 @@ class SongSelect{
 					fontFamily: this.font,
 					x: 53,
 					y: 30,
-					width: 280,
+					width: textW,
 					letterSpacing: 2,
 					forceShadow: true
 				}, [
@@ -1118,11 +1120,12 @@ class SongSelect{
 					var opened = ((selectedWidth - this.songAsset.width) / (this.songAsset.selectedWidth - this.songAsset.width))
 					var songSel = true
 				}else{
+					var textW = strings.id === "en" ? 350 : 280
 					this.selectTextCache.get({
 						ctx: ctx,
 						x: x - 144 - 53,
 						y: y - 24 - 30,
-						w: 280 + 53 + 60,
+						w: textW + 53 + 60,
 						h: this.songAsset.marginTop + 15,
 						id: "difficulty"
 					}, ctx => {
@@ -1133,7 +1136,7 @@ class SongSelect{
 							fontFamily: this.font,
 							x: 53,
 							y: 30,
-							width: 280,
+							width: textW,
 							forceShadow: true
 						}, [
 							{x: -2, y: -2, outline: "#000", letterBorder: 23},

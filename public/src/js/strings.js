@@ -46,6 +46,9 @@
 	}
 	this.combo = "コンボ"
 	this.clear = "クリア"
+	this.good = "良"
+	this.ok = "可"
+	this.bad = "不可"
 	this.pauseOptions = [
 		"演奏をつづける",
 		"はじめからやりなおす",
@@ -104,6 +107,9 @@ function StringsEn(){
 	}
 	this.combo = "Combo"
 	this.clear = "Clear"
+	this.good = "GOOD"
+	this.ok = "OK"
+	this.bad = "BAD"
 	this.pauseOptions = [
 		"Continue",
 		"Retry",
@@ -162,6 +168,9 @@ function StringsCn(){
 	}
 	this.combo = "连段"
 	this.clear = "通关"
+	this.good = "良"
+	this.ok = "可"
+	this.bad = "不可"
 	this.pauseOptions = [
 		"继续演奏",
 		"从头开始",
@@ -220,6 +229,9 @@ function StringsTw(){
 	}
 	this.combo = "連段"
 	this.clear = "通關"
+	this.good = "良"
+	this.ok = "可"
+	this.bad = "不可"
 	this.pauseOptions = [
 		"繼續演奏",
 		"從頭開始",
@@ -278,6 +290,9 @@ function StringsKo(){
 	}
 	this.combo = "콤보"
 	this.clear = "클리어"
+	this.good = "얼쑤"
+	this.ok = "좋다"
+	this.bad = "에구"
 	this.pauseOptions = [
 		"연주 계속하기",
 		"처음부터 다시",

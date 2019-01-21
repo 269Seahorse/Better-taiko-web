@@ -49,8 +49,8 @@
 	left: 0;
 	background-repeat: no-repeat;
 	background-size: auto 70%;
-	background-position: center;
-	width: 4em;
+	background-position: 15% center;
+	width: 7em;
 	height: 4em;
 }
 #lang:focus-within{
@@ -62,4 +62,16 @@
 	opacity: 0;
 	width: 100%;
 	height: 100%;
+}
+#lang-id{
+	position: absolute;
+	top: 0;
+	bottom: 0;
+	left: 2.6em;
+	font-family: TnT, Meiryo, sans-serif;
+	font-size: 1.5em;
+	font-weight: normal;
+	color: #fff;
+	line-height: 2.75em;
+	z-index: 0;
 }

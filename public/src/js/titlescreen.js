@@ -5,6 +5,7 @@ class Titlescreen{
 		this.titleScreen = document.getElementById("title-screen")
 		this.proceed = document.getElementById("title-proceed")
 		this.langDropdown = document.getElementById("lang-dropdown")
+		this.langId = document.getElementById("lang-id")
 		
 		this.lang = this.getLang()
 		this.setLang(allStrings[this.lang])
@@ -93,6 +94,8 @@ class Titlescreen{
 		strings = lang
 		this.proceed.innerText = strings.titleProceed
 		this.proceed.setAttribute("alt", strings.titleProceed)
+		this.langId.innerText = strings.id.toUpperCase()
+		this.langId.setAttribute("alt", strings.id.toUpperCase())
 		loader.screen.style.fontFamily = strings.font
 		loader.screen.style.fontWeight = strings.font === "Microsoft YaHei, sans-serif" ? "bold" : ""
 	}
