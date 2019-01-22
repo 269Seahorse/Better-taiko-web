@@ -285,6 +285,7 @@
 			inputText = inputText.slice(0, matches.index)
 			ura = matches[0]
 		}
+		var bold = this.bold(config.fontFamily)
 		
 		var string = inputText.split("")
 		var drawn = []
@@ -296,30 +297,56 @@
 				drawn.push({text: symbol, x: 0, y: 0, h: 18})
 			}else if(symbol === "ー"){
 				// Long-vowel mark
-				drawn.push({realText: symbol, svg: this.longVowelMark, x: -4, y: 5, h: 33, scale: [mul, mul]})
+				if(bold){
+					drawn.push({text: symbol, x: -1, y: -1, h: 33, rotate: true})
+				}else{
+					drawn.push({realText: symbol, svg: this.longVowelMark, x: -4, y: 5, h: 33, scale: [mul, mul]})
+				}
 			}else if(symbol === "∀"){
 				drawn.push({text: symbol, x: 0, y: 0, h: 39, rotate: true})
 			}else if(symbol === "↓"){
 				drawn.push({text: symbol, x: 0, y: 12, h: 45})
 			}else if(symbol === "．"){
-				drawn.push({realText: symbol, text: ".", x: 13, y: -7, h: 15, scale: [1.2, 0.7]})
+				if(bold){
+					drawn.push({realText: symbol, text: ".", x: 13, y: -15, h: 15})
+				}else{
+					drawn.push({realText: symbol, text: ".", x: 13, y: -7, h: 15, scale: [1.2, 0.7]})
+				}
 			}else if(symbol === "…"){
-				drawn.push({text: symbol, x: 0, y: 5, h: 25, rotate: true})
+				drawn.push({text: symbol, x: bold ? 9 : 0, y: 5, h: 25, rotate: true})
+			}else if(symbol === '"'){
+				drawn.push({text: symbol, x: 0, y: 5, h: 20, rotate: true})
 			}else if(r.comma.test(symbol)){
 				// Comma, full stop
-				drawn.push({text: symbol, x: 13, y: -7, h: 15, scale: [1.2, 0.7]})
+				if(bold){
+					drawn.push({text: symbol, x: 13, y: -15, h: 15})
+				}else{
+					drawn.push({text: symbol, x: 13, y: -7, h: 15, scale: [1.2, 0.7]})
+				}
 			}else if(r.ideographicComma.test(symbol)){
 				// Ideographic comma, full stop
 				drawn.push({text: symbol, x: 16, y: -16, h: 18})
 			}else if(r.apostrophe.test(symbol)){
 				// Apostrophe
-				drawn.push({realText: symbol, text: ",", x: 20, y: -39, h: 0, scale: [1.2, 0.7]})
+				if(bold){
+					drawn.push({text: symbol, x: 20, y: -25, h: 0})
+				}else{
+					drawn.push({realText: symbol, text: ",", x: 20, y: -39, h: 0, scale: [1.2, 0.7]})
+				}
 			}else if(r.degree.test(symbol)){
 				// Degree
-				drawn.push({text: symbol, x: 16, y: 3, h: 18})
+				if(bold){
+					drawn.push({text: symbol, x: 16, y: 9, h: 25})
+				}else{
+					drawn.push({text: symbol, x: 16, y: 3, h: 18})
+				}
 			}else if(r.brackets.test(symbol)){
 				// Rotated brackets
-				drawn.push({text: symbol, x: 0, y: -5, h: 25, rotate: true})
+				if(bold){
+					drawn.push({text: symbol, x: 0, y: 0, h: 35, rotate: true})
+				}else{
+					drawn.push({text: symbol, x: 0, y: -5, h: 25, rotate: true})
+				}
 			}else if(r.tilde.test(symbol)){
 				// Rotated hyphen, tilde
 				drawn.push({realText: symbol, text: symbol === "~" ? "～" : symbol, x: 0, y: 2, h: 35, rotate: true})
@@ -448,7 +475,7 @@
 			actions.push("selectable")
 		}
 		for(let action of actions){
-			ctx.font = config.fontSize + "px " + config.fontFamily
+			ctx.font = bold + config.fontSize + "px " + config.fontFamily
 			ctx.textBaseline = "top"
 			if(action === "stroke"){
 				ctx.strokeStyle = config.outline
@@ -571,6 +598,7 @@
 			inputText = inputText.slice(0, matches.index)
 			ura = matches[0]
 		}
+		var bold = this.bold(config.fontFamily)
 		
 		var string = inputText.split("")
 		var drawn = []
@@ -587,12 +615,20 @@
 			}else if(symbol === "'"){
 				drawn.push({text: ",", x: 0, y: -15, w: 7, scale: [1, 0.7]})
 			}else if(symbol === "∀"){
-				drawn.push({text: symbol, x: -3, y: 0, w: 55})
+				if(bold){
+					drawn.push({text: symbol, x: 0, y: 0, w: 40})
+				}else{
+					drawn.push({text: symbol, x: -3, y: 0, w: 55})
+				}
 			}else if(symbol === "．"){
 				drawn.push({text: symbol, x: -9, y: 0, w: 37})
 			}else if(r.comma.test(symbol)){
 				// Comma, full stop
-				drawn.push({text: symbol, x: -3, y: 13, w: 13, scale: [1.2, 0.7]})
+				if(bold){
+					drawn.push({text: symbol, x: -3, y: 0, w: 13})
+				}else{
+					drawn.push({text: symbol, x: -3, y: 13, w: 13, scale: [1.2, 0.7]})
+				}
 			}else if(r.en.test(symbol)){
 				// n-width
 				drawn.push({text: symbol, x: 0, y: 0, w: 28})
@@ -614,7 +650,11 @@
 				drawn.push({text: number, x: 0, y: 0, w: 32})
 			}else if(r.degree.test(symbol)){
 				// Degree
-				drawn.push({text: symbol, x: 5, y: 0, w: 0})
+				if(bold){
+					drawn.push({text: symbol, x: 0, y: 0, w: 20})
+				}else{
+					drawn.push({text: symbol, x: 5, y: 0, w: 0})
+				}
 			}else if(r.uppercase.test(symbol)){
 				// Latin script uppercase
 				drawn.push({text: symbol, x: 0, y: 0, w: 32})
@@ -668,7 +708,7 @@
 			drawn.reverse()
 		}
 		
-		ctx.font = config.fontSize + "px " + config.fontFamily
+		ctx.font = bold + config.fontSize + "px " + config.fontFamily
 		ctx.textBaseline = config.baseline || "top"
 		ctx.textAlign = "center"
 		
@@ -965,32 +1005,65 @@
 		if(config.scale){
 			ctx.scale(config.scale, config.scale)
 		}
-		if(config.align === "center"){
-			ctx.translate(config.score === "bad" ? -49 / 2 : -23 / 2, 0)
-		}
 		ctx.strokeStyle = "#000"
 		ctx.lineWidth = 7
-		if(config.score === "good"){
-			var grd = ctx.createLinearGradient(0, 0, 0, 29)
-			grd.addColorStop(0.3, "#f7fb00")
-			grd.addColorStop(0.9, "#ff4900")
-			ctx.fillStyle = grd
-			ctx.stroke(this.diffPath.good)
-			ctx.fill(this.diffPath.good)
-		}else if(config.score === "ok"){
-			ctx.fillStyle = "#fff"
-			ctx.stroke(this.diffPath.ok)
-			ctx.fill(this.diffPath.ok)
-		}else if(config.score === "bad"){
-			var grd = ctx.createLinearGradient(0, 0, 0, 27)
-			grd.addColorStop(0.1, "#6B5DFF")
-			grd.addColorStop(0.7, "#00AEDE")
-			ctx.fillStyle = grd
-			ctx.stroke(this.diffPath.bad)
-			ctx.fill(this.diffPath.bad)
-			ctx.translate(26, 0)
-			ctx.stroke(this.diffPath.ok)
-			ctx.fill(this.diffPath.ok)
+		if(strings.good === "良"){
+			if(config.align === "center"){
+				ctx.translate(config.score === "bad" ? -49 / 2 : -23 / 2, 0)
+			}
+			if(config.score === "good"){
+				var grd = ctx.createLinearGradient(0, 0, 0, 29)
+				grd.addColorStop(0.3, "#f7fb00")
+				grd.addColorStop(0.9, "#ff4900")
+				ctx.fillStyle = grd
+				ctx.stroke(this.diffPath.good)
+				ctx.fill(this.diffPath.good)
+			}else if(config.score === "ok"){
+				ctx.fillStyle = "#fff"
+				ctx.stroke(this.diffPath.ok)
+				ctx.fill(this.diffPath.ok)
+			}else if(config.score === "bad"){
+				var grd = ctx.createLinearGradient(0, 0, 0, 27)
+				grd.addColorStop(0.1, "#6B5DFF")
+				grd.addColorStop(0.7, "#00AEDE")
+				ctx.fillStyle = grd
+				ctx.stroke(this.diffPath.bad)
+				ctx.fill(this.diffPath.bad)
+				ctx.translate(26, 0)
+				ctx.stroke(this.diffPath.ok)
+				ctx.fill(this.diffPath.ok)
+			}
+		}else{
+			ctx.font = this.bold(strings.font) + "26px " + strings.font
+			if(config.results){
+				ctx.textAlign = "left"
+			}else{
+				ctx.textAlign = "center"
+			}
+			ctx.textBaseline = "top"
+			ctx.miterLimit = 1
+			if(config.score === "good"){
+				if(config.results && strings.id === "en"){
+					ctx.scale(0.75, 1)
+				}
+				var grd = ctx.createLinearGradient(0, 0, 0, 29)
+				grd.addColorStop(0.3, "#f7fb00")
+				grd.addColorStop(0.9, "#ff4900")
+				ctx.fillStyle = grd
+				ctx.strokeText(strings.good, 0, 4)
+				ctx.fillText(strings.good, 0, 4)
+			}else if(config.score === "ok"){
+				ctx.fillStyle = "#fff"
+				ctx.strokeText(strings.ok, 0, 4)
+				ctx.fillText(strings.ok, 0, 4)
+			}else if(config.score === "bad"){
+				var grd = ctx.createLinearGradient(0, 0, 0, 27)
+				grd.addColorStop(0.1, "#6B5DFF")
+				grd.addColorStop(0.7, "#00AEDE")
+				ctx.fillStyle = grd
+				ctx.strokeText(strings.bad, 0, 4)
+				ctx.fillText(strings.bad, 0, 4)
+			}
 		}
 		ctx.restore()
 	}
@@ -1250,6 +1323,10 @@
 				ctx.shadowOffsetY = config.y
 			}
 		}
+	}
+	
+	bold(font){
+		return font === "Microsoft YaHei, sans-serif" ? "bold " : ""
 	}
 	
 	getMS(){

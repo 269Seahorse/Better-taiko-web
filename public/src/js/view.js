@@ -49,6 +49,13 @@
 				infoFill: "#656565"
 			}
 		}
+		this.difficulty = {
+			"easy": 0,
+			"normal": 1,
+			"hard": 2,
+			"oni": 3,
+			"ura": 4
+		}
 		
 		this.currentScore = {
 			ms: -Infinity,
@@ -69,7 +76,7 @@
 		this.drumroll = []
 		
 		this.beatInterval = this.controller.parsedSongData.beatInfo.beatInterval
-		this.font = "TnT, Meiryo, sans-serif"
+		this.font = strings.font
 		
 		this.draw = new CanvasDraw()
 		this.assets = new ViewAssets(this)
@@ -260,9 +267,14 @@
 					})
 					ctx.fill()
 					
+					if(selectedSong.category in strings.categories){
+						var categoryName = strings.categories[selectedSong.category]
+					}else{
+						var categoryName = selectedSong.category
+					}
 					this.draw.layeredText({
 						ctx: ctx,
-						text: selectedSong.category,
+						text: categoryName,
 						fontSize: 15,
 						fontFamily: this.font,
 						align: "center",
@@ -389,13 +401,11 @@
 			ctx.fill()
 			
 			// Difficulty
-			var badgeImg = assets.image["muzu_" + this.controller.selectedSong.difficulty]
-			var badgeW = badgeImg.width / badgeImg.height * 53
-			ctx.drawImage(badgeImg,
-				157 - badgeW / 2,
-				this.multiplayer === 2 ? 497 : 228,
-				badgeW,
-				53
+			ctx.drawImage(assets.image["difficulty"],
+				0, 144 * this.difficulty[this.controller.selectedSong.difficulty],
+				168, 143,
+				126, this.multiplayer === 2 ? 497 : 228,
+				62, 53
 			)
 			
 			// Badges
@@ -540,11 +550,11 @@
 			ctx.globalAlpha = 1
 			
 			// Difficulty
-			var badgeImg = assets.image["muzu_" + this.controller.selectedSong.difficulty]
-			var badgeW = badgeImg.width / badgeImg.height * 120
-			ctx.drawImage(badgeImg,
-				87 - badgeW / 2, this.multiplayer === 2 ? 194 : 232,
-				badgeW, 120
+			ctx.drawImage(assets.image["difficulty"],
+				0, 144 * this.difficulty[this.controller.selectedSong.difficulty],
+				168, 143,
+				16, this.multiplayer === 2 ? 194 : 232,
+				141, 120
 			)
 			
 			// Badges
@@ -629,7 +639,7 @@
 		
 		// Score
 		ctx.save()
-		ctx.font = "30px " + this.font
+		ctx.font = "30px TnT, Meiryo, sans-serif"
 		ctx.fillStyle = "#fff"
 		ctx.strokeStyle = "#fff"
 		ctx.lineWidth = 0.3
@@ -763,11 +773,13 @@
 			}else{
 				ctx.fillStyle = "#fff"
 			}
-			ctx.font = fontSize + "px " + this.font
+			ctx.font = this.draw.bold(this.font) + fontSize + "px " + this.font
 			ctx.lineWidth = 7 * mul
 			ctx.textAlign = "center"
-			ctx.strokeText("コンボ", comboX, comboTextY)
-			ctx.fillText("コンボ", comboX, comboTextY)
+			ctx.miterLimit = 1
+			ctx.strokeText(strings.combo, comboX, comboTextY)
+			ctx.miterLimit = 10
+			ctx.fillText(strings.combo, comboX, comboTextY)
 		}
 		
 		// Slot
@@ -931,7 +943,7 @@
 						x: _w / 2,
 						y: 18,
 						width: _w,
-						height: _h,
+						height: _h - 54,
 						fontSize: 40,
 						fontFamily: this.font,
 						letterSpacing: -1
@@ -1292,7 +1304,7 @@
 			var text = circle.getText()
 			var textX = circlePos.x
 			var textY = circlePos.y + 83 * mul
-			ctx.font = lyricsSize + "px Kozuka"
+			ctx.font = lyricsSize + "px Kozuka, Microsoft YaHei, sans-serif"
 			ctx.textBaseline = "middle"
 			ctx.textAlign = "center"
 			
@@ -1373,7 +1385,7 @@
 						ctx: ctx,
 						text: i.toString(),
 						fontSize: fontSize,
-						fontFamily: this.font,
+						fontFamily: "TnT, Meiryo, sans-serif",
 						x: textX,
 						y: textY
 					}, [

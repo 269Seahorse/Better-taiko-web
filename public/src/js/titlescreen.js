@@ -1,13 +1,20 @@
 class Titlescreen{
 	constructor(){
 		loader.changePage("titlescreen", false)
+		
 		this.titleScreen = document.getElementById("title-screen")
-		var proceed = document.getElementById("title-proceed")
-		proceed.appendChild(document.createTextNode(strings.titleProceed))
-		proceed.setAttribute("alt", strings.titleProceed)
+		this.proceed = document.getElementById("title-proceed")
+		this.langDropdown = document.getElementById("lang-dropdown")
+		this.langId = document.getElementById("lang-id")
+		
+		this.lang = this.getLang()
+		this.setLang(allStrings[this.lang])
+		this.addLangs()
 		
 		pageEvents.keyAdd(this, "all", "down", this.keyDown.bind(this))
 		pageEvents.add(this.titleScreen, ["mousedown", "touchstart"], this.onPressed.bind(this))
+		pageEvents.add(this.langDropdown, "change", this.langChange.bind(this))
+		
 		assets.sounds["title"].play()
 		this.gamepad = new Gamepad({
 			"13": ["a", "b", "x", "y", "start", "ls", "rs"]
@@ -24,7 +31,11 @@ class Titlescreen{
 			})
 		}
 	}
+	
 	keyDown(event, code){
+		if(event && event.target === this.langDropdown){
+			return
+		}
 		if(!code){
 			code = event.keyCode
 		}
@@ -61,11 +72,58 @@ class Titlescreen{
 			}, 500)
 		}
 	}
+	
+	getLang(){
+		if(localStorage.lang && localStorage.lang in allStrings){
+			return localStorage.lang
+		}
+		if("languages" in navigator){
+			var userLang = navigator.languages.slice()
+			userLang.unshift(navigator.language)
+			for(var i in userLang){
+				for(var j in allStrings){
+					if(allStrings[j].regex.test(userLang[i])){
+						return j
+					}
+				}
+			}
+		}
+		return "ja"
+	}
+	setLang(lang){
+		strings = lang
+		this.proceed.innerText = strings.titleProceed
+		this.proceed.setAttribute("alt", strings.titleProceed)
+		this.langId.innerText = strings.id.toUpperCase()
+		this.langId.setAttribute("alt", strings.id.toUpperCase())
+		loader.screen.style.fontFamily = strings.font
+		loader.screen.style.fontWeight = strings.font === "Microsoft YaHei, sans-serif" ? "bold" : ""
+	}
+	addLangs(){
+		for(var i in allStrings){
+			var option = document.createElement("option")
+			option.value = i
+			if(i === this.lang){
+				option.selected = true
+			}
+			option.appendChild(document.createTextNode(allStrings[i].name))
+			this.langDropdown.appendChild(option)
+		}
+	}
+	langChange(){
+		this.lang = this.langDropdown.value
+		localStorage.lang = this.lang
+		this.setLang(allStrings[this.lang])
+	}
+	
 	clean(){
 		this.gamepad.clean()
 		assets.sounds["title"].stop()
 		pageEvents.keyRemove(this, "all")
 		pageEvents.remove(this.titleScreen, ["mousedown", "touchstart"])
+		pageEvents.remove(this.langDropdown, "change")
 		delete this.titleScreen
+		delete this.proceed
+		delete this.langDropdown
 	}
 }

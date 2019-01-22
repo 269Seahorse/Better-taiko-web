@@ -80,9 +80,10 @@ var perf = {
 	allImg: 0,
 	load: 0
 }
+var strings
 
 pageEvents.add(root, ["touchstart", "touchmove", "touchend"], event => {
-	if(event.cancelable && cancelTouch){
+	if(event.cancelable && cancelTouch && event.target.tagName !== "SELECT"){
 		event.preventDefault()
 	}
 })
