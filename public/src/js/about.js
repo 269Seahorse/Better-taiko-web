@@ -1,10 +1,5 @@
 ﻿class About{
 	constructor(touchEnabled){
-		this.issueTemplate = [
-			"###### 下記の問題を説明してください。 スクリーンショットと診断情報を含めてください。",
-			"###### Describe the problem you are having below. Please include a screenshot and the diagnostic information."
-		]
-		
 		this.touchEnabled = touchEnabled
 		loader.changePage("about", true)
 		cancelTouch = false
@@ -18,6 +13,21 @@
 		}
 		this.linkGithub = document.getElementById("link-github")
 		this.linkEmail = document.getElementById("link-email")
+		
+		var tutorialTitle = document.getElementById("tutorial-title")
+		tutorialTitle.innerText = strings.aboutSimulator
+		tutorialTitle.setAttribute("alt", strings.aboutSimulator)
+		var tutorialContent = document.getElementById("tutorial-content")
+		strings.about.bugReporting.forEach(string => {
+			tutorialContent.appendChild(document.createTextNode(string))
+			tutorialContent.appendChild(document.createElement("br"))
+		})
+		var span = document.createElement("span")
+		span.classList.add("text-warn")
+		span.innerText = strings.about.diagnosticWarning
+		tutorialContent.appendChild(span)
+		this.endButton.innerText = strings.tutorial.ok
+		this.endButton.setAttribute("alt", strings.tutorial.ok)
 		
 		pageEvents.add(this.linkGithub, ["click", "touchend"], this.linkButton.bind(this))
 		pageEvents.add(this.linkEmail, ["click", "touchend"], this.linkButton.bind(this))
@@ -71,6 +81,17 @@
 				}
 			}
 		}
+		var userLangStr = " (none)"
+		if("languages" in navigator){
+			var userLang = navigator.languages.slice()
+			if(userLang[0] !== navigator.language){
+				userLang.unshift(navigator.language)
+			}
+			if(userLang.length !== 0){
+				userLangStr = " (" + userLang.join(", ") + ")"
+			}
+		}
+		diag.push("Language: " + strings.id + userLangStr)
 		var errorObj = {}
 		if(localStorage["lastError"]){
 			try{
@@ -119,7 +140,7 @@
 			}
 		}
 		
-		var issueBody = this.issueTemplate.join("\n") + "\n\n\n\n" + diag
+		var issueBody = strings.issueTemplate + "\n\n\n\n" + diag
 		this.getLink(this.linkGithub).href += "?body=" + encodeURIComponent(issueBody)
 		this.getLink(this.linkEmail).href += "?body=" + encodeURIComponent(issueBody.replace(/\n/g, "<br>\r\n"))
 	}

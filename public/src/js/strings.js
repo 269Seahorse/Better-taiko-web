@@ -19,7 +19,7 @@
 	this.back = "もどる"
 	this.random = "ランダム"
 	this.randomSong = "ランダムに曲をえらぶ"
-	this.tutorial = "あそびかた説明"
+	this.howToPlay = "あそびかた説明"
 	this.aboutSimulator = "このシミュレータについて"
 	this.browse = "参照する…"
 	this.defaultSongList = "デフォルト曲リスト"
@@ -58,6 +58,36 @@
 	this.points = "点"
 	this.maxCombo = "最大コンボ数"
 	this.drumroll = "連打数"
+	
+	this.tutorial = {
+		basics: [
+			"Hit the drum when the notes reach the taiko!",
+			"For red notes, hit the face of the drum (%s or %s)...",
+			"...and for blue notes, hit the rim! (%s or %s)",
+			"USB controllers are also supported!"
+		],
+		otherControls: "Other controls",
+		otherTutorial: [
+			"%s \u2014 pause game",
+			"%s while selecting difficulty \u2014 enable autoplay mode",
+			"%s while selecting difficulty \u2014 enable 2P mode"
+		],
+		ok: "OK"
+	}
+	this.about = {
+		bugReporting: [
+			"このシミュレータは現在開発中です。",
+			"バグが発生した場合は、報告してください。",
+			"GitHubかメールでバグを報告してください。"
+		],
+		diagnosticWarning: "以下の端末診断情報も併せて報告してください！",
+		issueTemplate: "###### 下記の問題を説明してください。 スクリーンショットと診断情報を含めてください。"
+	}
+	this.session = {
+		multiplayerSession: "Multiplayer Session",
+		linkTutorial: "Share this link with your friend to start playing together! Do not leave this screen while they join.",
+		cancel: "Cancel"
+	}
 }
 function StringsEn(){
 	this.id = "en"
@@ -80,7 +110,7 @@ function StringsEn(){
 	this.back = "Back"
 	this.random = "Random"
 	this.randomSong = "Random Song"
-	this.tutorial = "How to Play"
+	this.howToPlay = "How to Play"
 	this.aboutSimulator = "About Simulator"
 	this.browse = "Browse…"
 	this.defaultSongList = "Default Song List"
@@ -119,11 +149,41 @@ function StringsEn(){
 	this.points = "pts"
 	this.maxCombo = "MAX Combo"
 	this.drumroll = "Drumroll"
+	
+	this.tutorial = {
+		basics: [
+			"Hit the drum when the notes reach the taiko!",
+			"For red notes, hit the face of the drum (%s or %s)...",
+			"...and for blue notes, hit the rim! (%s or %s)",
+			"USB controllers are also supported!"
+		],
+		otherControls: "Other controls",
+		otherTutorial: [
+			"%s \u2014 pause game",
+			"%s while selecting difficulty \u2014 enable autoplay mode",
+			"%s while selecting difficulty \u2014 enable 2P mode"
+		],
+		ok: "OK"
+	}
+	this.about = {
+		bugReporting: [
+			"This simulator is still in development.",
+			"Please report any bugs you find.",
+			"You can report bugs either via GitHub or email."
+		],
+		diagnosticWarning: "Be sure to include the following diagnostic data!",
+		issueTemplate: "###### Describe the problem you are having below. Please include a screenshot and the diagnostic information."
+	}
+	this.session = {
+		multiplayerSession: "Multiplayer Session",
+		linkTutorial: "Share this link with your friend to start playing together! Do not leave this screen while they join.",
+		cancel: "Cancel"
+	}
 }
 function StringsCn(){
 	this.id = "cn"
 	this.name = "简体中文"
-	this.regex = /^zh$|^zh-CN$/
+	this.regex = /^zh$|^zh-CN$|^zh-SG$/
 	this.font = "Microsoft YaHei, sans-serif"
 	
 	this.titleProceed = "点击或按回车！"
@@ -141,7 +201,7 @@ function StringsCn(){
 	this.back = "返回"
 	this.random = "随机"
 	this.randomSong = "随机选曲"
-	this.tutorial = "操作说明"
+	this.howToPlay = "操作说明"
 	this.aboutSimulator = "关于模拟器"
 	this.browse = "浏览…"
 	this.defaultSongList = "默认歌曲列表"
@@ -180,6 +240,36 @@ function StringsCn(){
 	this.points = "点"
 	this.maxCombo = "最多连段数"
 	this.drumroll = "连打数"
+	
+	this.tutorial = {
+		basics: [
+			"Hit the drum when the notes reach the taiko!",
+			"For red notes, hit the face of the drum (%s or %s)...",
+			"...and for blue notes, hit the rim! (%s or %s)",
+			"USB controllers are also supported!"
+		],
+		otherControls: "Other controls",
+		otherTutorial: [
+			"%s \u2014 pause game",
+			"%s while selecting difficulty \u2014 enable autoplay mode",
+			"%s while selecting difficulty \u2014 enable 2P mode"
+		],
+		ok: "OK"
+	}
+	this.about = {
+		bugReporting: [
+			"This simulator is still in development.",
+			"Please report any bugs you find.",
+			"You can report bugs either via GitHub or email."
+		],
+		diagnosticWarning: "Be sure to include the following diagnostic data!",
+		issueTemplate: "###### Describe the problem you are having below. Please include a screenshot and the diagnostic information."
+	}
+	this.session = {
+		multiplayerSession: "Multiplayer Session",
+		linkTutorial: "Share this link with your friend to start playing together! Do not leave this screen while they join.",
+		cancel: "Cancel"
+	}
 }
 function StringsTw(){
 	this.id = "tw"
@@ -202,7 +292,7 @@ function StringsTw(){
 	this.back = "返回"
 	this.random = "隨機"
 	this.randomSong = "隨機選曲"
-	this.tutorial = "操作說明"
+	this.howToPlay = "操作說明"
 	this.aboutSimulator = "關於模擬器"
 	this.browse = "開啟檔案…"
 	this.defaultSongList = "默認歌曲列表"
@@ -241,11 +331,41 @@ function StringsTw(){
 	this.points = "分"
 	this.maxCombo = "最多連段數"
 	this.drumroll = "連打數"
+	
+	this.tutorial = {
+		basics: [
+			"Hit the drum when the notes reach the taiko!",
+			"For red notes, hit the face of the drum (%s or %s)...",
+			"...and for blue notes, hit the rim! (%s or %s)",
+			"USB controllers are also supported!"
+		],
+		otherControls: "Other controls",
+		otherTutorial: [
+			"%s \u2014 pause game",
+			"%s while selecting difficulty \u2014 enable autoplay mode",
+			"%s while selecting difficulty \u2014 enable 2P mode"
+		],
+		ok: "OK"
+	}
+	this.about = {
+		bugReporting: [
+			"This simulator is still in development.",
+			"Please report any bugs you find.",
+			"You can report bugs either via GitHub or email."
+		],
+		diagnosticWarning: "Be sure to include the following diagnostic data!",
+		issueTemplate: "###### Describe the problem you are having below. Please include a screenshot and the diagnostic information."
+	}
+	this.session = {
+		multiplayerSession: "Multiplayer Session",
+		linkTutorial: "Share this link with your friend to start playing together! Do not leave this screen while they join.",
+		cancel: "Cancel"
+	}
 }
 function StringsKo(){
 	this.id = "ko"
 	this.name = "한국어"
-	this.regex = /^ko$/
+	this.regex = /^ko$|^ko-/
 	this.font = "Microsoft YaHei, sans-serif"
 	
 	this.titleProceed = "클릭하거나 Enter를 누릅니다!"
@@ -263,7 +383,7 @@ function StringsKo(){
 	this.back = "돌아간다"
 	this.random = "랜덤"
 	this.randomSong = "랜덤"
-	this.tutorial = "지도 시간"
+	this.howToPlay = "지도 시간"
 	this.aboutSimulator = "게임 정보"
 	this.browse = "찾아보기…"
 	this.defaultSongList = "기본 노래 목록"
@@ -302,6 +422,36 @@ function StringsKo(){
 	this.points = "점"
 	this.maxCombo = "최대 콤보 수"
 	this.drumroll = "연타 횟수"
+	
+	this.tutorial = {
+		basics: [
+			"Hit the drum when the notes reach the taiko!",
+			"For red notes, hit the face of the drum (%s or %s)...",
+			"...and for blue notes, hit the rim! (%s or %s)",
+			"USB controllers are also supported!"
+		],
+		otherControls: "Other controls",
+		otherTutorial: [
+			"%s \u2014 pause game",
+			"%s while selecting difficulty \u2014 enable autoplay mode",
+			"%s while selecting difficulty \u2014 enable 2P mode"
+		],
+		ok: "OK"
+	}
+	this.about = {
+		bugReporting: [
+			"This simulator is still in development.",
+			"Please report any bugs you find.",
+			"You can report bugs either via GitHub or email."
+		],
+		diagnosticWarning: "Be sure to include the following diagnostic data!",
+		issueTemplate: "###### Describe the problem you are having below. Please include a screenshot and the diagnostic information."
+	}
+	this.session = {
+		multiplayerSession: "Multiplayer Session",
+		linkTutorial: "Share this link with your friend to start playing together! Do not leave this screen while they join.",
+		cancel: "Cancel"
+	}
 }
 var allStrings = {
 	"ja": new StringsJa(),

@@ -377,7 +377,7 @@ class Scoresheet{
 						fontFamily: this.font,
 						x: 23,
 						y: 15,
-						letterSpacing: 3,
+						letterSpacing: strings.id === "en" ? 0 : 3,
 						forceShadow: true
 					}, [
 						{x: -2, y: -2, outline: "#000", letterBorder: 22},
@@ -417,6 +417,18 @@ class Scoresheet{
 						168, 143,
 						300, 150, 189, 162
 					)
+					var diff = results.difficulty
+					var text = strings[diff === "ura" ? "oni" : diff]
+					ctx.font = this.draw.bold(this.font) + "28px " + this.font
+					ctx.textAlign = "center"
+					ctx.textBaseline = "bottom"
+					ctx.strokeStyle = "#000"
+					ctx.fillStyle = "#fff"
+					ctx.lineWidth = 9
+					ctx.miterLimit = 1
+					ctx.strokeText(text, 395, 308)
+					ctx.fillText(text, 395, 308)
+					ctx.miterLimit = 10
 					
 					if(this.controller.autoPlayEnabled){
 						ctx.drawImage(assets.image["badge_auto"],
