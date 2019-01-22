@@ -122,7 +122,7 @@ function StringsEn(){
 }
 function StringsCn(){
 	this.id = "cn"
-	this.name = "中文简体"
+	this.name = "简体中文"
 	this.regex = /^zh$|^zh-CN$/
 	this.font = "Microsoft YaHei, sans-serif"
 	
@@ -142,7 +142,7 @@ function StringsCn(){
 	this.random = "随机"
 	this.randomSong = "随机选曲"
 	this.tutorial = "操作说明"
-	this.aboutSimulator = "游戏信息"
+	this.aboutSimulator = "关于模拟器"
 	this.browse = "浏览…"
 	this.defaultSongList = "默认歌曲列表"
 	this.songOptions = "选项"
@@ -153,9 +153,9 @@ function StringsCn(){
 	this.normal = "普通"
 	this.hard = "困难"
 	this.oni = "魔王"
-	this.sessionStart = "开始在线会议!"
+	this.sessionStart = "开始在线会话!"
 	this.sessionEnd = "结束在线会话"
-	this.loading = "读取中..."
+	this.loading = "加载中..."
 	this.cancel = "取消"
 	this.note = {
 		don: "咚",
@@ -183,18 +183,18 @@ function StringsCn(){
 }
 function StringsTw(){
 	this.id = "tw"
-	this.name = "中文繁體"
+	this.name = "正體中文"
 	this.regex = /^zh-HK$|^zh-TW$/
 	this.font = "Microsoft YaHei, sans-serif"
 	
-	this.titleProceed = "點擊或按回車！"
+	this.titleProceed = "點擊或按確認！"
 	this.categories = {
 		"J-POP": "流行音樂",
 		"アニメ": "卡通動畫音樂",
 		"ボーカロイド™曲": "VOCALOID™ Music",
 		"バラエティ": "綜合音樂",
 		"クラシック": "古典音樂",
-		"ゲームミュージック": "遊戲音樂",
+		"ゲームミュージック": "電子遊戲音樂",
 		"ナムコオリジナル": "NAMCO原創音樂"
 	}
 	this.selectSong = "選擇樂曲"
@@ -202,20 +202,20 @@ function StringsTw(){
 	this.back = "返回"
 	this.random = "隨機"
 	this.randomSong = "隨機選曲"
-	this.tutorial = "操作说明"
-	this.aboutSimulator = "游戏信息"
-	this.browse = "浏览…"
-	this.defaultSongList = "默认歌曲列表"
+	this.tutorial = "操作說明"
+	this.aboutSimulator = "關於模擬器"
+	this.browse = "開啟檔案…"
+	this.defaultSongList = "默認歌曲列表"
 	this.songOptions = "選項"
 	this.none = "無"
 	this.auto = "自動"
-	this.netplay = "网络对战"
+	this.netplay = "網上對打"
 	this.easy = "簡單"
 	this.normal = "普通"
 	this.hard = "困難"
 	this.oni = "魔王"
-	this.sessionStart = "開始在線會議!"
-	this.sessionEnd = "結束在線會話"
+	this.sessionStart = "開始聯機!"
+	this.sessionEnd = "結束聯機"
 	this.loading = "讀取中..."
 	this.cancel = "取消"
 	this.note = {
@@ -238,7 +238,7 @@ function StringsTw(){
 		"返回「選擇樂曲」"
 	]
 	this.results = "發表成績"
-	this.points = "點"
+	this.points = "分"
 	this.maxCombo = "最多連段數"
 	this.drumroll = "連打數"
 }
