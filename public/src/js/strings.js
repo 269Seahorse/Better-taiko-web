@@ -214,8 +214,8 @@ function StringsTw(){
 	this.normal = "普通"
 	this.hard = "困難"
 	this.oni = "魔王"
-	this.sessionStart = "開始聯機!"
-	this.sessionEnd = "結束聯機"
+	this.sessionStart = "開始多人模式!"
+	this.sessionEnd = "結束多人模式"
 	this.loading = "讀取中..."
 	this.cancel = "取消"
 	this.note = {
