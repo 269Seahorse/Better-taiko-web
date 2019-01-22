@@ -8,6 +8,13 @@ class Session{
 		}
 		this.sessionInvite = document.getElementById("session-invite")
 		
+		var tutorialTitle = document.getElementById("tutorial-title")
+		tutorialTitle.innerText = strings.session.multiplayerSession
+		tutorialTitle.setAttribute("alt", strings.session.multiplayerSession)
+		this.sessionInvite.parentNode.insertBefore(document.createTextNode(strings.session.linkTutorial), this.sessionInvite)
+		this.endButton.innerText = strings.session.cancel
+		this.endButton.setAttribute("alt", strings.session.cancel)
+		
 		pageEvents.add(window, ["mousedown", "touchstart"], this.mouseDown.bind(this))
 		pageEvents.keyOnce(this, 27, "down").then(this.onEnd.bind(this))
 		

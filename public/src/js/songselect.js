@@ -94,7 +94,7 @@ class SongSelect{
 		
 		this.songs = []
 		for(let song of assets.songs){
-			var en = strings.id === "en"
+			var en = strings.id === "en" && song.title_en
 			this.songs.push({
 				id: song.id,
 				title: en ? song.title_en : song.title,
@@ -135,7 +135,7 @@ class SongSelect{
 			}
 		}else{
 			this.songs.push({
-				title: strings.tutorial,
+				title: strings.howToPlay,
 				skin: this.songSkin.tutorial,
 				action: "tutorial",
 				category: strings.random
@@ -890,7 +890,7 @@ class SongSelect{
 					x: 53,
 					y: 30,
 					width: textW,
-					letterSpacing: 2,
+					letterSpacing: strings.id === "en" ? 0 : 2,
 					forceShadow: true
 				}, [
 					{x: -2, y: -2, outline: "#000", letterBorder: 22},

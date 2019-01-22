@@ -556,6 +556,18 @@
 				16, this.multiplayer === 2 ? 194 : 232,
 				141, 120
 			)
+			var diff = this.controller.selectedSong.difficulty
+			var text = strings[diff === "ura" ? "oni" : diff]
+			ctx.font = this.draw.bold(this.font) + "20px " + this.font
+			ctx.textAlign = "center"
+			ctx.textBaseline = "bottom"
+			ctx.strokeStyle = "#000"
+			ctx.fillStyle = "#fff"
+			ctx.lineWidth = 7
+			ctx.miterLimit = 1
+			ctx.strokeText(text, 87, this.multiplayer === 2 ? 310 : 348)
+			ctx.fillText(text, 87, this.multiplayer === 2 ? 310 : 348)
+			ctx.miterLimit = 10
 			
 			// Badges
 			if(this.controller.autoPlayEnabled && !this.controller.multiplayer){
