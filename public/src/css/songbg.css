@@ -33,7 +33,8 @@
 	max-height: calc(50% + 24vw);
 }
 .touchp2 #songbg{
-	height: calc(50% - 5.5vw);
+	height: calc(50% - 5.9vw);
+	min-height: 39.5%;
 }
 .multiplayer.portrait #songbg{
 	height: calc(50% - 37vw);
@@ -88,6 +89,9 @@
 	top: 0;
 	height: calc(50% - 13.7vw);
 	min-height: 25.6%;
+}
+.multiplayer .donbg{
+	min-height: 27.2%;
 }
 .portrait .donbg{
 	height: calc(50% - 48.9vw);

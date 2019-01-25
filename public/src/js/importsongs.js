@@ -35,33 +35,23 @@
 			"ura": 4
 		}
 		this.categories = {
-			"j-pop": "J-POP",
-			"pop": "J-POP",
-			"アニメ": "アニメ",
-			"anime": "アニメ",
-			"アニメ": "アニメ",
-			"ボーカロイド™曲": "ボーカロイド™曲",
 			"ボーカロイド曲": "ボーカロイド™曲",
 			"ボーカロイド": "ボーカロイド™曲",
-			"vocaloid™ music": "ボーカロイド™曲",
 			"vocaloid music": "ボーカロイド™曲",
 			"vocaloid": "ボーカロイド™曲",
-			"バラエティ": "バラエティ",
 			"バラエティー": "バラエティ",
 			"どうよう": "バラエティ",
 			"童謡・民謡": "バラエティ",
-			"variety": "バラエティ",
 			"children": "バラエティ",
 			"children/folk": "バラエティ",
 			"children-folk": "バラエティ",
-			"クラシック": "クラシック",
 			"クラッシック": "クラシック",
-			"classical": "クラシック",
-			"classic": "クラシック",
-			"ゲームミュージック": "ゲームミュージック",
-			"game music": "ゲームミュージック",
-			"ナムコオリジナル": "ナムコオリジナル",
-			"namco original": "ナムコオリジナル"
+			"classic": "クラシック"
+		}
+		for(var i in allStrings){
+			for(var ja in allStrings[i].categories){
+				this.categories[allStrings[i].categories[ja].toLowerCase()] = ja
+			}
 		}
 		
 		for(var i = 0; i < files.length; i++){

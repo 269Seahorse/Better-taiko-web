@@ -220,7 +220,7 @@
 		
 		this.drawGogoTime()
 		
-		if(!touchMultiplayer){
+		if(!touchMultiplayer || this.multiplayer === 1 && frameTop >= 0){
 			this.assets.drawAssets("background")
 		}
 		

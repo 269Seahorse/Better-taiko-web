@@ -23,7 +23,7 @@
 	<div id="screen" class="pattern-bg"></div>
 	<div id="version">
 		{% if version %}
-			<a href="https://github.com/bui/taiko-web/commit/{{version.commit}}" target="_blank" id="version-link" class="stroke-sub" alt="taiko-web ver.{{version.version}} ({{version.commit_short}})">taiko-web ver.{{version.version}} ({{version.commit_short}})</a>
+			<a href="{{version.url}}commit/{{version.commit}}" target="_blank" id="version-link" class="stroke-sub" alt="taiko-web ver.{{version.version}} ({{version.commit_short}})">taiko-web ver.{{version.version}} ({{version.commit_short}})</a>
 		{% else %}
 			<a href="https://github.com/bui/taiko-web" target="_blank" id="version-link" class="stroke-sub" alt="taiko-web (unknown version)">taiko-web (unknown version)</a>
 		{% endif %}

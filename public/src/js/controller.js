@@ -32,13 +32,15 @@ class Controller{
 		this.playedSounds = {}
 	}
 	run(syncWith){
+		if(syncWith){
+			this.syncWith = syncWith
+		}
 		this.game.run()
 		this.view.run()
-		if(syncWith){
-			syncWith.run()
+		if(this.multiplayer === 1){
+			syncWith.run(this)
 			syncWith.game.elapsedTime = this.game.elapsedTime
 			syncWith.game.startDate = this.game.startDate
-			this.syncWith = syncWith
 		}
 		requestAnimationFrame(() => {
 			this.startMainLoop()
@@ -54,16 +56,20 @@ class Controller{
 		this.mainLoopRunning = true
 		this.gameLoop()
 		this.viewLoop()
-		this.gameInterval = setInterval(this.gameLoop.bind(this), 1000 / 60)
+		if(this.multiplayer !== 2){
+			this.gameInterval = setInterval(this.gameLoop.bind(this), 1000 / 60)
+		}
 	}
 	stopMainLoop(){
 		this.mainLoopRunning = false
 		this.mainAsset.stop()
-		clearInterval(this.gameInterval)
+		if(this.multiplayer !== 2){
+			clearInterval(this.gameInterval)
+		}
 	}
 	gameLoop(){
 		if(this.mainLoopRunning){
-			if(this.syncWith){
+			if(this.multiplayer === 1){
 				this.syncWith.game.elapsedTime = this.game.elapsedTime
 				this.syncWith.game.startDate = this.game.startDate
 			}
@@ -83,6 +89,9 @@ class Controller{
 					this.game.playMainMusic()
 				}
 			}
+			if(this.multiplayer === 1){
+				this.syncWith.gameLoop()
+			}
 		}
 	}
 	viewLoop(){
@@ -90,7 +99,7 @@ class Controller{
 			if(this.multiplayer !== 2){
 				requestAnimationFrame(() => {
 					this.viewLoop()
-					if(this.syncWith){
+					if(this.multiplayer === 1){
 						this.syncWith.viewLoop()
 					}
 					if(this.scoresheet){
@@ -161,7 +170,7 @@ class Controller{
 		this.playSound(soundID + meka, time)
 	}
 	togglePause(){
-		if(this.syncWith){
+		if(this.multiplayer === 1){
 			this.syncWith.game.togglePause()
 		}
 		this.game.togglePause()
@@ -207,7 +216,7 @@ class Controller{
 		}
 	}
 	clean(){
-		if(this.syncWith){
+		if(this.multiplayer === 1){
 			this.syncWith.clean()
 		}
 		this.stopMainLoop()
