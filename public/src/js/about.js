@@ -11,7 +11,7 @@
 		if(touchEnabled){
 			this.tutorialOuter.classList.add("touch-enabled")
 		}
-		this.linkGithub = document.getElementById("link-github")
+		this.linkIssues = document.getElementById("link-issues")
 		this.linkEmail = document.getElementById("link-email")
 		
 		var tutorialTitle = document.getElementById("tutorial-title")
@@ -29,7 +29,13 @@
 		this.endButton.innerText = strings.tutorial.ok
 		this.endButton.setAttribute("alt", strings.tutorial.ok)
 		
-		pageEvents.add(this.linkGithub, ["click", "touchend"], this.linkButton.bind(this))
+		var versionUrl = "https://github.com/bui/taiko-web/"
+		if(gameConfig._version){
+			versionUrl = gameConfig._version.url
+		}
+		this.getLink(this.linkIssues).href = versionUrl + "issues"
+		
+		pageEvents.add(this.linkIssues, ["click", "touchend"], this.linkButton.bind(this))
 		pageEvents.add(this.linkEmail, ["click", "touchend"], this.linkButton.bind(this))
 		pageEvents.once(this.endButton, ["mousedown", "touchstart"]).then(this.onEnd.bind(this))
 		pageEvents.keyOnce(this, 13, "down").then(this.onEnd.bind(this))
@@ -141,7 +147,6 @@
 		}
 		
 		var issueBody = strings.issueTemplate + "\n\n\n\n" + diag
-		this.getLink(this.linkGithub).href += "?body=" + encodeURIComponent(issueBody)
 		this.getLink(this.linkEmail).href += "?body=" + encodeURIComponent(issueBody.replace(/\n/g, "<br>\r\n"))
 	}
 	getLink(target){
@@ -153,7 +158,7 @@
 	clean(){
 		cancelTouch = true
 		this.gamepad.clean()
-		pageEvents.remove(this.linkGithub, ["click", "touchend"])
+		pageEvents.remove(this.linkIssues, ["click", "touchend"])
 		pageEvents.remove(this.linkEmail, ["click", "touchend"])
 		pageEvents.remove(this.endButton, ["mousedown", "touchstart"])
 		if(this.textarea){
@@ -164,7 +169,7 @@
 		delete this.diagTxt
 		delete this.version
 		delete this.tutorialOuter
-		delete this.linkGithub
+		delete this.linkIssues
 		delete this.linkEmail
 		delete this.textarea
 	}

@@ -78,7 +78,7 @@
 		bugReporting: [
 			"このシミュレータは現在開発中です。",
 			"バグが発生した場合は、報告してください。",
-			"GitHubかメールでバグを報告してください。"
+			"Gitリポジトリかメールでバグを報告してください。"
 		],
 		diagnosticWarning: "以下の端末診断情報も併せて報告してください！",
 		issueTemplate: "###### 下記の問題を説明してください。 スクリーンショットと診断情報を含めてください。"
@@ -169,7 +169,7 @@ function StringsEn(){
 		bugReporting: [
 			"This simulator is still in development.",
 			"Please report any bugs you find.",
-			"You can report bugs either via GitHub or email."
+			"You can report bugs either via our Git repository or email."
 		],
 		diagnosticWarning: "Be sure to include the following diagnostic data!",
 		issueTemplate: "###### Describe the problem you are having below. Please include a screenshot and the diagnostic information."
@@ -260,7 +260,7 @@ function StringsCn(){
 		bugReporting: [
 			"This simulator is still in development.",
 			"Please report any bugs you find.",
-			"You can report bugs either via GitHub or email."
+			"You can report bugs either via our Git repository or email."
 		],
 		diagnosticWarning: "Be sure to include the following diagnostic data!",
 		issueTemplate: "###### Describe the problem you are having below. Please include a screenshot and the diagnostic information."
@@ -351,7 +351,7 @@ function StringsTw(){
 		bugReporting: [
 			"This simulator is still in development.",
 			"Please report any bugs you find.",
-			"You can report bugs either via GitHub or email."
+			"You can report bugs either via our Git repository or email."
 		],
 		diagnosticWarning: "Be sure to include the following diagnostic data!",
 		issueTemplate: "###### Describe the problem you are having below. Please include a screenshot and the diagnostic information."
@@ -442,7 +442,7 @@ function StringsKo(){
 		bugReporting: [
 			"This simulator is still in development.",
 			"Please report any bugs you find.",
-			"You can report bugs either via GitHub or email."
+			"You can report bugs either via our Git repository or email."
 		],
 		diagnosticWarning: "Be sure to include the following diagnostic data!",
 		issueTemplate: "###### Describe the problem you are having below. Please include a screenshot and the diagnostic information."
