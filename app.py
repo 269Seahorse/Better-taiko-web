@@ -166,7 +166,7 @@ def route_api_songs():
     categories = {}
     def_category = {'title': None, 'title_en': None}
     for cat in raw_categories:
-        categories[cat[0]] = {'title': cat[1], 'title_en': cat[2]}
+        categories[cat[0]] = cat[1]
     
     raw_song_skins = query_db('select * from song_skins')
     song_skins = {}
@@ -185,15 +185,14 @@ def route_api_songs():
         songs_out.append({
             'id': song_id,
             'title': song[1],
-            'title_en': song[2],
+            'title_lang': song[2],
             'subtitle': song[3],
-            'subtitle_en': song[4],
+            'subtitle_lang': song[4],
             'stars': [
                 song[5], song[6], song[7], song[8], song[9]
             ],
             'preview': preview,
-            'category': category_out['title'],
-            'category_en': category_out['title_en'],
+            'category': category_out,
             'type': song_type,
             'offset': song[13],
             'song_skin': song_skin_out

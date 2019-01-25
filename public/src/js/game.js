@@ -43,6 +43,12 @@ class Game{
 	initTiming(){
 		// Date when the chrono is started (before the game begins)
 		var offsetTime = Math.max(0, this.timeForDistanceCircle - this.songData.circles[0].ms) |0
+		if(this.controller.multiplayer){
+			var syncWith = this.controller.syncWith
+			var syncCircles = syncWith.game.songData.circles
+			var syncOffsetTime = Math.max(0, this.timeForDistanceCircle - syncCircles[0].ms) |0
+			offsetTime = Math.max(offsetTime, syncOffsetTime)
+		}
 		this.elapsedTime = -offsetTime
 		// The real start for the game will start when chrono will reach 0
 		this.startDate = Date.now() + offsetTime
@@ -320,7 +326,7 @@ class Game{
 				this.musicFadeOut++
 			}else if(this.musicFadeOut === 1 && ms >= started + 1600){
 				this.controller.gameEnded()
-				if(!p2.session){
+				if(!p2.session && this.controller.multiplayer === 1){
 					p2.send("gameend")
 				}
 				this.musicFadeOut++

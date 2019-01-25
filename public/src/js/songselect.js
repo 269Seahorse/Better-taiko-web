@@ -94,11 +94,12 @@ class SongSelect{
 		
 		this.songs = []
 		for(let song of assets.songs){
-			var en = strings.id === "en" && song.title_en
+			var title = this.getLocalTitle(song.title, song.title_lang)
+			var subtitle = this.getLocalTitle(title === song.title ? song.subtitle : "", song.subtitle_lang)
 			this.songs.push({
 				id: song.id,
-				title: en ? song.title_en : song.title,
-				subtitle: en ? song.subtitle_en : song.subtitle,
+				title: title,
+				subtitle: subtitle,
 				skin: song.category in this.songSkin ? this.songSkin[song.category] : this.songSkin.default,
 				stars: song.stars,
 				category: song.category,
@@ -1325,7 +1326,7 @@ class SongSelect{
 						if(this.selectedDiff === 4 + this.diffOptions.length){
 							currentDiff = 3
 						}
-						if(i === currentSong.p2Cursor){
+						if(i === currentSong.p2Cursor && p2.socket.readyState === 1){
 							this.draw.diffCursor({
 								ctx: ctx,
 								font: this.font,
@@ -1349,7 +1350,7 @@ class SongSelect{
 									font: this.font,
 									x: _x,
 									y: _y - 65,
-									side: currentSong.p2Cursor === currentDiff
+									side: currentSong.p2Cursor === currentDiff && p2.socket.readyState === 1
 								})
 							}
 							if(highlight){
@@ -1664,7 +1665,7 @@ class SongSelect{
 			})
 		}
 		this.draw.songFrame(config)
-		if(config.song.p2Cursor){
+		if(config.song.p2Cursor && p2.socket.readyState === 1){
 			this.draw.diffCursor({
 				ctx: ctx,
 				font: this.font,
@@ -1851,6 +1852,22 @@ class SongSelect{
 	
 	mod(length, index){
 		return ((index % length) + length) % length
+	}
+	
+	getLocalTitle(title, titleLang){
+		if(titleLang){
+			titleLang = titleLang.split("\n")
+			titleLang.forEach(line => {
+				var space = line.indexOf(" ")
+				var id = line.slice(0, space)
+				if(id === strings.id){
+					title = line.slice(space + 1)
+				}else if(titleLang.length === 1 && strings.id === "en" && !(id in allStrings)){
+					title = line
+				}
+			})
+		}
+		return title
 	}
 	
 	getMS(){
