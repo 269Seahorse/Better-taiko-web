@@ -98,6 +98,9 @@ class Titlescreen{
 		this.langId.setAttribute("alt", strings.id.toUpperCase())
 		loader.screen.style.fontFamily = strings.font
 		loader.screen.style.fontWeight = strings.font === "Microsoft YaHei, sans-serif" ? "bold" : ""
+		if(failedTests.length !== 0){
+			showUnsupported(strings)
+		}
 	}
 	addLangs(){
 		for(var i in allStrings){

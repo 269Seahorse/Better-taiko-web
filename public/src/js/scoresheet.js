@@ -396,6 +396,7 @@ class Scoresheet{
 						fontFamily: this.font,
 						x: 1257,
 						y: 20,
+						width: 600,
 						align: "right",
 						forceShadow: true
 					}, [

@@ -26,7 +26,6 @@ var assets = {
 		"about.js",
 		"debug.js",
 		"session.js",
-		"strings.js",
 		"importsongs.js"
 	],
 	"css": [

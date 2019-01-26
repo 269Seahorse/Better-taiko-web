@@ -49,72 +49,138 @@ function browserSupport(){
 			return el.style.length !== 0
 		}
 	}
-	var failedTests = []
+	failedTests = []
 	for(var name in tests){
 		var result = false
 		try{
 			result = tests[name]()
 		}catch(e){}
 		if(result === false){
-			failedTests.push("<li>" + name + "</li>")
+			failedTests.push(name)
 		}
 	}
 	if(failedTests.length !== 0){
-		var div = document.createElement("div")
-		div.id = "unsupportedBrowser"
-		
-		div.innerHTML =
-'<div id="unsupportedHide">x</div>\
-<span>You are running an unsupported browser (\
-<a id="unsupportedLink">Details...</a>)</span>\
-<div id="unsupportedDetails">\
-The following tests have failed:\
-<ul>'
-+ failedTests.join("")
-+ '</ul>\
-Please use a supported browser such as \
-<a href="https://www.google.com/chrome/" id="unsupportedChrome">Google Chrome</a>\
-</div>'
-		
-		document.body.appendChild(div)
-		var link = document.getElementById("unsupportedLink")
-		var details = document.getElementById("unsupportedDetails")
-		var hide = document.getElementById("unsupportedHide")
-		var chrome = document.getElementById("unsupportedChrome")
-		var divClick = function(event){
-			if(event.type === "touchstart"){
-				event.preventDefault()
-				getSelection().removeAllRanges()
-			}
-			div.classList.remove("hidden")
-		}
-		div.addEventListener("click", divClick)
-		div.addEventListener("touchstart", divClick)
-		var toggleDetails = function(event){
-			if(event.type === "touchstart"){
-				event.preventDefault()
-			}
-			if(details.style.display === "block"){
-				details.style.display = ""
-			}else{
-				details.style.display = "block"
-			}
-		}
-		link.addEventListener("click", toggleDetails)
-		link.addEventListener("touchstart", toggleDetails)
-		var hideClick = function(event){
-			if(event.type === "touchstart"){
-				event.preventDefault()
-			}
-			event.stopPropagation()
-			div.classList.add("hidden")
-		}
-		hide.addEventListener("click", hideClick)
-		hide.addEventListener("touchstart", hideClick)
-		chrome.addEventListener("touchend", function(event){
-			event.preventDefault()
-			chrome.click()
-		})
+		showUnsupported()
 	}
 }
+function showUnsupported(strings){
+	if(!strings){
+		var lang
+		try{
+			if("localStorage" in window && window.localStorage.lang && window.localStorage.lang in allStrings){
+				lang = window.localStorage.lang
+			}
+			if(!lang && "languages" in navigator){
+				var userLang = navigator.languages.slice()
+				userLang.unshift(navigator.language)
+				for(var i in userLang){
+					for(var j in allStrings){
+						if(allStrings[j].regex.test(userLang[i])){
+							lang = j
+						}
+					}
+				}
+			}
+		}catch(e){}
+		if(!lang){
+			lang = "en"
+		}
+		strings = allStrings[lang]
+	}
+	
+	var div = document.getElementById("unsupportedBrowser")
+	if(div){
+		div.parentNode.removeChild(div)
+	}
+	div = document.createElement("div")
+	div.id = "unsupportedBrowser"
+	
+	var warn = document.createElement("div")
+	warn.id = "unsupportedWarn"
+	warn.innerText = "!"
+	div.appendChild(warn)
+	var hide = document.createElement("div")
+	hide.id = "unsupportedHide"
+	hide.innerText = "x"
+	div.appendChild(hide)
+	
+	var span = document.createElement("span")
+	var browserWarning = strings.browserSupport.browserWarning.split("%s")
+	for(var i = 0; i < browserWarning.length; i++){
+		if(i !== 0){
+			var link = document.createElement("a")
+			link.innerText = strings.browserSupport.details
+			span.appendChild(link)
+		}
+		span.appendChild(document.createTextNode(browserWarning[i]))
+	}
+	div.appendChild(span)
+	
+	var details = document.createElement("div")
+	details.id = "unsupportedDetails"
+	details.appendChild(document.createTextNode(strings.browserSupport.failedTests))
+	
+	var ul = document.createElement("ul")
+	for(var i = 0; i < failedTests.length; i++){
+		var li = document.createElement("li")
+		li.innerText = failedTests[i]
+		ul.appendChild(li)
+	}
+	details.appendChild(ul)
+	
+	var supportedBrowser = strings.browserSupport.supportedBrowser.split("%s")
+	for(var i = 0; i < supportedBrowser.length; i++){
+		if(i !== 0){
+			var chrome = document.createElement("a")
+			chrome.href = "https://www.google.com/chrome/"
+			chrome.innerText = "Google Chrome"
+			details.appendChild(chrome)
+		}
+		details.appendChild(document.createTextNode(supportedBrowser[i]))
+	}
+	
+	div.appendChild(details)
+	
+	document.body.appendChild(div)
+	var divClick = function(event){
+		if(event.type === "touchstart"){
+			event.preventDefault()
+			getSelection().removeAllRanges()
+		}
+		div.classList.remove("hidden")
+	}
+	div.addEventListener("click", divClick)
+	div.addEventListener("touchstart", divClick)
+	var toggleDetails = function(event){
+		if(event.type === "touchstart"){
+			event.preventDefault()
+		}
+		if(details.style.display === "block"){
+			details.style.display = ""
+		}else{
+			details.style.display = "block"
+		}
+	}
+	link.addEventListener("click", toggleDetails)
+	link.addEventListener("touchstart", toggleDetails)
+	var hideClick = function(event){
+		if(event.type === "touchstart"){
+			event.preventDefault()
+		}
+		event.stopPropagation()
+		div.classList.add("hidden")
+	}
+	hide.addEventListener("click", hideClick)
+	hide.addEventListener("touchstart", hideClick)
+	chrome.addEventListener("touchend", function(event){
+		event.preventDefault()
+		chrome.click()
+	})
+	var touchText = function(){
+		div.style.fontSize = "4em"
+		removeEventListener("touchstart", touchText)
+	}
+	addEventListener("touchstart", touchText)
+}
+var failedTests
 browserSupport()
