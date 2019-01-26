@@ -88,6 +88,12 @@
 		linkTutorial: "Share this link with your friend to start playing together! Do not leave this screen while they join.",
 		cancel: "Cancel"
 	}
+	this.browserSupport = {
+		browserWarning: "サポートされていないブラウザを実行しています (%s)",
+		details: "詳しく",
+		failedTests: "このテストは失敗しました：",
+		supportedBrowser: "%sなどのサポートされているブラウザを使用してください"
+	}
 }
 function StringsEn(){
 	this.id = "en"
@@ -178,6 +184,12 @@ function StringsEn(){
 		multiplayerSession: "Multiplayer Session",
 		linkTutorial: "Share this link with your friend to start playing together! Do not leave this screen while they join.",
 		cancel: "Cancel"
+	}
+	this.browserSupport = {
+		browserWarning: "You are running an unsupported browser (%s)",
+		details: "Details...",
+		failedTests: "The following tests have failed:",
+		supportedBrowser: "Please use a supported browser such as %s"
 	}
 }
 function StringsCn(){
@@ -270,6 +282,12 @@ function StringsCn(){
 		linkTutorial: "Share this link with your friend to start playing together! Do not leave this screen while they join.",
 		cancel: "Cancel"
 	}
+	this.browserSupport = {
+		browserWarning: "You are running an unsupported browser (%s)",
+		details: "Details...",
+		failedTests: "The following tests have failed:",
+		supportedBrowser: "Please use a supported browser such as %s"
+	}
 }
 function StringsTw(){
 	this.id = "tw"
@@ -361,6 +379,12 @@ function StringsTw(){
 		linkTutorial: "Share this link with your friend to start playing together! Do not leave this screen while they join.",
 		cancel: "Cancel"
 	}
+	this.browserSupport = {
+		browserWarning: "You are running an unsupported browser (%s)",
+		details: "Details...",
+		failedTests: "The following tests have failed:",
+		supportedBrowser: "Please use a supported browser such as %s"
+	}
 }
 function StringsKo(){
 	this.id = "ko"
@@ -451,6 +475,12 @@ function StringsKo(){
 		multiplayerSession: "Multiplayer Session",
 		linkTutorial: "Share this link with your friend to start playing together! Do not leave this screen while they join.",
 		cancel: "Cancel"
+	}
+	this.browserSupport = {
+		browserWarning: "You are running an unsupported browser (%s)",
+		details: "Details...",
+		failedTests: "The following tests have failed:",
+		supportedBrowser: "Please use a supported browser such as %s"
 	}
 }
 var allStrings = {

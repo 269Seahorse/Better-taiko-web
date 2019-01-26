@@ -1062,9 +1062,8 @@
 			}
 			this.setLayers(donLayers, filename + songSkinName + (notStatic ? "_" : ""), notStatic)
 		}
-		var w1 = assets.image[asset1].width
-		var w2 = assets.image[asset2].width
-		this.donBg.style.setProperty("--sw", w1 > w2 ? w1 : w2)
+		this.donBg.style.setProperty("--sw1", assets.image[asset1].width)
+		this.donBg.style.setProperty("--sw2", assets.image[asset2].width)
 		this.donBg.style.setProperty("--sh1", assets.image[asset1].height)
 		this.donBg.style.setProperty("--sh2", assets.image[asset2].height)
 	}
@@ -1163,6 +1162,11 @@
 				var animT = circle.getAnimT()
 				if(ms < animT + 490){
 					
+					if(circle.fixedPos){
+						circle.fixedPos = false
+						circle.animT = ms
+						animT = ms
+					}
 					var animPoint = (ms - animT) / 490
 					var bezierPoint = this.calcBezierPoint(this.draw.easeOut(animPoint), this.animateBezier)
 					this.drawCircle(circle, {x: bezierPoint.x, y: bezierPoint.y})

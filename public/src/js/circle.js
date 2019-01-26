@@ -22,6 +22,7 @@ class Circle{
 		this.gogoTime = config.gogoTime
 		this.gogoChecked = false
 		this.beatMS = config.beatMS
+		this.fixedPos = config.fixedPos
 	}
 	getMS(){
 		return this.ms

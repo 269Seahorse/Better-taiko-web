@@ -284,7 +284,8 @@ class Game{
 			type: sound,
 			txt: "",
 			speed: circle.speed,
-			gogoTime: circle.gogoTime
+			gogoTime: circle.gogoTime,
+			fixedPos: document.hasFocus()
 		})
 		circleAnim.played(score, dai)
 		circleAnim.animate(ms)
