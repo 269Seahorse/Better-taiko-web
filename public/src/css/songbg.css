@@ -110,6 +110,10 @@
 	top: calc(50% + -1vw);
 	bottom: auto;
 }
+@keyframes donbg-scroll{
+	from{background-position-x: 0}
+	to{background-position-x: calc(var(--h) / var(--sh1) * var(--sw) * -1)}
+}
 @keyframes donbg-scroll1{
 	from{background-position-x: 0}
 	to{background-position-x: calc(var(--h) / var(--sh1) * var(--sw1) * -1)}
@@ -138,7 +142,7 @@
 	30%{background-position-y: 0}
 }
 .donlayer1{
-	animation: 5s linear donbg-scroll1 infinite;
+	animation: 5s linear donbg-scroll infinite;
 	background-size: auto 100%;
 }
 .donlayer2{
@@ -158,15 +162,15 @@
 .donbg-4 .donlayer2,
 .donbg-6 .donlayer2,
 .donbg-raise .donlayer2{
-	animation: 5s linear donbg-scroll2 infinite, 1s linear donbg-raise infinite alternate;
+	animation: 5s linear donbg-scroll infinite, 1s linear donbg-raise infinite alternate;
 }
 .donbg-3 .donlayer2,
 .donbg-anim3 .donlayer2{
-	animation: 3.4s linear donbg-scroll2 infinite, 1.8s linear donbg-anim3 infinite;
+	animation: 3.4s linear donbg-scroll infinite, 1.8s linear donbg-anim3 infinite;
 }
 .donbg-5 .donlayer2,
 .donbg-anim5 .donlayer2{
-	animation: 2.7s linear donbg-scroll2 infinite, 2.2s linear donbg-anim5 infinite;
+	animation: 2.7s linear donbg-scroll infinite, 2.2s linear donbg-anim5 infinite;
 }
 .donbg-equalscroll .donlayer1{
 	animation: 5.3s linear donbg-scroll1 infinite;

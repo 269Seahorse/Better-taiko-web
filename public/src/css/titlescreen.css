@@ -21,13 +21,9 @@
 	background-size: cover;
 	cursor: pointer;
 }
-.logo-big{
-	width: 90vmin;
-	height: calc(90vmin / 754 * 400);
-	background-size: contain;
-	background-repeat: no-repeat;
-	text-align: center;
-	color: transparent;
+#logo{
+	width: 100vmin;
+	height: calc(100vmin / 1170 * 390);
 }
 .click-to-continue{
 	position: absolute;

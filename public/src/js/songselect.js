@@ -1687,11 +1687,16 @@ class SongSelect{
 		if("id" in currentSong){
 			var startLoad = this.getMS()
 			if(loadOnly){
-				var currentId = null
+				var resolveLoading
+				this.previewLoading = currentSong.id
 			}else{
-				var currentId = this.previewId
 				this.previewing = this.selectedSong
+				if(this.previewLoading === currentSong.id){
+					this.previewLoading = null
+					return
+				}
 			}
+			var currentId = this.previewId
 			var songObj = this.previewList.find(song => song && song.id === id)
 			
 			if(songObj){
@@ -1723,9 +1728,14 @@ class SongSelect{
 				}).then(sound => {
 					if(currentId === this.previewId){
 						songObj.preview_sound = sound
-						this.preview = sound
-						this.previewLoaded(startLoad, songObj.preview_time)
-						
+						if(!loadOnly || !this.previewLoading){
+							this.previewing = this.selectedSong
+							this.preview = sound
+							this.previewLoaded(startLoad, songObj.preview_time)
+						}
+						if(loadOnly){
+							this.previewLoading = null
+						}
 						var oldPreview = this.previewList.shift()
 						if(oldPreview){
 							oldPreview.preview_sound.clean()

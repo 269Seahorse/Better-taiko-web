@@ -7,6 +7,7 @@ class Titlescreen{
 		this.langDropdown = document.getElementById("lang-dropdown")
 		this.langId = document.getElementById("lang-id")
 		
+		this.logo = new Logo()
 		this.lang = this.getLang()
 		this.setLang(allStrings[this.lang])
 		this.addLangs()
@@ -101,6 +102,7 @@ class Titlescreen{
 		if(failedTests.length !== 0){
 			showUnsupported(strings)
 		}
+		this.logo.updateSubtitle()
 	}
 	addLangs(){
 		for(var i in allStrings){
@@ -121,6 +123,7 @@ class Titlescreen{
 	
 	clean(){
 		this.gamepad.clean()
+		this.logo.clean()
 		assets.sounds["title"].stop()
 		pageEvents.keyRemove(this, "all")
 		pageEvents.remove(this.titleScreen, ["mousedown", "touchstart"])
