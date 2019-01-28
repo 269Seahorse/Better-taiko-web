@@ -6,6 +6,8 @@
 	
 	this.taikoWeb = "たいこウェブ"
 	this.titleProceed = "クリックするかEnterを押す！"
+	this.titleDisclaimer = "この非公式シミュレーターはバンダイナムコとは関係がありません。"
+	this.titleCopyright = "Taiko no Tatsujin ©&™ 2011 BANDAI NAMCO Entertainment Inc."
 	this.categories = {
 		"J-POP": "J-POP",
 		"アニメ": "アニメ",
@@ -104,6 +106,8 @@ function StringsEn(){
 	
 	this.taikoWeb = "Taiko Web"
 	this.titleProceed = "Click or Press Enter!"
+	this.titleDisclaimer = "This unofficial simulator is unaffiliated with BANDAI NAMCO."
+	this.titleCopyright = "Taiko no Tatsujin ©&™ 2011 BANDAI NAMCO Entertainment Inc."
 	this.categories = {
 		"J-POP": "Pop",
 		"アニメ": "Anime",
@@ -202,6 +206,8 @@ function StringsCn(){
 	
 	this.taikoWeb = "太鼓网页"
 	this.titleProceed = "点击或按回车！"
+	this.titleDisclaimer = "這款非官方模擬器與BANDAI NAMCO無關。"
+	this.titleCopyright = "Taiko no Tatsujin ©&™ 2011 BANDAI NAMCO Entertainment Inc."
 	this.categories = {
 		"J-POP": "流行音乐",
 		"アニメ": "卡通动画音乐",
@@ -300,6 +306,8 @@ function StringsTw(){
 	
 	this.taikoWeb = "太鼓網頁"
 	this.titleProceed = "點擊或按確認！"
+	this.titleDisclaimer = "这款非官方模拟器与BANDAI NAMCO无关。"
+	this.titleCopyright = "Taiko no Tatsujin ©&™ 2011 BANDAI NAMCO Entertainment Inc."
 	this.categories = {
 		"J-POP": "流行音樂",
 		"アニメ": "卡通動畫音樂",
@@ -398,6 +406,8 @@ function StringsKo(){
 	
 	this.taikoWeb = "태고 웹"
 	this.titleProceed = "클릭하거나 Enter를 누릅니다!"
+	this.titleDisclaimer = "이 비공식 시뮬레이터는 반다이 남코와 관련이 없습니다."
+	this.titleCopyright = "Taiko no Tatsujin ©&™ 2011 BANDAI NAMCO Entertainment Inc."
 	this.categories = {
 		"J-POP": "POP",
 		"アニメ": "애니메이션",

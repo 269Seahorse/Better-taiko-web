@@ -6,7 +6,9 @@ class Titlescreen{
 		this.proceed = document.getElementById("title-proceed")
 		this.langDropdown = document.getElementById("lang-dropdown")
 		this.langId = document.getElementById("lang-id")
-		
+		this.disclaimerText = document.getElementById("title-disclaimer-text")
+		this.disclaimerCopyright = document.getElementById("title-disclaimer-copyright")
+
 		this.logo = new Logo()
 		this.lang = this.getLang()
 		this.setLang(allStrings[this.lang])
@@ -97,6 +99,12 @@ class Titlescreen{
 		this.proceed.setAttribute("alt", strings.titleProceed)
 		this.langId.innerText = strings.id.toUpperCase()
 		this.langId.setAttribute("alt", strings.id.toUpperCase())
+		
+		this.disclaimerText.innerText = strings.titleDisclaimer
+		this.disclaimerText.setAttribute("alt", strings.titleDisclaimer)
+		this.disclaimerCopyright.innerText = strings.titleCopyright
+		this.disclaimerCopyright.setAttribute("alt", strings.titleCopyright)
+		
 		loader.screen.style.fontFamily = strings.font
 		loader.screen.style.fontWeight = strings.font === "Microsoft YaHei, sans-serif" ? "bold" : ""
 		if(failedTests.length !== 0){
@@ -130,6 +138,8 @@ class Titlescreen{
 		pageEvents.remove(this.langDropdown, "change")
 		delete this.titleScreen
 		delete this.proceed
+		delete this.titleDisclaimer
+		delete this.titleCopyright
 		delete this.langDropdown
 	}
 }

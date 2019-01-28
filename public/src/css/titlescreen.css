@@ -27,7 +27,7 @@
 }
 .click-to-continue{
 	position: absolute;
-	bottom: 10%;
+	bottom: 15%;
 	color: #fff;
 	font-size: 8vmin;
 	text-align: center;
@@ -46,6 +46,7 @@
 	width: 7em;
 	height: 4em;
 	color: #000;
+	z-index: 5;
 }
 #lang:focus-within{
 	outline: #4d90fe auto 5px;
@@ -83,4 +84,21 @@
 }
 #lang:hover #lang-id::before {
 	-webkit-text-stroke: 0.25em #f00;
+}
+#title-disclaimer {
+	text-align: center;
+	position: absolute;
+	bottom: 5%;
+	color: #fff;
+	z-index: 1;
+}
+#title-disclaimer span {
+	color: #fff;
+	font-size: 2vmin;
+	text-align: center;
+	display: block;
+}
+#title-disclaimer span:before {
+	left: initial;
+	filter: blur(0.1vmin);
 }
