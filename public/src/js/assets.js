@@ -26,7 +26,8 @@ var assets = {
 		"about.js",
 		"debug.js",
 		"session.js",
-		"importsongs.js"
+		"importsongs.js",
+		"logo.js"
 	],
 	"css": [
 		"main.css",
@@ -38,7 +39,6 @@ var assets = {
 	],
 	"img": [
 		"title-screen.png",
-		"logo-big.png",
 		"notes.png",
 		"notes_drumroll.png",
 		"notes_hit.png",
