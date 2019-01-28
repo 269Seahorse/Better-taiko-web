@@ -138,6 +138,8 @@ class Titlescreen{
 		pageEvents.remove(this.langDropdown, "change")
 		delete this.titleScreen
 		delete this.proceed
+		delete this.titleDisclaimer
+		delete this.titleCopyright
 		delete this.langDropdown
 	}
 }
