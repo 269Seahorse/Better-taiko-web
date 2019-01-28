@@ -206,7 +206,7 @@ function StringsCn(){
 	
 	this.taikoWeb = "太鼓网页"
 	this.titleProceed = "点击或按回车！"
-	this.titleDisclaimer = "這款非官方模擬器與BANDAI NAMCO無關。"
+	this.titleDisclaimer = "这款非官方模拟器与BANDAI NAMCO无关。"
 	this.titleCopyright = "Taiko no Tatsujin ©&™ 2011 BANDAI NAMCO Entertainment Inc."
 	this.categories = {
 		"J-POP": "流行音乐",
@@ -306,7 +306,7 @@ function StringsTw(){
 	
 	this.taikoWeb = "太鼓網頁"
 	this.titleProceed = "點擊或按確認！"
-	this.titleDisclaimer = "这款非官方模拟器与BANDAI NAMCO无关。"
+	this.titleDisclaimer = "這款非官方模擬器與BANDAI NAMCO無關。"
 	this.titleCopyright = "Taiko no Tatsujin ©&™ 2011 BANDAI NAMCO Entertainment Inc."
 	this.categories = {
 		"J-POP": "流行音樂",
