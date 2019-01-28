@@ -46,6 +46,7 @@
 	width: 7em;
 	height: 4em;
 	color: #000;
+	z-index: 5;
 }
 #lang:focus-within{
 	outline: #4d90fe auto 5px;
