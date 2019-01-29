@@ -81,6 +81,7 @@ var perf = {
 	load: 0
 }
 var strings
+var vectors
 
 pageEvents.add(root, ["touchstart", "touchmove", "touchend"], event => {
 	if(event.cancelable && cancelTouch && event.target.tagName !== "SELECT"){

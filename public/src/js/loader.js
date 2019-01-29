@@ -79,6 +79,10 @@ class Loader{
 			assets.songs = assets.songsDefault
 		}))
 		
+		this.addPromise(this.ajax(gameConfig.assets_baseurl + "img/vectors.json").then(response => {
+			vectors = JSON.parse(response)
+		}))
+		
 		this.afterJSCount =
 			[assets.audioOgg, "blurPerformance", "P2Connection"].length +
 			assets.fonts.length +

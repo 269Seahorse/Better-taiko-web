@@ -37,6 +37,7 @@
 	this.sessionStart = "オンラインセッションを開始する！"
 	this.sessionEnd = "オンラインセッションを終了する"
 	this.loading = "ロード中..."
+	this.waitingForP2 = "他のプレイヤーを待っている..."
 	this.cancel = "キャンセル"
 	this.note = {
 		don: "ドン",
@@ -87,9 +88,9 @@
 		issueTemplate: "###### 下記の問題を説明してください。 スクリーンショットと診断情報を含めてください。"
 	}
 	this.session = {
-		multiplayerSession: "Multiplayer Session",
+		multiplayerSession: "オンラインセッション",
 		linkTutorial: "Share this link with your friend to start playing together! Do not leave this screen while they join.",
-		cancel: "Cancel"
+		cancel: "キャンセル"
 	}
 	this.browserSupport = {
 		browserWarning: "サポートされていないブラウザを実行しています (%s)",
@@ -137,6 +138,7 @@ function StringsEn(){
 	this.sessionStart = "Begin an Online Session!"
 	this.sessionEnd = "End Online Session"
 	this.loading = "Loading..."
+	this.waitingForP2 = "Waiting for Another Player..."
 	this.cancel = "Cancel"
 	this.note = {
 		don: "Don",
@@ -237,6 +239,7 @@ function StringsCn(){
 	this.sessionStart = "开始在线会话!"
 	this.sessionEnd = "结束在线会话"
 	this.loading = "加载中..."
+	this.waitingForP2 = "Waiting for Another Player..."
 	this.cancel = "取消"
 	this.note = {
 		don: "咚",
@@ -275,7 +278,7 @@ function StringsCn(){
 			"%s while selecting difficulty \u2014 enable autoplay mode",
 			"%s while selecting difficulty \u2014 enable 2P mode"
 		],
-		ok: "OK"
+		ok: "确定"
 	}
 	this.about = {
 		bugReporting: [
@@ -289,7 +292,7 @@ function StringsCn(){
 	this.session = {
 		multiplayerSession: "Multiplayer Session",
 		linkTutorial: "Share this link with your friend to start playing together! Do not leave this screen while they join.",
-		cancel: "Cancel"
+		cancel: "取消"
 	}
 	this.browserSupport = {
 		browserWarning: "You are running an unsupported browser (%s)",
@@ -337,6 +340,7 @@ function StringsTw(){
 	this.sessionStart = "開始多人模式!"
 	this.sessionEnd = "結束多人模式"
 	this.loading = "讀取中..."
+	this.waitingForP2 = "Waiting for Another Player..."
 	this.cancel = "取消"
 	this.note = {
 		don: "咚",
@@ -375,7 +379,7 @@ function StringsTw(){
 			"%s while selecting difficulty \u2014 enable autoplay mode",
 			"%s while selecting difficulty \u2014 enable 2P mode"
 		],
-		ok: "OK"
+		ok: "確定"
 	}
 	this.about = {
 		bugReporting: [
@@ -389,7 +393,7 @@ function StringsTw(){
 	this.session = {
 		multiplayerSession: "Multiplayer Session",
 		linkTutorial: "Share this link with your friend to start playing together! Do not leave this screen while they join.",
-		cancel: "Cancel"
+		cancel: "取消"
 	}
 	this.browserSupport = {
 		browserWarning: "You are running an unsupported browser (%s)",
@@ -437,6 +441,7 @@ function StringsKo(){
 	this.sessionStart = "온라인 세션 시작!"
 	this.sessionEnd = "온라인 세션 끝내기"
 	this.loading = "로딩 중..."
+	this.waitingForP2 = "Waiting for Another Player..."
 	this.cancel = "취소"
 	this.note = {
 		don: "쿵",
@@ -475,7 +480,7 @@ function StringsKo(){
 			"%s while selecting difficulty \u2014 enable autoplay mode",
 			"%s while selecting difficulty \u2014 enable 2P mode"
 		],
-		ok: "OK"
+		ok: "확인"
 	}
 	this.about = {
 		bugReporting: [
@@ -489,7 +494,7 @@ function StringsKo(){
 	this.session = {
 		multiplayerSession: "Multiplayer Session",
 		linkTutorial: "Share this link with your friend to start playing together! Do not leave this screen while they join.",
-		cancel: "Cancel"
+		cancel: "취소"
 	}
 	this.browserSupport = {
 		browserWarning: "You are running an unsupported browser (%s)",
