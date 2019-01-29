@@ -79,7 +79,7 @@ class Loader{
 			assets.songs = assets.songsDefault
 		}))
 		
-		this.addPromise(this.ajax(gameConfig.assets_baseurl + "img/vectors.json").then(response => {
+		this.addPromise(this.ajax(gameConfig.assets_baseurl + "img/vectors.json" + queryString).then(response => {
 			vectors = JSON.parse(response)
 		}))
 		
