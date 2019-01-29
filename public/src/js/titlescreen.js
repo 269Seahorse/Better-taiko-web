@@ -8,6 +8,7 @@ class Titlescreen{
 		this.langId = document.getElementById("lang-id")
 		this.disclaimerText = document.getElementById("title-disclaimer-text")
 		this.disclaimerCopyright = document.getElementById("title-disclaimer-copyright")
+		document.getElementById("globe-path").setAttribute("d", vectors.globe)
 
 		this.logo = new Logo()
 		this.lang = this.getLang()
