@@ -197,9 +197,8 @@ class LoadSong{
 		
 		if(this.multiplayer){
 			var loadingText = document.getElementsByClassName("loading-text")[0]
-			var waitingText = "Waiting for Another Player..."
-			loadingText.firstChild.data = waitingText
-			loadingText.setAttribute("alt", waitingText)
+			loadingText.firstChild.data = strings.waitingForP2
+			loadingText.setAttribute("alt", strings.waitingForP2)
 			
 			this.cancelButton = document.getElementById("p2-cancel-button")
 			this.cancelButton.style.display = "inline-block"

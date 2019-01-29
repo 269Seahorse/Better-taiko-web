@@ -1,49 +1,48 @@
 ﻿class CanvasDraw{
 	constructor(){
-		this.diffStarPath = new Path2D("M3 17 5 11 0 6h6l3-6 3 6h6l-5 5 2 6-6-3")
-		this.longVowelMark = new Path2D("m1 5c2 3 1 17 .5 25 0 5 6 5 6.5 0C9 22 9 6 7 3 4-2-1 2 1 5")
+		this.diffStarPath = new Path2D(vectors.diffStar)
+		this.longVowelMark = new Path2D(vectors.longVowelMark)
 		
 		this.diffIconPath = [[{w: 40, h: 33}, {
 			fill: "#ff2803",
-			d: new Path2D("m27 10c9-9 21 9 5 11 10 9-6 18-12 7C14 39-2 30 8 21-8 19 4 1 13 10 6-4 34-3 27 10Z")
+			d: new Path2D(vectors.diffEasy1)
 		}, {
 			fill: "#ffb910",
 			noStroke: true,
-			d: new Path2D("m12 15c5 1 7 0 8-4 1 4 3 5 8 4-4 3-4 5-2 8-4-4-8-4-12 0 2.2-3 2-5-2-8")
+			d: new Path2D(vectors.diffEasy2)
 		}], [{w: 48, h: 31}, {
 			fill: "#8daf51",
-			d: new Path2D("m24 0c-3 0-4 3-5 6-2 6-2 11 0 17 0 0 1 4 5 8 4-4 5-8 5-8C31 17 31 12 29 6 28 3 27 0 24 0M37 2c4 3 7 6 8 8 2 4 3 6 2 13C43 21 39 18 39 18 35 15 32 12 30 8 27 0 32-2 37 2M11 2C7 5 4 8 3 10 1 14 0 16 1 23 5 21 9 18 9 18 13 15 16 12 18 8 21 0 16-2 11 2")
+			d: new Path2D(vectors.diffNormal)
 		}], [{w: 56, h: 37}, {
 			fill: "#784439",
-			d: new Path2D("m26 34v-2c-10 1-12 0-12-7 4-3 8-5 14-5 6 0 10 2 14 5 0 7-2 8-12 7V34Z")
+			d: new Path2D(vectors.diffHard1)
 		}, {
 			fill: "#000",
 			noStroke: true,
-			d: new Path2D("m18 19v9h8v-9m4 9h8v-9h-8")
+			d: new Path2D(vectors.diffHard2)
 		}, {
 			fill: "#414b2b",
-			d: new Path2D("M8 26C3 26-3 21 2 11 6 5 11 4 18 10c0-6 4-10 10-10 6 0 10 4 10 10 7-6 12-5 16 1 5 10-1 15-6 15-5 0-10-7-20-7-10 0-15 7-20 7")
+			d: new Path2D(vectors.diffHard3)
 		}], [{w: 29, h: 27}, {
 			fill: "#db1885",
-			d: new Path2D("m18 9c1 3 4 4 7 3 0 4 1 11 4 16H0c3-5 4-12 4-16 3 1 6 0 7-3z")
+			d: new Path2D(vectors.diffOni1)
 		}, {
 			fill: "#fff",
-			d: new Path2D("m6 0.5-2 11c4 1.5 6-0.5 6.5-3zm17 0-4.5 8C19 11 21 13 25 11.5ZM5.5 17.5C4.5 23.5 9 25 11 22Zm18 0L18 22c2 3 6.5 1.5 5.5-4.5z")
+			d: new Path2D(vectors.diffOni2)
 		}]]
 		
 		this.diffPath = {
-			good: new Path2D("m12 17c4 3 9 7 10 9 0 0 1 3-1 3C19 29 9 18 9 18m6 2c3 0 3-3 3-3 2-1 5 1 4 3-1 1-2 2-5 3m-1 0C13 26 4 29 1 29 0 29 0 26 0 26 0 24 2 24 2 24V13l5-1v4l8-1c1 0 1-3 1-3 0 0-9 1-14 1V8L7 7v4.5L15 11C16 11 16 8 16 8 16 7 2 9 2 9-1 10 0 5 1 5h10l6-1c3 0 4 2 4 6 0 3-1 7-1 7L7 19v4.5c4 0 7-2.5 7-2.5M9 6C8 4 8 1 8 1c0 0 4-1 6 0 0 0 0 3 1 5"),
-			ok: new Path2D("m4 10c0 0 3-1 7-1 4 0 3 8 2 11-1 2-3 1-3 1-1-1 1-7 0-8-1-1-4-1-6 0m8 6c-1 1.2-7 1-7 1v-3c0 0 6 0 7-1M2 10c1-2 3 0 3 0 0 0 0 4 1 9-2 3-4 2-4 0zM21 5v19c0 1-2 3-3 3-1 0-5-4-5-4 0-1 4-1 4-1V5M1 2C12 2 17.9 0 20 0 23 0 25 3 21 5 11.7 6 9 6 5 6 0 7-1 2 1 2Z"),
-			bad: new Path2D("m13 7c8 0 10 9 10 9 1 4-6 3-8 0 0-1 4 0 2.5-3 0 0-2.5-4-4.5 0M16 6 3 18c-2 2-4 1-4 0 0-1 8-8 9-12m6 0c1 8 0 18 0 18-0.1 1-2 3-3 3-1 0-5-4-5-4 0-1 4-1 4-1 0 0-1-8 0-16M2 7C1 7 1 2 2 2 10 2 21 0 22 1 22 1 24 2 24 4 24 7 2 7 2 7Z")
+			good: new Path2D(vectors.good),
+			ok: new Path2D(vectors.ok),
+			bad: new Path2D(vectors.bad)
 		}
 		
-		this.crownPath = new Path2D("m82 21c0-4 3-6 5.5-6 2.5 0 5.5 2 5.5 6 0 4-3 6-5.5 6C85 27 82 25 82 21ZM41.5 6c0-4 3-6 5.5-6 2.5 0 5.5 2 5.5 6 0 4-3 6-5.5 6-2.5 0-5.5-2-5.5-6zM1 21C1 17 4 15 6.5 15 9 15 12 17 12 21 12 25 9 27 6.5 27 4 27 1 25 1 21Zm12 46h68l2 11H11ZM13 62 5 18 29 34 47 6 65 34 89 18 81 62Z")
-		
-		this.soulPath = new Path2D("m37 29c1-4 7 2 7 4 0 1-2 2-4 2-1 0-1-4-3-6zm-4-7c3 1 5 3 4 5-1 2-3 3-3 4 3-2 5-2 5-2 0 0-1 3-5 5-4 3-5-1-3-4 2-3 3-6 0-7zm-3 8c1 3-5 10 8 7 6-1 2-4 2-4 5 1 7 3 7 5 0 3-8 4-12 4-4 0-9-2-9-5 0 0 0-6-1-8 0-3 3-3 5 1zM20 23h8C27 27 20 44 9 42 18 36 23 28 21 26 19 24 20 23 20 23Zm0-6c4-2 9-4 14-2v2c-5 0-9 1-14 2zm8-7v12h-4c2-1 1-9-1-10zm-6 12c3 0 10-2 10-2 0 0 1-10 0-10-5 1-8 3-12 3 0 0 2 5 2 9zm0-12c0 0 6-1 9-3 3-2 9 3 8 6-1 3-2 6-4 9-2 2-15 2-15 2-1 0-3-7-2-11zM21 0c8 0 10 3 8 5 0 0-6 7-15 10C22 8 23 3 23 3 23 1 21 0 21 0ZM5 9c-1 3 2 6 4 6 5-1 13-6 4-7-3 0-5 5-8 1zm7 17c2-1 4-1 6 1 2 2 1 6-2 6-1 0-2-2-2-2-1-2-3-4-2-5zm2 4c-3 2-4 5-5 6-1 1-4 2-6-2-1-2 0-3 2-5l4-4c0-1-1 0-4 1-2 1-5-2-4-4 2-5 1 0 3-1 6-4 9-5 11-3 2 2 0 3-2 5-1 1-3 4-4 6 0 1 3-1 4-2")
+		this.crownPath = new Path2D(vectors.crown)
+		this.soulPath = new Path2D(vectors.soul)
 		
 		this.optionsPath = {
-			shadow: new Path2D("M4-1V8H9V0l1-1 3 6v4l-4 5v10l4 5v4l-2 4-2 1V30H4L5 37 3 38 0 33V29L4 24V14L0 9V5L3 0Z"),
-			main: new Path2D("M4 0V8H9V0h1l3 5v4l-4 5v10l4 5v4l-3 5H9V30H4v8H3L0 33V29L4 24V14L0 9V5L3 0Z")
+			main: new Path2D(vectors.options),
+			shadow: new Path2D(vectors.optionsShadow)
 		}
 		
 		this.regex = {
@@ -393,15 +392,17 @@
 							y = 4
 						}
 						
+						var addX = bold && (text === "！" || text === "？") ? 10 : 0
 						drawn.push({
 							text: text,
-							x: ((j - 1) - (repeat - 1) / 2) * 15,
+							x: ((j - 1) - (repeat - 1) / 2) * 15 + addX,
 							y: y - (j === 1 ? 0 : h),
 							h: j === 1 ? h : 0
 						})
 					}
 				}else{
-					drawn.push({text: symbol, x: 0, y: 8, h: 37})
+					var addX = bold && (symbol === "！" || symbol === "？") ? 10 : 0
+					drawn.push({text: symbol, x: addX, y: 8, h: 37})
 				}
 			}else if(r.smallHiragana.test(symbol)){
 				// Small hiragana, small katakana
@@ -614,6 +615,8 @@
 				drawn.push({text: symbol, x: 0, y: 0, w: 10})
 			}else if(symbol === "'"){
 				drawn.push({text: ",", x: 0, y: -15, w: 7, scale: [1, 0.7]})
+			}else if(symbol === '"'){
+				drawn.push({text: symbol, x: 2, y: 0, w: 10})
 			}else if(symbol === "∀"){
 				if(bold){
 					drawn.push({text: symbol, x: 0, y: 0, w: 40})
@@ -1293,12 +1296,12 @@
 		ctx.restore()
 	}
 	
-	alpha(amount, ctx, callback){
+	alpha(amount, ctx, callback, winW, winH){
 		if(amount >= 1){
 			return callback(ctx)
 		}else if(amount >= 0){
-			this.tmpCanvas.width = ctx.canvas.width
-			this.tmpCanvas.height = ctx.canvas.height
+			this.tmpCanvas.width = winW || ctx.canvas.width
+			this.tmpCanvas.height = winH || ctx.canvas.height
 			callback(this.tmpCtx)
 			ctx.save()
 			ctx.globalAlpha = amount

@@ -1384,7 +1384,7 @@ class SongSelect{
 						}
 						this.draw.alpha(alphaFade, ctx, ctx => {
 							drawDifficulty(ctx, i, true)
-						})
+						}, winW, winH)
 					}else{
 						drawDifficulty(ctx, i, currentUra)
 					}
