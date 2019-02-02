@@ -153,9 +153,9 @@ def route_api_preview():
     song_type = song_row[0][12]
     prev_path = make_preview(song_id, song_type)
     if not prev_path:
-        return redirect(urlparse.urljoin(request.host_url, '/songs/%s/main.mp3' % song_id))
+        return redirect(get_config()['songs_baseurl'] + '%s/main.mp3' % song_id)
 
-    return redirect(urlparse.urljoin(request.host_url, '/songs/%s/preview.mp3' % song_id))
+    return redirect(get_config()['songs_baseurl'] + '%s/preview.mp3' % song_id)
 
 
 @app.route('/api/songs')
