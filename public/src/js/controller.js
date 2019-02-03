@@ -75,7 +75,9 @@ class Controller{
 			}
 			var ms = this.game.elapsedTime
 			
-			this.keyboard.checkMenuKeys()
+			if(this.game.musicFadeOut < 3){
+				this.keyboard.checkMenuKeys()
+			}
 			if(!this.game.isPaused()){
 				this.keyboard.checkGameKeys()
 				

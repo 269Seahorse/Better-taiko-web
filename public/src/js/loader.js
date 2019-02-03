@@ -243,7 +243,6 @@ class Loader{
 	clean(){
 		var fontDetectDiv = document.getElementById("fontdetectHelper")
 		fontDetectDiv.parentNode.removeChild(fontDetectDiv)
-		delete this.assetsDiv
 		delete this.loaderPercentage
 		delete this.loaderProgress
 		delete this.promises
