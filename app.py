@@ -6,7 +6,6 @@ import json
 import sqlite3
 import re
 import os
-import urlparse
 from flask import Flask, g, jsonify, render_template, request, abort, redirect
 from ffmpy import FFmpeg
 

@@ -26,11 +26,13 @@ class LoadSong{
 		song.songStage = this.randInt(1, 3)
 		song.donBg = this.randInt(1, 6)
 		
+		var songObj = assets.songs.find(song => song.id === id)
+		
 		if(song.songSkin && song.songSkin.name){
 			var imgLoad = []
 			for(var type in song.songSkin){
 				var value = song.songSkin[type]
-				if(type !== "name" && value && value !== "none"){
+				if(["song", "stage", "don"].indexOf(type) !== -1 && value && value !== "none"){
 					var filename = "bg_" + type + "_" + song.songSkin.name
 					if(value === "static"){
 						imgLoad.push({
@@ -57,27 +59,33 @@ class LoadSong{
 			}
 			var skinBase = gameConfig.assets_baseurl + "song_skins/"
 			for(var i = 0; i < imgLoad.length; i++){
+				let filename = imgLoad[i].filename
+				let prefix = song.songSkin.prefix || ""
+				if((prefix + filename) in assets.image){
+					continue
+				}
 				let img = document.createElement("img")
-				if(this.touchEnabled && imgLoad[i].type === "song"){
+				if(!songObj.music && this.touchEnabled && imgLoad[i].type === "song"){
 					img.crossOrigin = "Anonymous"
 				}
-				let filename = imgLoad[i].filename
 				let promise = pageEvents.load(img)
 				if(imgLoad[i].type === "song"){
 					promises.push(promise.then(() => {
-						return this.scaleImg(img, filename)
+						return this.scaleImg(img, filename, prefix)
 					}))
 				}else{
 					promises.push(promise.then(() => {
-						assets.image[filename] = img
+						assets.image[prefix + filename] = img
 					}))
 				}
-				img.src = skinBase + filename + ".png"
+				if(songObj.music){
+					img.src = URL.createObjectURL(song.songSkin[filename + ".png"])
+				}else{
+					img.src = skinBase + filename + ".png"
+				}
 			}
 		}
 		promises.push(this.loadSongBg(id))
-		
-		var songObj = assets.songs.find(song => song.id === id)
 		
 		promises.push(new Promise((resolve, reject) => {
 			if(songObj.sound){
@@ -136,7 +144,7 @@ class LoadSong{
 								img.crossOrigin = "Anonymous"
 							}
 							promises.push(pageEvents.load(img).then(() => {
-								return this.scaleImg(img, filenameAb)
+								return this.scaleImg(img, filenameAb, "")
 							}))
 						}else{
 							promises.push(pageEvents.load(img).then(() => {
@@ -150,7 +158,7 @@ class LoadSong{
 			Promise.all(promises).then(resolve, reject)
 		})
 	}
-	scaleImg(img, filename){
+	scaleImg(img, filename, prefix){
 		return new Promise((resolve, reject) => {
 			if(this.touchEnabled){
 				var canvas = document.createElement("canvas")
@@ -163,7 +171,7 @@ class LoadSong{
 				var saveScaled = url => {
 					let img2 = document.createElement("img")
 					pageEvents.load(img2).then(() => {
-						assets.image[filename] = img2
+						assets.image[prefix + filename] = img2
 						resolve()
 					}, reject)
 					img2.src = url
@@ -176,7 +184,7 @@ class LoadSong{
 					saveScaled(canvas.toDataURL())
 				}
 			}else{
-				assets.image[filename] = img
+				assets.image[prefix + filename] = img
 				resolve()
 			}
 		})

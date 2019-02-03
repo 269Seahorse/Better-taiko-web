@@ -288,6 +288,7 @@
 		
 		var string = inputText.split("")
 		var drawn = []
+		var quoteOpened = false
 		
 		for(var i = 0; i < string.length; i++){
 			let symbol = string[i]
@@ -314,7 +315,12 @@
 			}else if(symbol === "…"){
 				drawn.push({text: symbol, x: bold ? 9 : 0, y: 5, h: 25, rotate: true})
 			}else if(symbol === '"'){
-				drawn.push({text: symbol, x: 0, y: 5, h: 20, rotate: true})
+				if(quoteOpened){
+					drawn.push({realText: symbol, text: "“", x: -25, y: 10, h: 20})
+				}else{
+					drawn.push({realText: symbol, text: "”", x: 12, y: 15, h: 20})
+				}
+				quoteOpened = !quoteOpened
 			}else if(r.comma.test(symbol)){
 				// Comma, full stop
 				if(bold){
@@ -440,14 +446,17 @@
 		}
 		
 		var scaling = 1
+		var strokeScaling = 1
 		var height = config.height - (ura ? 52 * mul : 0)
 		if(height && drawnHeight > height){
 			scaling = height / drawnHeight
 			if(config.align === "bottom"){
+				strokeScaling = Math.max(0.6, height / drawnHeight)
 				ctx.translate(40 * mul, 0)
-				ctx.scale(Math.max(0.6, height / drawnHeight), scaling)
+				ctx.scale(strokeScaling, scaling)
 				ctx.translate(-40 * mul, 0)
 			}else{
+				strokeScaling = scaling
 				ctx.scale(1, scaling)
 			}
 			if(config.selectable){
@@ -482,7 +491,7 @@
 				ctx.strokeStyle = config.outline
 				ctx.lineWidth = config.outlineSize * mul
 				if(config.align === "bottom"){
-					ctx.lineWidth /= scaling
+					ctx.lineWidth /= strokeScaling
 				}
 				ctx.lineJoin = "round"
 				ctx.miterLimit = 1
@@ -632,6 +641,9 @@
 				}else{
 					drawn.push({text: symbol, x: -3, y: 13, w: 13, scale: [1.2, 0.7]})
 				}
+			}else if(r.tilde.test(symbol)){
+				// Hyphen, tilde
+				drawn.push({text: symbol === "~" ? "～" : symbol, x: 0, y: 0, w: 39})
 			}else if(r.en.test(symbol)){
 				// n-width
 				drawn.push({text: symbol, x: 0, y: 0, w: 28})

@@ -24,9 +24,11 @@
 		
 		this.tjaFiles = []
 		this.osuFiles = []
+		this.assetFiles = {}
 		var metaFiles = []
 		this.otherFiles = {}
 		this.songs = []
+		this.stylesheet = []
 		this.courseTypes = {
 			"easy": 0,
 			"normal": 1,
@@ -53,6 +55,18 @@
 				this.categories[allStrings[i].categories[ja].toLowerCase()] = ja
 			}
 		}
+		this.assetSelectors = {
+			"bg-pattern-1": ".pattern-bg",
+			"bg_genre_0": "#song-select",
+			"title-screen": "#title-screen",
+			"dancing-don": "#loading-don",
+			"touch_drum": "#touch-drum-img",
+			"touch_fullscreen": "#touch-full-btn",
+			"touch_pause": "#touch-pause-btn",
+			"bg_stage_1": ".song-stage-1",
+			"bg_stage_2": ".song-stage-2",
+			"bg_stage_3": ".song-stage-3"
+		}
 		
 		for(var i = 0; i < files.length; i++){
 			var file = files[i]
@@ -74,8 +88,12 @@
 					file: file,
 					level: (level * 2) + (name === "genre.ini" ? 1 : 0)
 				})
+			}else if(path.indexOf("/taiko-web assets/") !== -1){
+				if(!(name in this.assetFiles)){
+					this.assetFiles[name] = file
+				}
 			}else{
-				this.otherFiles[file.webkitRelativePath.toLowerCase()] = file
+				this.otherFiles[path] = file
 			}
 		}
 		
@@ -94,6 +112,7 @@
 			this.osuFiles.forEach(fileObj => {
 				songPromises.push(this.addOsu(fileObj))
 			})
+			songPromises.push(this.addAssets())
 			Promise.all(songPromises).then(this.loaded.bind(this))
 		})
 	}
@@ -188,6 +207,9 @@
 				if(meta.genre){
 					songObj.category = this.categories[meta.genre.toLowerCase()] || meta.genre
 				}
+				if(meta.taikowebskin){
+					songObj.song_skin = this.getSkin(dir, meta.taikowebskin)
+				}
 			}
 			if(!songObj.category){
 				songObj.category = category || this.getCategory(file)
@@ -242,6 +264,67 @@
 		return promise
 	}
 	
+	addAssets(){
+		return new Promise((resolve, reject) => {
+			var promises = []
+			for(let name in this.assetFiles){
+				let id = this.getFilename(name)
+				var file = this.assetFiles[name]
+				if(name === "vectors.json"){
+					var reader = new FileReader()
+					promises.push(pageEvents.load(reader).then(() => response => {
+						vectors = JSON.parse(response)
+					}))
+					reader.readAsText(file)
+				}
+				if(assets.img.indexOf(name) !== -1){
+					let image = document.createElement("img")
+					promises.push(pageEvents.load(image).then(() => {
+						if(id in this.assetSelectors){
+							var selector = this.assetSelectors[id]
+							this.stylesheet.push(selector + '{background-image:url("' + image.src + '")}')
+						}
+					}))
+					image.id = name
+					image.src = URL.createObjectURL(file)
+					loader.assetsDiv.appendChild(image)
+					assets.image[id].parentNode.removeChild(assets.image[id])
+					assets.image[id] = image
+				}
+				if(assets.audioSfx.indexOf(name) !== -1){
+					assets.sounds[id].clean()
+					promises.push(this.loadSound(file, name, snd.sfxGain))
+				}
+				if(assets.audioMusic.indexOf(name) !== -1){
+					assets.sounds[id].clean()
+					promises.push(this.loadSound(file, name, snd.musicGain))
+				}
+				if(assets.audioSfxLR.indexOf(name) !== -1){
+					assets.sounds[id + "_p1"].clean()
+					assets.sounds[id + "_p2"].clean()
+					promises.push(this.loadSound(file, name, snd.sfxGain).then(sound => {
+						assets.sounds[id + "_p1"] = assets.sounds[id].copy(snd.sfxGainL)
+						assets.sounds[id + "_p2"] = assets.sounds[id].copy(snd.sfxGainR)
+					}))
+				}
+				if(assets.audioSfxLoud.indexOf(name) !== -1){
+					assets.sounds[id].clean()
+					promises.push(this.loadSound(file, name, snd.sfxLoudGain))
+				}
+			}
+			Promise.all(promises).then(resolve, reject)
+		})
+	}
+	loadSound(file, name, gain){
+		var id = this.getFilename(name)
+		return gain.load(file, true).then(sound => {
+			assets.sounds[id] = sound
+		})
+	}
+	getFilename(name){
+		return name.slice(0, name.lastIndexOf("."))
+	}
+	
 	getCategory(file){
 		var path = file.webkitRelativePath.toLowerCase().split("/")
 		for(var i = path.length - 2; i >= 0; i--){
@@ -253,8 +336,55 @@
 		}
 	}
 	
+	getSkin(dir, config){
+		var configArray = config.toLowerCase().split(",")
+		var configObj = {}
+		for(var i in configArray){
+			var string = configArray[i].trim()
+			var space = string.indexOf(" ")
+			if(space !== -1){
+				configObj[string.slice(0, space).trim()] = string.slice(space + 1).trim()
+			}
+		}
+		if(!configObj.dir){
+			configObj.dir = ""
+		}
+		configObj.prefix = "custom "
+		var skinnable = ["song", "stage", "don"]
+		for(var i in skinnable){
+			var skinName = skinnable[i]
+			var skinValue = configObj[skinName]
+			if(skinValue && skinValue !== "none"){
+				var fileName = "bg_" + skinName + "_" + configObj.name
+				var skinPath = this.joinPath(dir, configObj.dir, fileName)
+				for(var j = 0; j < 2; j++){
+					if(skinValue !== "static"){
+						var suffix = (j === 0 ? "_a" : "_b") + ".png"
+					}else{
+						var suffix = ".png"
+					}
+					var skinFull = this.normPath(skinPath + suffix)
+					if(skinFull in this.otherFiles){
+						configObj[fileName + suffix] = this.otherFiles[skinFull]
+					}else{
+						configObj[skinName] = null
+					}
+					if(skinValue === "static"){
+						break
+					}
+				}
+			}
+		}
+		return configObj
+	}
+	
 	loaded(){
 		this.songs = this.songs.filter(song => typeof song !== "undefined")
+		if(this.stylesheet.length){
+			var style = document.createElement("style")
+			style.appendChild(document.createTextNode(this.stylesheet.join("\n")))
+			document.head.appendChild(style)
+		}
 		if(this.songs.length){
 			assets.songs = this.songs
 			assets.customSongs = true
@@ -272,6 +402,40 @@
 			this.songSelect.redrawRunning = true
 			this.clean()
 		}
+	}
+	
+	joinPath(){
+		var resultPath = arguments[0]
+		for(var i = 1; i < arguments.length; i++){
+			var pPath = arguments[i]
+			if(pPath && (pPath[0] === "/" || pPath[0] === "\\")){
+				resultPath = pPath
+			}else{
+				var lastChar = resultPath.slice(-1)
+				if(resultPath && (lastChar !== "/" || lastChar !== "\\")){
+					resultPath = resultPath + "/"
+				}
+				resultPath = resultPath + pPath
+			}
+		}
+		return resultPath
+	}
+	normPath(path){
+		path = path.replace(/\\/g, "/").toLowerCase()
+		while(path[0] === "/"){
+			path = path.slice(1)
+		}
+		var comps = path.split("/")
+		for(var i = 0; i < comps.length; i++){
+			if(comps[i] === "." || comps[i] === ""){
+				comps.splice(i, 1)
+				i--
+			}else if(i !== 0 && comps[i] === ".." && comps[i - 1] !== ".."){
+				comps.splice(i - 1, 2)
+				i -= 2
+			}
+		}
+		return comps.join("/")
 	}
 	
 	clean(){

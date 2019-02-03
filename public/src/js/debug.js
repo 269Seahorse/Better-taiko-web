@@ -20,7 +20,7 @@ class Debug{
 		
 		this.moving = false
 		pageEvents.add(window, ["mousedown", "mouseup", "blur"], this.stopMove.bind(this))
-		pageEvents.add(window, "mousemove", this.onMove.bind(this))
+		pageEvents.mouseAdd(this, this.onMove.bind(this))
 		pageEvents.add(this.titleDiv, "mousedown", this.startMove.bind(this))
 		pageEvents.add(this.minimiseDiv, "click", this.minimise.bind(this))
 		pageEvents.add(this.restartBtn, "click", this.restartSong.bind(this))
@@ -173,7 +173,8 @@ class Debug{
 	clean(){
 		this.offsetSlider.clean()
 		
-		pageEvents.remove(window, ["mousedown", "mouseup", "mousemove", "blur"])
+		pageEvents.remove(window, ["mousedown", "mouseup", "blur"])
+		pageEvents.mouseRemove(this)
 		pageEvents.remove(this.title, "mousedown")
 		pageEvents.remove(this.minimiseDiv, "click")
 		pageEvents.remove(this.restartBtn, "click")
