@@ -125,14 +125,14 @@ class Controller{
 		if(Math.round(score.gauge / 2) - 1 >= 25){
 			if(score.bad === 0){
 				vp = "fullcombo"
-				this.playSoundMeka("fullcombo", 1.350)
+				this.playSoundMeka("v_fullcombo", 1.350)
 			}else{
 				vp = "clear"
 			}
 		}else{
 			vp = "fail"
 		}
-		this.playSound("game" + vp)
+		this.playSound("se_game" + vp)
 	}
 	displayResults(){
 		if(this.multiplayer !== 2){
@@ -167,7 +167,7 @@ class Controller{
 	playSoundMeka(soundID, time){
 		var meka = ""
 		if(this.autoPlayEnabled && !this.multiplayer){
-			meka = "-meka"
+			meka = "_meka"
 		}
 		this.playSound(soundID + meka, time)
 	}

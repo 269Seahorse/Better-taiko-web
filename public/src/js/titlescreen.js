@@ -19,7 +19,7 @@ class Titlescreen{
 		pageEvents.add(this.titleScreen, ["mousedown", "touchstart"], this.onPressed.bind(this))
 		pageEvents.add(this.langDropdown, "change", this.langChange.bind(this))
 		
-		assets.sounds["title"].play()
+		assets.sounds["v_title"].play()
 		this.gamepad = new Gamepad({
 			"13": ["a", "b", "x", "y", "start", "ls", "rs"]
 		}, pressed => {
@@ -59,7 +59,7 @@ class Titlescreen{
 		}
 		this.titleScreen.style.cursor = "auto"
 		this.clean()
-		assets.sounds["don"].play()
+		assets.sounds["se_don"].play()
 		this.goNext()
 	}
 	goNext(fromP2){
@@ -133,7 +133,7 @@ class Titlescreen{
 	clean(){
 		this.gamepad.clean()
 		this.logo.clean()
-		assets.sounds["title"].stop()
+		assets.sounds["v_title"].stop()
 		pageEvents.keyRemove(this, "all")
 		pageEvents.remove(this.titleScreen, ["mousedown", "touchstart"])
 		pageEvents.remove(this.langDropdown, "change")

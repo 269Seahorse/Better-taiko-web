@@ -84,7 +84,7 @@ class Mekadon{
 		}
 		if(type === "balloon"){
 			if(circle.requiredHits == 1){
-				assets.sounds["balloon"].play()
+				assets.sounds["se_balloon"].play()
 			}
 			this.game.checkBalloon(circle)
 		}else if(type === "drumroll" || type === "daiDrumroll"){
