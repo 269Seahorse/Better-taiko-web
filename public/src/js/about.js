@@ -53,7 +53,7 @@
 			touched = true
 		}
 		this.clean()
-		assets.sounds["don"].play()
+		assets.sounds["se_don"].play()
 		localStorage.setItem("tutorial", "true")
 		setTimeout(() => {
 			new SongSelect("about", false, touched)

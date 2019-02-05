@@ -83,8 +83,8 @@ class Game{
 					if(drumrollNotes && !circle.rendaPlayed && ms < endTime){
 						circle.rendaPlayed = true
 						if(this.rules.difficulty === "easy"){
-							assets.sounds["renda" + this.controller.snd].stop()
-							this.controller.playSoundMeka("renda")
+							assets.sounds["v_renda" + this.controller.snd].stop()
+							this.controller.playSoundMeka("v_renda")
 						}
 					}
 					if(!circle.beatMSCopied){
@@ -353,7 +353,7 @@ class Game{
 	}
 	togglePause(){
 		if(!this.paused){
-			assets.sounds["pause"].play()
+			assets.sounds["se_pause"].play()
 			this.paused = true
 			this.latestDate = Date.now()
 			this.mainAsset.stop()
@@ -363,7 +363,7 @@ class Game{
 			this.view.lastMousemove = this.view.getMS()
 			this.view.cursorHidden = false
 		}else{
-			assets.sounds["cancel"].play()
+			assets.sounds["se_cancel"].play()
 			this.paused = false
 			var currentDate = Date.now()
 			this.startDate += currentDate - this.latestDate
@@ -422,7 +422,7 @@ class Game{
 			this.globalScore.maxCombo = this.combo
 		}
 		if(this.combo === 50 || this.combo > 0 && this.combo % 100 === 0 && this.combo < 1500 || this.combo > 0 && this.combo % 500 === 0){
-			this.controller.playSoundMeka("combo-" + (this.combo <= 1400 ? this.combo : "over1500"))
+			this.controller.playSoundMeka("v_combo_" + (this.combo <= 1400 ? this.combo : "over1500"))
 		}
 		this.view.updateCombo(this.combo)
 	}

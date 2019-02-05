@@ -47,7 +47,7 @@ class Scoresheet{
 		this.redrawBind = this.redraw.bind(this)
 		this.redraw()
 		
-		assets.sounds["results"].play()
+		assets.sounds["v_results"].play()
 		assets.sounds["bgm_result"].playLoop(3, false, 0, 0.847, 17.689)
 		
 		if(p2.session){
@@ -106,7 +106,7 @@ class Scoresheet{
 		if(!p2.session){
 			this.state.screen = "scoresShown"
 			this.state.screenMS = this.getMS()
-			assets.sounds["note_don"].play()
+			assets.sounds["neiro_1_don"].play()
 		}
 	}
 	toSongsel(fromP2){
@@ -115,7 +115,7 @@ class Scoresheet{
 			this.state.screen = "fadeOut"
 			this.state.screenMS = this.getMS()
 			if(!fromP2){
-				assets.sounds["note_don"].play()
+				assets.sounds["neiro_1_don"].play()
 			}
 		}
 	}
@@ -646,12 +646,12 @@ class Scoresheet{
 						if(this.state.screen === "fadeIn" && elapsed >= 1200 && !this.state["fullcomboPlayed" + p]){
 							this.state["fullcomboPlayed" + p] = true
 							if(crownType === "gold"){
-								this.playSound("results_fullcombo" + (p === 1 ? "2" : ""), p)
+								this.playSound("v_results_fullcombo" + (p === 1 ? "2" : ""), p)
 							}
 						}
 						if(this.state.screen === "fadeIn" && elapsed >= 1650 && !this.state["crownPlayed" + p]){
 							this.state["crownPlayed" + p] = true
-							this.playSound("results_crown", p)
+							this.playSound("se_results_crown", p)
 						}
 						this.draw.crown({
 							ctx: ctx,
@@ -759,13 +759,13 @@ class Scoresheet{
 				if(this.state.countupShown){
 					if(!this.state["countup" + p]){
 						this.state["countup" + p] = true
-						this.loopSound("results_countup", p, [0.1, false, 0, 0, 0.07])
+						this.loopSound("se_results_countup", p, [0.1, false, 0, 0, 0.07])
 					}
 				}else if(this.state["countup" + p]){
 					this.state["countup" + p] = false
-					this.stopSound("results_countup", p)
+					this.stopSound("se_results_countup", p)
 					if(this.state.screen === "fadeIn"){
-						this.playSound("note_don", p)
+						this.playSound("neiro_1_don", p)
 					}
 				}
 				

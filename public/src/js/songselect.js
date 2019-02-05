@@ -229,7 +229,7 @@ class SongSelect{
 			}else if((!p2.session || fadeIn) && "selectedSong" in localStorage){
 				this.selectedSong = Math.min(Math.max(0, localStorage["selectedSong"] |0), this.songs.length - 1)
 			}
-			assets.sounds["song-select"].play()
+			assets.sounds["v_songsel"].play()
 			snd.musicGain.fadeOut()
 			this.playBgm(false)
 		}
@@ -420,7 +420,7 @@ class SongSelect{
 				this.toOptions(1)
 			}else if(moveBy === this.diffOptions.length + 4){
 				this.state.ura = !this.state.ura
-				assets.sounds["ka"].play()
+				assets.sounds["se_ka"].play()
 				if(this.selectedDiff === this.diffOptions.length + 4 && !this.state.ura){
 					this.state.move = -1
 				}
@@ -546,7 +546,7 @@ class SongSelect{
 			var soundsDelay = Math.abs((scroll + resize) / moveBy)
 			
 			for(var i = 0; i < Math.abs(moveBy) - 1; i++){
-				assets.sounds["ka"].play((resize + i * soundsDelay) / 1000)
+				assets.sounds["se_ka"].play((resize + i * soundsDelay) / 1000)
 			}
 			this.pointer(false)
 		}
@@ -556,7 +556,7 @@ class SongSelect{
 			this.state.move = moveBy
 			this.state.moveMS = this.getMS() - 500
 			this.state.locked = 1
-			assets.sounds["ka"].play()
+			assets.sounds["se_ka"].play()
 		}
 	}
 	
@@ -587,14 +587,14 @@ class SongSelect{
 					this.selectedDiff = this.diffOptions.length + 3
 				}
 				
-				assets.sounds["don"].play()
-				assets.sounds["song-select"].stop()
-				assets.sounds["diffsel"].play(0.3)
+				assets.sounds["se_don"].play()
+				assets.sounds["v_songsel"].stop()
+				assets.sounds["v_diffsel"].play(0.3)
 			}else if(currentSong.action === "back"){
 				this.clean()
 				this.toTitleScreen()
 			}else if(currentSong.action === "random"){
-				assets.sounds["don"].play()
+				assets.sounds["se_don"].play()
 				this.state.locked = true
 				do{
 					var i = Math.floor(Math.random() * this.songs.length)
@@ -627,15 +627,15 @@ class SongSelect{
 			this.state.locked = true
 			this.state.moveHover = null
 			
-			assets.sounds["diffsel"].stop()
-			assets.sounds["cancel"].play()
+			assets.sounds["v_diffsel"].stop()
+			assets.sounds["se_cancel"].play()
 		}
 	}
 	toLoadSong(difficulty, shift, ctrl, touch){
 		this.clean()
 		var selectedSong = this.songs[this.selectedSong]
-		assets.sounds["diffsel"].stop()
-		assets.sounds["don"].play()
+		assets.sounds["v_diffsel"].stop()
+		assets.sounds["se_don"].play()
 		
 		try{
 			if(assets.customSongs){
@@ -673,7 +673,7 @@ class SongSelect{
 	}
 	toOptions(moveBy){
 		if(!p2.session){
-			assets.sounds["ka"].play()
+			assets.sounds["se_ka"].play()
 			this.selectedDiff = 1
 			do{
 				this.state.options = this.mod(this.optionsList.length, this.state.options + moveBy)
@@ -682,7 +682,7 @@ class SongSelect{
 	}
 	toTitleScreen(){
 		if(!p2.session){
-			assets.sounds["cancel"].play()
+			assets.sounds["se_cancel"].play()
 			this.clean()
 			setTimeout(() => {
 				new Titlescreen()
@@ -690,14 +690,14 @@ class SongSelect{
 		}
 	}
 	toTutorial(){
-		assets.sounds["don"].play()
+		assets.sounds["se_don"].play()
 		this.clean()
 		setTimeout(() => {
 			new Tutorial(true)
 		}, 500)
 	}
 	toAbout(){
-		assets.sounds["don"].play()
+		assets.sounds["se_don"].play()
 		this.clean()
 		setTimeout(() => {
 			new About(this.touchEnabled)
@@ -712,7 +712,7 @@ class SongSelect{
 		}else{
 			localStorage["selectedSong"] = this.selectedSong
 
-			assets.sounds["don"].play()
+			assets.sounds["se_don"].play()
 			this.clean()
 			setTimeout(() => {
 				new Session(this.touchEnabled)
@@ -723,7 +723,7 @@ class SongSelect{
 		if(assets.customSongs){
 			assets.customSongs = false
 			assets.songs = assets.songsDefault
-			assets.sounds["don"].play()
+			assets.sounds["se_don"].play()
 			this.clean()
 			setTimeout(() => {
 				new SongSelect("browse", false, this.touchEnabled)
@@ -951,7 +951,7 @@ class SongSelect{
 			var scroll = resize2 - resize - scrollDelay * 2
 			var elapsed = ms - this.state.moveMS
 			if(this.state.move && ms > this.state.moveMS + resize2 - scrollDelay){
-				assets.sounds["ka"].play()
+				assets.sounds["se_ka"].play()
 				this.selectedSong = this.mod(this.songs.length, this.selectedSong + this.state.move)
 				this.state.move = 0
 				this.state.locked = 2

@@ -159,7 +159,7 @@ class Keyboard{
 			this.checkKey(this.kbd["don_l"], "menu", moveMenuConfirm)
 			this.checkKey(this.kbd["don_r"], "menu", moveMenuConfirm)
 			if(moveMenu && this.game.isPaused()){
-				assets.sounds["ka"].play()
+				assets.sounds["se_ka"].play()
 				this.controller.view.pauseMove(moveMenu)
 			}
 		}
@@ -190,9 +190,9 @@ class Keyboard{
 				&& circle.getType() === "balloon"
 				&& circle.requiredHits - circle.timesHit <= 1
 			){
-				this.controller.playSound("balloon")
+				this.controller.playSound("se_balloon")
 			}else{
-				this.controller.playSound("note_" + sound)
+				this.controller.playSound("neiro_1_" + sound)
 			}
 			this.keyTime[sound] = this.keyTime[keyCode]
 		})

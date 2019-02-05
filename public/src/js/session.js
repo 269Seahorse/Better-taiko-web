@@ -57,7 +57,7 @@ class Session{
 			event.preventDefault()
 		}
 		this.clean()
-		assets.sounds["don"].play()
+		assets.sounds["se_don"].play()
 		setTimeout(() => {
 			new SongSelect(false, false, this.touchEnabled)
 		}, 500)

@@ -389,7 +389,7 @@
 			assets.songs = this.songs
 			assets.customSongs = true
 			assets.customSelected = 0
-			assets.sounds["don"].play()
+			assets.sounds["se_don"].play()
 			this.songSelect.clean()
 			setTimeout(() => {
 				loader.screen.removeChild(this.loaderDiv)

@@ -20,7 +20,7 @@ class LoadSong{
 		var song = this.selectedSong
 		var id = song.folder
 		var promises = []
-		assets.sounds["start"].play()
+		assets.sounds["v_start"].play()
 		
 		song.songBg = this.randInt(1, 5)
 		song.songStage = this.randInt(1, 3)
@@ -263,7 +263,7 @@ class LoadSong{
 			p2.send("gamestart")
 		}else{
 			if(!repeat){
-				assets.sounds["sanka"].play()
+				assets.sounds["v_sanka"].play()
 			}
 			setTimeout(() => {
 				this.startMultiplayer(true)
@@ -279,7 +279,7 @@ class LoadSong{
 			event.preventDefault()
 		}
 		p2.send("leave")
-		assets.sounds["don"].play()
+		assets.sounds["se_don"].play()
 		this.cancelButton.style.pointerEvents = "none"
 	}
 	clean(){
