@@ -8,9 +8,7 @@
 	<meta name="description" content="パソコンとスマホのブラウザ向けの太鼓の達人シミュレータ 🥁 Taiko no Tatsujin rhythm game simulator for desktop and mobile browsers">
 
 	<link rel="stylesheet" href="/src/css/loader.css?{{version.commit_short}}">
-	<link rel="stylesheet" href="{{config.assets_baseurl}}fonts/fonts.css?{{version.commit_short}}">
-	<link rel="stylesheet" href="{{config.assets_baseurl}}img/img.css?{{version.commit_short}}">
-	
+
 	<script src="/src/js/assets.js?{{version.commit_short}}"></script>
 	<script src="/src/js/strings.js?{{version.commit_short}}"></script>
 	<script src="/src/js/pageevents.js?{{version.commit_short}}"></script>
@@ -21,10 +19,10 @@
 	<div id="assets"></div>
 	<div id="screen" class="pattern-bg"></div>
 	<div id="version">
-		{% if version %}
+		{% if version.version and version.commit_short and version.commit %}
 			<a href="{{version.url}}commit/{{version.commit}}" target="_blank" id="version-link" class="stroke-sub" alt="taiko-web ver.{{version.version}} ({{version.commit_short}})">taiko-web ver.{{version.version}} ({{version.commit_short}})</a>
 		{% else %}
-			<a href="https://github.com/bui/taiko-web" target="_blank" id="version-link" class="stroke-sub" alt="taiko-web (unknown version)">taiko-web (unknown version)</a>
+			<a href="{{version.url}}" target="_blank" id="version-link" class="stroke-sub" alt="taiko-web (unknown version)">taiko-web (unknown version)</a>
 		{% endif %}
 	</div>
 	<script src="/src/js/browsersupport.js?{{version.commit_short}}"></script>

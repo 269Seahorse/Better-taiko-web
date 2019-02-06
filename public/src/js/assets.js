@@ -37,6 +37,10 @@ var assets = {
 		"debug.css",
 		"songbg.css"
 	],
+	"assetsCss": [
+		"fonts/fonts.css",
+		"img/img.css"
+	],
 	"img": [
 		"title-screen.png",
 		"notes.png",

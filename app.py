@@ -11,6 +11,7 @@ from ffmpy import FFmpeg
 
 app = Flask(__name__)
 DATABASE = 'taiko.db'
+DEFAULT_URL = 'https://github.com/bui/taiko-web/'
 
 
 def get_db():
@@ -119,9 +120,17 @@ def get_tja_preview(tja):
 
 
 def get_version():
-    version = None
+    version = {'commit': None, 'commit_short': '', 'version': None, 'url': DEFAULT_URL}
     if os.path.isfile('version.json'):
-        version = json.load(open('version.json', 'r'))
+        try:
+            ver = json.load(open('version.json', 'r'))
+        except ValueError:
+            print('Invalid version.json file')
+            return version
+
+        for key in version.keys():
+            if ver.get(key):
+                version[key] = ver.get(key)
 
     return version
 
@@ -213,10 +222,10 @@ def make_preview(song_id, song_type):
     if os.path.isfile(song_path) and not os.path.isfile(prev_path):
         preview = get_preview(song_id, song_type) / 1000
         if not preview or preview <= 0.1:
-            print 'Skipping #%s due to no preview' % song_id
+            print('Skipping #%s due to no preview' % song_id)
             return False
 
-        print 'Making preview.mp3 for song #%s' % song_id
+        print('Making preview.mp3 for song #%s' % song_id)
         ff = FFmpeg(inputs={song_path: '-ss %s' % preview},
                     outputs={prev_path: '-codec:a libmp3lame -ar 32000 -b:a 92k -y -loglevel panic'})
         ff.run()

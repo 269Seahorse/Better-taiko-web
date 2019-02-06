@@ -23,7 +23,7 @@ class Loader{
 		this.loaderPercentage = document.querySelector("#loader .percentage")
 		this.loaderProgress = document.querySelector("#loader .progress")
 		
-		var queryString = gameConfig._version ? "?" + gameConfig._version.commit_short : ""
+		var queryString = gameConfig._version.commit_short ? "?" + gameConfig._version.commit_short : ""
 		
 		assets.js.forEach(name => {
 			var script = document.createElement("script")
@@ -38,6 +38,12 @@ class Loader{
 				var stylesheet = document.createElement("link")
 				stylesheet.rel = "stylesheet"
 				stylesheet.href = "/src/css/" + name + queryString
+				document.head.appendChild(stylesheet)
+			})
+			assets.assetsCss.forEach(name => {
+				var stylesheet = document.createElement("link")
+				stylesheet.rel = "stylesheet"
+				stylesheet.href = gameConfig.assets_baseurl + name + queryString
 				document.head.appendChild(stylesheet)
 			})
 			var checkStyles = () => {
