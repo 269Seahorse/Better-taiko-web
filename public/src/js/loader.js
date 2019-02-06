@@ -40,6 +40,12 @@ class Loader{
 				stylesheet.href = "/src/css/" + name + queryString
 				document.head.appendChild(stylesheet)
 			})
+			assets.assetsCss.forEach(name => {
+				var stylesheet = document.createElement("link")
+				stylesheet.rel = "stylesheet"
+				stylesheet.href = gameConfig.assets_baseurl + name + queryString
+				document.head.appendChild(stylesheet)
+			})
 			var checkStyles = () => {
 				if(document.styleSheets.length >= cssCount){
 					resolve()
