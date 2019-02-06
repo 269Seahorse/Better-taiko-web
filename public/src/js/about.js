@@ -29,10 +29,7 @@
 		this.endButton.innerText = strings.tutorial.ok
 		this.endButton.setAttribute("alt", strings.tutorial.ok)
 		
-		var versionUrl = "https://github.com/bui/taiko-web/"
-		if(gameConfig._version){
-			versionUrl = gameConfig._version.url
-		}
+		var versionUrl = gameConfig._version.url
 		this.getLink(this.linkIssues).href = versionUrl + "issues"
 		
 		pageEvents.add(this.linkIssues, ["click", "touchend"], this.linkButton.bind(this))
