@@ -155,7 +155,6 @@ var assets = {
 		"bgm_result.mp3",
 		"bgm_setsume.mp3"
 	],
-	"audioOgg": "note_ka.ogg",
 	"fonts": [
 		"Kozuka",
 		"TnT"

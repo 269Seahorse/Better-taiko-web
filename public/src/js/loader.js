@@ -90,7 +90,7 @@ class Loader{
 		}))
 		
 		this.afterJSCount =
-			[assets.audioOgg, "blurPerformance", "P2Connection"].length +
+			["blurPerformance", "P2Connection"].length +
 			assets.fonts.length +
 			assets.audioSfx.length +
 			assets.audioMusic.length +
@@ -113,88 +113,80 @@ class Loader{
 			)
 			snd.sfxLoudGain.setVolume(1.2)
 			
-			this.afterJSCount--
+			this.afterJSCount = 0
 			
-			this.addPromise(snd.buffer.load(gameConfig.assets_baseurl + "audio/" + assets.audioOgg).then(() => {
-				this.oggNotSupported = false
-			}, () => {
-				this.oggNotSupported = true
-			}).then(() => {
-				
-				this.afterJSCount = 0
-				
-				assets.fonts.forEach(name => {
-					this.addPromise(new Promise(resolve => {
-						FontDetect.onFontLoaded(name, resolve, resolve, {msTimeout: Infinity})
-					}))
-				})
-				
-				assets.audioSfx.forEach(name => {
-					this.addPromise(this.loadSound(name, snd.sfxGain))
-				})
-				assets.audioMusic.forEach(name => {
-					this.addPromise(this.loadSound(name, snd.musicGain))
-				})
-				assets.audioSfxLR.forEach(name => {
-					this.addPromise(this.loadSound(name, snd.sfxGain).then(sound => {
-						var id = this.getFilename(name)
-						assets.sounds[id + "_p1"] = assets.sounds[id].copy(snd.sfxGainL)
-						assets.sounds[id + "_p2"] = assets.sounds[id].copy(snd.sfxGainR)
-					}))
-				})
-				assets.audioSfxLoud.forEach(name => {
-					this.addPromise(this.loadSound(name, snd.sfxLoudGain))
-				})
-				
-				this.canvasTest = new CanvasTest()
-				this.addPromise(this.canvasTest.blurPerformance().then(result => {
-					perf.blur = result
-					if(result > 1000 / 50){
-						// Less than 50 fps with blur enabled
-						disableBlur = true
-					}
+			assets.fonts.forEach(name => {
+				this.addPromise(new Promise(resolve => {
+					FontDetect.onFontLoaded(name, resolve, resolve, {msTimeout: Infinity})
 				}))
-				
-				p2 = new P2Connection()
-				if(location.hash.length === 6){
-					p2.hashLock = true
-					this.addPromise(new Promise(resolve => {
-						p2.open()
-						pageEvents.add(p2, "message", response => {
-							if(response.type === "session"){
-								resolve()
-							}else if(response.type === "gameend"){
-								p2.hash("")
-								p2.hashLock = false
-								resolve()
-							}
-						})
-						p2.send("invite", location.hash.slice(1).toLowerCase())
-						setTimeout(() => {
-							if(p2.socket.readyState !== 1){
-								p2.hash("")
-								p2.hashLock = false
-								resolve()
-							}
-						}, 10000)
-					}).then(() => {
-						pageEvents.remove(p2, "message")
-					}))
-				}else{
-					p2.hash("")
+			})
+			
+			assets.audioSfx.forEach(name => {
+				this.addPromise(this.loadSound(name, snd.sfxGain))
+			})
+			assets.audioMusic.forEach(name => {
+				this.addPromise(this.loadSound(name, snd.musicGain))
+			})
+			assets.audioSfxLR.forEach(name => {
+				this.addPromise(this.loadSound(name, snd.sfxGain).then(sound => {
+					var id = this.getFilename(name)
+					assets.sounds[id + "_p1"] = assets.sounds[id].copy(snd.sfxGainL)
+					assets.sounds[id + "_p2"] = assets.sounds[id].copy(snd.sfxGainR)
+				}))
+			})
+			assets.audioSfxLoud.forEach(name => {
+				this.addPromise(this.loadSound(name, snd.sfxLoudGain))
+			})
+			
+			this.canvasTest = new CanvasTest()
+			this.addPromise(this.canvasTest.blurPerformance().then(result => {
+				perf.blur = result
+				if(result > 1000 / 50){
+					// Less than 50 fps with blur enabled
+					disableBlur = true
 				}
-				
-				Promise.all(this.promises).then(() => {
-					this.canvasTest.drawAllImages().then(result => {
-						perf.allImg = result
-						perf.load = Date.now() - this.startTime
-						this.canvasTest.clean()
-						this.clean()
-						this.callback()
-					})
-				}, this.errorMsg.bind(this))
-				
 			}))
+			
+			p2 = new P2Connection()
+			if(location.hash.length === 6){
+				p2.hashLock = true
+				this.addPromise(new Promise(resolve => {
+					p2.open()
+					pageEvents.add(p2, "message", response => {
+						if(response.type === "session"){
+							resolve()
+						}else if(response.type === "gameend"){
+							p2.hash("")
+							p2.hashLock = false
+							resolve()
+						}
+					})
+					p2.send("invite", location.hash.slice(1).toLowerCase())
+					setTimeout(() => {
+						if(p2.socket.readyState !== 1){
+							p2.hash("")
+							p2.hashLock = false
+							resolve()
+						}
+					}, 10000)
+				}).then(() => {
+					pageEvents.remove(p2, "message")
+				}))
+			}else{
+				p2.hash("")
+			}
+			
+			Promise.all(this.promises).then(() => {
+				this.canvasTest.drawAllImages().then(result => {
+					perf.allImg = result
+					perf.load = Date.now() - this.startTime
+					this.canvasTest.clean()
+					this.clean()
+					this.callback()
+				})
+			}, this.errorMsg.bind(this))
+			
+		
 		})
 	
 	}
@@ -203,9 +195,6 @@ class Loader{
 		promise.then(this.assetLoaded.bind(this))
 	}
 	loadSound(name, gain){
-		if(this.oggNotSupported && name.endsWith(".ogg")){
-			name = name.slice(0, -4) + ".wav"
-		}
 		var id = this.getFilename(name)
 		return gain.load(gameConfig.assets_baseurl + "audio/" + name).then(sound => {
 			assets.sounds[id] = sound
