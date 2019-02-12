@@ -134,7 +134,7 @@ class Scoresheet{
 			this.tetsuoHana.id = "tetsuohana"
 			var flowersBg = "url('" + assets.image["results_flowers"].src + "')"
 			var mikoshiBg = "url('" + assets.image["results_mikoshi"].src + "')"
-			var tetsuoHanaBg = "url('" + assets.image["results_tetsuohana"].src + "')"
+			var tetsuoHanaBg = "url('" + assets.image["results_tetsuohana" + (debugObj.state === "closed" ? "" : "2")].src + "')"
 			var id = ["flowers1", "flowers2", "mikoshi", "tetsuo", "hana"]
 			var bg = [flowersBg, flowersBg, mikoshiBg, tetsuoHanaBg, tetsuoHanaBg]
 			for(var i = 0; i < id.length; i++){

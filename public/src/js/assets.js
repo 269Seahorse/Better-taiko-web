@@ -81,7 +81,8 @@ var assets = {
 		"mimizu.png",
 		"results_flowers.png",
 		"results_mikoshi.png",
-		"results_tetsuohana.png"
+		"results_tetsuohana.png",
+		"results_tetsuohana2.png"
 	],
 	"audioSfx": [
 		"se_cancel.wav",
