@@ -65,16 +65,16 @@
 	
 	this.tutorial = {
 		basics: [
-			"Hit the drum when the notes reach the taiko!",
-			"For red notes, hit the face of the drum (%s or %s)...",
-			"...and for blue notes, hit the rim! (%s or %s)",
-			"USB controllers are also supported!"
+			"流れてくる音符がワクに重なったらバチで太鼓をたたこう！",
+			"赤い音符は面をたたこう（%sまたは%s）",
+			"青い音符はフチをたたこう（%sまたは%s）",
+			"USBコントローラがサポートされています！"
 		],
-		otherControls: "Other controls",
+		otherControls: "他のコントロール",
 		otherTutorial: [
-			"%s \u2014 pause game",
-			"%s while selecting difficulty \u2014 enable autoplay mode",
-			"%s while selecting difficulty \u2014 enable 2P mode"
+			"%sはゲームを一時停止します",
+			"むずかしさをえらぶしながら%sキーを押しながらオートモードを有効",
+			"むずかしさをえらぶしながら%sキーを押しながらネットプレイモードを有効"
 		],
 		ok: "OK"
 	}
@@ -166,8 +166,8 @@ function StringsEn(){
 	
 	this.tutorial = {
 		basics: [
-			"Hit the drum when the notes reach the taiko!",
-			"For red notes, hit the face of the drum (%s or %s)...",
+			"When a note overlaps the frame, that is your cue to hit the drum!",
+			"For red notes, hit the surface of the drum (%s or %s)...",
 			"...and for blue notes, hit the rim! (%s or %s)",
 			"USB controllers are also supported!"
 		],
@@ -267,16 +267,16 @@ function StringsCn(){
 	
 	this.tutorial = {
 		basics: [
-			"Hit the drum when the notes reach the taiko!",
-			"For red notes, hit the face of the drum (%s or %s)...",
-			"...and for blue notes, hit the rim! (%s or %s)",
-			"USB controllers are also supported!"
+			"当流动的音符将与框框重叠时就用鼓棒敲打太鼓吧",
+			"遇到红色音符要敲打鼓面（%s或%s）",
+			"遇到蓝色音符则敲打鼓边（%s或%s）",
+			"USB控制器也支持！"
 		],
-		otherControls: "Other controls",
+		otherControls: "其他控制",
 		otherTutorial: [
-			"%s \u2014 pause game",
-			"%s while selecting difficulty \u2014 enable autoplay mode",
-			"%s while selecting difficulty \u2014 enable 2P mode"
+			"%s暂停游戏",
+			"选择难度时按住%s以启用自动模式",
+			"选择难度时按住%s以启用网络对战模式"
 		],
 		ok: "确定"
 	}
@@ -368,16 +368,16 @@ function StringsTw(){
 	
 	this.tutorial = {
 		basics: [
-			"Hit the drum when the notes reach the taiko!",
-			"For red notes, hit the face of the drum (%s or %s)...",
-			"...and for blue notes, hit the rim! (%s or %s)",
-			"USB controllers are also supported!"
+			"當流動的音符將與框框重疊時就用鼓棒敲打太鼓吧",
+			"遇到紅色音符要敲打鼓面（%s或%s）",
+			"遇到藍色音符則敲打鼓邊（%s或%s）",
+			"USB控制器也支持！"
 		],
-		otherControls: "Other controls",
+		otherControls: "其他控制",
 		otherTutorial: [
-			"%s \u2014 pause game",
-			"%s while selecting difficulty \u2014 enable autoplay mode",
-			"%s while selecting difficulty \u2014 enable 2P mode"
+			"%s暫停遊戲",
+			"選擇難度時按住%s以啟用自動模式",
+			"選擇難度時按住%s以啟用網上對打模式"
 		],
 		ok: "確定"
 	}
@@ -469,16 +469,16 @@ function StringsKo(){
 	
 	this.tutorial = {
 		basics: [
-			"Hit the drum when the notes reach the taiko!",
-			"For red notes, hit the face of the drum (%s or %s)...",
-			"...and for blue notes, hit the rim! (%s or %s)",
-			"USB controllers are also supported!"
+			"이동하는 음표가 테두리와 겹쳐졌을 때 북채로 태고를 두드리자！",
+			"빨간 음표는 면을 두드리자 (%s 또는 %s)",
+			"파란 음표는 테를 두드리자 (%s 또는 %s)",
+			"USB 컨트롤러도 지원됩니다!"
 		],
-		otherControls: "Other controls",
+		otherControls: "기타 컨트롤",
 		otherTutorial: [
-			"%s \u2014 pause game",
-			"%s while selecting difficulty \u2014 enable autoplay mode",
-			"%s while selecting difficulty \u2014 enable 2P mode"
+			"%s \u2014 게임을 일시 중지합니다",
+			"난이도 선택 동안 %s 홀드 \u2014 오토 모드 활성화",
+			"난이도 선택 동안 %s 홀드 \u2014 넷 플레이 모드 활성화"
 		],
 		ok: "확인"
 	}

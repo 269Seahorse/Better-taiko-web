@@ -60,6 +60,10 @@ class Scoresheet{
 				}
 			})
 		}
+		pageEvents.send("scoresheet", {
+			results: this.results,
+			multiplayer: multiplayer
+		})
 	}
 	keyDown(event, code){
 		if(!code){

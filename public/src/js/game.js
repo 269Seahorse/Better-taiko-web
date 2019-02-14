@@ -362,6 +362,7 @@ class Game{
 			this.view.gameDiv.classList.add("game-paused")
 			this.view.lastMousemove = this.view.getMS()
 			this.view.cursorHidden = false
+			pageEvents.send("pause")
 		}else{
 			assets.sounds["se_cancel"].play()
 			this.paused = false
@@ -370,6 +371,7 @@ class Game{
 			this.sndTime = currentDate - snd.buffer.getTime() * 1000
 			this.view.gameDiv.classList.remove("game-paused")
 			this.view.pointer()
+			pageEvents.send("unpause", currentDate - this.latestDate)
 		}
 	}
 	isPaused(){
@@ -391,6 +393,7 @@ class Game{
 				if(Math.abs(lag) >= 50){
 					this.startDate += lag
 					this.sndTime = sndTime
+					pageEvents.send("game-lag", lag)
 				}
 			}
 			this.elapsedTime = currentDate - this.startDate

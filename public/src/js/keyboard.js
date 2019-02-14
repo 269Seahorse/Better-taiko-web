@@ -28,6 +28,7 @@ class Keyboard{
 			"don": -Infinity,
 			"ka": -Infinity
 		}
+		this.keyboardEvents = 0
 		
 		var gameBtn = {}
 		gameBtn[this.kbd["don_l"]] = ["u", "d", "l", "r", "ls"]
@@ -66,8 +67,19 @@ class Keyboard{
 			if(key && !event.repeat && this.buttonEnabled(key)){
 				var ms = this.game.getAccurateTime()
 				this.setKey(key, event.type === "keydown", ms)
+				if(event.type === "keydown"){
+					this.keyboardEvents++
+				}
 			}
 		})
+		
+		if(controller.multiplayer === 1){
+			pageEvents.add(window, "beforeunload", event => {
+				if(p2.otherConnected){
+					pageEvents.send("p2-abandoned", event)
+				}
+			})
+		}
 	}
 	getBindings(){
 		return this.kbd
@@ -165,8 +177,9 @@ class Keyboard{
 		}
 		if(this.controller.multiplayer !== 2){
 			this.checkKey(this.kbd["back"], "menu", () => {
-				if(this.controller.multiplayer === 1){
+				if(this.controller.multiplayer === 1 && p2.otherConnected){
 					p2.send("gameend")
+					pageEvents.send("p2-abandoned")
 				}
 				this.controller.togglePause()
 				this.controller.songSelection()
@@ -243,5 +256,14 @@ class Keyboard{
 	clean(){
 		pageEvents.keyRemove(this, "all")
 		clearInterval(this.gamepadInterval)
+		if(this.controller.multiplayer === 1){
+			pageEvents.remove(window, "beforeunload")
+		}
+		if(this.controller.multiplayer !== 2){
+			pageEvents.send("key-events", {
+				keyboard: this.keyboardEvents,
+				gamepad: this.gamepad.gamepadEvents
+			})
+		}
 	}
 }

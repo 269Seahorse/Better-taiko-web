@@ -58,6 +58,12 @@ class Controller{
 		this.viewLoop()
 		if(this.multiplayer !== 2){
 			this.gameInterval = setInterval(this.gameLoop.bind(this), 1000 / 60)
+			pageEvents.send("game-start", {
+				selectedSong: this.selectedSong,
+				autoPlayEnabled: this.autoPlayEnabled,
+				multiplayer: this.multiplayer,
+				touchEnabled: this.touchEnabled
+			})
 		}
 	}
 	stopMainLoop(){

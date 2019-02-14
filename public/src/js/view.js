@@ -750,7 +750,7 @@
 				comboScale = this.draw.fade(scoreMS / 100)
 			}
 			var glyphW = 51
-			var glyphH = 64
+			var glyphH = 65
 			var letterSpacing = (comboText.length >= 4 ? 38 : 42) * mul
 			var orange = comboCount >= 100 ? "1" : "0"
 			
@@ -1374,8 +1374,8 @@
 	fillComboCache(){
 		var fontSize = 58
 		var letterSpacing = fontSize * 0.67
-		var glyphW = 50
-		var glyphH = 64
+		var glyphW = 51
+		var glyphH = 65
 		var textX = 5
 		var textY = 5
 		var letterBorder = fontSize * 0.15
@@ -1631,12 +1631,17 @@
 		switch(pos){
 			case 1:
 				assets.sounds["se_don"].play()
-				return this.controller.restartSong()
+				this.controller.restartSong()
+				pageEvents.send("pause-restart")
+				break
 			case 2:
 				assets.sounds["se_don"].play()
-				return this.controller.songSelection()
+				this.controller.songSelection()
+				pageEvents.send("pause-song-select")
+				break
 			default:
-				return this.controller.togglePause()
+				this.controller.togglePause()
+				break
 		}
 	}
 	onmousedown(event){

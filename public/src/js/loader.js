@@ -25,6 +25,12 @@ class Loader{
 		
 		var queryString = gameConfig._version.commit_short ? "?" + gameConfig._version.commit_short : ""
 		
+		if(gameConfig.custom_js){
+			var script = document.createElement("script")
+			this.addPromise(pageEvents.load(script))
+			script.src = gameConfig.custom_js + queryString
+			document.head.appendChild(script)
+		}
 		assets.js.forEach(name => {
 			var script = document.createElement("script")
 			this.addPromise(pageEvents.load(script))
@@ -147,8 +153,15 @@ class Loader{
 				}
 			}))
 			
+			var songId
+			var hashLower = location.hash.toLowerCase()
 			p2 = new P2Connection()
-			if(location.hash.length === 6){
+			if(hashLower.startsWith("#song=")){
+				var number = parseInt(location.hash.slice(6))
+				if(number > 0){
+					songId = number
+				}
+			}else if(location.hash.length === 6){
 				p2.hashLock = true
 				this.addPromise(new Promise(resolve => {
 					p2.open()
@@ -182,7 +195,7 @@ class Loader{
 					perf.load = Date.now() - this.startTime
 					this.canvasTest.clean()
 					this.clean()
-					this.callback()
+					this.callback(songId)
 				})
 			}, this.errorMsg.bind(this))
 			

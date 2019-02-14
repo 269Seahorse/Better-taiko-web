@@ -92,6 +92,7 @@ var versionDiv = document.getElementById("version")
 var versionLink = document.getElementById("version-link")
 pageEvents.add(versionDiv, ["click", "touchend"], () => {
 	versionLink.click()
+	pageEvents.send("version-link")
 })
 resizeRoot()
 setInterval(resizeRoot, 100)
@@ -112,7 +113,7 @@ pageEvents.keyAdd(debugObj, "all", "down", event => {
 	}
 })
 
-var loader = new Loader(() => {
-	new Titlescreen()
+var loader = new Loader(songId => {
+	new Titlescreen(songId)
 })
 

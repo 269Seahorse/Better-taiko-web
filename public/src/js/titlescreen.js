@@ -1,38 +1,47 @@
 class Titlescreen{
-	constructor(){
-		loader.changePage("titlescreen", false)
+	constructor(songId){
+		this.songId = songId
 		
-		this.titleScreen = document.getElementById("title-screen")
-		this.proceed = document.getElementById("title-proceed")
-		this.langDropdown = document.getElementById("lang-dropdown")
-		this.langId = document.getElementById("lang-id")
-		this.disclaimerText = document.getElementById("title-disclaimer-text")
-		this.disclaimerCopyright = document.getElementById("title-disclaimer-copyright")
-		document.getElementById("globe-path").setAttribute("d", vectors.globe)
-
-		this.logo = new Logo()
+		if(!songId){
+			loader.changePage("titlescreen", false)
+			
+			this.titleScreen = document.getElementById("title-screen")
+			this.proceed = document.getElementById("title-proceed")
+			this.langDropdown = document.getElementById("lang-dropdown")
+			this.langId = document.getElementById("lang-id")
+			this.disclaimerText = document.getElementById("title-disclaimer-text")
+			this.disclaimerCopyright = document.getElementById("title-disclaimer-copyright")
+			document.getElementById("globe-path").setAttribute("d", vectors.globe)
+			this.logo = new Logo()
+		}
 		this.lang = this.getLang()
 		this.setLang(allStrings[this.lang])
-		this.addLangs()
 		
-		pageEvents.keyAdd(this, "all", "down", this.keyDown.bind(this))
-		pageEvents.add(this.titleScreen, ["mousedown", "touchstart"], this.onPressed.bind(this))
-		pageEvents.add(this.langDropdown, "change", this.langChange.bind(this))
-		
-		assets.sounds["v_title"].play()
-		this.gamepad = new Gamepad({
-			"13": ["a", "b", "x", "y", "start", "ls", "rs"]
-		}, pressed => {
-			if(pressed){
-				this.onPressed()
-			}
-		})
-		if(p2.session){
-			pageEvents.add(p2, "message", response => {
-				if(response.type === "songsel"){
-					this.goNext(true)
+		if(songId){
+			this.goNext()
+		}else{
+			this.addLangs()
+			
+			pageEvents.keyAdd(this, "all", "down", this.keyDown.bind(this))
+			pageEvents.add(this.titleScreen, ["mousedown", "touchstart"], this.onPressed.bind(this))
+			pageEvents.add(this.langDropdown, "change", this.langChange.bind(this))
+			
+			assets.sounds["v_title"].play()
+			this.gamepad = new Gamepad({
+				"13": ["a", "b", "x", "y", "start", "ls", "rs"]
+			}, pressed => {
+				if(pressed){
+					this.onPressed()
 				}
 			})
+			if(p2.session){
+				pageEvents.add(p2, "message", response => {
+					if(response.type === "songsel"){
+						this.goNext(true)
+					}
+				})
+			}
+			pageEvents.send("title-screen")
 		}
 	}
 	
@@ -66,13 +75,16 @@ class Titlescreen{
 		if(p2.session && !fromP2){
 			p2.send("songsel")
 		}else if(fromP2 || this.touched || localStorage.getItem("tutorial") === "true"){
+			if(this.touched){
+				localStorage.setItem("tutorial", "true")
+			}
 			pageEvents.remove(p2, "message")
 			setTimeout(() => {
-				new SongSelect(false, false, this.touched)
+				new SongSelect(false, false, this.touched, this.songId)
 			}, 500)
 		}else{
 			setTimeout(() => {
-				new Tutorial()
+				new Tutorial(false, this.songId)
 			}, 500)
 		}
 	}
@@ -96,6 +108,16 @@ class Titlescreen{
 	}
 	setLang(lang){
 		strings = lang
+		
+		loader.screen.style.fontFamily = strings.font
+		loader.screen.style.fontWeight = strings.font === "Microsoft YaHei, sans-serif" ? "bold" : ""
+		
+		if(failedTests.length !== 0){
+			showUnsupported(strings)
+		}
+		if(this.songId){
+			return
+		}
 		this.proceed.innerText = strings.titleProceed
 		this.proceed.setAttribute("alt", strings.titleProceed)
 		this.langId.innerText = strings.id.toUpperCase()
@@ -106,12 +128,8 @@ class Titlescreen{
 		this.disclaimerCopyright.innerText = strings.titleCopyright
 		this.disclaimerCopyright.setAttribute("alt", strings.titleCopyright)
 		
-		loader.screen.style.fontFamily = strings.font
-		loader.screen.style.fontWeight = strings.font === "Microsoft YaHei, sans-serif" ? "bold" : ""
-		if(failedTests.length !== 0){
-			showUnsupported(strings)
-		}
 		this.logo.updateSubtitle()
+		pageEvents.send("language-change", lang.id)
 	}
 	addLangs(){
 		for(var i in allStrings){

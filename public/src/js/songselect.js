@@ -1,5 +1,5 @@
 class SongSelect{
-	constructor(fromTutorial, fadeIn, touchEnabled){
+	constructor(fromTutorial, fadeIn, touchEnabled, songId){
 		this.touchEnabled = touchEnabled
 		
 		loader.changePage("songselect", false)
@@ -213,23 +213,32 @@ class SongSelect{
 		this.selectedDiff = 0
 		assets.sounds["bgm_songsel"].playLoop(0.1, false, 0, 1.442, 3.506)
 		
-		if(!assets.customSongs && !fromTutorial && !("selectedSong" in localStorage)){
+		if(!assets.customSongs && !fromTutorial && !("selectedSong" in localStorage) && !songId){
 			fromTutorial = touchEnabled ? "about" : "tutorial"
 		}
 		if(p2.session){
 			fromTutorial = false
 		}
 		
+		var songIdIndex = -1
 		if(fromTutorial){
 			this.selectedSong = this.songs.findIndex(song => song.action === fromTutorial)
 			this.playBgm(true)
 		}else{
-			if(assets.customSongs){
+			if(songId){
+				songIdIndex = this.songs.findIndex(song => song.id === songId)
+				if(songIdIndex === -1){
+					this.clearHash()
+				}
+			}
+			if(songIdIndex !== -1){
+				this.selectedSong = songIdIndex
+			}else if(assets.customSongs){
 				this.selectedSong = assets.customSelected
 			}else if((!p2.session || fadeIn) && "selectedSong" in localStorage){
 				this.selectedSong = Math.min(Math.max(0, localStorage["selectedSong"] |0), this.songs.length - 1)
 			}
-			assets.sounds["v_songsel"].play()
+			assets.sounds[songIdIndex !== -1 ? "v_diffsel" : "v_songsel"].play()
 			snd.musicGain.fadeOut()
 			this.playBgm(false)
 		}
@@ -247,7 +256,7 @@ class SongSelect{
 		
 		var skipStart = fromTutorial || p2.session
 		this.state = {
-			screen: fadeIn ? "titleFadeIn" : (skipStart ? "song" : "title"),
+			screen: songIdIndex !== -1 ? "difficulty" : (fadeIn ? "titleFadeIn" : (skipStart ? "song" : "title")),
 			screenMS: this.getMS(),
 			move: 0,
 			moveMS: 0,
@@ -302,6 +311,8 @@ class SongSelect{
 		this.redrawRunning = true
 		this.redrawBind = this.redraw.bind(this)
 		this.redraw()
+		pageEvents.send("song-select")
+		pageEvents.send("song-select-move", this.songs[this.selectedSong])
 	}
 	
 	keyDown(event, code){
@@ -590,6 +601,7 @@ class SongSelect{
 				assets.sounds["se_don"].play()
 				assets.sounds["v_songsel"].stop()
 				assets.sounds["v_diffsel"].play(0.3)
+				pageEvents.send("song-select-difficulty", currentSong)
 			}else if(currentSong.action === "back"){
 				this.clean()
 				this.toTitleScreen()
@@ -630,6 +642,8 @@ class SongSelect{
 			assets.sounds["v_diffsel"].stop()
 			assets.sounds["se_cancel"].play()
 		}
+		this.clearHash()
+		pageEvents.send("song-select-back")
 	}
 	toLoadSong(difficulty, shift, ctrl, touch){
 		this.clean()
@@ -728,6 +742,7 @@ class SongSelect{
 			setTimeout(() => {
 				new SongSelect("browse", false, this.touchEnabled)
 			}, 500)
+			pageEvents.send("import-songs-default")
 		}else{
 			this.browse.click()
 		}
@@ -952,7 +967,11 @@ class SongSelect{
 			var elapsed = ms - this.state.moveMS
 			if(this.state.move && ms > this.state.moveMS + resize2 - scrollDelay){
 				assets.sounds["se_ka"].play()
+				var previousSelectedSong = this.selectedSong
 				this.selectedSong = this.mod(this.songs.length, this.selectedSong + this.state.move)
+				if(previousSelectedSong !== this.selectedSong){
+					pageEvents.send("song-select-move", this.songs[this.selectedSong])
+				}
 				this.state.move = 0
 				this.state.locked = 2
 				
@@ -1687,16 +1706,11 @@ class SongSelect{
 		if("id" in currentSong){
 			var startLoad = this.getMS()
 			if(loadOnly){
-				var resolveLoading
-				this.previewLoading = currentSong.id
+				var currentId = null
 			}else{
+				var currentId = this.previewId
 				this.previewing = this.selectedSong
-				if(this.previewLoading === currentSong.id){
-					this.previewLoading = null
-					return
-				}
 			}
-			var currentId = this.previewId
 			var songObj = this.previewList.find(song => song && song.id === id)
 			
 			if(songObj){
@@ -1728,14 +1742,9 @@ class SongSelect{
 				}).then(sound => {
 					if(currentId === this.previewId){
 						songObj.preview_sound = sound
-						if(!loadOnly || !this.previewLoading){
-							this.previewing = this.selectedSong
-							this.preview = sound
-							this.previewLoaded(startLoad, songObj.preview_time)
-						}
-						if(loadOnly){
-							this.previewLoading = null
-						}
+						this.preview = sound
+						this.previewLoaded(startLoad, songObj.preview_time)
+						
 						var oldPreview = this.previewList.shift()
 						if(oldPreview){
 							oldPreview.preview_sound.clean()
@@ -1880,11 +1889,18 @@ class SongSelect{
 		return title
 	}
 	
+	clearHash(){
+		if(location.hash.toLowerCase().startsWith("#song=")){
+			p2.hash("")
+		}
+	}
+	
 	getMS(){
 		return Date.now()
 	}
 	
 	clean(){
+		this.clearHash()
 		this.draw.clean()
 		this.songTitleCache.clean()
 		this.selectTextCache.clean()

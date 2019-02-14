@@ -143,4 +143,7 @@ class PageEvents{
 	getMouse(){
 		return this.lastMouse
 	}
+	send(name, detail){
+		dispatchEvent(new CustomEvent(name, {detail: detail}))
+	}
 }
