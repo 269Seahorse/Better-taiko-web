@@ -4,7 +4,6 @@ from __future__ import division
 
 import json
 import sqlite3
-import tempfile
 import re
 import os
 from flask import Flask, g, jsonify, render_template, request, abort, redirect
@@ -15,6 +14,7 @@ app = Flask(__name__)
 try:
     app.cache = Cache(app, config={'CACHE_TYPE': 'redis'})
 except RuntimeError:
+    import tempfile
     app.cache = Cache(app, config={'CACHE_TYPE': 'filesystem', 'CACHE_DIR': tempfile.gettempdir()})
 
 DATABASE = 'taiko.db'
@@ -150,6 +150,7 @@ def close_connection(exception):
 
 
 @app.route('/')
+@app.cache.cached(timeout=15)
 def route_index():
     version = get_version()
     return render_template('index.html', version=version, config=get_config())
