@@ -4,12 +4,19 @@ from __future__ import division
 
 import json
 import sqlite3
+import tempfile
 import re
 import os
 from flask import Flask, g, jsonify, render_template, request, abort, redirect
+from flask_caching import Cache
 from ffmpy import FFmpeg
 
 app = Flask(__name__)
+try:
+    app.cache = Cache(app, config={'CACHE_TYPE': 'redis'})
+except RuntimeError:
+    app.cache = Cache(app, config={'CACHE_TYPE': 'filesystem', 'CACHE_DIR': tempfile.gettempdir()})
+
 DATABASE = 'taiko.db'
 DEFAULT_URL = 'https://github.com/bui/taiko-web/'
 
@@ -149,6 +156,7 @@ def route_index():
 
 
 @app.route('/api/preview')
+@app.cache.cached(timeout=15)
 def route_api_preview():
     song_id = request.args.get('id', None)
     if not song_id or not re.match('^[0-9]+$', song_id):
@@ -167,6 +175,7 @@ def route_api_preview():
 
 
 @app.route('/api/songs')
+@app.cache.cached(timeout=15)
 def route_api_songs():
     songs = query_db('select * from songs where enabled = 1')
     
@@ -210,6 +219,7 @@ def route_api_songs():
 
 
 @app.route('/api/config')
+@app.cache.cached(timeout=15)
 def route_api_config():
     config = get_config()
     return jsonify(config)
