@@ -259,11 +259,5 @@ class Keyboard{
 		if(this.controller.multiplayer === 1){
 			pageEvents.remove(window, "beforeunload")
 		}
-		if(this.controller.multiplayer !== 2){
-			pageEvents.send("key-events", {
-				keyboard: this.keyboardEvents,
-				gamepad: this.gamepad.gamepadEvents
-			})
-		}
 	}
 }

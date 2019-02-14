@@ -90,9 +90,11 @@ pageEvents.add(root, ["touchstart", "touchmove", "touchend"], event => {
 })
 var versionDiv = document.getElementById("version")
 var versionLink = document.getElementById("version-link")
-pageEvents.add(versionDiv, ["click", "touchend"], () => {
-	versionLink.click()
-	pageEvents.send("version-link")
+pageEvents.add(versionDiv, ["click", "touchend"], event => {
+	if(event.target === versionDiv){
+		versionLink.click()
+		pageEvents.send("version-link")
+	}
 })
 resizeRoot()
 setInterval(resizeRoot, 100)

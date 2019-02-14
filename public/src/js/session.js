@@ -30,7 +30,7 @@ class Session{
 			}else if(response.type === "songsel"){
 				p2.clearMessage("users")
 				this.onEnd(false, true)
-				pageEvents.send("session-start")
+				pageEvents.send("session-start", "host")
 			}
 		})
 		p2.send("invite")

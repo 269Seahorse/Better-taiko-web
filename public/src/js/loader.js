@@ -153,6 +153,7 @@ class Loader{
 				}
 			}))
 			
+			var readyEvent = "normal"
 			var songId
 			var hashLower = location.hash.toLowerCase()
 			p2 = new P2Connection()
@@ -160,6 +161,7 @@ class Loader{
 				var number = parseInt(location.hash.slice(6))
 				if(number > 0){
 					songId = number
+					readyEvent = "song-id"
 				}
 			}else if(location.hash.length === 6){
 				p2.hashLock = true
@@ -167,10 +169,13 @@ class Loader{
 					p2.open()
 					pageEvents.add(p2, "message", response => {
 						if(response.type === "session"){
+							pageEvents.send("session-start", "invited")
+							readyEvent = "session-start"
 							resolve()
 						}else if(response.type === "gameend"){
 							p2.hash("")
 							p2.hashLock = false
+							readyEvent = "session-expired"
 							resolve()
 						}
 					})
@@ -196,6 +201,7 @@ class Loader{
 					this.canvasTest.clean()
 					this.clean()
 					this.callback(songId)
+					pageEvents.send("ready", readyEvent)
 				})
 			}, this.errorMsg.bind(this))
 			
@@ -218,6 +224,7 @@ class Loader{
 	}
 	errorMsg(error){
 		console.error(error)
+		pageEvents.send("loader-error", error)
 		this.error = true
 		this.loaderPercentage.appendChild(document.createElement("br"))
 		this.loaderPercentage.appendChild(document.createTextNode("An error occurred, please refresh"))

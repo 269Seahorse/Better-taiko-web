@@ -128,7 +128,6 @@ class P2Connection{
 				for(var i in response.value){
 					this.results[i] = response.value[i].toString()
 				}
-				pageEvents.send("scoresheet-player2", this.results)
 				break
 			case "note":
 				this.notes.push(response.value)

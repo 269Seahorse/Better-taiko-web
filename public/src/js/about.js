@@ -152,8 +152,10 @@
 		return target.getElementsByTagName("a")[0]
 	}
 	linkButton(event){
-		this.getLink(event.currentTarget).click()
-		pageEvents.send("about-link", event)
+		if(event.target === event.currentTarget){
+			this.getLink(event.currentTarget).click()
+			pageEvents.send("about-link", event)
+		}
 	}
 	clean(){
 		cancelTouch = true

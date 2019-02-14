@@ -15,7 +15,7 @@ class Titlescreen{
 			this.logo = new Logo()
 		}
 		this.lang = this.getLang()
-		this.setLang(allStrings[this.lang])
+		this.setLang(allStrings[this.lang], true)
 		
 		if(songId){
 			this.goNext()
@@ -106,7 +106,7 @@ class Titlescreen{
 		}
 		return "ja"
 	}
-	setLang(lang){
+	setLang(lang, initial){
 		strings = lang
 		
 		loader.screen.style.fontFamily = strings.font
@@ -129,7 +129,9 @@ class Titlescreen{
 		this.disclaimerCopyright.setAttribute("alt", strings.titleCopyright)
 		
 		this.logo.updateSubtitle()
-		pageEvents.send("language-change", lang.id)
+		if(!initial){
+			pageEvents.send("language-change", lang.id)
+		}
 	}
 	addLangs(){
 		for(var i in allStrings){

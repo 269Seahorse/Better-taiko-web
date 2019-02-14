@@ -313,6 +313,9 @@ class SongSelect{
 		this.redraw()
 		pageEvents.send("song-select")
 		pageEvents.send("song-select-move", this.songs[this.selectedSong])
+		if(songIdIndex !== -1){
+			pageEvents.send("song-select-difficulty", this.songs[this.selectedSong])
+		}
 	}
 	
 	keyDown(event, code){
@@ -615,6 +618,7 @@ class SongSelect{
 				setTimeout(() => {
 					this.moveToSong(moveBy)
 				}, 200)
+				pageEvents.send("song-select-random")
 			}else if(currentSong.action === "tutorial"){
 				this.toTutorial()
 			}else if(currentSong.action === "about"){

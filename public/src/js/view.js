@@ -74,6 +74,7 @@
 		this.nextBeat = 0
 		this.gogoTime = 0
 		this.drumroll = []
+		this.touchEvents = 0
 		
 		this.beatInterval = this.controller.parsedSongData.beatInfo.beatInterval
 		this.font = strings.font
@@ -1601,6 +1602,7 @@
 						this.touchNote("ka_r")
 					}
 				}
+				this.touchEvents++
 			}
 		}
 	}

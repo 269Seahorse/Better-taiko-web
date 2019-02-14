@@ -18,7 +18,8 @@ class LoadSong{
 		pageEvents.send("load-song", {
 			selectedSong: selectedSong,
 			autoPlayEnabled: autoPlayEnabled,
-			multiplayer: multiplayer
+			multiplayer: multiplayer,
+			touchEnabled: touchEnabled
 		})
 	}
 	run(){
