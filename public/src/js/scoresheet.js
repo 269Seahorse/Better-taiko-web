@@ -60,6 +60,17 @@ class Scoresheet{
 				}
 			})
 		}
+		pageEvents.send("scoresheet", {
+			selectedSong: controller.selectedSong,
+			autoPlayEnabled: controller.autoPlayEnabled,
+			multiplayer: multiplayer,
+			touchEnabled: touchEnabled,
+			results: this.results,
+			p2results: multiplayer ? p2.results : null,
+			keyboardEvents: controller.keyboard.keyboardEvents,
+			gamepadEvents: controller.keyboard.gamepad.gamepadEvents,
+			touchEvents: controller.view.touchEvents
+		})
 	}
 	keyDown(event, code){
 		if(!code){

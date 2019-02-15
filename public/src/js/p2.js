@@ -58,6 +58,7 @@ class P2Connection{
 					this.open()
 				}
 			}, 500)
+			pageEvents.send("p2-disconnected")
 		}
 		var addedType = this.allEvents.get("close")
 		if(addedType){
@@ -111,6 +112,11 @@ class P2Connection{
 				break
 			case "gameend":
 				this.otherConnected = false
+				if(this.session){
+					pageEvents.send("session-end")
+				}else if(!this.results){
+					pageEvents.send("p2-game-end")
+				}
 				this.session = false
 				if(this.hashLock){
 					this.hash("")

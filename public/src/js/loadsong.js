@@ -15,6 +15,12 @@ class LoadSong{
 			cancel.setAttribute("alt", strings.cancel)
 		}
 		this.run()
+		pageEvents.send("load-song", {
+			selectedSong: selectedSong,
+			autoPlayEnabled: autoPlayEnabled,
+			multiplayer: multiplayer,
+			touchEnabled: touchEnabled
+		})
 	}
 	run(){
 		var song = this.selectedSong
@@ -117,6 +123,7 @@ class LoadSong{
 			if(Array.isArray(error) && error[1] instanceof HTMLElement){
 				error = error[0] + ": " + error[1].outerHTML
 			}
+			pageEvents.send("load-song-error", error)
 			errorMessage(new Error(error).stack)
 			alert("An error occurred, please refresh")
 		})
@@ -243,6 +250,7 @@ class LoadSong{
 					var taikoGame1 = new Controller(song, this.songData, false, 1, this.touchEnabled)
 					var taikoGame2 = new Controller(this.selectedSong2, this.song2Data, true, 2, this.touchEnabled)
 					taikoGame1.run(taikoGame2)
+					pageEvents.send("load-song-player2", this.selectedSong2)
 				}else if(event.type === "left" || event.type === "gameend"){
 					this.clean()
 					new SongSelect(false, false, this.touchEnabled)
@@ -264,6 +272,7 @@ class LoadSong{
 		}else{
 			if(!repeat){
 				assets.sounds["v_sanka"].play()
+				pageEvents.send("load-song-unfocused")
 			}
 			setTimeout(() => {
 				this.startMultiplayer(true)
@@ -281,6 +290,7 @@ class LoadSong{
 		p2.send("leave")
 		assets.sounds["se_don"].play()
 		this.cancelButton.style.pointerEvents = "none"
+		pageEvents.send("load-song-cancel")
 	}
 	clean(){
 		pageEvents.remove(p2, "message")

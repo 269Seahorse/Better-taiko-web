@@ -30,9 +30,11 @@ class Session{
 			}else if(response.type === "songsel"){
 				p2.clearMessage("users")
 				this.onEnd(false, true)
+				pageEvents.send("session-start", "host")
 			}
 		})
 		p2.send("invite")
+		pageEvents.send("session")
 	}
 	mouseDown(event){
 		if(event.target === this.sessionInvite){
@@ -50,6 +52,7 @@ class Session{
 			p2.send("leave")
 			p2.hash("")
 			p2.hashLock = false
+			pageEvents.send("session-cancel")
 		}else if(!fromP2){
 			return p2.send("songsel")
 		}

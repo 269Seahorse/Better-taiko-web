@@ -74,6 +74,7 @@
 		this.nextBeat = 0
 		this.gogoTime = 0
 		this.drumroll = []
+		this.touchEvents = 0
 		
 		this.beatInterval = this.controller.parsedSongData.beatInfo.beatInterval
 		this.font = strings.font
@@ -750,7 +751,7 @@
 				comboScale = this.draw.fade(scoreMS / 100)
 			}
 			var glyphW = 51
-			var glyphH = 64
+			var glyphH = 65
 			var letterSpacing = (comboText.length >= 4 ? 38 : 42) * mul
 			var orange = comboCount >= 100 ? "1" : "0"
 			
@@ -1374,8 +1375,8 @@
 	fillComboCache(){
 		var fontSize = 58
 		var letterSpacing = fontSize * 0.67
-		var glyphW = 50
-		var glyphH = 64
+		var glyphW = 51
+		var glyphH = 65
 		var textX = 5
 		var textY = 5
 		var letterBorder = fontSize * 0.15
@@ -1601,6 +1602,7 @@
 						this.touchNote("ka_r")
 					}
 				}
+				this.touchEvents++
 			}
 		}
 	}
@@ -1631,12 +1633,17 @@
 		switch(pos){
 			case 1:
 				assets.sounds["se_don"].play()
-				return this.controller.restartSong()
+				this.controller.restartSong()
+				pageEvents.send("pause-restart")
+				break
 			case 2:
 				assets.sounds["se_don"].play()
-				return this.controller.songSelection()
+				this.controller.songSelection()
+				pageEvents.send("pause-song-select")
+				break
 			default:
-				return this.controller.togglePause()
+				this.controller.togglePause()
+				break
 		}
 	}
 	onmousedown(event){

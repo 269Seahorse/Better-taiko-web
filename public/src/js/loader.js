@@ -25,6 +25,12 @@ class Loader{
 		
 		var queryString = gameConfig._version.commit_short ? "?" + gameConfig._version.commit_short : ""
 		
+		if(gameConfig.custom_js){
+			var script = document.createElement("script")
+			this.addPromise(pageEvents.load(script))
+			script.src = gameConfig.custom_js + queryString
+			document.head.appendChild(script)
+		}
 		assets.js.forEach(name => {
 			var script = document.createElement("script")
 			this.addPromise(pageEvents.load(script))
@@ -147,17 +153,29 @@ class Loader{
 				}
 			}))
 			
+			var readyEvent = "normal"
+			var songId
+			var hashLower = location.hash.toLowerCase()
 			p2 = new P2Connection()
-			if(location.hash.length === 6){
+			if(hashLower.startsWith("#song=")){
+				var number = parseInt(location.hash.slice(6))
+				if(number > 0){
+					songId = number
+					readyEvent = "song-id"
+				}
+			}else if(location.hash.length === 6){
 				p2.hashLock = true
 				this.addPromise(new Promise(resolve => {
 					p2.open()
 					pageEvents.add(p2, "message", response => {
 						if(response.type === "session"){
+							pageEvents.send("session-start", "invited")
+							readyEvent = "session-start"
 							resolve()
 						}else if(response.type === "gameend"){
 							p2.hash("")
 							p2.hashLock = false
+							readyEvent = "session-expired"
 							resolve()
 						}
 					})
@@ -182,7 +200,8 @@ class Loader{
 					perf.load = Date.now() - this.startTime
 					this.canvasTest.clean()
 					this.clean()
-					this.callback()
+					this.callback(songId)
+					pageEvents.send("ready", readyEvent)
 				})
 			}, this.errorMsg.bind(this))
 			
@@ -205,6 +224,7 @@ class Loader{
 	}
 	errorMsg(error){
 		console.error(error)
+		pageEvents.send("loader-error", error)
 		this.error = true
 		this.loaderPercentage.appendChild(document.createElement("br"))
 		this.loaderPercentage.appendChild(document.createTextNode("An error occurred, please refresh"))

@@ -210,6 +210,7 @@ async def connection(ws, path):
 								user["other_user"]["ws"].send(sent_msg1),
 								user["other_user"]["ws"].send(sent_msg2)
 							])
+							del user["other_user"]["other_user"]
 							del user["other_user"]
 					else:
 						# Other user disconnected
@@ -304,6 +305,7 @@ async def connection(ws, path):
 								user["other_user"]["ws"].send(sent_msg1),
 								user["other_user"]["ws"].send(sent_msg2)
 							])
+							del user["other_user"]["other_user"]
 							del user["other_user"]
 					else:
 						# Other user disconnected
@@ -324,6 +326,7 @@ async def connection(ws, path):
 				user["other_user"]["ws"].send(msgobj("gameend")),
 				user["other_user"]["ws"].send(status_event())
 			])
+			del user["other_user"]["other_user"]
 		if user["action"] == "waiting":
 			del server_status["waiting"][user["gameid"]]
 			await notify_status()

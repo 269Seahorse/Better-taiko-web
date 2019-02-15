@@ -1,6 +1,7 @@
 class Tutorial{
-	constructor(fromSongSel){
+	constructor(fromSongSel, songId){
 		this.fromSongSel = fromSongSel
+		this.songId = songId
 		loader.changePage("tutorial", true)
 		assets.sounds["bgm_setsume"].playLoop(0.1, false, 0, 1.054, 16.054)
 		this.endButton = document.getElementById("tutorial-end-button")
@@ -47,6 +48,7 @@ class Tutorial{
 		this.gamepad = new Gamepad({
 			"confirm": ["start", "b", "ls", "rs"]
 		}, this.onEnd.bind(this))
+		pageEvents.send("tutorial")
 	}
 	insertText(text, parent){
 		parent.appendChild(document.createTextNode(text))
@@ -66,7 +68,7 @@ class Tutorial{
 		assets.sounds["se_don"].play()
 		localStorage.setItem("tutorial", "true")
 		setTimeout(() => {
-			new SongSelect(this.fromSongSel ? "tutorial" : false, false, touched)
+			new SongSelect(this.fromSongSel ? "tutorial" : false, false, touched, this.songId)
 		}, 500)
 	}
 	clean(){

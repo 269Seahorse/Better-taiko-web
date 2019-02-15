@@ -386,6 +386,7 @@
 			document.head.appendChild(style)
 		}
 		if(this.songs.length){
+			var length = this.songs.length
 			assets.songs = this.songs
 			assets.customSongs = true
 			assets.customSelected = 0
@@ -395,6 +396,7 @@
 				loader.screen.removeChild(this.loaderDiv)
 				this.clean()
 				new SongSelect("browse", false, this.songSelect.touchEnabled)
+				pageEvents.send("import-songs", length)
 			}, 500)
 		}else{
 			loader.screen.removeChild(this.loaderDiv)

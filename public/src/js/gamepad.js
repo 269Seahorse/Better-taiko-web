@@ -25,6 +25,7 @@ class Gamepad{
 			"lsl": "lsl"
 		}
 		this.btn = {}
+		this.gamepadEvents = 0
 		if(callback){
 			this.interval = setInterval(() => {
 				this.play(callback)
@@ -123,6 +124,7 @@ class Gamepad{
 		
 		if(pressed){
 			callback(true, keyCode)
+			this.gamepadEvents++
 		}else if(!button){
 			if(released){
 				this.toRelease[keyCode + "released"] = true

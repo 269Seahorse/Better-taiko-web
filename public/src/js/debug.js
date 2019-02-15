@@ -37,6 +37,7 @@ class Debug{
 		this.moveTo(100, 100)
 		this.restore()
 		this.updateStatus()
+		pageEvents.send("debug")
 	}
 	startMove(event){
 		if(event.which === 1){

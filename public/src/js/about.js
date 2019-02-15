@@ -41,7 +41,7 @@
 			"confirm": ["start", "b", "ls", "rs"]
 		}, this.onEnd.bind(this))
 		
-		this.addDiag()
+		pageEvents.send("about", this.addDiag())
 	}
 	onEnd(event){
 		var touched = false
@@ -145,12 +145,17 @@
 		
 		var issueBody = strings.issueTemplate + "\n\n\n\n" + diag
 		this.getLink(this.linkEmail).href += "?body=" + encodeURIComponent(issueBody.replace(/\n/g, "<br>\r\n"))
+		
+		return diag
 	}
 	getLink(target){
 		return target.getElementsByTagName("a")[0]
 	}
 	linkButton(event){
-		this.getLink(event.currentTarget).click()
+		if(event.target === event.currentTarget){
+			this.getLink(event.currentTarget).click()
+			pageEvents.send("about-link", event)
+		}
 	}
 	clean(){
 		cancelTouch = true
