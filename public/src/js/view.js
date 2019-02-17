@@ -1183,7 +1183,7 @@
 				// Start animation to gauge
 				circle.animate(ms)
 			}
-			if(ms >= circle.ms && !circle.gogoChecked){
+			if(ms >= circle.ms && !circle.gogoChecked && (!circle.branch || circle.branch.active)){
 				if(this.gogoTime != circle.gogoTime){
 					this.toggleGogoTime(circle)
 				}
