@@ -109,6 +109,7 @@ class P2Connection{
 				this.dai = 2
 				this.kaAmount = 0
 				this.results = false
+				this.branch = "normal"
 				break
 			case "gameend":
 				this.otherConnected = false
@@ -141,6 +142,10 @@ class P2Connection{
 					this.kaAmount = response.value.kaAmount
 				}
 				break
+			case "branch":
+				this.branch = response.value
+				this.branchSet = false
+				break
 			case "session":
 				this.clearMessage("users")
 				this.otherConnected = true
@@ -161,10 +166,10 @@ class P2Connection{
 	}
 	play(circle, mekadon){
 		if(this.otherConnected || this.notes.length > 0){
-			var type = circle.getType()
+			var type = circle.type
 			var drumrollNotes = type === "balloon" || type === "drumroll" || type === "daiDrumroll"
 			
-			if(drumrollNotes && mekadon.getMS() > circle.getEndTime()){
+			if(drumrollNotes && mekadon.getMS() > circle.endTime){
 				circle.played(-1, false)
 				mekadon.game.updateCurrentCircle()
 			}
@@ -177,7 +182,7 @@ class P2Connection{
 				var note = this.notes[0]
 				if(note.score >= 0){
 					var dai = 1
-					if(circle.getType() === "daiDon" || circle.getType() === "daiKa"){
+					if(circle.type === "daiDon" || circle.type === "daiKa"){
 						dai = this.dai
 					}
 					if(mekadon.playAt(circle, note.ms, note.score, dai, note.reverse)){

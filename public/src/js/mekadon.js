@@ -6,12 +6,12 @@ class Mekadon{
 		this.lastHit = -Infinity
 	}
 	play(circle){
-		var type = circle.getType()
-		if((type === "balloon" || type === "drumroll" || type === "daiDrumroll") && this.getMS() > circle.getEndTime()){
+		var type = circle.type
+		if((type === "balloon" || type === "drumroll" || type === "daiDrumroll") && this.getMS() > circle.endTime){
 			circle.played(-1, false)
 			this.game.updateCurrentCircle()
 		}
-		type = circle.getType()
+		type = circle.type
 		if(type === "balloon"){
 			this.playDrumrollAt(circle, 0, 30)
 		}else if(type === "drumroll" || type === "daiDrumroll"){
@@ -21,7 +21,7 @@ class Mekadon{
 		}
 	}
 	playAt(circle, ms, score, dai, reverse){
-		var currentMs = circle.getMS() - this.getMS()
+		var currentMs = circle.ms - this.getMS()
 		if(ms > currentMs - 10){
 			return this.playNow(circle, score, dai, reverse)
 		}
@@ -36,18 +36,19 @@ class Mekadon{
 		}
 	}
 	miss(circle){
-		var currentMs = circle.getMS() - this.getMS()
+		var currentMs = circle.ms - this.getMS()
 		if(0 >= currentMs - 10){
 			this.controller.displayScore(0, true)
 			this.game.updateCurrentCircle()
 			this.game.updateCombo(0)
 			this.game.updateGlobalScore(0, 1, circle.gogoTime)
+			this.game.sectionNotes.push(0)
 			return true
 		}
 	}
 	playNow(circle, score, dai, reverse){
 		var kbd = this.controller.getBindings()
-		var type = circle.getType()
+		var type = circle.type
 		var keyDai = false
 		var playDai = !dai || dai === 2
 		var drumrollNotes = type === "balloon" || type === "drumroll" || type === "daiDrumroll"
@@ -55,7 +56,7 @@ class Mekadon{
 		if(drumrollNotes){
 			var ms = this.getMS()
 		}else{
-			var ms = circle.getMS()
+			var ms = circle.ms
 		}
 		
 		if(reverse){
@@ -95,6 +96,7 @@ class Mekadon{
 			this.game.updateGlobalScore(score, keyDai ? 2 : 1, circle.gogoTime)
 			this.game.updateCurrentCircle()
 			circle.played(score, keyDai)
+			this.game.sectionNotes.push(score === 450 ? 1 : (score === 230 ? 0.5 : 0))
 		}
 		this.lastHit = ms
 		return true

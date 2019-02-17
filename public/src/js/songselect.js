@@ -351,7 +351,7 @@ class SongSelect{
 			down: code == 40
 			// Down
 		}
-		if(key.cancel && event){
+		if(event && (code == 27 || code == 8)){
 			event.preventDefault()
 		}
 		if(this.state.screen === "song"){
@@ -1322,27 +1322,47 @@ class SongSelect{
 								outlineSize: currentUra ? this.songAsset.letterBorder : 0
 							})
 						})
-						var songStars = currentUra ? currentSong.stars[4] : currentSong.stars[i]
-						for(var j = 0; j < 10; j++){
-							if(songSel){
-								var yPos = _y + 113 + j * 17
-							}else{
-								var yPos = _y + 178 + j * 19.5
-							}
-							if(10 - j > songStars){
-								ctx.fillStyle = currentUra ? "#187085" : (songSel ? "#e97526" : "#e7e7e7")
-								ctx.beginPath()
-								ctx.arc(_x, yPos, songSel ? 4.5 : 5, 0, Math.PI * 2)
-								ctx.fill()
-							}else{
-								this.draw.diffStar({
-									ctx: ctx,
-									songSel: songSel,
-									ura: currentUra,
-									x: _x,
-									y: yPos,
-									ratio: ratio
-								})
+						var songStarsArray = (currentUra ? currentSong.stars[4] : currentSong.stars[i]).toString().split(" ")
+						var songStars = songStarsArray[0]
+						var songBranch = songStarsArray[1] === "B"
+						var elapsedMS = this.state.screenMS > this.state.moveMS ? this.state.screenMS : this.state.moveMS
+						var fade = ((ms - elapsedMS) % 2000) / 2000
+						if(songBranch && fade > 0.25 && fade < 0.75){
+							this.draw.verticalText({
+								ctx: ctx,
+								text: strings.songBranch,
+								x: _x,
+								y: _y + (songSel ? 110 : 185),
+								width: songSel ? 44 : 56,
+								height: songSel ? 160 : 170,
+								fill: songSel && !currentUra ? "#c85200" : "#fff",
+								fontSize: songSel ? 25 : 27,
+								fontFamily: songSel ? "Meiryo, Microsoft YaHei, sans-serif" : this.font,
+								outline: songSel ? false : "#f22666",
+								outlineSize: songSel ? 0 : this.songAsset.letterBorder
+							})
+						}else{
+							for(var j = 0; j < 10; j++){
+								if(songSel){
+									var yPos = _y + 113 + j * 17
+								}else{
+									var yPos = _y + 178 + j * 19.5
+								}
+								if(10 - j > songStars){
+									ctx.fillStyle = currentUra ? "#187085" : (songSel ? "#e97526" : "#e7e7e7")
+									ctx.beginPath()
+									ctx.arc(_x, yPos, songSel ? 4.5 : 5, 0, Math.PI * 2)
+									ctx.fill()
+								}else{
+									this.draw.diffStar({
+										ctx: ctx,
+										songSel: songSel,
+										ura: currentUra,
+										x: _x,
+										y: yPos,
+										ratio: ratio
+									})
+								}
 							}
 						}
 						var currentDiff = this.selectedDiff - this.diffOptions.length

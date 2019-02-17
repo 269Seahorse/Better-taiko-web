@@ -19,8 +19,8 @@ class Game{
 			difficulty: this.rules.difficulty
 		}
 		this.HPGain = 100 / this.songData.circles.filter(circle => {
-			var type = circle.getType()
-			return type === "don" || type === "ka" || type === "daiDon" || type === "daiKa"
+			var type = circle.type
+			return (type === "don" || type === "ka" || type === "daiDon" || type === "daiKa") && (!circle.branch || circle.branch.active)
 		}).length
 		this.paused = false
 		this.started = false
@@ -28,6 +28,8 @@ class Game{
 		this.musicFadeOut = 0
 		this.fadeOutStarted = false
 		this.currentTimingPoint = 0
+		this.sectionNotes = []
+		this.sectionDrumroll = 0
 		
 		assets.songs.forEach(song => {
 			if(song.id == selectedSong.folder){
@@ -69,17 +71,18 @@ class Game{
 	}
 	updateCirclesStatus(){
 		var nextSet = false
+		var ms = this.elapsedTime
 		var circles = this.songData.circles
 		var startIndex = this.currentCircle === 0 ? 0 : this.currentCircle - 1
-		for(var i = startIndex; i < circles.length && i < this.currentCircle + 2; i++){
+		var index = 0
+		for(var i = startIndex; i < circles.length; i++){
 			var circle = circles[i]
-			if(!circle.getPlayed()){
-				var ms = this.elapsedTime
-				var type = circle.getType()
+			if((!circle.branch || circle.branch.active) && !circle.isPlayed){
+				var type = circle.type
 				var drumrollNotes = type === "balloon" || type === "drumroll" || type === "daiDrumroll"
-				var endTime = circle.getEndTime() + (drumrollNotes ? 0 : this.rules.bad)
+				var endTime = circle.endTime + (drumrollNotes ? 0 : this.rules.bad)
 				
-				if(ms >= circle.getMS()){
+				if(ms >= circle.ms){
 					if(drumrollNotes && !circle.rendaPlayed && ms < endTime){
 						circle.rendaPlayed = true
 						if(this.rules.difficulty === "easy"){
@@ -101,7 +104,7 @@ class Game{
 							this.updateCurrentCircle()
 							if(this.controller.multiplayer === 1){
 								var value = {
-									pace: (ms - circle.getMS()) / circle.timesHit
+									pace: (ms - circle.ms) / circle.timesHit
 								}
 								if(type === "drumroll" || type === "daiDrumroll"){
 									value.kaAmount = circle.timesKa / circle.timesHit
@@ -111,6 +114,7 @@ class Game{
 						}else{
 							var currentScore = 0
 							circle.played(-1, type === "daiDon" || type === "daiKa")
+							this.sectionNotes.push(0)
 							this.controller.displayScore(currentScore, true)
 							this.updateCurrentCircle()
 							this.updateCombo(currentScore)
@@ -125,6 +129,56 @@ class Game{
 				}else if(!this.controller.autoPlayEnabled && !nextSet){
 					nextSet = true
 					this.currentCircle = i
+				}
+				if(index++ > 1){
+					break
+				}
+			}
+		}
+		var branches = this.songData.branches
+		if(branches){
+			if(this.controller.multiplayer === 2 || this.branch){
+				var parent = this.controller.multiplayer === 2 ? p2 : this
+				var view = this.controller.view
+				if(view.branch !== parent.branch){
+					view.branchAnimate = {
+						ms: ms,
+						fromBranch: view.branch
+					}
+					view.branch = parent.branch
+				}
+				if(!parent.branchSet){
+					parent.branchSet = true
+					for(var i = 0; i < branches.length; i++){
+						this.setBranch(branches[i], parent.branch)
+					}
+				}
+			}else{
+				var measures = this.songData.measures
+				for(var i = 0; i < measures.length; i++){
+					var measure = measures[i]
+					if(measure.ms > ms){
+						break
+					}else if(measure.nextBranch && !measure.gameChecked){
+						measure.gameChecked = true
+						var branch = measure.nextBranch
+						if(branch.type){
+							if(branch.type === "drumroll"){
+								var accuracy = this.sectionDrumroll
+							}else{
+								var accuracy = this.sectionNotes.reduce((a, b) => a + b) / this.sectionNotes.length * 100
+							}
+							if(accuracy >= branch.requirement[1]){
+								this.setBranch(branch, "master")
+							}else if(accuracy >= branch.requirement[0]){
+								this.setBranch(branch, "advanced")
+							}else{
+								this.setBranch(branch, "normal")
+							}
+						}else if(this.controller.multiplayer === 1){
+							p2.send("branch", "normal")
+						}
+					}
 				}
 			}
 		}
@@ -160,7 +214,7 @@ class Game{
 		}
 	}
 	checkKey(keyCodes, circle, check){
-		if(circle && !circle.getPlayed()){
+		if(circle && !circle.isPlayed){
 			if(!this.checkScore(circle, check)){
 				return
 			}
@@ -171,7 +225,7 @@ class Game{
 	}
 	checkScore(circle, check){
 		var ms = this.elapsedTime
-		var type = circle.getType()
+		var type = circle.type
 		
 		var keysDon = check === "don" || check === "daiDon"
 		var keysKa = check === "ka" || check === "daiKa"
@@ -182,7 +236,7 @@ class Game{
 		
 		var keyTime = this.controller.getKeyTime()
 		var currentTime = keysDon ? keyTime["don"] : keyTime["ka"]
-		var relative = currentTime - circle.getMS()
+		var relative = currentTime - circle.ms
 		
 		if(typeDon || typeKa){
 			if(-this.rules.bad >= relative || relative >= this.rules.bad){
@@ -219,10 +273,11 @@ class Game{
 			this.updateCombo(score)
 			this.updateGlobalScore(score, typeDai && keyDai ? 2 : 1, circle.gogoTime)
 			this.updateCurrentCircle()
-			if(this.controller.multiplayer == 1){
+			this.sectionNotes.push(score === 450 ? 1 : (score === 230 ? 0.5 : 0))
+			if(this.controller.multiplayer === 1){
 				var value = {
 					score: score,
-					ms: circle.getMS() - currentTime,
+					ms: circle.ms - currentTime,
 					dai: typeDai ? keyDai ? 2 : 1 : 0
 				}
 				if((!keysDon || !typeDon) && (!keysKa || !typeKa)){
@@ -231,12 +286,12 @@ class Game{
 				p2.send("note", value)
 			}
 		}else{
-			if(circle.getMS() > currentTime || currentTime > circle.getEndTime()){
+			if(circle.ms > currentTime || currentTime > circle.endTime){
 				return true
 			}
 			if(keysDon && type === "balloon"){
 				this.checkBalloon(circle)
-				if(check === "daiDon" && !circle.getPlayed()){
+				if(check === "daiDon" && !circle.isPlayed){
 					this.checkBalloon(circle)
 				}
 			}else if((keysDon || keysKa) && (type === "drumroll" || type === "daiDrumroll")){
@@ -256,24 +311,25 @@ class Game{
 			circle.played(score)
 			if(this.controller.multiplayer == 1){
 				p2.send("drumroll", {
-					pace: (this.elapsedTime - circle.getMS()) / circle.timesHit
+					pace: (this.elapsedTime - circle.ms) / circle.timesHit
 				})
 			}
 		}else{
 			var score = 300
 			circle.hit()
 		}
-		this.globalScore.drumroll ++
+		this.globalScore.drumroll++
+		this.sectionDrumroll++
 		this.globalScore.points += score
 		this.view.setDarkBg(false)
 	}
 	checkDrumroll(circle, keysKa){
 		var ms = this.elapsedTime
-		var dai = circle.getType() === "daiDrumroll"
+		var dai = circle.type === "daiDrumroll"
 		var score = 100
 		circle.hit(keysKa)
 		var keyTime = this.controller.getKeyTime()
-		if(circle.getType() === "drumroll"){
+		if(circle.type === "drumroll"){
 			var sound = keyTime["don"] > keyTime["ka"] ? "don" : "ka"
 		}else{
 			var sound = keyTime["don"] > keyTime["ka"] ? "daiDon" : "daiKa"
@@ -291,6 +347,9 @@ class Game{
 		circleAnim.animate(ms)
 		this.view.drumroll.push(circleAnim)
 		this.globalScore.drumroll++
+		if(this.controller.multiplayer !== 2){
+			this.sectionDrumroll++
+		}
 		this.globalScore.points += score * (dai ? 2 : 1)
 		this.view.setDarkBg(false)
 	}
@@ -298,11 +357,11 @@ class Game{
 		var ms = this.elapsedTime
 		if(!this.lastCircle){
 			var circles = this.songData.circles
-			this.lastCircle = circles[circles.length - 1].getEndTime()
+			this.lastCircle = circles[circles.length - 1].endTime
 			if(this.controller.multiplayer){
 				var syncWith = this.controller.syncWith
 				var syncCircles = syncWith.game.songData.circles
-				var syncLastCircle = syncCircles[syncCircles.length - 1].getEndTime()
+				var syncLastCircle = syncCircles[syncCircles.length - 1].endTime
 				if(syncLastCircle > this.lastCircle){
 					this.lastCircle = syncLastCircle
 				}
@@ -410,7 +469,14 @@ class Game{
 		return this.songData.circles
 	}
 	updateCurrentCircle(){
-		this.currentCircle++
+		var circles = this.songData.circles
+		do{
+			var circle = circles[++this.currentCircle]
+		}while(circle && circle.branch && !circle.branch.active)
+		if(circle && circle.section){
+			this.sectionNotes = []
+			this.sectionDrumroll = 0
+		}
 	}
 	getCurrentCircle(){
 		return this.currentCircle
@@ -463,5 +529,17 @@ class Game{
 			multiplier *= 1.2
 		}
 		this.globalScore.points += Math.floor(score * multiplier / 10) * 10
+	}
+	setBranch(branch, name){
+		var names = ["normal", "advanced", "master"]
+		for(var i in names){
+			if(names[i] in branch){
+				branch[names[i]].active = names[i] === name
+			}
+		}
+		branch.active = name
+		if(this.controller.multiplayer === 1){
+			p2.send("branch", name)
+		}
 	}
 }

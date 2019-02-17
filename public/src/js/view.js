@@ -75,6 +75,18 @@
 		this.gogoTime = 0
 		this.drumroll = []
 		this.touchEvents = 0
+		if(this.controller.parsedSongData.branches){
+			this.branch = "normal"
+			this.branchAnimate = {
+				ms: -Infinity,
+				fromBranch: "normal"
+			}
+			this.branchMap = {
+				"normal": "rgba(0, 0, 0, 0)",
+				"advanced": "rgba(29, 129, 189, 0.4)",
+				"master": "rgba(230, 29, 189, 0.4)"
+			}
+		}
 		
 		this.beatInterval = this.controller.parsedSongData.beatInfo.beatInterval
 		this.font = strings.font
@@ -693,6 +705,18 @@
 			}
 			ctx.fillRect(padding, barY, winW - padding, barH)
 		}
+		if(this.branchAnimate && ms <= this.branchAnimate.ms + 300){
+			var alpha = Math.max(0, (ms - this.branchAnimate.ms) / 300)
+			ctx.globalAlpha = 1 - alpha
+			ctx.fillStyle = this.branchMap[this.branchAnimate.fromBranch]
+			ctx.fillRect(padding, barY, winW - padding, barH)
+			ctx.globalAlpha = alpha
+		}
+		if(this.branch){
+			ctx.fillStyle = this.branchMap[this.branch]
+			ctx.fillRect(padding, barY, winW - padding, barH)
+			ctx.globalAlpha = 1
+		}
 		if(keyTime[sound] > ms - 130){
 			var gradients = {
 				"don": "255, 0, 0",
@@ -1102,7 +1126,7 @@
 			var timeForDistance = this.posToMs(distanceForCircle, measure.speed)
 			var startingTime = measure.ms - timeForDistance
 			var finishTime = measure.ms + this.posToMs(this.slotPos.x - this.slotPos.paddingLeft + 3, measure.speed)
-			if(ms >= startingTime && ms <= finishTime){
+			if(measure.visible && (!measure.branch || measure.branch.active) && ms >= startingTime && ms <= finishTime){
 				var measureX = this.slotPos.x + this.msToPos(measure.ms - ms, measure.speed)
 				this.ctx.strokeStyle = "#bdbdbd"
 				this.ctx.lineWidth = 3
@@ -1110,6 +1134,14 @@
 				this.ctx.moveTo(measureX, measureY)
 				this.ctx.lineTo(measureX, measureY + measureH)
 				this.ctx.stroke()
+			}
+			if(this.multiplayer !== 2 && ms >= measure.ms && measure.nextBranch && !measure.viewChecked && measure.gameChecked){
+				measure.viewChecked = true
+				this.branchAnimate = {
+					ms: ms,
+					fromBranch: this.branch
+				}
+				this.branch = measure.nextBranch.active
 			}
 		})
 	}
@@ -1137,17 +1169,17 @@
 		
 		for(var i = circles.length; i--;){
 			var circle = circles[i]
-			var speed = circle.getSpeed()
+			var speed = circle.speed
 			
 			var timeForDistance = this.posToMs(distanceForCircle + this.slotPos.size / 2, speed)
-			var startingTime = circle.getMS() - timeForDistance
-			var finishTime = circle.getEndTime() + this.posToMs(this.slotPos.x - this.slotPos.paddingLeft + this.slotPos.size * 2, speed)
+			var startingTime = circle.ms - timeForDistance
+			var finishTime = circle.endTime + this.posToMs(this.slotPos.x - this.slotPos.paddingLeft + this.slotPos.size * 2, speed)
 			
-			if(circle.getPlayed() <= 0 || circle.getScore() === 0){
-				if(ms >= startingTime && ms <= finishTime && circle.getPlayed() !== -1){
+			if(circle.isPlayed <= 0 || circle.score === 0){
+				if((!circle.branch || circle.branch.active) && ms >= startingTime && ms <= finishTime && circle.isPlayed !== -1){
 					this.drawCircle(circle)
 				}
-			}else if(!circle.isAnimated()){
+			}else if(!circle.animating){
 				// Start animation to gauge
 				circle.animate(ms)
 			}
@@ -1165,9 +1197,9 @@
 		for(var i = 0; i < circles.length; i++){
 			var circle = circles[i]
 			
-			if(circle.isAnimated()){
+			if(circle.animating){
 				
-				var animT = circle.getAnimT()
+				var animT = circle.animT
 				if(ms < animT + 490){
 					
 					if(circle.fixedPos){
@@ -1183,7 +1215,7 @@
 					var pos = this.animateBezier[3]
 					this.drawCircle(circle, pos, (ms - animT - 490) / 160)
 				}else{
-					circle.endAnimation()
+					circle.animationEnded = true
 				}
 			}
 		}
@@ -1211,13 +1243,13 @@
 		var lyricsSize = 20 * mul
 		
 		var fill, size, faceID
-		var type = circle.getType()
+		var type = circle.type
 		var ms = this.getMS()
-		var circleMs = circle.getMS()
-		var endTime = circle.getEndTime()
-		var animated = circle.isAnimated()
-		var speed = circle.getSpeed()
-		var played = circle.getPlayed()
+		var circleMs = circle.ms
+		var endTime = circle.endTime
+		var animated = circle.animating
+		var speed = circle.speed
+		var played = circle.isPlayed
 		var drumroll = 0
 		var endX = 0
 		
@@ -1323,9 +1355,9 @@
 			ctx.fill()
 			ctx.globalAlpha = 1
 		}
-		if(!circle.isAnimated()){
+		if(!circle.animating){
 			// Text
-			var text = circle.getText()
+			var text = circle.text
 			var textX = circlePos.x
 			var textY = circlePos.y + 83 * mul
 			ctx.font = lyricsSize + "px Kozuka, Microsoft YaHei, sans-serif"
@@ -1466,7 +1498,7 @@
 		if(this.gogoTime){
 			var circles = this.controller.parsedSongData.circles
 			var lastCircle = circles[circles.length - 1]
-			var endTime = lastCircle.getEndTime() + 3000
+			var endTime = lastCircle.endTime + 3000
 			if(ms >= endTime){
 				this.toggleGogoTime({
 					gogoTime: 0,

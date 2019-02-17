@@ -199,7 +199,7 @@
 				songObj.subtitle = songObj.subtitle_en = subtitle
 				songObj.preview = meta.demostart ? Math.floor(meta.demostart * 1000) : 0
 				if(meta.level){
-					songObj.stars[this.courseTypes[diff]] = meta.level
+					songObj.stars[this.courseTypes[diff]] = meta.level + (meta.branch ? " B" : "")
 				}
 				if(meta.wave){
 					songObj.music = this.otherFiles[dir + meta.wave.toLowerCase()]

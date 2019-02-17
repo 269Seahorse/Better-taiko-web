@@ -18,7 +18,11 @@ class Titlescreen{
 		this.setLang(allStrings[this.lang], true)
 		
 		if(songId){
-			this.goNext()
+			if(localStorage.getItem("tutorial") === "true"){
+				new SongSelect(false, false, this.touched, this.songId)
+			}else{
+				new Tutorial(false, this.songId)
+			}
 		}else{
 			this.addLangs()
 			

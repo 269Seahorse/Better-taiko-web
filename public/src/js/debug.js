@@ -8,15 +8,19 @@ class Debug{
 		this.debugDiv.innerHTML = assets.pages["debug"]
 		document.body.appendChild(this.debugDiv)
 		
-		this.titleDiv = this.debugDiv.getElementsByClassName("title")[0]
-		this.minimiseDiv = this.debugDiv.getElementsByClassName("minimise")[0]
-		this.offsetDiv = this.debugDiv.getElementsByClassName("offset")[0]
-		this.measureNumDiv = this.debugDiv.getElementsByClassName("measure-num")[0]
-		this.restartCheckbox = this.debugDiv.getElementsByClassName("change-restart")[0]
-		this.autoplayLabel = this.debugDiv.getElementsByClassName("autoplay-label")[0]
-		this.autoplayCheckbox = this.debugDiv.getElementsByClassName("autoplay")[0]
-		this.restartBtn = this.debugDiv.getElementsByClassName("restart-btn")[0]
-		this.exitBtn = this.debugDiv.getElementsByClassName("exit-btn")[0]
+		this.titleDiv = this.byClass("title")
+		this.minimiseDiv = this.byClass("minimise")
+		this.offsetDiv = this.byClass("offset")
+		this.measureNumDiv = this.byClass("measure-num")
+		this.branchHideDiv = this.byClass("branch-hide")
+		this.branchSelectDiv = this.byClass("branch-select")
+		this.branchSelect = this.branchSelectDiv.getElementsByTagName("select")[0]
+		this.branchResetBtn = this.branchSelectDiv.getElementsByClassName("reset")[0]
+		this.restartCheckbox = this.byClass("change-restart")
+		this.autoplayLabel = this.byClass("autoplay-label")
+		this.autoplayCheckbox = this.byClass("autoplay")
+		this.restartBtn = this.byClass("restart-btn")
+		this.exitBtn = this.byClass("exit-btn")
 		
 		this.moving = false
 		pageEvents.add(window, ["mousedown", "mouseup", "blur"], this.stopMove.bind(this))
@@ -26,6 +30,8 @@ class Debug{
 		pageEvents.add(this.restartBtn, "click", this.restartSong.bind(this))
 		pageEvents.add(this.exitBtn, "click", this.clean.bind(this))
 		pageEvents.add(this.autoplayCheckbox, "change", this.toggleAutoplay.bind(this))
+		pageEvents.add(this.branchSelect, "change", this.branchChange.bind(this))
+		pageEvents.add(this.branchResetBtn, "click", this.branchReset.bind(this))
 		
 		this.offsetSlider = new InputSlider(this.offsetDiv, -60, 60, 3)
 		this.offsetSlider.onchange(this.offsetChange.bind(this))
@@ -38,6 +44,9 @@ class Debug{
 		this.restore()
 		this.updateStatus()
 		pageEvents.send("debug")
+	}
+	byClass(name){
+		return this.debugDiv.getElementsByClassName(name)[0]
 	}
 	startMove(event){
 		if(event.which === 1){
@@ -88,17 +97,23 @@ class Debug{
 	}
 	updateStatus(){
 		if(debugObj.controller && !this.controller){
+			this.controller = debugObj.controller
+			
 			this.restartBtn.style.display = "block"
 			this.autoplayLabel.style.display = "block"
+			if(this.controller.parsedSongData.branches){
+				this.branchHideDiv.style.display = "block"
+			}
 			
-			this.controller = debugObj.controller
 			var selectedSong = this.controller.selectedSong
 			this.defaultOffset = selectedSong.offset || 0
 			if(this.songFolder === selectedSong.folder){
 				this.offsetChange(this.offsetSlider.get(), true)
+				this.branchChange(null, true)
 			}else{
 				this.songFolder = selectedSong.folder
 				this.offsetSlider.set(this.defaultOffset)
+				this.branchReset(null, true)
 			}
 			
 			var measures = this.controller.parsedSongData.measures
@@ -128,6 +143,7 @@ class Debug{
 		if(this.controller && !debugObj.controller){
 			this.restartBtn.style.display = ""
 			this.autoplayLabel.style.display = ""
+			this.branchHideDiv.style.display = ""
 			this.controller = null
 		}
 	}
@@ -142,6 +158,11 @@ class Debug{
 			songData.measures.forEach(measure => {
 				measure.ms = measure.originalMS + offset
 			})
+			if(songData.branches){
+				songData.branches.forEach(branch => {
+					branch.ms = branch.originalMS + offset
+				})
+			}
 			if(this.restartCheckbox.checked && !noRestart){
 				this.restartSong()
 			}
@@ -171,21 +192,44 @@ class Debug{
 			}
 		}
 	}
+	branchChange(event, noRestart){
+		if(this.controller){
+			var game = this.controller.game
+			var name = this.branchSelect.value
+			game.branch = name === "auto" ? false : name
+			game.branchSet = false
+			if(this.restartCheckbox.checked && !noRestart){
+				this.restartSong()
+			}
+		}
+	}
+	branchReset(event, noRestart){
+		this.branchSelect.value = "auto"
+		this.branchChange(null, noRestart)
+	}
 	clean(){
 		this.offsetSlider.clean()
+		this.measureNumSlider.clean()
 		
 		pageEvents.remove(window, ["mousedown", "mouseup", "blur"])
 		pageEvents.mouseRemove(this)
+		pageEvents.remove(this.titleDiv, "mousedown")
 		pageEvents.remove(this.title, "mousedown")
 		pageEvents.remove(this.minimiseDiv, "click")
 		pageEvents.remove(this.restartBtn, "click")
 		pageEvents.remove(this.exitBtn, "click")
 		pageEvents.remove(this.autoplayCheckbox, "change")
+		pageEvents.remove(this.branchSelect, "change")
+		pageEvents.remove(this.branchResetBtn, "click")
 		
 		delete this.titleDiv
 		delete this.minimiseDiv
 		delete this.offsetDiv
 		delete this.measureNumDiv
+		delete this.branchHideDiv
+		delete this.branchSelectDiv
+		delete this.branchSelect
+		delete this.branchResetBtn
 		delete this.restartCheckbox
 		delete this.autoplayLabel
 		delete this.autoplayCheckbox

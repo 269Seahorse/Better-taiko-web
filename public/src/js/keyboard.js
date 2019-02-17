@@ -199,8 +199,8 @@ class Keyboard{
 			if(
 				sound === "don"
 				&& circle
-				&& !circle.getPlayed()
-				&& circle.getType() === "balloon"
+				&& !circle.isPlayed
+				&& circle.type === "balloon"
 				&& circle.requiredHits - circle.timesHit <= 1
 			){
 				this.controller.playSound("se_balloon")
