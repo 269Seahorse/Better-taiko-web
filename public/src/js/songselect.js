@@ -1325,7 +1325,7 @@ class SongSelect{
 						var songStarsArray = (currentUra ? currentSong.stars[4] : currentSong.stars[i]).toString().split(" ")
 						var songStars = songStarsArray[0]
 						var songBranch = songStarsArray[1] === "B"
-						var elapsedMS = this.state.screenMS > this.state.moveMS ? this.state.screenMS : this.state.moveMS
+						var elapsedMS = this.state.screenMS > this.state.moveMS || !songSel ? this.state.screenMS : this.state.moveMS
 						var fade = ((ms - elapsedMS) % 2000) / 2000
 						if(songBranch && fade > 0.25 && fade < 0.75){
 							this.draw.verticalText({
