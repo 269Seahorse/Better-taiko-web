@@ -11,7 +11,6 @@ class CanvasCache{
 			this.map = new Map()
 			this.canvas = document.createElement("canvas")
 			this.ctx = this.canvas.getContext("2d")
-			document.body.appendChild(this.canvas)
 		}
 		this.scale = scale
 		this.x = 0
