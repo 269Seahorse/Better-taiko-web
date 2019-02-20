@@ -800,7 +800,7 @@
 					}else if(action === "fillText"){
 						ctx.strokeStyle = layer.fill
 						ctx.lineWidth = 2.5 * mul
-						ctx.fillText(symbol.text, currentX, currentY)
+						ctx.fillText(symbol.text, currentX, currentY + (17 * mul))
 					}
 					ctx.stroke()
 				}else{
