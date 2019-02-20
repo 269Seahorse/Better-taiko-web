@@ -1746,7 +1746,7 @@ class SongSelect{
 			}else{
 				songObj = {id: id}
 				
-				var previewFilename = prvTime > 0.1 ? "/preview.mp3" : "/main.mp3"
+				var previewFilename = prvTime > 0 ? "/preview.mp3" : "/main.mp3"
 				
 				var loadPreview = previewFilename => {
 					return snd.previewGain.load(gameConfig.songs_baseurl + id + previewFilename)
@@ -1786,7 +1786,7 @@ class SongSelect{
 		var difference = endLoad - startLoad
 		var minDelay = 300
 		var delay = minDelay - Math.min(minDelay, difference)
-		this.preview.playLoop(delay / 1000, false, prvTime / 1000)
+		this.preview.playLoop(delay / 1000, false, prvTime)
 	}
 	endPreview(){
 		this.previewId++

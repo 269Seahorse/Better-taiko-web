@@ -197,7 +197,7 @@
 					subtitle = subtitle.slice(2)
 				}
 				songObj.subtitle = songObj.subtitle_en = subtitle
-				songObj.preview = meta.demostart ? Math.floor(meta.demostart * 1000) : 0
+				songObj.preview = meta.demostart || 0
 				if(meta.level){
 					songObj.stars[this.courseTypes[diff]] = meta.level + (meta.branch ? " B" : "")
 				}
@@ -238,7 +238,7 @@
 				chart: data,
 				subtitle: osu.metadata.ArtistUnicode || osu.metadata.Artist,
 				subtitle_en: osu.metadata.Artist || osu.metadata.ArtistUnicode,
-				preview: osu.generalInfo.PreviewTime,
+				preview: osu.generalInfo.PreviewTime / 1000,
 				stars: [null, null, null, parseInt(osu.difficulty.overallDifficulty) || 1],
 				music: this.otherFiles[dir + osu.generalInfo.AudioFilename.toLowerCase()]
 			}
