@@ -54,6 +54,11 @@
 	this.good = "良"
 	this.ok = "可"
 	this.bad = "不可"
+	this.branch = {
+		"normal": "普通譜面",
+		"advanced": "玄人譜面",
+		"master": "達人譜面"
+	}
 	this.pauseOptions = [
 		"演奏をつづける",
 		"はじめからやりなおす",
@@ -136,7 +141,7 @@ function StringsEn(){
 	this.normal = "Normal"
 	this.hard = "Hard"
 	this.oni = "Extreme"
-	this.songBranch = "Forked Paths"
+	this.songBranch = "Diverge Notes"
 	this.sessionStart = "Begin an Online Session!"
 	this.sessionEnd = "End Online Session"
 	this.loading = "Loading..."
@@ -156,6 +161,11 @@ function StringsEn(){
 	this.good = "GOOD"
 	this.ok = "OK"
 	this.bad = "BAD"
+	this.branch = {
+		"normal": "Normal",
+		"advanced": "Professional",
+		"master": "Master"
+	}
 	this.pauseOptions = [
 		"Continue",
 		"Retry",
@@ -238,7 +248,7 @@ function StringsCn(){
 	this.normal = "普通"
 	this.hard = "困难"
 	this.oni = "魔王"
-	this.songBranch = "有分数分支"
+	this.songBranch = "有谱面分歧"
 	this.sessionStart = "开始在线会话!"
 	this.sessionEnd = "结束在线会话"
 	this.loading = "加载中..."
@@ -258,6 +268,11 @@ function StringsCn(){
 	this.good = "良"
 	this.ok = "可"
 	this.bad = "不可"
+	this.branch = {
+		"normal": "一般谱面",
+		"advanced": "进阶谱面",
+		"master": "达人谱面"
+	}
 	this.pauseOptions = [
 		"继续演奏",
 		"从头开始",
@@ -340,7 +355,7 @@ function StringsTw(){
 	this.normal = "普通"
 	this.hard = "困難"
 	this.oni = "魔王"
-	this.songBranch = "有分數分支"
+	this.songBranch = "有譜面分歧"
 	this.sessionStart = "開始多人模式!"
 	this.sessionEnd = "結束多人模式"
 	this.loading = "讀取中..."
@@ -360,6 +375,11 @@ function StringsTw(){
 	this.good = "良"
 	this.ok = "可"
 	this.bad = "不可"
+	this.branch = {
+		"normal": "一般譜面",
+		"advanced": "進階譜面",
+		"master": "達人譜面"
+	}
 	this.pauseOptions = [
 		"繼續演奏",
 		"從頭開始",
@@ -462,6 +482,11 @@ function StringsKo(){
 	this.good = "얼쑤"
 	this.ok = "좋다"
 	this.bad = "에구"
+	this.branch = {
+		"normal": "보통 악보",
+		"advanced": "현인 악보",
+		"master": "달인 악보"
+	}
 	this.pauseOptions = [
 		"연주 계속하기",
 		"처음부터 다시",

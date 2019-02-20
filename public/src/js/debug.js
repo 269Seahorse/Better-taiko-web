@@ -116,7 +116,9 @@ class Debug{
 				this.branchReset(null, true)
 			}
 			
-			var measures = this.controller.parsedSongData.measures
+			var measures = this.controller.parsedSongData.measures.filter((measure, i, array) => {
+				return i === 0 || Math.abs(measure.ms - array[i - 1].ms) > 0.01
+			})
 			this.measureNumSlider.setMinMax(0, measures.length - 1)
 			if(this.measureNum && measures.length > this.measureNum){
 				var measureMS = measures[this.measureNum].ms
@@ -197,7 +199,9 @@ class Debug{
 			var game = this.controller.game
 			var name = this.branchSelect.value
 			game.branch = name === "auto" ? false : name
-			game.branchSet = false
+			game.branchSet = name === "auto"
+			var selectedOption = this.branchSelect.selectedOptions[0]
+			this.branchSelect.style.background = selectedOption.style.background
 			if(this.restartCheckbox.checked && !noRestart){
 				this.restartSong()
 			}

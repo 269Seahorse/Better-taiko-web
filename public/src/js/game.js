@@ -28,8 +28,8 @@ class Game{
 		this.musicFadeOut = 0
 		this.fadeOutStarted = false
 		this.currentTimingPoint = 0
-		this.sectionNotes = []
-		this.sectionDrumroll = 0
+		this.branchNames = ["normal", "advanced", "master"]
+		this.resetSection()
 		
 		assets.songs.forEach(song => {
 			if(song.id == selectedSong.folder){
@@ -77,7 +77,7 @@ class Game{
 		var index = 0
 		for(var i = startIndex; i < circles.length; i++){
 			var circle = circles[i]
-			if((!circle.branch || circle.branch.active) && !circle.isPlayed){
+			if(circle && (!circle.branch || circle.branch.active) && !circle.isPlayed){
 				var type = circle.type
 				var drumrollNotes = type === "balloon" || type === "drumroll" || type === "daiDrumroll"
 				var endTime = circle.endTime + (drumrollNotes ? 0 : this.rules.bad)
@@ -100,6 +100,9 @@ class Game{
 				if(ms > endTime){
 					if(!this.controller.autoPlayEnabled){
 						if(drumrollNotes){
+							if(circle.section && circle.timesHit === 0){
+								this.resetSection()
+							}
 							circle.played(-1, false)
 							this.updateCurrentCircle()
 							if(this.controller.multiplayer === 1){
@@ -112,6 +115,9 @@ class Game{
 								p2.send("drumroll", value)
 							}
 						}else{
+							if(circle.section){
+								this.resetSection()
+							}
 							var currentScore = 0
 							circle.played(-1, type === "daiDon" || type === "daiKa")
 							this.sectionNotes.push(0)
@@ -137,47 +143,62 @@ class Game{
 		}
 		var branches = this.songData.branches
 		if(branches){
-			if(this.controller.multiplayer === 2 || this.branch){
-				var parent = this.controller.multiplayer === 2 ? p2 : this
-				var view = this.controller.view
-				if(view.branch !== parent.branch){
-					view.branchAnimate = {
-						ms: ms,
-						fromBranch: view.branch
+			var force = this.controller.multiplayer === 2 ? p2 : this
+			var measures = this.songData.measures
+			if(this.controller.multiplayer === 2 || force.branch){
+				if(!force.branchSet){
+					force.branchSet = true
+					if(branches.length){
+						this.setBranch(branches[0], force.branch)
 					}
-					view.branch = parent.branch
-				}
-				if(!parent.branchSet){
-					parent.branchSet = true
-					for(var i = 0; i < branches.length; i++){
-						this.setBranch(branches[i], parent.branch)
+					var view = this.controller.view
+					var currentMeasure = view.branch
+					for(var i = measures.length; i--;){
+						var measure = measures[i]
+						if(measure.nextBranch && measure.ms <= ms){
+							currentMeasure = measure.nextBranch.active
+						}
+					}
+					if(view.branch !== currentMeasure){
+						view.branchAnimate = {
+							ms: ms,
+							fromBranch: view.branch
+						}
+						view.branch = currentMeasure
 					}
 				}
-			}else{
-				var measures = this.songData.measures
-				for(var i = 0; i < measures.length; i++){
-					var measure = measures[i]
-					if(measure.ms > ms){
-						break
-					}else if(measure.nextBranch && !measure.gameChecked){
-						measure.gameChecked = true
-						var branch = measure.nextBranch
-						if(branch.type){
-							if(branch.type === "drumroll"){
+			}
+			for(var i = 0; i < measures.length; i++){
+				var measure = measures[i]
+				if(measure.ms > ms){
+					break
+				}else if(measure.nextBranch && !measure.gameChecked){
+					measure.gameChecked = true
+					var branch = measure.nextBranch
+					if(branch.type){
+						var accuracy = 0
+						if(branch.type === "drumroll"){
+							if(force.branch){
+								var accuracy = Math.max(0, branch.requirement[force.branch])
+							}else{
 								var accuracy = this.sectionDrumroll
+							}
+						}else if(this.sectionNotes.length !== 0){
+							if(force.branch){
+								var accuracy = Math.max(0, Math.min(100, branch.requirement[force.branch]))
 							}else{
 								var accuracy = this.sectionNotes.reduce((a, b) => a + b) / this.sectionNotes.length * 100
 							}
-							if(accuracy >= branch.requirement[1]){
-								this.setBranch(branch, "master")
-							}else if(accuracy >= branch.requirement[0]){
-								this.setBranch(branch, "advanced")
-							}else{
-								this.setBranch(branch, "normal")
-							}
-						}else if(this.controller.multiplayer === 1){
-							p2.send("branch", "normal")
 						}
+						if(accuracy >= branch.requirement.master){
+							this.setBranch(branch, "master")
+						}else if(accuracy >= branch.requirement.advanced){
+							this.setBranch(branch, "advanced")
+						}else{
+							this.setBranch(branch, "normal")
+						}
+					}else if(this.controller.multiplayer === 1){
+						p2.send("branch", "normal")
 					}
 				}
 			}
@@ -273,6 +294,9 @@ class Game{
 			this.updateCombo(score)
 			this.updateGlobalScore(score, typeDai && keyDai ? 2 : 1, circle.gogoTime)
 			this.updateCurrentCircle()
+			if(circle.section){
+				this.resetSection()
+			}
 			this.sectionNotes.push(score === 450 ? 1 : (score === 230 ? 0.5 : 0))
 			if(this.controller.multiplayer === 1){
 				var value = {
@@ -327,6 +351,9 @@ class Game{
 		var ms = this.elapsedTime
 		var dai = circle.type === "daiDrumroll"
 		var score = 100
+		if(circle.section && circle.timesHit === 0){
+			this.resetSection()
+		}
 		circle.hit(keysKa)
 		var keyTime = this.controller.getKeyTime()
 		if(circle.type === "drumroll"){
@@ -347,9 +374,7 @@ class Game{
 		circleAnim.animate(ms)
 		this.view.drumroll.push(circleAnim)
 		this.globalScore.drumroll++
-		if(this.controller.multiplayer !== 2){
-			this.sectionDrumroll++
-		}
+		this.sectionDrumroll++
 		this.globalScore.points += score * (dai ? 2 : 1)
 		this.view.setDarkBg(false)
 	}
@@ -473,10 +498,6 @@ class Game{
 		do{
 			var circle = circles[++this.currentCircle]
 		}while(circle && circle.branch && !circle.branch.active)
-		if(circle && circle.section){
-			this.sectionNotes = []
-			this.sectionDrumroll = 0
-		}
 	}
 	getCurrentCircle(){
 		return this.currentCircle
@@ -530,16 +551,59 @@ class Game{
 		}
 		this.globalScore.points += Math.floor(score * multiplier / 10) * 10
 	}
-	setBranch(branch, name){
-		var names = ["normal", "advanced", "master"]
-		for(var i in names){
-			if(names[i] in branch){
-				branch[names[i]].active = names[i] === name
+	setBranch(currentBranch, activeName){
+		var pastActive = currentBranch.active
+		var ms = currentBranch.ms
+		for(var i = 0; i < this.songData.branches.length; i++){
+			var branch = this.songData.branches[i]
+			if(branch.ms >= ms){
+				var relevantName = activeName
+				var req = branch.requirement
+				var noNormal = req.advanced <= 0
+				var noAdvanced = req.master <= 0 || req.advanced >= req.master || branch.type === "accuracy" && req.advanced > 100
+				var noMaster = branch.type === "accuracy" && req.master > 100
+				if(relevantName === "normal" && noNormal){
+					relevantName = noAdvanced ? "master" : "advanced"
+				}
+				if(relevantName === "advanced" && noAdvanced){
+					relevantName = noMaster ? "normal" : "master"
+				}
+				if(relevantName === "master" && noMaster){
+					relevantName = noAdvanced ? "normal" : "advanced"
+				}
+				for(var j in this.branchNames){
+					var name = this.branchNames[j]
+					if(name in branch){
+						branch[name].active = name === relevantName
+					}
+				}
+				if(branch === currentBranch){
+					activeName = relevantName
+				}
+				branch.active = relevantName
 			}
 		}
-		branch.active = name
-		if(this.controller.multiplayer === 1){
-			p2.send("branch", name)
+		var circles = this.songData.circles
+		var circle = circles[this.currentCircle]
+		if(!circle || circle.branch === currentBranch[pastActive]){
+			var ms = this.elapsedTime
+			var closestCircle = circles.findIndex(circle => {
+				return (!circle.branch || circle.branch.active) && circle.endTime >= ms
+			})
+			if(closestCircle !== -1){
+				this.currentCircle = closestCircle
+			}
 		}
+		this.HPGain = 100 / this.songData.circles.filter(circle => {
+			var type = circle.type
+			return (type === "don" || type === "ka" || type === "daiDon" || type === "daiKa") && (!circle.branch || circle.branch.active)
+		}).length
+		if(this.controller.multiplayer === 1){
+			p2.send("branch", activeName)
+		}
+	}
+	resetSection(){
+		this.sectionNotes = []
+		this.sectionDrumroll = 0
 	}
 }

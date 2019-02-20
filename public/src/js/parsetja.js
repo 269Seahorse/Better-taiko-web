@@ -137,7 +137,7 @@
 		var branchObj = {}
 		var currentBranch = false
 		var branchSettings = {}
-		var branchPushed = false
+		var branchFirstMeasure = false
 		var sectionBegin = true
 		
 		var currentMeasure = []
@@ -157,8 +157,10 @@
 				originalMS: ms,
 				speed: speed,
 				visible: barLine,
-				branch: currentBranch
+				branch: currentBranch,
+				branchFirst: branchFirstMeasure
 			})
+			branchFirstMeasure = false
 			if(currentMeasure.length){
 				for(var i = 0; i < currentMeasure.length; i++){
 					var note = currentMeasure[i]
@@ -222,14 +224,14 @@
 						gogo = false
 						break
 					case "bpmchange":
-						bpm = parseFloat(value)
+						bpm = parseFloat(value) || bpm
 						break
 					case "scroll":
-						scroll = parseFloat(value)
+						scroll = parseFloat(value) || scroll
 						break
 					case "measure":
 						var [numerator, denominator] = value.split("/")
-						measure = numerator / denominator * 4
+						measure = numerator / denominator * 4 || measure
 						break
 					case "delay":
 						ms += (parseFloat(value) || 0) * 1000
@@ -243,7 +245,7 @@
 					case "branchstart":
 						branch = true
 						currentBranch = false
-						branchPushed = false
+						branchFirstMeasure = true
 						branchSettings = {
 							ms: ms,
 							gogo: gogo,
@@ -255,26 +257,45 @@
 						if(!this.branches){
 							this.branches = []
 						}
+						var req = {
+							advanced: parseFloat(value[1]) || 0,
+							master: parseFloat(value[2]) || 0
+						}
+						if(req.advanced > 0){
+							var active = req.master > 0 ? "normal" : "master"
+						}else{
+							var active = req.master > 0 ? "advanced" : "master"
+						}
 						branchObj = {
 							ms: ms,
 							originalMS: ms,
-							type: value[0].toLowerCase() === "r" ? "drumroll" : "perfect",
-							requirement: [
-								parseFloat(value[1]),
-								parseFloat(value[2])
-							]
+							active: active,
+							type: value[0].trim().toLowerCase() === "r" ? "drumroll" : "accuracy",
+							requirement: req
+						}
+						this.branches.push(branchObj)
+						if(this.measures.length === 1 && branchObj.type === "drumroll"){
+							for(var i = circles.length; i--;){
+								var circle = circles[i]
+								if(circle.endTime && circle.type === "drumroll" || circle.type === "daiDrumroll" || circle.type === "balloon"){
+									this.measures.push({
+										ms: circle.endTime,
+										originalMS: circle.endTime,
+										speed: circle.bpm * circle.scroll / 60,
+										visible: false,
+										branch: circle.branch
+									})
+									break
+								}
+							}
+						}
+						if(this.measures.length !== 0){
+							this.measures[this.measures.length - 1].nextBranch = branchObj
 						}
 						break
 					case "branchend":
 						branch = false
 						currentBranch = false
-						if(this.measures.length !== 0){
-							this.measures[this.measures.length - 1].nextBranch = {
-								ms: ms,
-								originalMS: ms,
-								active: "normal"
-							}
-						}
 						break
 					case "section":
 						sectionBegin = true
@@ -283,37 +304,19 @@
 						}
 						break
 					case "n": case "e": case "m":
-						if(!branchPushed){
-							branchPushed = true
-							this.branches.push(branchObj)
-							if(this.measures.length === 1 && branchObj.type === "drumroll"){
-								for(var i = circles.length; i--;){
-									var circle = circles[i]
-									if(circle.endTime && circle.type === "drumroll" || circle.type === "daiDrumroll" || circle.type === "balloon"){
-										this.measures.push({
-											ms: circle.endTime,
-											originalMS: circle.endTime,
-											speed: circle.bpm * circle.scroll / 60,
-											visible: false,
-											branch: circle.branch
-										})
-										break
-									}
-								}
-							}
-							if(this.measures.length !== 0){
-								this.measures[this.measures.length - 1].nextBranch = branchObj
-							}
+						if(!branch){
+							break
 						}
 						ms = branchSettings.ms
 						gogo = branchSettings.gogo
 						bpm = branchSettings.bpm
 						scroll = branchSettings.scroll
 						sectionBegin = branchSettings.sectionBegin
+						branchFirstMeasure = true
 						var branchName = name === "m" ? "master" : (name === "e" ? "advanced" : "normal")
 						currentBranch = {
 							name: branchName,
-							active: branchName === "normal"
+							active: branchName === branchObj.active
 						}
 						branchObj[branchName] = currentBranch
 						break
@@ -432,6 +435,7 @@
 		
 		if(this.branches){
 			circles.sort((a, b) => a.ms > b.ms ? 1 : -1)
+			this.measures.sort((a, b) => a.ms > b.ms ? 1 : -1)
 			circles.forEach((circle, i) => circle.id = i + 1)
 		}
 		return circles

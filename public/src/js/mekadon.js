@@ -8,6 +8,9 @@ class Mekadon{
 	play(circle){
 		var type = circle.type
 		if((type === "balloon" || type === "drumroll" || type === "daiDrumroll") && this.getMS() > circle.endTime){
+			if(circle.section && circle.timesHit === 0){
+				this.game.resetSection()
+			}
 			circle.played(-1, false)
 			this.game.updateCurrentCircle()
 		}
@@ -96,6 +99,9 @@ class Mekadon{
 			this.game.updateGlobalScore(score, keyDai ? 2 : 1, circle.gogoTime)
 			this.game.updateCurrentCircle()
 			circle.played(score, keyDai)
+			if(circle.section){
+				this.game.resetSection()
+			}
 			this.game.sectionNotes.push(score === 450 ? 1 : (score === 230 ? 0.5 : 0))
 		}
 		this.lastHit = ms

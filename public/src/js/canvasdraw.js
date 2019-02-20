@@ -268,6 +268,9 @@
 	easeOut(pos){
 		return Math.sin(Math.PI / 2 * pos)
 	}
+	easeOutBack(pos){
+		return Math.sin(Math.PI / 1.74 * pos) * 1.03
+	}
 	easeInOut(pos){
 		return (Math.cos(Math.PI * pos) - 1) / -2
 	}
@@ -572,7 +575,7 @@
 					}
 					if(symbol.ura){
 						ctx.font = (30 * mul) + "px Meiryo, sans-serif"
-						ctx.textBaseline = "center"
+						ctx.textBaseline = "middle"
 						ctx.beginPath()
 						ctx.arc(currentX, currentY + (17 * mul), (18 * mul), 0, Math.PI * 2)
 						if(action === "stroke"){
@@ -581,7 +584,7 @@
 						}else if(action === "fill"){
 							ctx.strokeStyle = config.fill
 							ctx.lineWidth = 2.5 * mul
-							ctx.fillText(symbol.text, currentX, currentY)
+							ctx.fillText(symbol.text, currentX, currentY + (17 * mul))
 						}
 						ctx.stroke()
 					}else{
@@ -788,7 +791,7 @@
 				}
 				if(symbol.ura){
 					ctx.font = (30 * mul) + "px Meiryo, sans-serif"
-					ctx.textBaseline = "center"
+					ctx.textBaseline = "middle"
 					ctx.beginPath()
 					ctx.arc(currentX, currentY + (17 * mul), (18 * mul), 0, Math.PI * 2)
 					if(action === "strokeText"){

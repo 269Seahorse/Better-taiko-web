@@ -82,9 +82,24 @@
 				fromBranch: "normal"
 			}
 			this.branchMap = {
-				"normal": "rgba(0, 0, 0, 0)",
-				"advanced": "rgba(29, 129, 189, 0.4)",
-				"master": "rgba(230, 29, 189, 0.4)"
+				"normal": {
+					"bg": "rgba(0, 0, 0, 0)",
+					"text": "#d3d3d3",
+					"stroke": "#393939",
+					"shadow": "#000"
+				},
+				"advanced": {
+					"bg": "rgba(29, 129, 189, 0.4)",
+					"text": "#94d7e7",
+					"stroke": "#315973",
+					"shadow": "#082031"
+				},
+				"master": {
+					"bg": "rgba(230, 29, 189, 0.4)",
+					"text": "#f796ef",
+					"stroke": "#7e2e6e",
+					"shadow": "#3e0836"
+				}
 			}
 		}
 		
@@ -97,6 +112,7 @@
 		this.titleCache = new CanvasCache()
 		this.comboCache = new CanvasCache()
 		this.pauseCache = new CanvasCache()
+		this.branchCache = new CanvasCache()
 		
 		this.multiplayer = this.controller.multiplayer
 		
@@ -144,7 +160,8 @@
 		}
 		this.setDonBg()
 		
-		this.lastMousemove = this.controller.game.getAccurateTime()
+		this.startTime = this.controller.game.getAccurateTime()
+		this.lastMousemove = this.startTime
 		pageEvents.mouseAdd(this, this.onmousemove.bind(this))
 		
 		this.refresh()
@@ -174,6 +191,7 @@
 		}
 		var ratio = (ratioX < ratioY ? ratioX : ratioY)
 		
+		var resized = false
 		if(this.winW !== winW || this.winH !== winH){
 			this.winW = winW
 			this.winH = winH
@@ -193,6 +211,7 @@
 			}
 			this.fillComboCache()
 			this.setDonBgHeight()
+			resized = true
 		}else if(this.controller.game.paused && !document.hasFocus()){
 			return
 		}else if(this.multiplayer !== 2){
@@ -681,7 +700,7 @@
 		}
 		ctx.restore()
 		
-		// Bar pressed keys
+		// Branch background
 		var keyTime = this.controller.getKeyTime()
 		var sound = keyTime["don"] > keyTime["ka"] ? "don" : "ka"
 		var padding = this.slotPos.paddingLeft
@@ -689,12 +708,78 @@
 		var barY = this.slotPos.y - 65 * mul
 		var barH = 130 * mul
 		
+		if(this.branchAnimate && ms <= this.branchAnimate.ms + 300){
+			var alpha = Math.max(0, (ms - this.branchAnimate.ms) / 300)
+			ctx.globalAlpha = 1 - alpha
+			ctx.fillStyle = this.branchMap[this.branchAnimate.fromBranch].bg
+			ctx.fillRect(padding, barY, winW - padding, barH)
+			ctx.globalAlpha = alpha
+		}
+		if(this.branch){
+			ctx.fillStyle = this.branchMap[this.branch].bg
+			ctx.fillRect(padding, barY, winW - padding, barH)
+			ctx.globalAlpha = 1
+		}
+		
+		// Current branch text
+		if(this.branch){
+			if(resized){
+				this.fillBranchCache()
+			}
+			var textW = Math.floor(260 * mul)
+			var textH = Math.floor(barH)
+			var textX = winW - textW
+			var oldOffset = 0
+			var newOffset = 0
+			var elapsed = ms - this.startTime
+			if(elapsed < 250){
+				textX = winW
+			}else if(elapsed < 500){
+				textX += (1 - this.draw.easeOutBack((elapsed - 250) / 250)) * textW
+			}
+			if(this.branchAnimate && ms - this.branchAnimate.ms < 310 && ms >= this.branchAnimate.ms){
+				var fromBranch = this.branchAnimate.fromBranch
+				var elapsed = ms - this.branchAnimate.ms
+				var reverse = fromBranch === "master" || fromBranch === "advanced" && this.branch === "normal" ? -1 : 1
+				if(elapsed < 65){
+					oldOffset = elapsed / 65 * 12 * mul * reverse
+					ctx.globalAlpha = 1
+					var newAlpha = 0
+				}else if(elapsed < 215){
+					var animPoint = (elapsed - 65) / 150
+					oldOffset = (12 - animPoint * 48) * mul * reverse
+					newOffset = (36 - animPoint * 48) * mul * reverse
+					ctx.globalAlpha = this.draw.easeIn(1 - animPoint)
+					var newAlpha = this.draw.easeIn(animPoint)
+				}else{
+					newOffset = (1 - (elapsed - 215) / 95) * -12 * mul * reverse
+					ctx.globalAlpha = 0
+					var newAlpha = 1
+				}
+				this.branchCache.get({
+					ctx: ctx,
+					x: textX, y: barY + oldOffset,
+					w: textW, h: textH,
+					id: fromBranch
+				})
+				ctx.globalAlpha = newAlpha
+			}
+			this.branchCache.get({
+				ctx: ctx,
+				x: textX, y: barY + newOffset,
+				w: textW, h: textH,
+				id: this.branch
+			})
+			ctx.globalAlpha = 1
+		}
+		
+		// Go go time background
 		if(this.gogoTime || ms <= this.gogoTimeStarted + 100){
 			var grd = ctx.createLinearGradient(padding, 0, winW, 0)
-			grd.addColorStop(0, "#512a2c")
-			grd.addColorStop(0.46, "#6f2a2d")
-			grd.addColorStop(0.76, "#8a4763")
-			grd.addColorStop(1, "#2c2a2c")
+			grd.addColorStop(0, "rgba(255, 0, 0, 0.16)")
+			grd.addColorStop(0.45, "rgba(255, 0, 0, 0.28)")
+			grd.addColorStop(0.77, "rgba(255, 83, 157, 0.4)")
+			grd.addColorStop(1, "rgba(255, 83, 157, 0)")
 			ctx.fillStyle = grd
 			if(!this.touchEnabled){
 				var alpha = Math.min(100, ms - this.gogoTimeStarted) / 100
@@ -705,18 +790,8 @@
 			}
 			ctx.fillRect(padding, barY, winW - padding, barH)
 		}
-		if(this.branchAnimate && ms <= this.branchAnimate.ms + 300){
-			var alpha = Math.max(0, (ms - this.branchAnimate.ms) / 300)
-			ctx.globalAlpha = 1 - alpha
-			ctx.fillStyle = this.branchMap[this.branchAnimate.fromBranch]
-			ctx.fillRect(padding, barY, winW - padding, barH)
-			ctx.globalAlpha = alpha
-		}
-		if(this.branch){
-			ctx.fillStyle = this.branchMap[this.branch]
-			ctx.fillRect(padding, barY, winW - padding, barH)
-			ctx.globalAlpha = 1
-		}
+		
+		// Bar pressed keys
 		if(keyTime[sound] > ms - 130){
 			var gradients = {
 				"don": "255, 0, 0",
@@ -814,6 +889,7 @@
 			ctx.lineWidth = 7 * mul
 			ctx.textAlign = "center"
 			ctx.miterLimit = 1
+			ctx.strokeStyle = "#000"
 			ctx.strokeText(strings.combo, comboX, comboTextY)
 			ctx.miterLimit = 10
 			ctx.fillText(strings.combo, comboX, comboTextY)
@@ -1128,7 +1204,7 @@
 			var finishTime = measure.ms + this.posToMs(this.slotPos.x - this.slotPos.paddingLeft + 3, measure.speed)
 			if(measure.visible && (!measure.branch || measure.branch.active) && ms >= startingTime && ms <= finishTime){
 				var measureX = this.slotPos.x + this.msToPos(measure.ms - ms, measure.speed)
-				this.ctx.strokeStyle = "#bdbdbd"
+				this.ctx.strokeStyle = measure.branchFirst ? "#ff0" : "#bdbdbd"
 				this.ctx.lineWidth = 3
 				this.ctx.beginPath()
 				this.ctx.moveTo(measureX, measureY)
@@ -1137,9 +1213,9 @@
 			}
 			if(this.multiplayer !== 2 && ms >= measure.ms && measure.nextBranch && !measure.viewChecked && measure.gameChecked){
 				measure.viewChecked = true
-				this.branchAnimate = {
-					ms: ms,
-					fromBranch: this.branch
+				if(measure.nextBranch.active !== this.branch){
+					this.branchAnimate.ms = ms
+					this.branchAnimate.fromBranch = this.branch
 				}
 				this.branch = measure.nextBranch.active
 			}
@@ -1467,6 +1543,37 @@
 			id: "combo0"
 		})
 		this.globalAlpha = 1
+	}
+	fillBranchCache(){
+		var mul = this.slotPos.size / 106
+		var textW = Math.floor(260 * mul)
+		var barH = Math.floor(130 * mul)
+		var branchNames = this.controller.game.branchNames
+		var textX = textW - 33 * mul
+		var textY = 63 * mul
+		var fontSize = (strings.id === "en" ? 33 : (strings.id === "ko" ? 38 : 43)) * mul
+		this.branchCache.resize((textW + 1), (barH + 1) * 3, this.ratio)
+		for(var i in branchNames){
+			this.branchCache.set({
+				w: textW,
+				h: barH,
+				id: branchNames[i]
+			}, ctx => {
+				var currentMap = this.branchMap[branchNames[i]]
+				ctx.font = this.draw.bold(this.font) + fontSize + "px " + this.font
+				ctx.lineJoin = "round"
+				ctx.miterLimit = 1
+				ctx.textAlign = "right"
+				ctx.textBaseline = "middle"
+				ctx.lineWidth = 8 * mul
+				ctx.strokeStyle = currentMap.shadow
+				ctx.strokeText(strings.branch[branchNames[i]], textX, textY + 4 * mul)
+				ctx.strokeStyle = currentMap.stroke
+				ctx.strokeText(strings.branch[branchNames[i]], textX, textY)
+				ctx.fillStyle = currentMap.text
+				ctx.fillText(strings.branch[branchNames[i]], textX, textY)
+			})
+		}
 	}
 	toggleGogoTime(circle){
 		this.gogoTime = circle.gogoTime
