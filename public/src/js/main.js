@@ -106,7 +106,9 @@ pageEvents.keyAdd(debugObj, "all", "down", event => {
 		}else if(debugObj.state === "minimised"){
 			debugObj.debug.restore()
 		}else{
-			debugObj.debug = new Debug()
+			try{
+				debugObj.debug = new Debug()
+			}catch(e){}
 		}
 	}
 	if(event.keyCode === 82 && debugObj.debug && debugObj.controller){

@@ -185,6 +185,7 @@ async def connection(ws, path):
 					if "other_user" in user and "ws" in user["other_user"]:
 						if type == "note"\
 							or type == "drumroll"\
+							or type == "branch"\
 							or type == "gameresults":
 							await user["other_user"]["ws"].send(msgobj(type, value))
 						elif type == "songsel" and user["session"]:

@@ -59,7 +59,9 @@
 							if(!(courseName in courses)){
 								courses[courseName] = {}
 							}
-							courses[courseName][name] = currentCourse[name]
+							if(name !== "branch"){
+								courses[courseName][name] = currentCourse[name]
+							}
 						}
 						courses[courseName].start = lineNum + 1
 						courses[courseName].end = this.data.length
@@ -70,6 +72,8 @@
 						hasSong = true
 						courses[courseName].end = lineNum
 					}
+				}else if(name.startsWith("branchstart") && inSong){
+					courses[courseName].branch = true
 				}
 				
 			}else if(!inSong){
@@ -128,9 +132,13 @@
 		var balloons = meta.balloon || []
 		
 		var lastDrumroll = false
+		
 		var branch = false
-		var branchType
-		var branchPreference = "m"
+		var branchObj = {}
+		var currentBranch = false
+		var branchSettings = {}
+		var branchFirstMeasure = false
+		var sectionBegin = true
 		
 		var currentMeasure = []
 		var firstNote = true
@@ -138,19 +146,21 @@
 		var circleID = 0
 		
 		var pushMeasure = () => {
-			if(barLine){
-				var note = currentMeasure[0]
-				if(note){
-					var speed = note.bpm * note.scroll / 60
-				}else{
-					var speed = bpm * scroll / 60
-				}
-				this.measures.push({
-					ms: ms,
-					originalMS: ms,
-					speed: speed
-				})
+			var note = currentMeasure[0]
+			if(note){
+				var speed = note.bpm * note.scroll / 60
+			}else{
+				var speed = bpm * scroll / 60
 			}
+			this.measures.push({
+				ms: ms,
+				originalMS: ms,
+				speed: speed,
+				visible: barLine,
+				branch: currentBranch,
+				branchFirst: branchFirstMeasure
+			})
+			branchFirstMeasure = false
 			if(currentMeasure.length){
 				for(var i = 0; i < currentMeasure.length; i++){
 					var note = currentMeasure[i]
@@ -182,7 +192,9 @@
 							gogoTime: note.gogo,
 							endTime: note.endTime,
 							requiredHits: note.requiredHits,
-							beatMS: 60000 / note.bpm
+							beatMS: 60000 / note.bpm,
+							branch: currentBranch,
+							section: note.section
 						})
 						if(lastDrumroll === note){
 							lastDrumroll = circleObj
@@ -204,59 +216,113 @@
 				var line = line.slice(1).toLowerCase()
 				var [name, value] = this.split(line, " ")
 				
-				if(!branch || branch && branchType === branchPreference){
-					switch(name){
-						case "gogostart":
-							gogo = true
-							break
-						case "gogoend":
-							gogo = false
-							break
-						case "bpmchange":
-							bpm = parseFloat(value)
-							break
-						case "scroll":
-							scroll = parseFloat(value)
-							break
-						case "measure":
-							var [numerator, denominator] = value.split("/")
-							measure = numerator / denominator * 4
-							break
-						case "delay":
-							ms += (parseFloat(value) || 0) * 1000
-							break
-						case "barlineon":
-							barLine = true
-							break
-						case "barlineoff":
-							barLine = false
-							break
-					}
-				}
 				switch(name){
+					case "gogostart":
+						gogo = true
+						break
+					case "gogoend":
+						gogo = false
+						break
+					case "bpmchange":
+						bpm = parseFloat(value) || bpm
+						break
+					case "scroll":
+						scroll = parseFloat(value) || scroll
+						break
+					case "measure":
+						var [numerator, denominator] = value.split("/")
+						measure = numerator / denominator * 4 || measure
+						break
+					case "delay":
+						ms += (parseFloat(value) || 0) * 1000
+						break
+					case "barlineon":
+						barLine = true
+						break
+					case "barlineoff":
+						barLine = false
+						break
 					case "branchstart":
 						branch = true
-						branchType = ""
+						currentBranch = false
+						branchFirstMeasure = true
+						branchSettings = {
+							ms: ms,
+							gogo: gogo,
+							bpm: bpm,
+							scroll: scroll,
+							sectionBegin: sectionBegin
+						}
 						value = value.split(",")
-						var forkType = value[0].toLowerCase()
-						if(forkType === "r" || parseFloat(value[2]) <= 100){
-							branchPreference = "m"
-						}else if(parseFloat(value[1]) <= 100){
-							branchPreference = "e"
+						if(!this.branches){
+							this.branches = []
+						}
+						var req = {
+							advanced: parseFloat(value[1]) || 0,
+							master: parseFloat(value[2]) || 0
+						}
+						if(req.advanced > 0){
+							var active = req.master > 0 ? "normal" : "master"
 						}else{
-							branchPreference = "n"
+							var active = req.master > 0 ? "advanced" : "master"
+						}
+						branchObj = {
+							ms: ms,
+							originalMS: ms,
+							active: active,
+							type: value[0].trim().toLowerCase() === "r" ? "drumroll" : "accuracy",
+							requirement: req
+						}
+						this.branches.push(branchObj)
+						if(this.measures.length === 1 && branchObj.type === "drumroll"){
+							for(var i = circles.length; i--;){
+								var circle = circles[i]
+								if(circle.endTime && circle.type === "drumroll" || circle.type === "daiDrumroll" || circle.type === "balloon"){
+									this.measures.push({
+										ms: circle.endTime,
+										originalMS: circle.endTime,
+										speed: circle.bpm * circle.scroll / 60,
+										visible: false,
+										branch: circle.branch
+									})
+									break
+								}
+							}
+						}
+						if(this.measures.length !== 0){
+							this.measures[this.measures.length - 1].nextBranch = branchObj
 						}
 						break
 					case "branchend":
-					case "section":
 						branch = false
+						currentBranch = false
+						break
+					case "section":
+						sectionBegin = true
+						if(branch && !currentBranch){
+							branchSettings.sectionBegin = true
+						}
 						break
 					case "n": case "e": case "m":
-						branchType = name
+						if(!branch){
+							break
+						}
+						ms = branchSettings.ms
+						gogo = branchSettings.gogo
+						bpm = branchSettings.bpm
+						scroll = branchSettings.scroll
+						sectionBegin = branchSettings.sectionBegin
+						branchFirstMeasure = true
+						var branchName = name === "m" ? "master" : (name === "e" ? "advanced" : "normal")
+						currentBranch = {
+							name: branchName,
+							active: branchName === branchObj.active
+						}
+						branchObj[branchName] = currentBranch
 						break
 				}
 				
-			}else if(!branch || branch && branchType === branchPreference){
+			}else{
 				
 				var string = line.split("")
 				
@@ -278,8 +344,10 @@
 								txt: type.txt,
 								gogo: gogo,
 								bpm: bpm,
-								scroll: scroll
+								scroll: scroll,
+								section: sectionBegin
 							}
+							sectionBegin = false
 							if(lastDrumroll){
 								circleObj.endDrumroll = lastDrumroll
 								lastDrumroll = false
@@ -293,15 +361,19 @@
 								txt: type.txt,
 								gogo: gogo,
 								bpm: bpm,
-								scroll: scroll
+								scroll: scroll,
+								section: sectionBegin
 							}
+							sectionBegin = false
 							if(lastDrumroll){
 								if(symbol === "9"){
 									currentMeasure.push({
 										endDrumroll: lastDrumroll,
 										bpm: bpm,
-										scroll: scroll
+										scroll: scroll,
+										section: sectionBegin
 									})
+									sectionBegin = false
 									lastDrumroll = false
 								}else{
 									currentMeasure.push({
@@ -327,8 +399,10 @@
 								currentMeasure.push({
 									endDrumroll: lastDrumroll,
 									bpm: bpm,
-									scroll: scroll
+									scroll: scroll,
+									section: sectionBegin
 								})
+								sectionBegin = false
 								lastDrumroll = false
 							}else{
 								currentMeasure.push({
@@ -359,6 +433,11 @@
 			lastDrumroll.originalEndTime = ms
 		}
 		
+		if(this.branches){
+			circles.sort((a, b) => a.ms > b.ms ? 1 : -1)
+			this.measures.sort((a, b) => a.ms > b.ms ? 1 : -1)
+			circles.forEach((circle, i) => circle.id = i + 1)
+		}
 		return circles
 	}
 }

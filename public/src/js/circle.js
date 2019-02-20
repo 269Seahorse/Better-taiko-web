@@ -1,6 +1,5 @@
 class Circle{
 	constructor(config){
-		// id, ms, type, text, speed, endTime, requiredHits
 		this.id = config.id
 		this.ms = config.start
 		this.originalMS = this.ms
@@ -23,37 +22,12 @@ class Circle{
 		this.gogoChecked = false
 		this.beatMS = config.beatMS
 		this.fixedPos = config.fixedPos
-	}
-	getMS(){
-		return this.ms
-	}
-	getEndTime(){
-		return this.endTime
-	}
-	getType(){
-		return this.type
-	}
-	getLastFrame(){
-		return this.lastFrame
+		this.branch = config.branch
+		this.section = config.section
 	}
 	animate(ms){
 		this.animating = true
 		this.animT = ms
-	}
-	isAnimated(){
-		return this.animating
-	}
-	getAnimT(){
-		return this.animT
-	}
-	getPlayed(){
-		return this.isPlayed
-	}
-	isAnimationFinished(){
-		return this.animationEnded
-	}
-	endAnimation(){
-		this.animationEnded = true
 	}
 	played(score, big){
 		this.score = score
@@ -64,17 +38,5 @@ class Circle{
 		if(keysKa){
 			this.timesKa++
 		}
-	}
-	getScore(){
-		return this.score
-	}
-	getID(){
-		return this.id
-	}
-	getText(){
-		return this.text
-	}
-	getSpeed(){
-		return this.speed
 	}
 }
