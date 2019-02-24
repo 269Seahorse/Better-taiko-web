@@ -76,22 +76,6 @@ class Game{
 		var startIndex = this.currentCircle === 0 ? 0 : this.currentCircle - 1
 		var index = 0
 		
-		var skipNote = circle => {
-			if(circle.section){
-				this.resetSection()
-			}
-			circle.played(-1, circle.type === "daiDon" || circle.type === "daiKa")
-			this.sectionNotes.push(0)
-			this.controller.displayScore(0, true)
-			this.updateCombo(0)
-			this.updateGlobalScore(0, 1)
-			if(this.controller.multiplayer === 1){
-				p2.send("note", {
-					score: -1
-				})
-			}
-		}
-		
 		for(var i = startIndex; i < circles.length; i++){
 			var circle = circles[i]
 			if(circle && (!circle.branch || circle.branch.active) && !circle.isPlayed){
@@ -132,7 +116,7 @@ class Game{
 								p2.send("drumroll", value)
 							}
 						}else{
-							skipNote(circle)
+							this.skipNote(circle)
 							this.updateCurrentCircle()
 						}
 					}
@@ -142,32 +126,6 @@ class Game{
 				}
 				if(index++ > 1){
 					break
-				}
-			}
-		}
-		
-		var circleIsNote = circle => {
-			var type = circle.type
-			return type === "don" || type === "ka" || type === "daiDon" || type === "daiKa"
-		}
-		var currentCircle = circles[this.currentCircle]
-		if(!this.controller.autoPlayEnabled && currentCircle && ms - currentCircle.ms >= this.rules.ok && circleIsNote(currentCircle)){
-			for(var i = this.currentCircle + 1; i < circles.length; i++){
-				var circle = circles[i]
-				var relative = ms - circle.ms
-				if(!circle.branch || circle.branch.active){
-					if(!circleIsNote(circle) || relative < -this.rules.bad){
-						break
-					}else if(Math.abs(relative) < this.rules.ok){
-						for(var j = this.currentCircle; j < i; j++){
-							var circle = circles[j]
-							if(circle && (!circle.branch || circle.branch.active)){
-								skipNote(circles[j])
-							}
-						}
-						this.currentCircle = i
-						break
-					}
 				}
 			}
 		}
@@ -233,6 +191,52 @@ class Game{
 					}
 				}
 			}
+		}
+	}
+	fixNoteStream(keysDon){
+		var circleIsNote = circle => {
+			var type = circle.type
+			return type === "don" || type === "ka" || type === "daiDon" || type === "daiKa"
+		}
+		var correctNote = circle => {
+			var type = circle.type
+			return keysDon ? (type === "don" || type === "daiDon") : (type === "ka" || type === "daiKa")
+		}
+		var ms = this.elapsedTime
+		var circles = this.songData.circles
+		
+		for(var i = this.currentCircle + 1; i < circles.length; i++){
+			var circle = circles[i]
+			var relative = ms - circle.ms
+			if(!circle.branch || circle.branch.active){
+				if((!circleIsNote(circle) || relative < -this.rules.bad)){
+					break
+				}else if(Math.abs(relative) < this.rules.ok && correctNote(circle)){
+					for(var j = this.currentCircle; j < i; j++){
+						var circle = circles[j]
+						if(circle && !circle.branch || circle.branch.active){
+							this.skipNote(circles[j])
+						}
+					}
+					this.currentCircle = i
+					return circles[i]
+				}
+			}
+		}
+	}
+	skipNote(circle){
+		if(circle.section){
+			this.resetSection()
+		}
+		circle.played(-1, circle.type === "daiDon" || circle.type === "daiKa")
+		this.sectionNotes.push(0)
+		this.controller.displayScore(0, true)
+		this.updateCombo(0)
+		this.updateGlobalScore(0, 1)
+		if(this.controller.multiplayer === 1){
+			p2.send("note", {
+				score: -1
+			})
 		}
 	}
 	checkPlays(){
@@ -304,6 +308,13 @@ class Game{
 		var keyTime = this.controller.getKeyTime()
 		var currentTime = keysDon ? keyTime["don"] : keyTime["ka"]
 		var relative = currentTime - circle.ms
+		
+		if(relative >= this.rules.ok){
+			var fixedNote = this.fixNoteStream(keysDon)
+			if(fixedNote){
+				return this.checkScore(fixedNote, check)
+			}
+		}
 		
 		if(typeDon || typeKa){
 			if(-this.rules.bad >= relative || relative >= this.rules.bad){
