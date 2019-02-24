@@ -75,6 +75,7 @@ class Game{
 		var circles = this.songData.circles
 		var startIndex = this.currentCircle === 0 ? 0 : this.currentCircle - 1
 		var index = 0
+		
 		for(var i = startIndex; i < circles.length; i++){
 			var circle = circles[i]
 			if(circle && (!circle.branch || circle.branch.active) && !circle.isPlayed){
@@ -115,21 +116,8 @@ class Game{
 								p2.send("drumroll", value)
 							}
 						}else{
-							if(circle.section){
-								this.resetSection()
-							}
-							var currentScore = 0
-							circle.played(-1, type === "daiDon" || type === "daiKa")
-							this.sectionNotes.push(0)
-							this.controller.displayScore(currentScore, true)
+							this.skipNote(circle)
 							this.updateCurrentCircle()
-							this.updateCombo(currentScore)
-							this.updateGlobalScore(currentScore, 1)
-							if(this.controller.multiplayer === 1){
-								p2.send("note", {
-									score: -1
-								})
-							}
 						}
 					}
 				}else if(!this.controller.autoPlayEnabled && !nextSet){
@@ -141,6 +129,7 @@ class Game{
 				}
 			}
 		}
+		
 		var branches = this.songData.branches
 		if(branches){
 			var force = this.controller.multiplayer === 2 ? p2 : this
@@ -204,12 +193,61 @@ class Game{
 			}
 		}
 	}
+	fixNoteStream(keysDon){
+		var circleIsNote = circle => {
+			var type = circle.type
+			return type === "don" || type === "ka" || type === "daiDon" || type === "daiKa"
+		}
+		var correctNote = circle => {
+			var type = circle.type
+			return keysDon ? (type === "don" || type === "daiDon") : (type === "ka" || type === "daiKa")
+		}
+		var ms = this.elapsedTime
+		var circles = this.songData.circles
+		
+		for(var i = this.currentCircle + 1; i < circles.length; i++){
+			var circle = circles[i]
+			var relative = ms - circle.ms
+			if(!circle.branch || circle.branch.active){
+				if((!circleIsNote(circle) || relative < -this.rules.bad)){
+					break
+				}else if(Math.abs(relative) < this.rules.ok && correctNote(circle)){
+					for(var j = this.currentCircle; j < i; j++){
+						var circle = circles[j]
+						if(circle && !circle.branch || circle.branch.active){
+							this.skipNote(circles[j])
+						}
+					}
+					this.currentCircle = i
+					return circles[i]
+				}
+			}
+		}
+	}
+	skipNote(circle){
+		if(circle.section){
+			this.resetSection()
+		}
+		circle.played(-1, circle.type === "daiDon" || circle.type === "daiKa")
+		this.sectionNotes.push(0)
+		this.controller.displayScore(0, true)
+		this.updateCombo(0)
+		this.updateGlobalScore(0, 1)
+		if(this.controller.multiplayer === 1){
+			p2.send("note", {
+				score: -1
+			})
+		}
+	}
 	checkPlays(){
 		var circles = this.songData.circles
 		var circle = circles[this.currentCircle]
 		
-		if(circle && this.controller.autoPlayEnabled){
-			return this.controller.autoPlay(circle)
+		if(this.controller.autoPlayEnabled){
+			while(circle && this.controller.autoPlay(circle)){
+				circle = circles[this.currentCircle]
+			}
+			return
 		}
 		var keys = this.controller.getKeys()
 		var kbd = this.controller.getBindings()
@@ -219,19 +257,31 @@ class Game{
 		var ka_l = keys[kbd["ka_l"]] && !this.controller.isWaiting(kbd["ka_l"], "score")
 		var ka_r = keys[kbd["ka_r"]] && !this.controller.isWaiting(kbd["ka_r"], "score")
 		
-		if(don_l && don_r){
-			this.checkKey([kbd["don_l"], kbd["don_r"]], circle, "daiDon")
-		}else if(don_l){
-			this.checkKey([kbd["don_l"]], circle, "don")
-		}else if(don_r){
-			this.checkKey([kbd["don_r"]], circle, "don")
+		var checkDon = () => {
+			if(don_l && don_r){
+				this.checkKey([kbd["don_l"], kbd["don_r"]], circle, "daiDon")
+			}else if(don_l){
+				this.checkKey([kbd["don_l"]], circle, "don")
+			}else if(don_r){
+				this.checkKey([kbd["don_r"]], circle, "don")
+			}
 		}
-		if(ka_l && ka_r){
-			this.checkKey([kbd["ka_l"], kbd["ka_r"]], circle, "daiKa")
-		}else if(ka_l){
-			this.checkKey([kbd["ka_l"]], circle, "ka")
-		}else if(ka_r){
-			this.checkKey([kbd["ka_r"]], circle, "ka")
+		var checkKa = () => {
+			if(ka_l && ka_r){
+				this.checkKey([kbd["ka_l"], kbd["ka_r"]], circle, "daiKa")
+			}else if(ka_l){
+				this.checkKey([kbd["ka_l"]], circle, "ka")
+			}else if(ka_r){
+				this.checkKey([kbd["ka_r"]], circle, "ka")
+			}
+		}
+		var keyTime = this.controller.getKeyTime()
+		if(keyTime["don"] >= keyTime["ka"]){
+			checkDon()
+			checkKa()
+		}else{
+			checkKa()
+			checkDon()
 		}
 	}
 	checkKey(keyCodes, circle, check){
@@ -258,6 +308,13 @@ class Game{
 		var keyTime = this.controller.getKeyTime()
 		var currentTime = keysDon ? keyTime["don"] : keyTime["ka"]
 		var relative = currentTime - circle.ms
+		
+		if(relative >= this.rules.ok){
+			var fixedNote = this.fixNoteStream(keysDon)
+			if(fixedNote){
+				return this.checkScore(fixedNote, check)
+			}
+		}
 		
 		if(typeDon || typeKa){
 			if(-this.rules.bad >= relative || relative >= this.rules.bad){
@@ -288,6 +345,11 @@ class Game{
 				circle.played(score, score === 0 ? typeDai : keyDai)
 				this.controller.displayScore(score, false, typeDai && keyDai)
 			}else{
+				var keyTime = this.controller.getKeyTime()
+				var keyTimeRelative = Math.abs(keyTime.don - keyTime.ka)
+				if(Math.abs(relative) >= (keyTimeRelative <= 25 ? this.rules.bad : this.rules.good)){
+					return true
+				}
 				circle.played(-1, typeDai)
 				this.controller.displayScore(score, true, false)
 			}

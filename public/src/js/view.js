@@ -1100,7 +1100,7 @@
 		var songSkinName = selectedSong.songSkin.name
 		var supportsBlend = "mixBlendMode" in this.songBg.style
 		var songLayers = [document.getElementById("layer1"), document.getElementById("layer2")]
-		var prefix = selectedSong.songSkin.prefix || ""
+		var prefix = ""
 		
 		if(selectedSong.category in this.categories){
 			var catId = this.categories[selectedSong.category].sort
@@ -1111,8 +1111,9 @@
 		if(!selectedSong.songSkin.song){
 			var id = selectedSong.songBg
 			this.songBg.classList.add("songbg-" + id)
-			this.setLayers(songLayers, prefix + "bg_song_" + id + (supportsBlend ? "" : "a"), supportsBlend)
+			this.setLayers(songLayers, "bg_song_" + id + (supportsBlend ? "" : "a"), supportsBlend)
 		}else if(selectedSong.songSkin.song !== "none"){
+			var prefix = selectedSong.songSkin.prefix || ""
 			var notStatic = selectedSong.songSkin.song !== "static"
 			if(notStatic){
 				this.songBg.classList.add("songbg-" + selectedSong.songSkin.song)
@@ -1123,6 +1124,7 @@
 		if(!selectedSong.songSkin.stage){
 			this.songStage.classList.add("song-stage-" + selectedSong.songStage)
 		}else if(selectedSong.songSkin.stage !== "none"){
+			var prefix = selectedSong.songSkin.prefix || ""
 			this.setBgImage(this.songStage, assets.image[prefix + "bg_stage_" + songSkinName].src)
 		}
 	}
@@ -1131,7 +1133,7 @@
 		var songSkinName = selectedSong.songSkin.name
 		var donLayers = []
 		var filename = !selectedSong.songSkin.don && this.multiplayer === 2 ? "bg_don2_" : "bg_don_"
-		var prefix = selectedSong.songSkin.prefix || ""
+		var prefix = ""
 		
 		this.donBg = document.createElement("div")
 		this.donBg.classList.add("donbg")
@@ -1150,10 +1152,11 @@
 		var asset1, asset2
 		if(!selectedSong.songSkin.don){
 			this.donBg.classList.add("donbg-" + selectedSong.donBg)
-			this.setLayers(donLayers, prefix + filename + selectedSong.donBg, true)
+			this.setLayers(donLayers, filename + selectedSong.donBg, true)
 			asset1 = filename + selectedSong.donBg + "a"
 			asset2 = filename + selectedSong.donBg + "b"
 		}else if(selectedSong.songSkin.don !== "none"){
+			var prefix = selectedSong.songSkin.prefix || ""
 			var notStatic = selectedSong.songSkin.don !== "static"
 			if(notStatic){
 				this.donBg.classList.add("donbg-" + selectedSong.songSkin.don)

@@ -181,7 +181,8 @@ class ParseOsu{
 				measures.push({
 					ms: ms,
 					originalMS: ms,
-					speed: speed
+					speed: speed,
+					visible: true
 				})
 			}
 		}
