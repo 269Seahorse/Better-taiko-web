@@ -220,7 +220,7 @@ class Controller{
 		if(this.multiplayer){
 			p2.play(circle, this.mekadon)
 		}else{
-			this.mekadon.play(circle)
+			return this.mekadon.play(circle)
 		}
 	}
 	clean(){

@@ -16,11 +16,11 @@ class Mekadon{
 		}
 		type = circle.type
 		if(type === "balloon"){
-			this.playDrumrollAt(circle, 0, 30)
+			return this.playDrumrollAt(circle, 0, 30)
 		}else if(type === "drumroll" || type === "daiDrumroll"){
-			this.playDrumrollAt(circle, 0, 60)
+			return this.playDrumrollAt(circle, 0, 60)
 		}else{
-			this.playAt(circle, 0, 450)
+			return this.playAt(circle, 0, 450)
 		}
 	}
 	playAt(circle, ms, score, dai, reverse){
@@ -35,7 +35,7 @@ class Mekadon{
 			if(kaAmount > 0){
 				score = Math.random() > kaAmount ? 1 : 2
 			}
-			this.playAt(circle, ms, score)
+			return this.playAt(circle, ms, score)
 		}
 	}
 	miss(circle){
