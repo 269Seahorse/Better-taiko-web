@@ -44,7 +44,7 @@
 		var hasSong = false
 		var courses = {}
 		var currentCourse = {}
-		var courseName = this.difficulty
+		var courseName = "oni"
 		for(var lineNum = 0; lineNum < this.data.length; lineNum++){
 			var line = this.data[lineNum]
 			
@@ -55,10 +55,10 @@
 					
 					inSong = true
 					if(!hasSong){
+						if(!(courseName in courses)){
+							courses[courseName] = {}
+						}
 						for(var name in currentCourse){
-							if(!(courseName in courses)){
-								courses[courseName] = {}
-							}
 							if(name !== "branch"){
 								courses[courseName][name] = currentCourse[name]
 							}
@@ -118,10 +118,7 @@
 	parseCircles(){
 		var meta = this.metadata[this.difficulty]
 		var ms = (meta.offset || 0) * -1000 + this.offset
-		var bpm = meta.bpm || 0
-		if(bpm <= 0){
-			bpm = 1
-		}
+		var bpm = Math.abs(meta.bpm) || 120
 		var scroll = 1
 		var measure = 4
 		this.beatInfo.beatInterval = 60000 / bpm
@@ -227,7 +224,7 @@
 						bpm = parseFloat(value) || bpm
 						break
 					case "scroll":
-						scroll = parseFloat(value) || scroll
+						scroll = Math.abs(parseFloat(value)) || scroll
 						break
 					case "measure":
 						var [numerator, denominator] = value.split("/")

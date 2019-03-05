@@ -48,9 +48,9 @@
 		this.regex = {
 			comma: /[,.]/,
 			ideographicComma: /[、。]/,
-			apostrophe: /['＇]/,
+			apostrophe: /['＇’]/,
 			degree: /[ﾟ°]/,
-			brackets: /[\(（\)）\[\]「」『』【】]/,
+			brackets: /[\(（\)）\[\]「」『』【】:：;；]/,
 			tilde: /[\-－~～〜_]/,
 			tall: /[bｂdｄfｆgｇhｈj-lｊ-ｌtｔ♪]/,
 			i: /[iｉ]/,
@@ -625,8 +625,6 @@
 				drawn.push({text: symbol, x: -2, y: 0, w: 20, scale: [0.6, 0.5]})
 			}else if(symbol === " "){
 				drawn.push({text: symbol, x: 0, y: 0, w: 10})
-			}else if(symbol === "'"){
-				drawn.push({text: ",", x: 0, y: -15, w: 7, scale: [1, 0.7]})
 			}else if(symbol === '"'){
 				drawn.push({text: symbol, x: 2, y: 0, w: 10})
 			}else if(symbol === "∀"){
@@ -637,6 +635,8 @@
 				}
 			}else if(symbol === "．"){
 				drawn.push({text: symbol, x: -9, y: 0, w: 37})
+			}else if(r.apostrophe.test(symbol)){
+				drawn.push({text: ",", x: 0, y: -15, w: 7, scale: [1, 0.7]})
 			}else if(r.comma.test(symbol)){
 				// Comma, full stop
 				if(bold){

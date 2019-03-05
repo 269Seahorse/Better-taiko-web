@@ -1180,6 +1180,10 @@
 	}
 	setDonBgHeight(){
 		this.donBg.style.setProperty("--h", getComputedStyle(this.donBg).height)
+		this.gameDiv.classList.add("fix-animations")
+		setTimeout(()=>{
+			this.gameDiv.classList.remove("fix-animations")
+		}, 50)
 	}
 	setLayers(elements, file, ab){
 		if(ab){

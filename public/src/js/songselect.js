@@ -1753,15 +1753,15 @@ class SongSelect{
 				}
 				
 				new Promise((resolve, reject) => {
-					if(currentSong.music){
-						songObj.preview_time = prvTime
-						snd.previewGain.load(currentSong.music, true).then(resolve, reject)
-					}else{
+					if(!currentSong.music){
 						songObj.preview_time = 0
 						loadPreview(previewFilename).catch(() => {
 							songObj.preview_time = prvTime
 							return loadPreview("/main.mp3")
 						}).then(resolve, reject)
+					}else if(currentSong.music !== "muted"){
+						songObj.preview_time = prvTime
+						snd.previewGain.load(currentSong.music, true).then(resolve, reject)
 					}
 				}).then(sound => {
 					if(currentId === this.previewId){
