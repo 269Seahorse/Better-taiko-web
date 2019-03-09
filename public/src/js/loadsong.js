@@ -97,16 +97,18 @@ class LoadSong{
 			if(songObj.sound){
 				songObj.sound.gain = snd.musicGain
 				resolve()
-			}else if(songObj.music){
+			}else if(!songObj.music){
+				snd.musicGain.load(gameConfig.songs_baseurl + id + "/main.mp3").then(sound => {
+					songObj.sound = sound
+					resolve()
+				}, reject)
+			}else if(songObj.music !== "muted"){
 				snd.musicGain.load(songObj.music, true).then(sound => {
 					songObj.sound = sound
 					resolve()
 				}, reject)
 			}else{
-				snd.musicGain.load(gameConfig.songs_baseurl + id + "/main.mp3").then(sound => {
-					songObj.sound = sound
-					resolve()
-				}, reject)
+				resolve()
 			}
 		}))
 		if(songObj.chart){
@@ -119,10 +121,10 @@ class LoadSong{
 		Promise.all(promises).then(() => {
 			this.setupMultiplayer()
 		}, error => {
-			console.error(error)
 			if(Array.isArray(error) && error[1] instanceof HTMLElement){
 				error = error[0] + ": " + error[1].outerHTML
 			}
+			console.error(error)
 			pageEvents.send("load-song-error", error)
 			errorMessage(new Error(error).stack)
 			alert("An error occurred, please refresh")

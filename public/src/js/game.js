@@ -465,7 +465,8 @@ class Game{
 		var started = this.fadeOutStarted
 		if(started){
 			var ms = this.elapsedTime
-			var musicDuration = this.controller.mainAsset.duration * 1000 - this.controller.offset
+			var duration = this.mainAsset ? this.mainAsset.duration : 0
+			var musicDuration = duration * 1000 - this.controller.offset
 			if(this.musicFadeOut === 0){
 				if(this.controller.multiplayer === 1){
 					p2.send("gameresults", this.getGlobalScore())
@@ -491,7 +492,7 @@ class Game{
 	playMainMusic(){
 		var ms = this.elapsedTime + this.controller.offset
 		if(!this.mainMusicPlaying && (!this.fadeOutStarted || ms < this.fadeOutStarted + 1600)){
-			if(this.controller.multiplayer !== 2){
+			if(this.controller.multiplayer !== 2 && this.mainAsset){
 				this.mainAsset.play((ms < 0 ? -ms : 0) / 1000, false, Math.max(0, ms / 1000))
 			}
 			this.mainMusicPlaying = true
@@ -502,7 +503,9 @@ class Game{
 			assets.sounds["se_pause"].play()
 			this.paused = true
 			this.latestDate = Date.now()
-			this.mainAsset.stop()
+			if(this.mainAsset){
+				this.mainAsset.stop()
+			}
 			this.mainMusicPlaying = false
 			this.view.pauseMove(0, true)
 			this.view.gameDiv.classList.add("game-paused")

@@ -184,25 +184,26 @@
 				id: index + 1,
 				type: "tja",
 				chart: data,
-				stars: []
+				stars: [],
+				music: "muted"
 			}
+			var titleLang = {}
+			var subtitleLang = {}
 			var dir = file.webkitRelativePath.toLowerCase()
 			dir = dir.slice(0, dir.lastIndexOf("/") + 1)
 			var hasCategory = false
 			for(var diff in tja.metadata){
 				var meta = tja.metadata[diff]
-				songObj.title = songObj.title_en = meta.title || file.name.slice(0, file.name.lastIndexOf("."))
+				songObj.title = meta.title || file.name.slice(0, file.name.lastIndexOf("."))
 				var subtitle = meta.subtitle || ""
-				if(subtitle.startsWith("--")){
-					subtitle = subtitle.slice(2)
+				if(subtitle.startsWith("--") || subtitle.startsWith("++")){
+					subtitle = subtitle.slice(2).trim()
 				}
-				songObj.subtitle = songObj.subtitle_en = subtitle
+				songObj.subtitle = subtitle
 				songObj.preview = meta.demostart || 0
-				if(meta.level){
-					songObj.stars[this.courseTypes[diff]] = meta.level + (meta.branch ? " B" : "")
-				}
+				songObj.stars[this.courseTypes[diff]] = (meta.level || "0") + (meta.branch ? " B" : "")
 				if(meta.wave){
-					songObj.music = this.otherFiles[dir + meta.wave.toLowerCase()]
+					songObj.music = this.otherFiles[dir + meta.wave.toLowerCase()] || songObj.music
 				}
 				if(meta.genre){
 					songObj.category = this.categories[meta.genre.toLowerCase()] || meta.genre
@@ -210,11 +211,33 @@
 				if(meta.taikowebskin){
 					songObj.song_skin = this.getSkin(dir, meta.taikowebskin)
 				}
+				for(var id in allStrings){
+					if(meta["title" + id]){
+						titleLang[id] = meta["title" + id]
+					}
+					if(meta["subtitle" + id]){
+						subtitleLang[id] = meta["subtitle" + id]
+					}
+				}
+			}
+			var titleLangArray = []
+			for(var id in titleLang){
+				titleLangArray.push(id + " " + titleLang[id])
+			}
+			if(titleLangArray.length !== 0){
+				songObj.title_lang = titleLangArray.join("\n")
+			}
+			var subtitleLangArray = []
+			for(var id in subtitleLang){
+				subtitleLangArray.push(id + " " + subtitleLang[id])
+			}
+			if(subtitleLangArray.length !== 0){
+				songObj.subtitle_lang = subtitleLangArray.join("\n")
 			}
 			if(!songObj.category){
 				songObj.category = category || this.getCategory(file)
 			}
-			if(songObj.music && songObj.stars.filter(star => star).length !== 0){
+			if(songObj.stars.length !== 0){
 				this.songs[index] = songObj
 			}
 		}).catch(() => {})
@@ -237,10 +260,10 @@
 				type: "osu",
 				chart: data,
 				subtitle: osu.metadata.ArtistUnicode || osu.metadata.Artist,
-				subtitle_en: osu.metadata.Artist || osu.metadata.ArtistUnicode,
+				subtitle_lang: osu.metadata.Artist || osu.metadata.ArtistUnicode,
 				preview: osu.generalInfo.PreviewTime / 1000,
 				stars: [null, null, null, parseInt(osu.difficulty.overallDifficulty) || 1],
-				music: this.otherFiles[dir + osu.generalInfo.AudioFilename.toLowerCase()]
+				music: this.otherFiles[dir + osu.generalInfo.AudioFilename.toLowerCase()] || "muted"
 			}
 			var filename = file.name.slice(0, file.name.lastIndexOf("."))
 			var title = osu.metadata.TitleUnicode || osu.metadata.Title
@@ -251,13 +274,11 @@
 					suffix = " " + matches[0]
 				}
 				songObj.title = title + suffix
-				songObj.title_en = (osu.metadata.Title || osu.metadata.TitleUnicode) + suffix
+				songObj.title_lang = (osu.metadata.Title || osu.metadata.TitleUnicode) + suffix
 			}else{
 				songObj.title = filename
 			}
-			if(songObj.music){
-				this.songs[index] = songObj
-			}
+			this.songs[index] = songObj
 			songObj.category = category || this.getCategory(file)
 		}).catch(() => {})
 		reader.readAsText(file)

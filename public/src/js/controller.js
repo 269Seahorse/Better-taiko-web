@@ -68,7 +68,9 @@ class Controller{
 	}
 	stopMainLoop(){
 		this.mainLoopRunning = false
-		this.mainAsset.stop()
+		if(this.mainAsset){
+			this.mainAsset.stop()
+		}
 		if(this.multiplayer !== 2){
 			clearInterval(this.gameInterval)
 		}

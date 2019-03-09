@@ -94,3 +94,6 @@
 	z-index: 2;
 	transition: 1s background-color linear;
 }
+.fix-animations *{
+	animation: none !important;
+}
