@@ -69,25 +69,25 @@ class Mekadon{
 				type = "don"
 			}
 		}
-		if(type == "daiDon" && playDai){
+		if(type === "daiDon" && playDai){
 			this.setKey(kbd["don_l"], ms)
 			this.setKey(kbd["don_r"], ms)
 			this.lr = false
 			keyDai = true
-		}else if(type == "don" || type == "daiDon" || drumrollNotes && score !== 2){
+		}else if(type === "don" || type === "daiDon" || drumrollNotes && score !== 2){
 			this.setKey(this.lr ? kbd["don_l"] : kbd["don_r"], ms)
 			this.lr = !this.lr
-		}else if(type == "daiKa" && playDai){
+		}else if(type === "daiKa" && playDai){
 			this.setKey(kbd["ka_l"], ms)
 			this.setKey(kbd["ka_r"], ms)
 			this.lr = false
 			keyDai = true
-		}else if(type == "ka" || type == "daiKa" || drumrollNotes){
+		}else if(type === "ka" || type === "daiKa" || drumrollNotes){
 			this.setKey(this.lr ? kbd["ka_l"] : kbd["ka_r"], ms)
 			this.lr = !this.lr
 		}
 		if(type === "balloon"){
-			if(circle.requiredHits == 1){
+			if(circle.requiredHits === 1){
 				assets.sounds["se_balloon"].play()
 			}
 			this.game.checkBalloon(circle)

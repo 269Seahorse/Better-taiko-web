@@ -10,18 +10,20 @@
 		this.difficulty = difficulty
 		this.offset = (offset || 0) * -1000
 		this.soundOffset = 0
-		this.noteTypes = [
-			{name: false, txt: false},
-			{name: "don", txt: strings.note.don},
-			{name: "ka", txt: strings.note.ka},
-			{name: "daiDon", txt: strings.note.daiDon},
-			{name: "daiKa", txt: strings.note.daiKa},
-			{name: "drumroll", txt: strings.note.drumroll},
-			{name: "daiDrumroll", txt: strings.note.daiDrumroll},
-			{name: "balloon", txt: strings.note.balloon},
-			{name: false, txt: false},
-			{name: "balloon", txt: strings.note.balloon}
-		]
+		this.noteTypes = {
+			"0": {name: false, txt: false},
+			"1": {name: "don", txt: strings.note.don},
+			"2": {name: "ka", txt: strings.note.ka},
+			"3": {name: "daiDon", txt: strings.note.daiDon},
+			"4": {name: "daiKa", txt: strings.note.daiKa},
+			"5": {name: "drumroll", txt: strings.note.drumroll},
+			"6": {name: "daiDrumroll", txt: strings.note.daiDrumroll},
+			"7": {name: "balloon", txt: strings.note.balloon},
+			"8": {name: false, txt: false},
+			"9": {name: "balloon", txt: strings.note.balloon},
+			"A": {name: "daiDon", txt: strings.note.daiDon},
+			"B": {name: "daiKa", txt: strings.note.daiKa}
+		}
 		this.courseTypes = {
 			"0": "easy",
 			"1": "normal",
@@ -141,6 +143,7 @@
 		var firstNote = true
 		var circles = []
 		var circleID = 0
+		var regexAZ = /[A-Z]/
 		
 		var pushMeasure = () => {
 			var note = currentMeasure[0]
@@ -321,7 +324,7 @@
 				
 			}else{
 				
-				var string = line.split("")
+				var string = line.toUpperCase().split("")
 				
 				for(let symbol of string){
 					
@@ -334,7 +337,7 @@
 								scroll: scroll
 							})
 							break
-						case "1": case "2": case "3": case "4":
+						case "1": case "2": case "3": case "4": case "A": case "B":
 							var type = this.noteTypes[symbol]
 							var circleObj = {
 								type: type.name,
@@ -413,7 +416,14 @@
 							currentMeasure = []
 							break
 						default:
-							error = true
+							if(regexAZ.test(symbol)){
+								currentMeasure.push({
+									bpm: bpm,
+									scroll: scroll
+								})
+							}else{
+								error = true
+							}
 							break
 						
 					}

@@ -16,6 +16,7 @@ class Debug{
 		this.branchSelectDiv = this.byClass("branch-select")
 		this.branchSelect = this.branchSelectDiv.getElementsByTagName("select")[0]
 		this.branchResetBtn = this.branchSelectDiv.getElementsByClassName("reset")[0]
+		this.volumeDiv = this.byClass("music-volume")
 		this.restartCheckbox = this.byClass("change-restart")
 		this.autoplayLabel = this.byClass("autoplay-label")
 		this.autoplayCheckbox = this.byClass("autoplay")
@@ -39,6 +40,10 @@ class Debug{
 		this.measureNumSlider = new InputSlider(this.measureNumDiv, 0, 1000, 0)
 		this.measureNumSlider.onchange(this.measureNumChange.bind(this))
 		this.measureNumSlider.set(0)
+		
+		this.volumeSlider = new InputSlider(this.volumeDiv, 0, 3, 2)
+		this.volumeSlider.onchange(this.volumeChange.bind(this))
+		this.volumeSlider.set(1)
 		
 		this.moveTo(100, 100)
 		this.restore()
@@ -110,10 +115,12 @@ class Debug{
 			if(this.songFolder === selectedSong.folder){
 				this.offsetChange(this.offsetSlider.get(), true)
 				this.branchChange(null, true)
+				this.volumeChange(this.volumeSlider.get(), true)
 			}else{
 				this.songFolder = selectedSong.folder
 				this.offsetSlider.set(this.defaultOffset)
 				this.branchReset(null, true)
+				this.volumeSlider.set(this.controller.volume)
 			}
 			
 			var measures = this.controller.parsedSongData.measures.filter((measure, i, array) => {
@@ -176,6 +183,14 @@ class Debug{
 			this.restartSong()
 		}
 	}
+	volumeChange(value, noRestart){
+		if(this.controller){
+			snd.musicGain.setVolumeMul(value)
+		}
+		if(this.restartCheckbox.checked && !noRestart){
+			this.restartSong()
+		}
+	}
 	restartSong(){
 		if(this.controller){
 			this.controller.restartSong()
@@ -234,6 +249,7 @@ class Debug{
 		delete this.branchSelectDiv
 		delete this.branchSelect
 		delete this.branchResetBtn
+		delete this.volumeDiv
 		delete this.restartCheckbox
 		delete this.autoplayLabel
 		delete this.autoplayCheckbox

@@ -183,7 +183,7 @@
 			var songObj = {
 				id: index + 1,
 				type: "tja",
-				chart: data,
+				chart: file,
 				stars: [],
 				music: "muted"
 			}
@@ -258,7 +258,7 @@
 			var songObj = {
 				id: index + 1,
 				type: "osu",
-				chart: data,
+				chart: file,
 				subtitle: osu.metadata.ArtistUnicode || osu.metadata.Artist,
 				subtitle_lang: osu.metadata.Artist || osu.metadata.ArtistUnicode,
 				preview: osu.generalInfo.PreviewTime / 1000,

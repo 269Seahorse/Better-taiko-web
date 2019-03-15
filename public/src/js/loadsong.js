@@ -112,7 +112,15 @@ class LoadSong{
 			}
 		}))
 		if(songObj.chart){
-			this.songData = songObj.chart
+			var reader = new FileReader()
+			promises.push(pageEvents.load(reader).then(event => {
+				this.songData = event.target.result.replace(/\0/g, "").split("\n")
+			}))
+			if(song.type === "tja"){
+				reader.readAsText(songObj.chart, "sjis")
+			}else{
+				reader.readAsText(songObj.chart)
+			}
 		}else{
 			promises.push(loader.ajax(this.getSongPath(song)).then(data => {
 				this.songData = data.replace(/\0/g, "").split("\n")

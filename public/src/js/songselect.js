@@ -107,7 +107,8 @@ class SongSelect{
 				type: song.type,
 				offset: song.offset,
 				songSkin: song.song_skin || {},
-				music: song.music
+				music: song.music,
+				volume: song.volume
 			})
 		}
 		this.songs.sort((a, b) => {
@@ -1741,7 +1742,7 @@ class SongSelect{
 				if(!loadOnly){
 					this.preview = songObj.preview_sound
 					this.preview.gain = snd.previewGain
-					this.previewLoaded(startLoad, songObj.preview_time)
+					this.previewLoaded(startLoad, songObj.preview_time, currentSong.volume)
 				}
 			}else{
 				songObj = {id: id}
@@ -1767,7 +1768,7 @@ class SongSelect{
 					if(currentId === this.previewId){
 						songObj.preview_sound = sound
 						this.preview = sound
-						this.previewLoaded(startLoad, songObj.preview_time)
+						this.previewLoaded(startLoad, songObj.preview_time, currentSong.volume)
 						
 						var oldPreview = this.previewList.shift()
 						if(oldPreview){
@@ -1781,11 +1782,12 @@ class SongSelect{
 			}
 		}
 	}
-	previewLoaded(startLoad, prvTime){
+	previewLoaded(startLoad, prvTime, volume){
 		var endLoad = this.getMS()
 		var difference = endLoad - startLoad
 		var minDelay = 300
 		var delay = minDelay - Math.min(minDelay, difference)
+		snd.previewGain.setVolumeMul(volume || 1)
 		this.preview.playLoop(delay / 1000, false, prvTime)
 	}
 	endPreview(){
@@ -1935,7 +1937,7 @@ class SongSelect{
 		if(!this.bgmEnabled){
 			snd.musicGain.fadeIn()
 			setTimeout(() => {
-				snd.musicGain.fadeIn()
+				snd.buffer.loadSettings()
 			}, 500)
 		}
 		this.redrawRunning = false

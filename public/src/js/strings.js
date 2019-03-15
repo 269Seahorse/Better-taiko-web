@@ -1,7 +1,7 @@
 ﻿function StringsJa(){
 	this.id = "ja"
 	this.name = "日本語"
-	this.regex = /^ja$/
+	this.regex = /^ja$|^ja-/
 	this.font = "TnT, Meiryo, sans-serif"
 	
 	this.taikoWeb = "たいこウェブ"

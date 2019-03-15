@@ -30,6 +30,7 @@ class Game{
 		this.currentTimingPoint = 0
 		this.branchNames = ["normal", "advanced", "master"]
 		this.resetSection()
+		this.gameLagSync = !this.controller.touchEnabled && !(/Firefox/.test(navigator.userAgent))
 		
 		assets.songs.forEach(song => {
 			if(song.id == selectedSong.folder){
@@ -364,7 +365,7 @@ class Game{
 				var value = {
 					score: score,
 					ms: circle.ms - currentTime,
-					dai: typeDai ? keyDai ? 2 : 1 : 0
+					dai: typeDai ? (keyDai ? 2 : 1) : 0
 				}
 				if((!keysDon || !typeDon) && (!keysKa || !typeKa)){
 					value.reverse = true
@@ -536,7 +537,7 @@ class Game{
 			this.sndTime = this.startDate - snd.buffer.getTime() * 1000
 		}else if(ms < 0 || ms >= 0 && this.started){
 			var currentDate = Date.now()
-			if(!this.controller.touchEnabled){
+			if(this.gameLagSync){
 				var sndTime = currentDate - snd.buffer.getTime() * 1000
 				var lag = sndTime - this.sndTime
 				if(Math.abs(lag) >= 50){

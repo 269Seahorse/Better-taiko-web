@@ -118,6 +118,7 @@ class Loader{
 				0.5
 			)
 			snd.sfxLoudGain.setVolume(1.2)
+			snd.buffer.saveSettings()
 			
 			this.afterJSCount = 0
 			

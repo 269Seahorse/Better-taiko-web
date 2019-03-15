@@ -3,6 +3,7 @@
 		var AudioContext = window.AudioContext || window.webkitAudioContext
 		this.context = new AudioContext()
 		pageEvents.add(window, ["click", "touchend"], this.pageClicked.bind(this))
+		this.gainList = []
 	}
 	load(url, local, gain){
 		if(local){
@@ -27,7 +28,9 @@
 		})
 	}
 	createGain(channel){
-		return new SoundGain(this, channel)
+		var gain = new SoundGain(this, channel)
+		this.gainList.push(gain)
+		return gain
 	}
 	setCrossfade(gain1, gain2, median){
 		if(!Array.isArray(gain1)){
@@ -60,6 +63,18 @@
 			this.context.resume()
 		}
 	}
+	saveSettings(){
+		for(var i = 0; i < this.gainList.length; i++){
+			var gain = this.gainList[i]
+			gain.defaultVol = gain.volume
+		}
+	}
+	loadSettings(){
+		for(var i = 0; i < this.gainList.length; i++){
+			var gain = this.gainList[i]
+			gain.setVolume(gain.defaultVol)
+		}
+	}
 }
 class SoundGain{
 	constructor(soundBuffer, channel){
@@ -84,6 +99,9 @@ class SoundGain{
 	setVolume(amount){
 		this.gainNode.gain.value = amount * amount
 		this.volume = amount
+	}
+	setVolumeMul(amount){
+		this.setVolume(Math.sqrt(amount * amount * this.defaultVol))
 	}
 	setCrossfade(amount){
 		this.setVolume(Math.sqrt(Math.sin(Math.PI / 2 * amount)))

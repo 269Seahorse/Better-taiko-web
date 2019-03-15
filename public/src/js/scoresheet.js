@@ -856,7 +856,7 @@ class Scoresheet{
 		this.draw.clean()
 		this.canvasCache.clean()
 		assets.sounds["bgm_result"].stop()
-		snd.musicGain.fadeIn()
+		snd.buffer.loadSettings()
 		this.redrawRunning = false
 		pageEvents.keyRemove(this, "all")
 		pageEvents.remove(this.canvas, ["mousedown", "touchstart"])
