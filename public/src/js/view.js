@@ -1438,7 +1438,7 @@
 			ctx.fill()
 			ctx.globalAlpha = 1
 		}
-		if(!circle.animating){
+		if(!circle.animating && circle.text){
 			// Text
 			var text = circle.text
 			var textX = circlePos.x

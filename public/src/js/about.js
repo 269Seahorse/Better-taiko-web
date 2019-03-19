@@ -143,7 +143,7 @@
 			}
 		}
 		
-		var issueBody = strings.issueTemplate + "\n\n\n\n" + diag
+		var issueBody = strings.about.issueTemplate + "\n\n\n\n" + diag
 		this.getLink(this.linkEmail).href += "?body=" + encodeURIComponent(issueBody.replace(/\n/g, "<br>\r\n"))
 		
 		return diag

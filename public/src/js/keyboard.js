@@ -196,18 +196,17 @@ class Keyboard{
 		this.checkKey(keyCode, "sound", () => {
 			var circles = this.controller.getCircles()
 			var circle = circles[this.controller.getCurrentCircle()]
-			if(
-				sound === "don"
-				&& circle
-				&& !circle.isPlayed
-				&& circle.type === "balloon"
-				&& circle.requiredHits - circle.timesHit <= 1
-			){
-				this.controller.playSound("se_balloon")
-			}else{
-				this.controller.playSound("neiro_1_" + sound)
+			var currentTime = this.keyTime[keyCode]
+			this.keyTime[sound] = currentTime
+			if(circle && !circle.isPlayed){
+				if(circle.type === "balloon"){
+					if(sound === "don" && circle.requiredHits - circle.timesHit <= 1){
+						this.controller.playSound("se_balloon")
+						return
+					}
+				}
 			}
-			this.keyTime[sound] = this.keyTime[keyCode]
+			this.controller.playSound("neiro_1_" + sound)
 		})
 	}
 	getKeys(){
@@ -242,6 +241,9 @@ class Keyboard{
 		}
 	}
 	waitForKeyup(keyCode, type){
+		if(!this.keys[keyCode]){
+			return
+		}
 		if(type === "score"){
 			this.waitKeyupScore[keyCode] = true
 		}else if(type === "sound"){

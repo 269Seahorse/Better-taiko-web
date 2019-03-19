@@ -21,6 +21,7 @@ class Controller{
 		assets.songs.forEach(song => {
 			if(song.id == this.selectedSong.folder){
 				this.mainAsset = song.sound
+				this.volume = song.volume || 1
 			}
 		})
 		
@@ -34,6 +35,9 @@ class Controller{
 	run(syncWith){
 		if(syncWith){
 			this.syncWith = syncWith
+		}
+		if(this.multiplayer !== 2){
+			snd.musicGain.setVolumeMul(this.volume)
 		}
 		this.game.run()
 		this.view.run()
@@ -161,8 +165,26 @@ class Controller{
 		if(this.multiplayer){
 			new LoadSong(this.selectedSong, false, true, this.touchEnabled)
 		}else{
-			var taikoGame = new Controller(this.selectedSong, this.songData, this.autoPlayEnabled, false, this.touchEnabled)
-			taikoGame.run()
+			new Promise(resolve => {
+				var songObj = assets.songs.find(song => song.id === this.selectedSong.folder)
+				if(songObj.chart){
+					var reader = new FileReader()
+					var promise = pageEvents.load(reader).then(event => {
+						this.songData = event.target.result.replace(/\0/g, "").split("\n")
+						resolve()
+					})
+					if(this.selectedSong.type === "tja"){
+						reader.readAsText(songObj.chart, "sjis")
+					}else{
+						reader.readAsText(songObj.chart)
+					}
+				}else{
+					resolve()
+				}
+			}).then(() => {
+				var taikoGame = new Controller(this.selectedSong, this.songData, this.autoPlayEnabled, false, this.touchEnabled)
+				taikoGame.run()
+			})
 		}
 	}
 	playSound(id, time){
@@ -232,6 +254,7 @@ class Controller{
 		this.stopMainLoop()
 		this.keyboard.clean()
 		this.view.clean()
+		snd.buffer.loadSettings()
 		
 		if(!this.multiplayer){
 			debugObj.controller = null
