@@ -29,33 +29,58 @@ class CanvasCache{
 			return
 		}
 		var saved = false
+		var time = Date.now()
 		if(!img){
 			var w = config.w
 			var h = config.h
-			this.x += this.lastW + 1
+			this.x += this.lastW + (this.lastW ? 1 : 0)
 			if(this.x + w > this.w){
 				this.x = 0
 				this.y += this.lastH + 1
 			}
-			this.lastW = w
-			this.lastH = Math.max(this.lastH, h)
-			img = {
-				x: this.x,
-				y: this.y,
-				w: w,
-				h: h
+			if(this.y + h > this.h){
+				var clear = true
+				var oldest = {time: time}
+				this.map.forEach((oldImg, id) => {
+					if(oldImg.time < oldest.time){
+						oldest.id = id
+						oldest.time = oldImg.time
+					}
+				})
+				var oldImg = this.map.get(oldest.id)
+				this.map.delete(oldest.id)
+				img = {
+					x: oldImg.x,
+					y: oldImg.y,
+					w: w,
+					h: h
+				}
+			}else{
+				var clear = false
+				this.lastW = w
+				this.lastH = Math.max(this.lastH, h)
+				img = {
+					x: this.x,
+					y: this.y,
+					w: w,
+					h: h
+				}
 			}
-			this.map.set(config.id, img)
 			
 			saved = true
 			this.ctx.save()
 			this.ctx.translate(img.x |0, img.y |0)
+			if(clear){
+				this.ctx.clearRect(0, 0, (img.w |0) + 1, (img.h |0) + 1)
+			}
 			this.ctx.beginPath()
 			this.ctx.rect(0, 0, img.w |0, img.h |0)
 			this.ctx.clip()
 			
+			this.map.set(config.id, img)
 			callback(this.ctx)
 		}
+		img.time = time
 		if(setOnly){
 			this.ctx.restore()
 			return
@@ -81,6 +106,7 @@ class CanvasCache{
 		this.ctx.clearRect(0, 0, this.w, this.h)
 	}
 	clean(){
+		this.resize(1, 1, 1)
 		delete this.map
 		delete this.ctx
 		delete this.canvas
