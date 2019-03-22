@@ -1874,6 +1874,8 @@
 		this.assets.clean()
 		this.titleCache.clean()
 		this.comboCache.clean()
+		this.pauseCache.clean()
+		this.branchCache.clean()
 		
 		if(this.multiplayer !== 2){
 			if(this.touchEnabled){
