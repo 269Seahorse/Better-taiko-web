@@ -803,9 +803,11 @@ class SongSelect{
 			this.canvas.style.height = (winH / this.pixelRatio) + "px"
 			
 			var borders = (this.songAsset.border + this.songAsset.innerBorder) * 2
+			var songsLength = Math.ceil(winW / ratio / (this.songAsset.width + this.songAsset.marginLeft)) + 1
+			
 			this.songTitleCache.resize(
-				(this.songAsset.width - borders + 1) * Math.ceil(this.songs.length / 3),
-				(this.songAsset.height - borders + 1) * 3,
+				(this.songAsset.width - borders + 1) * songsLength,
+				this.songAsset.height - borders + 1,
 				ratio + 0.2
 			)
 			
@@ -827,7 +829,7 @@ class SongSelect{
 					categories++
 				}
 			})
-			this.categoryCache.resize(280, (this.songAsset.marginTop + 1) * categories , ratio + 0.5)
+			this.categoryCache.resize(280, this.songAsset.marginTop + 1 , ratio + 0.5)
 			
 			this.difficultyCache.resize((44 + 56 + 2) * 5, 135 + 10, ratio + 0.5)
 			
@@ -1933,6 +1935,7 @@ class SongSelect{
 		this.categoryCache.clean()
 		this.difficultyCache.clean()
 		this.sessionCache.clean()
+		this.currentSongCache.clean()
 		assets.sounds["bgm_songsel"].stop()
 		if(!this.bgmEnabled){
 			snd.musicGain.fadeIn()

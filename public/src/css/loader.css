@@ -15,7 +15,7 @@ body{
 	margin: 0;
 	padding: 0;
 	background-color: #000;
-	background-position: top center;
+	background-position: center;
 	background-size: 30vh;
 }
 #screen.pattern-bg{
@@ -29,8 +29,8 @@ body{
 	width:90%;
 	height:10%;
 	border:1px solid black;
-	position: fixed;
-	top:50%;
+	position: absolute;
+	top:45%;
 	left:5%;
 	background: rgba(0,0,0,0.65);
 }
