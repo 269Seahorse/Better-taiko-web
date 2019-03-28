@@ -67,6 +67,7 @@ var assets = {
 		"bg_genre_5.png",
 		"bg_genre_6.png",
 		"bg_genre_7.png",
+		"bg_recommended.png",
 		"bg_score_p1.png",
 		"bg_score_p2.png",
 		"bg_settings.png",
@@ -78,6 +79,7 @@ var assets = {
 		"touch_drum.png",
 		"touch_pause.png",
 		"touch_fullscreen.png",
+		"kameunagi.png",
 		"mimizu.png",
 		"results_flowers.png",
 		"results_mikoshi.png",
@@ -113,13 +115,15 @@ var assets = {
 		"v_sanka.wav",
 		"v_songsel.wav",
 		"v_start.wav",
-		"v_title.wav"
+		"v_title.wav",
+		"v_folder_recommended.wav"
 	],
 	"audioSfxLR": [
 		"neiro_1_don.wav",
 		"neiro_1_ka.wav",
 
 		"se_balloon.wav",
+		"se_hidden.wav",
 		"se_gameclear.wav",
 		"se_gamefail.wav",
 		"se_gamefullcombo.wav",

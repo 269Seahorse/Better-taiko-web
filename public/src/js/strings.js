@@ -9,6 +9,7 @@
 	this.titleDisclaimer = "この非公式シミュレーターはバンダイナムコとは関係がありません。"
 	this.titleCopyright = "Taiko no Tatsujin ©&™ 2011 BANDAI NAMCO Entertainment Inc."
 	this.categories = {
+		"おすすめ曲": "おすすめ曲",
 		"J-POP": "J-POP",
 		"アニメ": "アニメ",
 		"ボーカロイド™曲": "ボーカロイド™曲",
@@ -26,6 +27,11 @@
 	this.aboutSimulator = "このシミュレータについて"
 	this.browse = "参照する…"
 	this.defaultSongList = "デフォルト曲リスト"
+	this.recommended = [
+		"みんなに人気の",
+		"おすすめ曲が",
+		"えらべるよ！！"
+	]
 	this.songOptions = "演奏オプション"
 	this.none = "なし"
 	this.auto = "オート"
@@ -47,13 +53,15 @@
 		daiKa: "カッ(大)",
 		drumroll: "連打ーっ!!",
 		daiDrumroll: "連打(大)ーっ!!",
-		balloon: "ふうせん"
+		balloon: "ふうせん",
+		green: "グリーン"
 	}
 	this.combo = "コンボ"
 	this.clear = "クリア"
 	this.good = "良"
 	this.ok = "可"
 	this.bad = "不可"
+	this.adlib = "AD-LIB"
 	this.branch = {
 		"normal": "普通譜面",
 		"advanced": "玄人譜面",
@@ -116,6 +124,7 @@ function StringsEn(){
 	this.titleDisclaimer = "This unofficial simulator is unaffiliated with BANDAI NAMCO."
 	this.titleCopyright = "Taiko no Tatsujin ©&™ 2011 BANDAI NAMCO Entertainment Inc."
 	this.categories = {
+		"おすすめ曲": "Recommended Songs",
 		"J-POP": "Pop",
 		"アニメ": "Anime",
 		"ボーカロイド™曲": "VOCALOID™ Music",
@@ -133,6 +142,11 @@ function StringsEn(){
 	this.aboutSimulator = "About Simulator"
 	this.browse = "Browse…"
 	this.defaultSongList = "Default Song List"
+	this.recommended = [
+		"Play a selection",
+		"of everyone's",
+		"favourite songs!"
+	]
 	this.songOptions = "Song Options"
 	this.none = "None"
 	this.auto = "Auto"
@@ -154,13 +168,15 @@ function StringsEn(){
 		daiKa: "KA",
 		drumroll: "Drum rollー!!",
 		daiDrumroll: "DRUM ROLLー!!",
-		balloon: "Balloon"
+		balloon: "Balloon",
+		green: "Green"
 	}
 	this.combo = "Combo"
 	this.clear = "Clear"
 	this.good = "GOOD"
 	this.ok = "OK"
 	this.bad = "BAD"
+	this.adlib = "AD-LIB"
 	this.branch = {
 		"normal": "Normal",
 		"advanced": "Professional",
@@ -223,6 +239,7 @@ function StringsCn(){
 	this.titleDisclaimer = "这款非官方模拟器与BANDAI NAMCO无关。"
 	this.titleCopyright = "Taiko no Tatsujin ©&™ 2011 BANDAI NAMCO Entertainment Inc."
 	this.categories = {
+		"おすすめ曲": "推荐的歌曲",
 		"J-POP": "流行音乐",
 		"アニメ": "卡通动画音乐",
 		"ボーカロイド™曲": "VOCALOID™ Music",
@@ -261,13 +278,15 @@ function StringsCn(){
 		daiKa: "咔(大)",
 		drumroll: "连打ー!!",
 		daiDrumroll: "连打(大)ー!!",
-		balloon: "气球"
+		balloon: "气球",
+		green: "绿"
 	}
 	this.combo = "连段"
 	this.clear = "通关"
 	this.good = "良"
 	this.ok = "可"
 	this.bad = "不可"
+	this.adlib = "AD-LIB"
 	this.branch = {
 		"normal": "一般谱面",
 		"advanced": "进阶谱面",
@@ -330,6 +349,7 @@ function StringsTw(){
 	this.titleDisclaimer = "這款非官方模擬器與BANDAI NAMCO無關。"
 	this.titleCopyright = "Taiko no Tatsujin ©&™ 2011 BANDAI NAMCO Entertainment Inc."
 	this.categories = {
+		"おすすめ曲": "推薦的歌曲",
 		"J-POP": "流行音樂",
 		"アニメ": "卡通動畫音樂",
 		"ボーカロイド™曲": "VOCALOID™ Music",
@@ -368,13 +388,15 @@ function StringsTw(){
 		daiKa: "咔(大)",
 		drumroll: "連打ー!!",
 		daiDrumroll: "連打(大)ー!!",
-		balloon: "氣球"
+		balloon: "氣球",
+		green: "綠"
 	}
 	this.combo = "連段"
 	this.clear = "通關"
 	this.good = "良"
 	this.ok = "可"
 	this.bad = "不可"
+	this.adlib = "AD-LIB"
 	this.branch = {
 		"normal": "一般譜面",
 		"advanced": "進階譜面",
@@ -437,6 +459,7 @@ function StringsKo(){
 	this.titleDisclaimer = "이 비공식 시뮬레이터는 반다이 남코와 관련이 없습니다."
 	this.titleCopyright = "Taiko no Tatsujin ©&™ 2011 BANDAI NAMCO Entertainment Inc."
 	this.categories = {
+		"おすすめ曲": "추천 곡",
 		"J-POP": "POP",
 		"アニメ": "애니메이션",
 		"ボーカロイド™曲": "VOCALOID™ Music",
@@ -475,13 +498,15 @@ function StringsKo(){
 		daiKa: "딱(대)",
 		drumroll: "연타ー!!",
 		daiDrumroll: "연타(대)ー!!",
-		balloon: "풍선"
+		balloon: "풍선",
+		green: "녹색"
 	}
 	this.combo = "콤보"
 	this.clear = "클리어"
 	this.good = "얼쑤"
 	this.ok = "좋다"
 	this.bad = "에구"
+	this.adlib = "AD-LIB"
 	this.branch = {
 		"normal": "보통 악보",
 		"advanced": "현인 악보",

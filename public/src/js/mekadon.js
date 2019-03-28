@@ -63,11 +63,13 @@ class Mekadon{
 		}
 		
 		if(reverse){
-			if(type === "don" || type === "daiDon"){
+			if(type === "don" || type === "daiDon" || type === "adlib"){
 				type = "ka"
 			}else if(type === "ka" || type === "daiKa"){
 				type = "don"
 			}
+		}else if(type === "adlib"){
+			type = "don"
 		}
 		if(type === "daiDon" && playDai){
 			this.setKey(kbd["don_l"], ms)
@@ -85,6 +87,11 @@ class Mekadon{
 		}else if(type === "ka" || type === "daiKa" || drumrollNotes){
 			this.setKey(this.lr ? kbd["ka_l"] : kbd["ka_r"], ms)
 			this.lr = !this.lr
+		}else if(type === "green"){
+			this.setKey(kbd["ka_l"], ms)
+			this.setKey(kbd["don_r"], ms)
+			this.lr = false
+			keyDai = true
 		}
 		if(type === "balloon"){
 			if(circle.requiredHits === 1){
@@ -94,13 +101,16 @@ class Mekadon{
 		}else if(type === "drumroll" || type === "daiDrumroll"){
 			this.game.checkDrumroll(circle, score === 2)
 		}else{
-			this.controller.displayScore(score, false, keyDai)
+			this.controller.displayScore(score, false, keyDai, circle.type === "adlib")
 			this.game.updateCombo(score)
 			this.game.updateGlobalScore(score, keyDai ? 2 : 1, circle.gogoTime)
 			this.game.updateCurrentCircle()
 			circle.played(score, keyDai)
 			if(circle.section){
 				this.game.resetSection()
+			}
+			if(circle.type === "adlib" && score){
+				this.game.globalScore.adlib++
 			}
 			this.game.sectionNotes.push(score === 450 ? 1 : (score === 230 ? 0.5 : 0))
 		}

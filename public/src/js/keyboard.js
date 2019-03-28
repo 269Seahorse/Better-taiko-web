@@ -204,6 +204,12 @@ class Keyboard{
 						this.controller.playSound("se_balloon")
 						return
 					}
+				}else if(circle.type === "adlib"){
+					var relative = Math.abs(currentTime - circle.ms)
+					if(relative < this.game.rules.ok){
+						this.controller.playSound("se_hidden")
+						return
+					}
 				}
 			}
 			this.controller.playSound("neiro_1_" + sound)

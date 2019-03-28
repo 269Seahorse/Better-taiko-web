@@ -41,6 +41,12 @@ class SongSelect{
 				border: ["#e2dfff", "#6d68b2"],
 				outline: "#5350ba"
 			},
+			"おすすめ曲": {
+				sort: -1,
+				background: "recommended",
+				border: ["rgba(255, 255, 255, 0.5)", "rgba(0, 0, 0, 0.25)"],
+				outline: "#8f1757"
+			},
 			"J-POP": {
 				sort: 0,
 				background: "#219fbb",
@@ -250,6 +256,9 @@ class SongSelect{
 		this.songSelect = document.getElementById("song-select")
 		var cat = this.songs[this.selectedSong].category
 		var sort = cat in this.songSkin ? this.songSkin[cat].sort : 7
+		if(sort < 0){
+			sort = 7
+		}
 		this.songSelect.style.backgroundImage = "url('" + assets.image["bg_genre_" + sort].src + "')"
 		
 		this.previewId = 0
@@ -266,7 +275,8 @@ class SongSelect{
 			locked: true,
 			hasPointer: false,
 			options: 0,
-			selLock: false
+			selLock: false,
+			lastSelection: this.selectedSong
 		}
 		this.songSelecting = {
 			speed: 800,
@@ -985,16 +995,21 @@ class SongSelect{
 				if(this.songs[this.selectedSong].action !== "back"){
 					var cat = this.songs[this.selectedSong].category
 					var sort = cat in this.songSkin ? this.songSkin[cat].sort : 7
+					if(sort < 0){
+						sort = 7
+					}
 					this.songSelect.style.backgroundImage = "url('" + assets.image["bg_genre_" + sort].src + "')"
 				}
 			}
+			var songSel = screen === "title" || screen === "titleFadeIn" || screen === "song"
+			var recommendedSong = this.songs[this.selectedSong].category === "おすすめ曲" && songSel
 			if(this.state.moveMS && ms < this.state.moveMS + changeSpeed){
 				xOffset = Math.min(scroll, Math.max(0, elapsed - resize - scrollDelay)) / scroll * (this.songAsset.width + this.songAsset.marginLeft)
 				xOffset *= -this.state.move
 				if(elapsed < resize){
 					selectedWidth = this.songAsset.width + (((resize - elapsed) / resize) * (selectedWidth - this.songAsset.width))
 				}else if(elapsed > resize2){
-					this.playBgm(!this.songs[this.selectedSong].stars)
+					this.playBgm(!this.songs[this.selectedSong].stars || recommendedSong)
 					this.state.locked = 1
 					selectedWidth = this.songAsset.width + ((elapsed - resize2) / resize * (selectedWidth - this.songAsset.width))
 				}else{
@@ -1002,7 +1017,7 @@ class SongSelect{
 					selectedWidth = this.songAsset.width
 				}
 			}else{
-				this.playBgm(!this.songs[this.selectedSong].stars)
+				this.playBgm(!this.songs[this.selectedSong].stars || recommendedSong)
 				this.state.locked = 0
 			}
 		}else if(screen === "difficulty"){
@@ -1039,14 +1054,37 @@ class SongSelect{
 			}
 		}
 		
+		var songSel = screen === "title" || screen === "titleFadeIn" || screen === "song"
+		var recommendedSong = this.songs[this.selectedSong].category === "おすすめ曲"
 		if(songSelMoving){
 			if(this.previewing !== null){
 				this.endPreview()
 			}
 		}else if(screen !== "title" && screen !== "titleFadeIn" && ms > this.state.moveMS + 100){
-			if(this.previewing !== this.selectedSong && "id" in this.songs[this.selectedSong]){
-				this.startPreview()
+			if(songSel && recommendedSong){
+				if(this.state.lastSelection !== this.selectedSong){
+					if(this.state.moveSound){
+						assets.sounds[this.state.moveSound].stop()
+					}
+					this.state.moveSound = "v_folder_recommended"
+					assets.sounds[this.state.moveSound].play()
+				}
+				this.playBgm(true)
+				this.endPreview()
+			}else if(this.previewing !== this.selectedSong){
+				if(this.state.moveSound && !recommendedSong){
+					assets.sounds[this.state.moveSound].stop()
+					this.state.moveSound = null
+				}
+				if("id" in this.songs[this.selectedSong]){
+					this.playBgm(false)
+					this.startPreview()
+				}else{
+					this.playBgm(true)
+					this.endPreview()
+				}
 			}
+			this.state.lastSelection = this.selectedSong
 		}
 		
 		this.songFrameCache = {
@@ -1120,8 +1158,14 @@ class SongSelect{
 			highlight = 0
 		}
 		
-		if(this.currentSongTitle !== currentSong.title){
-			this.currentSongTitle = currentSong.title
+		var currentTitle = currentSong.title
+		var songSel = screen === "title" || screen === "titleFadeIn" || screen === "song"
+		if(currentSong.category === "おすすめ曲" && songSel){
+			currentTitle = strings.categories[currentSong.category]
+			selectedSkin = currentSong.skin
+		}
+		if(this.currentSongTitle !== currentTitle){
+			this.currentSongTitle = currentTitle
 			this.currentSongCache.clear()
 		}
 		
@@ -1255,6 +1299,9 @@ class SongSelect{
 					}
 				}
 				var drawDifficulty = (ctx, i, currentUra) => {
+					if(currentSong.category === "おすすめ曲" && songSel){
+						return
+					}
 					if(currentSong.stars[i] || currentUra){
 						if(songSel){
 							var _x = x + 33 + i * 60
@@ -1442,7 +1489,7 @@ class SongSelect{
 				var textX = Math.max(w - 37 - textW / 2, w / 2 - textW / 2)
 				var textY = opened * 12 + (1 - opened) * 7
 				
-				if(currentSong.subtitle){
+				if(currentSong.subtitle && (currentSong.category !== "おすすめ曲" || !songSel)){
 					this.currentSongCache.get({
 						ctx: ctx,
 						x: x + textX - textW,
@@ -1480,14 +1527,27 @@ class SongSelect{
 					ctx.fill()
 				}
 				
+				var currentTitle = currentSong.title
+				if(currentSong.category === "おすすめ曲"){
+					currentTitle = strings.categories[currentSong.category]
+				}
+				
 				ctx.globalAlpha = 1 - Math.max(0, opened - 0.5) * 2
-				ctx.fillStyle = selectedSkin.background
-				ctx.fillRect(x, y, w, h)
+				if(selectedSkin.background === "recommended"){
+					var border = this.songAsset.border
+					ctx.drawImage(assets.image["bg_recommended"],
+						border, border, w - border, h - border,
+						x, y, w - 1, h - 1
+					)
+				}else{
+					ctx.fillStyle = selectedSkin.background
+					ctx.fillRect(x, y, w, h)
+				}
 				ctx.globalAlpha = 1
 				var verticalTitle = ctx => {
 					this.draw.verticalText({
 						ctx: ctx,
-						text: currentSong.title,
+						text: currentTitle,
 						x: textW / 2,
 						y: 7,
 						width: textW,
@@ -1499,15 +1559,52 @@ class SongSelect{
 						fontFamily: this.font
 					})
 				}
-				if(selectedSkin.outline === "#000"){
-					this.currentSongCache.get({
-						ctx: ctx,
-						x: x + textX,
-						y: y + textY - 7,
-						w: textW,
-						h: textH,
-						id: "title",
-					}, verticalTitle)
+				var outline = "#000"
+				if(screen === "title" || screen === "titleFadeIn" || this.state.locked === 3 || songSelMoving){
+					outline = selectedSkin.outline
+				}
+				if(outline === "#000"){
+					if(!songSel){
+						currentTitle = currentSong.title
+					}
+					if(currentSong.category === "おすすめ曲" && songSel){
+						var img = assets.image["kameunagi"]
+						var imgH = h - 77
+						var imgW = img.width / img.height * imgH
+						var imgX = strings.id === "en" ? x + textX + textW - imgW : x + 3
+						ctx.globalAlpha = Math.max(0, opened - 0.5) * 2
+						ctx.drawImage(img, imgX, y + h - imgH - 10, imgW, imgH)
+						ctx.globalAlpha = 1
+					}
+					if(currentSong.category === "おすすめ曲" && songSel && strings.recommended){
+						textW *= strings.id === "en" ? -0.7 : 0.8
+						textX = strings.id === "en" ? 10 : textX + 10
+						for(var i = 0; i < strings.recommended.length; i++){
+							this.draw.verticalText({
+								ctx: ctx,
+								text: strings.recommended[i],
+								x: x + textX + Math.abs(textW) / 2 - textW * i,
+								y: y + textY,
+								width: textW,
+								height: textH - 35,
+								fill: "#fff",
+								outline: outline,
+								outlineSize: this.songAsset.letterBorder,
+								fontSize: strings.id === "en" ? 30 : 35,
+								fontFamily: this.font,
+								align: i === 0 ? "top" : (i === 1 ? "middle" : "bottom")
+							})
+						}
+					}else{
+						this.currentSongCache.get({
+							ctx: ctx,
+							x: x + textX,
+							y: y + textY - 7,
+							w: textW,
+							h: textH,
+							id: "title",
+						}, verticalTitle)
+					}
 				}else{
 					this.songTitleCache.get({
 						ctx: ctx,
@@ -1515,7 +1612,7 @@ class SongSelect{
 						y: y + textY - 7,
 						w: textW,
 						h: textH,
-						id: currentSong.title + selectedSkin.outline,
+						id: currentTitle + selectedSkin.outline,
 					}, verticalTitle)
 				}
 				if(!songSel && this.selectableText !== currentSong.title){
@@ -1687,17 +1784,21 @@ class SongSelect{
 		config.cached = 1
 		config.frameCache = this.songFrameCache
 		config.innerContent = (x, y, w, h) => {
+			var currentTitle = config.text
+			if(config.song.category === "おすすめ曲"){
+				currentTitle = strings.categories[config.song.category]
+			}
 			this.songTitleCache.get({
 				ctx: ctx,
 				x: x,
 				y: y,
 				w: w,
 				h: h,
-				id: config.text + config.outline,
+				id: currentTitle + config.outline,
 			}, ctx => {
 				this.draw.verticalText({
 					ctx: ctx,
-					text: config.text,
+					text: currentTitle,
 					x: w / 2,
 					y: 7,
 					width: w,
@@ -1937,6 +2038,9 @@ class SongSelect{
 		this.sessionCache.clean()
 		this.currentSongCache.clean()
 		assets.sounds["bgm_songsel"].stop()
+		if(this.state.moveSound){
+			assets.sounds[this.state.moveSound].stop()
+		}
 		if(!this.bgmEnabled){
 			snd.musicGain.fadeIn()
 			setTimeout(() => {

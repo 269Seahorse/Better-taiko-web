@@ -151,8 +151,8 @@ class Controller{
 			this.scoresheet = new Scoresheet(this, this.getGlobalScore(), this.multiplayer, this.touchEnabled)
 		}
 	}
-	displayScore(score, notPlayed, bigNote){
-		this.view.displayScore(score, notPlayed, bigNote)
+	displayScore(score, notPlayed, bigNote, adlib){
+		this.view.displayScore(score, notPlayed, bigNote, adlib)
 	}
 	songSelection(fadeIn){
 		if(!fadeIn){

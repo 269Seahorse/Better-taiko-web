@@ -16,6 +16,10 @@
 		
 		this.pauseOptions = strings.pauseOptions
 		this.categories = {
+			"おすすめ曲": {
+				sort: 0,
+				infoFill: "recommended"
+			},
 			"J-POP": {
 				sort: 0,
 				infoFill: "#004d68"
@@ -287,17 +291,36 @@
 					var _x = 628 - _w
 					var _y = 88 - _h
 					if(selectedSong.category in this.categories){
-						ctx.fillStyle = this.categories[selectedSong.category].infoFill
+						var infoFill = this.categories[selectedSong.category].infoFill
 					}else{
-						ctx.fillStyle = this.categories.default.infoFill
+						var infoFill = this.categories.default.infoFill
 					}
-					this.draw.roundedRect({
-						ctx: ctx,
-						x: _x, y: _y,
-						w: _w, h: _h,
-						radius: 11
-					})
-					ctx.fill()
+					if(infoFill === "recommended"){
+						ctx.save()
+						this.draw.roundedRect({
+							ctx: ctx,
+							x: _x, y: _y,
+							w: _w, h: _h,
+							radius: 11
+						})
+						ctx.clip()
+						ctx.rotate(Math.PI / 2)
+						ctx.drawImage(assets.image["bg_recommended"],
+							_y, -_x - _w, _h, _w
+						)
+						ctx.fillStyle = "rgba(143, 23, 87, 0.4)"
+						ctx.fillRect(_y, -_x - _w, _h, _w)
+						ctx.restore()
+					}else{
+						ctx.fillStyle = infoFill
+						this.draw.roundedRect({
+							ctx: ctx,
+							x: _x, y: _y,
+							w: _w, h: _h,
+							radius: 11
+						})
+						ctx.fill()
+					}
 					
 					if(selectedSong.category in strings.categories){
 						var categoryName = strings.categories[selectedSong.category]
@@ -950,6 +973,7 @@
 				"230": "ok",
 				"450": "good"
 			}
+			var drawScore = this.currentScore.adlib ? "adlib" : scores[this.currentScore.type]
 			var yOffset = scoreMS < 70 ? scoreMS * (13 / 70) : 0
 			var fadeOut = scoreMS > 250 && !this.touchEnabled
 			if(fadeOut){
@@ -957,7 +981,7 @@
 			}
 			this.draw.score({
 				ctx: ctx,
-				score: scores[this.currentScore.type],
+				score: drawScore,
 				x: this.slotPos.x,
 				y: this.slotPos.y - 98 * mul - yOffset,
 				scale: 1.35 * mul,
@@ -1366,6 +1390,10 @@
 			fill = "#65bdbb"
 			size = bigCircleSize
 			faceID = noteFace.big
+		}else if(type === "green"){
+			fill = "#5eb956"
+			size = bigCircleSize
+			faceID = noteFace.big
 		}else if(type === "balloon"){
 			if(animated){
 				fill = "#f34728"
@@ -1650,11 +1678,12 @@
 			don.setAnimationEnd(length, don.normalAnimation)
 		}
 	}
-	displayScore(score, notPlayed, bigNote){
+	displayScore(score, notPlayed, bigNote, adlib){
 		if(!notPlayed){
 			this.currentScore.ms = this.getMS()
 			this.currentScore.type = score
 			this.currentScore.bigNote = bigNote
+			this.currentScore.adlib = adlib
 			
 			if(score > 0){
 				var explosion = this.assets.explosion

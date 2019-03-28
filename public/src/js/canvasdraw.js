@@ -169,19 +169,31 @@
 			let _y = y + border
 			let _w = w - border * 2
 			let _h = h - border * 2
-			ctx.fillStyle = config.borderStyle[1]
-			ctx.fillRect(_x, _y, _w, _h)
+			if(config.background === "recommended"){
+				ctx.drawImage(assets.image["bg_recommended"], _x, _y, _w - 1, _h - 1)
+			}else{
+				ctx.fillStyle = config.background
+				ctx.fillRect(_x, _y, _w, _h)
+			}
 			ctx.fillStyle = config.borderStyle[0]
 			ctx.beginPath()
 			ctx.moveTo(_x, _y)
 			ctx.lineTo(_x + _w, _y)
 			ctx.lineTo(_x + _w - innerBorder, _y + innerBorder)
+			ctx.lineTo(_x + innerBorder, _y + innerBorder)
+			ctx.lineTo(_x + innerBorder, _y + _h - innerBorder)
+			ctx.lineTo(_x, _y + _h)
+			ctx.fill()
+			ctx.fillStyle = config.borderStyle[1]
+			ctx.beginPath()
+			ctx.moveTo(_x + _w, _y + _h)
+			ctx.lineTo(_x + _w, _y)
+			ctx.lineTo(_x + _w - innerBorder, _y + innerBorder)
+			ctx.lineTo(_x + _w - innerBorder, _y + _h - innerBorder)
 			ctx.lineTo(_x + innerBorder, _y + _h - innerBorder)
 			ctx.lineTo(_x, _y + _h)
 			ctx.fill()
 		}
-		ctx.fillStyle = config.background
-		ctx.fillRect(innerX, innerY, innerW, innerH)
 		
 		ctx.save()
 		
@@ -503,6 +515,8 @@
 			}
 			if(config.align === "bottom"){
 				var offsetY = drawnHeight > config.height ? drawnHeight : config.height
+			}else if(config.align === "middle"){
+				var offsetY =drawnHeight > config.height ? 0 : (config.height - drawnHeight) / 2
 			}else{
 				var offsetY = 0
 			}
@@ -1025,7 +1039,7 @@
 		}
 		ctx.strokeStyle = "#000"
 		ctx.lineWidth = 7
-		if(strings.good === "良"){
+		if(strings.good === "良" && config.score !== "adlib"){
 			if(config.align === "center"){
 				ctx.translate(config.score === "bad" ? -49 / 2 : -23 / 2, 0)
 			}
@@ -1081,6 +1095,14 @@
 				ctx.fillStyle = grd
 				ctx.strokeText(strings.bad, 0, 4)
 				ctx.fillText(strings.bad, 0, 4)
+			}else if(config.score === "adlib"){
+				if(config.results){
+					ctx.textAlign = "right"
+				}
+				ctx.strokeStyle = "#ef9100"
+				ctx.fillStyle = "#fff"
+				ctx.strokeText(strings.adlib, 0, 4)
+				ctx.fillText(strings.adlib, 0, 4)
 			}
 		}
 		ctx.restore()
