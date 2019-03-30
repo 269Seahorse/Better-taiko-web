@@ -125,26 +125,28 @@ def route_api_songs():
         song_id = song[0]
         song_type = song[12]
         preview = song[15]
+        category_list = song[11].split(',') if song[11] else [song[11]]
         
-        category_out = categories[song[11]] if song[11] in categories else def_category
-        song_skin_out = song_skins[song[14]] if song[14] in song_skins else None
-        
-        songs_out.append({
-            'id': song_id,
-            'title': song[1],
-            'title_lang': song[2],
-            'subtitle': song[3],
-            'subtitle_lang': song[4],
-            'stars': [
-                song[5], song[6], song[7], song[8], song[9]
-            ],
-            'preview': preview,
-            'category': category_out,
-            'type': song_type,
-            'offset': song[13],
-            'song_skin': song_skin_out,
-            'volume': song[16]
-        })
+        for cat in category_list:
+            category_out = categories[int(cat)] if int(cat) in categories else def_category
+            song_skin_out = song_skins[song[14]] if song[14] in song_skins else None
+            
+            songs_out.append({
+                'id': song_id,
+                'title': song[1],
+                'title_lang': song[2],
+                'subtitle': song[3],
+                'subtitle_lang': song[4],
+                'stars': [
+                    song[5], song[6], song[7], song[8], song[9]
+                ],
+                'preview': preview,
+                'category': category_out,
+                'type': song_type,
+                'offset': song[13],
+                'song_skin': song_skin_out,
+                'volume': song[16]
+            })
 
     return jsonify(songs_out)
 

@@ -42,7 +42,7 @@ class SongSelect{
 				outline: "#5350ba"
 			},
 			"おすすめ曲": {
-				sort: -1,
+				sort: 8,
 				background: "recommended",
 				border: ["rgba(255, 255, 255, 0.5)", "rgba(0, 0, 0, 0.25)"],
 				outline: "#8f1757"
@@ -117,6 +117,11 @@ class SongSelect{
 				volume: song.volume
 			})
 		}
+		this.songs.push({
+			title: strings.back,
+			skin: this.songSkin.back,
+			action: "back"
+		})
 		this.songs.sort((a, b) => {
 			var catA = a.category in this.songSkin ? this.songSkin[a.category] : this.songSkin.default
 			var catB = b.category in this.songSkin ? this.songSkin[b.category] : this.songSkin.default
@@ -125,11 +130,6 @@ class SongSelect{
 			}else{
 				return catA.sort > catB.sort ? 1 : -1
 			}
-		})
-		this.songs.push({
-			title: strings.back,
-			skin: this.songSkin.back,
-			action: "back"
 		})
 		this.songs.push({
 			title: strings.randomSong,
@@ -256,7 +256,7 @@ class SongSelect{
 		this.songSelect = document.getElementById("song-select")
 		var cat = this.songs[this.selectedSong].category
 		var sort = cat in this.songSkin ? this.songSkin[cat].sort : 7
-		if(sort < 0){
+		if(sort > 7){
 			sort = 7
 		}
 		this.songSelect.style.backgroundImage = "url('" + assets.image["bg_genre_" + sort].src + "')"
@@ -612,6 +612,9 @@ class SongSelect{
 					this.selectedDiff = this.diffOptions.length + 3
 				}
 				
+				if(this.state.moveSound){
+					assets.sounds[this.state.moveSound].stop()
+				}
 				assets.sounds["se_don"].play()
 				assets.sounds["v_songsel"].stop()
 				assets.sounds["v_diffsel"].play(0.3)
@@ -995,7 +998,7 @@ class SongSelect{
 				if(this.songs[this.selectedSong].action !== "back"){
 					var cat = this.songs[this.selectedSong].category
 					var sort = cat in this.songSkin ? this.songSkin[cat].sort : 7
-					if(sort < 0){
+					if(sort > 7){
 						sort = 7
 					}
 					this.songSelect.style.backgroundImage = "url('" + assets.image["bg_genre_" + sort].src + "')"
@@ -1067,7 +1070,7 @@ class SongSelect{
 						assets.sounds[this.state.moveSound].stop()
 					}
 					this.state.moveSound = "v_folder_recommended"
-					assets.sounds[this.state.moveSound].play()
+					assets.sounds[this.state.moveSound].play(0.2)
 				}
 				this.playBgm(true)
 				this.endPreview()

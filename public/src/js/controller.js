@@ -18,12 +18,15 @@ class Controller{
 		}
 		this.offset = this.parsedSongData.soundOffset
 		
-		assets.songs.forEach(song => {
+		for(var i = 0; i < assets.songs.length; i++){
+			var song = assets.songs[i]
 			if(song.id == this.selectedSong.folder){
 				this.mainAsset = song.sound
 				this.volume = song.volume || 1
+				this.selectedSong.category = song.category
+				break
 			}
-		})
+		}
 		
 		this.game = new Game(this, this.selectedSong, this.parsedSongData)
 		this.view = new View(this)

@@ -34,11 +34,7 @@ class Game{
 		this.resetSection()
 		this.gameLagSync = !this.controller.touchEnabled && !(/Firefox/.test(navigator.userAgent))
 		
-		assets.songs.forEach(song => {
-			if(song.id == selectedSong.folder){
-				this.mainAsset = song.sound
-			}
-		})
+		this.mainAsset = controller.mainAsset
 	}
 	run(){
 		this.timeForDistanceCircle = 2500
