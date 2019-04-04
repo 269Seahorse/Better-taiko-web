@@ -193,6 +193,14 @@ class Scoresheet{
 		var winW = innerWidth
 		var winH = lastHeight
 		this.pixelRatio = window.devicePixelRatio || 1
+		var resolution = settings.getItem("resolution")
+		if(resolution === "medium"){
+			this.pixelRatio *= 0.75
+		}else if(resolution === "low"){
+			this.pixelRatio *= 0.5
+		}else if(resolution === "lowest"){
+			this.pixelRatio *= 0.25
+		}
 		winW *= this.pixelRatio
 		winH *= this.pixelRatio
 		var ratioX = winW / 1280

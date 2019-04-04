@@ -200,7 +200,7 @@ class SettingsView{
 		delete this.items
 		if(this.resolution !== settings.getItem("resolution")){
 			for(var i in assets.image){
-				if(i.startsWith("bg_song_") || i.startsWith("bg_stage_") || i.startsWith("bg_don_")){
+				if(i === "touch_drum" || i.startsWith("bg_song_") || i.startsWith("bg_stage_") || i.startsWith("bg_don_")){
 					URL.revokeObjectURL(assets.image[i].src)
 					delete assets.image[i]
 				}
