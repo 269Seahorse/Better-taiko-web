@@ -26,6 +26,7 @@
 	height: calc(44 / 720 * 100vh);
 	background-position: center bottom;
 	background-repeat-y: no-repeat;
+	background-size: auto 100%;
 	bottom: 0;
 }
 .portrait #songbg{

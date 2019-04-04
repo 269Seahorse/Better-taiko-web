@@ -111,7 +111,6 @@ def route_api_songs():
     
     raw_categories = query_db('select * from categories')
     categories = {}
-    def_category = {'title': None, 'title_en': None}
     for cat in raw_categories:
         categories[cat[0]] = cat[1]
     
@@ -126,7 +125,7 @@ def route_api_songs():
         song_type = song[12]
         preview = song[15]
         
-        category_out = categories[song[11]] if song[11] in categories else def_category
+        category_out = categories[song[11]] if song[11] in categories else ""
         song_skin_out = song_skins[song[14]] if song[14] in song_skins else None
         
         songs_out.append({

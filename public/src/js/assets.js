@@ -27,7 +27,8 @@ var assets = {
 		"debug.js",
 		"session.js",
 		"importsongs.js",
-		"logo.js"
+		"logo.js",
+		"settings.js"
 	],
 	"css": [
 		"main.css",
@@ -71,11 +72,7 @@ var assets = {
 		"bg_score_p2.png",
 		"bg_settings.png",
 		"bg_pause.png",
-		"bg_stage_1.png",
-		"bg_stage_2.png",
-		"bg_stage_3.png",
 		"badge_auto.png",
-		"touch_drum.png",
 		"touch_pause.png",
 		"touch_fullscreen.png",
 		"mimizu.png",
@@ -168,7 +165,8 @@ var assets = {
 		"tutorial.html",
 		"about.html",
 		"debug.html",
-		"session.html"
+		"session.html",
+		"settings.html"
 	],
 	
 	"songs": [],

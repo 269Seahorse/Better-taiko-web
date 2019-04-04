@@ -150,10 +150,13 @@ class Game{
 						}
 					}
 					if(view.branch !== currentMeasure){
-						view.branchAnimate = {
-							ms: ms,
-							fromBranch: view.branch
+						if(!this.branchStatic){
+							view.branchAnimate = {
+								ms: ms,
+								fromBranch: view.branch
+							}
 						}
+						this.branchStatic = false
 						view.branch = currentMeasure
 					}
 				}

@@ -141,6 +141,7 @@ class Debug{
 					if(circles[i].endTime >= measureMS){
 						break
 					}
+					game.skipNote(circles[i])
 				}
 				if(game.mainMusicPlaying){
 					game.mainMusicPlaying = false
@@ -215,6 +216,9 @@ class Debug{
 			var name = this.branchSelect.value
 			game.branch = name === "auto" ? false : name
 			game.branchSet = name === "auto"
+			if(noRestart){
+				game.branchStatic = true
+			}
 			var selectedOption = this.branchSelect.selectedOptions[0]
 			this.branchSelect.style.background = selectedOption.style.background
 			if(this.restartCheckbox.checked && !noRestart){

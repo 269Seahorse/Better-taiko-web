@@ -10,24 +10,9 @@
 #loading-don{
 	background-image: url("dancing-don.gif");
 }
-#touch-drum-img{
-	background-image: url("touch_drum.png");
-}
 #touch-full-btn{
 	background-image: url("touch_fullscreen.png");
 }
 #touch-pause-btn{
 	background-image: url("touch_pause.png");
-}
-.song-stage-1{
-	background-image: url("bg_stage_1.png");
-	background-size: calc(100vh / 720 * 66);
-}
-.song-stage-2{
-	background-image: url("bg_stage_2.png");
-	background-size: calc(100vh / 720 * 254);
-}
-.song-stage-3{
-	background-image: url("bg_stage_3.png");
-	background-size: calc(100vh / 720 * 458);
 }

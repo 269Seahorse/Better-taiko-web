@@ -25,21 +25,27 @@ class SongSelect{
 			},
 			"tutorial": {
 				sort: 7,
-				background: "#9afbe1",
-				border: ["#d6ffff", "#6bae9c"],
-				outline: "#31ae94"
+				background: "#29e8aa",
+				border: ["#86ffbd", "#009a8c"],
+				outline: "#08a28c"
 			},
 			"about": {
 				sort: 7,
-				background: "#91cfff",
-				border: ["#dff0ff", "#6890b2"],
-				outline: "#217abb"
+				background: "#a2d0e7",
+				border: ["#c6dfff", "#4485d9"],
+				outline: "#2390d9"
+			},
+			"settings": {
+				sort: 7,
+				background: "#ce93fa",
+				border: ["#dec4fd", "#a543ef"],
+				outline: "#a741ef"
 			},
 			"browse": {
 				sort: 7,
-				background: "#9791ff",
-				border: ["#e2dfff", "#6d68b2"],
-				outline: "#5350ba"
+				background: "#fab5d3",
+				border: ["#ffe7ef", "#d36aa2"],
+				outline: "#d36aa2"
 			},
 			"J-POP": {
 				sort: 0,
@@ -147,6 +153,12 @@ class SongSelect{
 			title: strings.aboutSimulator,
 			skin: this.songSkin.about,
 			action: "about",
+			category: strings.random
+		})
+		this.songs.push({
+			title: strings.gameSettings,
+			skin: this.songSkin.settings,
+			action: "settings",
 			category: strings.random
 		})
 		if("webkitdirectory" in HTMLInputElement.prototype && !(/Android|iPhone|iPad/.test(navigator.userAgent))){
@@ -352,7 +364,8 @@ class SongSelect{
 			down: code == 40
 			// Down
 		}
-		if(event && (code == 27 || code == 8)){
+		if(event && (code == 27 || code == 8 || code == 9)){
+			// Escape, Backspace, Tab
 			event.preventDefault()
 		}
 		if(this.state.screen === "song"){
@@ -523,7 +536,7 @@ class SongSelect{
 			}else if(550 < x && x < 1050 && 95 < y && y < 524){
 				var moveBy = Math.floor((x - 550) / ((1050 - 550) / 5)) + this.diffOptions.length
 				var currentSong = this.songs[this.selectedSong]
-				if(this.state.ura && moveBy === this.diffOptions + 3 || currentSong.stars[moveBy - this.diffOptions.length]){
+				if(this.state.ura && moveBy === this.diffOptions.length + 3 || currentSong.stars[moveBy - this.diffOptions.length]){
 					return moveBy
 				}
 			}
@@ -624,6 +637,8 @@ class SongSelect{
 				this.toTutorial()
 			}else if(currentSong.action === "about"){
 				this.toAbout()
+			}else if(currentSong.action === "settings"){
+				this.toSettings()
 			}else if(currentSong.action === "browse"){
 				this.toBrowse()
 			}
@@ -722,6 +737,13 @@ class SongSelect{
 			new About(this.touchEnabled)
 		}, 500)
 	}
+	toSettings(){
+		assets.sounds["se_don"].play()
+		this.clean()
+		setTimeout(() => {
+			new SettingsView(this.touchEnabled)
+		}, 500)
+	}
 	toSession(){
 		if(p2.socket.readyState !== 1 || assets.customSongs){
 			return
@@ -790,6 +812,14 @@ class SongSelect{
 			winW = winH / 9 * 32
 		}
 		this.pixelRatio = window.devicePixelRatio || 1
+		var resolution = settings.getItem("resolution")
+		if(resolution === "medium"){
+			this.pixelRatio *= 0.75
+		}else if(resolution === "low"){
+			this.pixelRatio *= 0.5
+		}else if(resolution === "lowest"){
+			this.pixelRatio *= 0.25
+		}
 		winW *= this.pixelRatio
 		winH *= this.pixelRatio
 		var ratioX = winW / 1280

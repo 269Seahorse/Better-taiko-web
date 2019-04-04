@@ -59,8 +59,8 @@ class Keyboard{
 		}
 		
 		pageEvents.keyAdd(this, "all", "both", event => {
-			if(event.keyCode === 8){
-				// Disable back navigation when pressing backspace
+			if(event.keyCode === 27 || event.keyCode === 8 || event.keyCode === 9){
+				// Escape, Backspace, Tab
 				event.preventDefault()
 			}
 			var key = this.kbdSearch[event.keyCode]

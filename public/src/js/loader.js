@@ -38,7 +38,15 @@ class Loader{
 			document.head.appendChild(script)
 		})
 		
-		this.addPromise(new Promise(resolve => {
+		this.addPromise(new Promise((resolve, reject) => {
+			if(
+				versionLink.href !== gameConfig._version.url &&
+				gameConfig._version.commit &&
+				versionLink.href.indexOf(gameConfig._version.commit) === -1
+			){
+				// Version in the config does not match version on the page
+				reject()
+			}
 			var cssCount = document.styleSheets.length + assets.css.length
 			assets.css.forEach(name => {
 				var stylesheet = document.createElement("link")
@@ -195,6 +203,8 @@ class Loader{
 				p2.hash("")
 			}
 			
+			settings = new Settings()
+			
 			Promise.all(this.promises).then(() => {
 				this.canvasTest.drawAllImages().then(result => {
 					perf.allImg = result
@@ -212,7 +222,7 @@ class Loader{
 	}
 	addPromise(promise){
 		this.promises.push(promise)
-		promise.then(this.assetLoaded.bind(this))
+		promise.then(this.assetLoaded.bind(this), this.errorMsg.bind(this))
 	}
 	loadSound(name, gain){
 		var id = this.getFilename(name)
@@ -258,7 +268,9 @@ class Loader{
 	}
 	clean(){
 		var fontDetectDiv = document.getElementById("fontdetectHelper")
-		fontDetectDiv.parentNode.removeChild(fontDetectDiv)
+		if(fontDetectDiv){
+			fontDetectDiv.parentNode.removeChild(fontDetectDiv)
+		}
 		delete this.loaderPercentage
 		delete this.loaderProgress
 		delete this.promises

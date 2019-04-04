@@ -4,6 +4,15 @@ class LoadSong{
 		this.autoPlayEnabled = autoPlayEnabled
 		this.multiplayer = multiplayer
 		this.touchEnabled = touchEnabled
+		var resolution = settings.getItem("resolution")
+		this.imgScale = 1
+		if(resolution === "medium"){
+			this.imgScale = 0.75
+		}else if(resolution === "low"){
+			this.imgScale = 0.5
+		}else if(resolution === "lowest"){
+			this.imgScale = 0.25
+		}
 		
 		loader.changePage("loadsong", true)
 		var loadingText = document.getElementById("loading-text")
@@ -57,9 +66,10 @@ class LoadSong{
 					}
 					if(type === "don"){
 						song.donBg = null
-					}
-					if(type === "song"){
+					}else if(type === "song"){
 						song.songBg = null
+					}else if(type === "stage"){
+						song.songStage = null
 					}
 				}
 			}
@@ -71,19 +81,14 @@ class LoadSong{
 					continue
 				}
 				let img = document.createElement("img")
-				if(!songObj.music && this.touchEnabled && imgLoad[i].type === "song"){
+				let force = imgLoad[i].type === "song" && this.touchEnabled
+				if(!songObj.music && (this.imgScale !== 1 || force)){
 					img.crossOrigin = "Anonymous"
 				}
 				let promise = pageEvents.load(img)
-				if(imgLoad[i].type === "song"){
-					promises.push(promise.then(() => {
-						return this.scaleImg(img, filename, prefix)
-					}))
-				}else{
-					promises.push(promise.then(() => {
-						assets.image[prefix + filename] = img
-					}))
-				}
+				promises.push(promise.then(() => {
+					return this.scaleImg(img, filename, prefix, force)
+				}))
 				if(songObj.music){
 					img.src = URL.createObjectURL(song.songSkin[filename + ".png"])
 				}else{
@@ -126,6 +131,16 @@ class LoadSong{
 				this.songData = data.replace(/\0/g, "").split("\n")
 			}))
 		}
+		if(this.touchEnabled && !assets.image["touch_drum"]){
+			let img = document.createElement("img")
+			if(this.imgScale !== 1){
+				img.crossOrigin = "Anonymous"
+			}
+			promises.push(pageEvents.load(img).then(() => {
+				return this.scaleImg(img, "touch_drum", "")
+			}))
+			img.src = gameConfig.assets_baseurl + "img/touch_drum.png"
+		}
 		Promise.all(promises).then(() => {
 			this.setupMultiplayer()
 		}, error => {
@@ -151,23 +166,23 @@ class LoadSong{
 					filenames.push("bg_don2_" + this.selectedSong.donBg)
 				}
 			}
+			if(this.selectedSong.songStage !== null){
+				filenames.push("bg_stage_" + this.selectedSong.songStage)
+			}
 			for(var i = 0; i < filenames.length; i++){
-				for(var letter = 0; letter < 2; letter++){
-					let filenameAb = filenames[i] + (letter === 0 ? "a" : "b")
+				var filename = filenames[i]
+				var stage = filename.startsWith("bg_stage_")
+				for(var letter = 0; letter < (stage ? 1 : 2); letter++){
+					let filenameAb = filenames[i] + (stage ? "" : (letter === 0 ? "a" : "b"))
 					if(!(filenameAb in assets.image)){
 						let img = document.createElement("img")
-						if(filenameAb.startsWith("bg_song_")){
-							if(this.touchEnabled){
-								img.crossOrigin = "Anonymous"
-							}
-							promises.push(pageEvents.load(img).then(() => {
-								return this.scaleImg(img, filenameAb, "")
-							}))
-						}else{
-							promises.push(pageEvents.load(img).then(() => {
-								assets.image[filenameAb] = img
-							}))
+						let force = filenameAb.startsWith("bg_song_") && this.touchEnabled
+						if(this.imgScale !== 1 || force){
+							img.crossOrigin = "Anonymous"
 						}
+						promises.push(pageEvents.load(img).then(() => {
+							return this.scaleImg(img, filenameAb, "", force)
+						}))
 						img.src = gameConfig.assets_baseurl + "img/" + filenameAb + ".png"
 					}
 				}
@@ -175,12 +190,16 @@ class LoadSong{
 			Promise.all(promises).then(resolve, reject)
 		})
 	}
-	scaleImg(img, filename, prefix){
+	scaleImg(img, filename, prefix, force){
 		return new Promise((resolve, reject) => {
-			if(this.touchEnabled){
+			var scale = this.imgScale
+			if(force && scale > 0.5){
+				scale = 0.5
+			}
+			if(scale !== 1){
 				var canvas = document.createElement("canvas")
-				var w = Math.floor(img.width / 2)
-				var h = Math.floor(img.height / 2)
+				var w = Math.floor(img.width * scale)
+				var h = Math.floor(img.height * scale)
 				canvas.width = w
 				canvas.height = h
 				var ctx = canvas.getContext("2d")
