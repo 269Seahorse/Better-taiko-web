@@ -134,7 +134,7 @@ class SettingsView{
 				settingBox.classList.add("selected")
 			}
 			pageEvents.add(settingBox, ["mousedown", "touchstart"], event => {
-				if(event.which === 1){
+				if(event.type !== "mousedown" || event.which === 1){
 					event.preventDefault()
 					this.setValue(i)
 				}
