@@ -53,6 +53,8 @@ class SettingsView{
 	constructor(touchEnabled){
 		this.touchEnabled = touchEnabled
 		loader.changePage("settings", true)
+		assets.sounds["bgm_settings"].playLoop(0.1, false, 0, 1.392, 26.992)
+		
 		this.endButton = document.getElementById("tutorial-end-button")
 		if(touchEnabled){
 			document.getElementById("tutorial-outer").classList.add("touch-enabled")
@@ -141,6 +143,7 @@ class SettingsView{
 		settings.setItem(name, value)
 		this.selected = this.items.findIndex(item => item.id === name)
 		this.items[this.selected].valueDiv.innerText = this.getValue(name)
+		assets.sounds["se_ka"].play()
 	}
 	keyEvent(event){
 		if(event.keyCode === 27 || event.keyCode === 8 || event.keyCode === 9){
@@ -171,6 +174,7 @@ class SettingsView{
 			selected.settingBox.classList.remove("selected")
 			this.selected = this.mod(this.items.length, this.selected + (name === "next" ? 1 : -1))
 			this.items[this.selected].settingBox.classList.add("selected")
+			assets.sounds["se_ka"].play()
 		}else if(name === "back"){
 			this.onEnd()
 		}
@@ -192,6 +196,7 @@ class SettingsView{
 	}
 	clean(){
 		this.gamepad.clean()
+		assets.sounds["bgm_settings"].stop()
 		pageEvents.keyRemove(this, "all")
 		for(var i in this.items){
 			pageEvents.remove(this.items[i].settingBox, ["mousedown", "touchstart"])

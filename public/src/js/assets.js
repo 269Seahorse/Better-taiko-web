@@ -151,7 +151,8 @@ var assets = {
 	"audioMusic": [
 		"bgm_songsel.mp3",
 		"bgm_result.mp3",
-		"bgm_setsume.mp3"
+		"bgm_setsume.mp3",
+		"bgm_settings.mp3"
 	],
 	"fonts": [
 		"Kozuka",
