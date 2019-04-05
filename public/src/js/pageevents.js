@@ -7,6 +7,7 @@ class PageEvents{
 		this.add(window, "keydown", this.keyEvent.bind(this))
 		this.add(window, "keyup", this.keyEvent.bind(this))
 		this.add(window, "mousemove", this.mouseEvent.bind(this))
+		this.kbd = []
 	}
 	add(target, type, callback){
 		if(Array.isArray(type)){
@@ -81,7 +82,7 @@ class PageEvents{
 		})
 	}
 	keyEvent(event){
-		if ([68, 70, 74, 75].indexOf(event.keyCode) > -1) {  // D, F, J, K
+		if(this.kbd.indexOf(event.key.toLowerCase()) !== -1){
 			this.lastKeyEvent = Date.now()
 		}
 		this.keyListeners.forEach(addedKeyCode => {
@@ -145,5 +146,14 @@ class PageEvents{
 	}
 	send(name, detail){
 		dispatchEvent(new CustomEvent(name, {detail: detail}))
+	}
+	setKbd(){
+		var kbdSettings = settings.getItem("keyboardSettings")
+		this.kbd = [
+			kbdSettings.ka_l[0],
+			kbdSettings.don_l[0],
+			kbdSettings.don_r[0],
+			kbdSettings.ka_r[0]
+		]
 	}
 }

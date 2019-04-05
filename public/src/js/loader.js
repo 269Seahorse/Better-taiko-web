@@ -204,6 +204,7 @@ class Loader{
 			}
 			
 			settings = new Settings()
+			pageEvents.setKbd()
 			
 			Promise.all(this.promises).then(() => {
 				this.canvasTest.drawAllImages().then(result => {

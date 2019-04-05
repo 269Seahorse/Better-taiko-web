@@ -37,6 +37,9 @@ class Session{
 		pageEvents.send("session")
 	}
 	mouseDown(event){
+		if(event.type === "mousedown" && event.which !== 1){
+			return
+		}
 		if(event.target === this.sessionInvite){
 			this.sessionInvite.focus()
 		}else{

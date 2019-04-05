@@ -3,22 +3,23 @@ class Keyboard{
 		this.controller = controller
 		this.game = this.controller.game
 		
+		var kbdSettings = settings.getItem("keyboardSettings")
 		this.kbd = {
-			"don_l": 70, // F
-			"don_r": 74, // J
-			"ka_l": 68, // D
-			"ka_r": 75, // K
-			"pause": 81, // Q
-			"back": 8, // Backspace
-			"previous": 37, // Left
-			"next": 39, // Right
-			"confirm": 13 // Enter
+			"ka_l": kbdSettings.ka_l[0],
+			"don_l": kbdSettings.don_l[0],
+			"don_r": kbdSettings.don_r[0],
+			"ka_r": kbdSettings.ka_r[0],
+			"pause": "q",
+			"back": "backspace",
+			"previous": "arrowleft",
+			"next": "arrowright",
+			"confirm": "enter"
 		}
 		this.kbdAlias = {
-			"pause": [27], // Esc
-			"previous": [38], // Up
-			"next": [40], // Down
-			"confirm": [32] // Space
+			"pause": ["escape"],
+			"previous": ["arrowup"],
+			"next": ["arrowdown"],
+			"confirm": [" "]
 		}
 		this.keys = {}
 		this.waitKeyupScore = {}
@@ -30,11 +31,24 @@ class Keyboard{
 		}
 		this.keyboardEvents = 0
 		
+		var layout = settings.getItem("gamepadLayout")
 		var gameBtn = {}
-		gameBtn[this.kbd["don_l"]] = ["u", "d", "l", "r", "ls"]
-		gameBtn[this.kbd["don_r"]] = ["a", "b", "x", "y", "rs"]
-		gameBtn[this.kbd["ka_l"]] = ["lb", "lt"]
-		gameBtn[this.kbd["ka_r"]] = ["rb", "rt"]
+		if(layout === "b"){
+			gameBtn[this.kbd["don_l"]] = ["d", "r", "ls"]
+			gameBtn[this.kbd["don_r"]] = ["a", "x", "rs"]
+			gameBtn[this.kbd["ka_l"]] = ["u", "l", "lb", "lt"]
+			gameBtn[this.kbd["ka_r"]] = ["b", "y", "rb", "rt"]
+		}else if(layout === "c"){
+			gameBtn[this.kbd["don_l"]] = ["d", "l", "ls"]
+			gameBtn[this.kbd["don_r"]] = ["a", "b", "rs"]
+			gameBtn[this.kbd["ka_l"]] = ["u", "r", "lb", "lt"]
+			gameBtn[this.kbd["ka_r"]] = ["x", "y", "rb", "rt"]
+		}else{
+			gameBtn[this.kbd["don_l"]] = ["u", "d", "l", "r", "ls"]
+			gameBtn[this.kbd["don_r"]] = ["a", "b", "x", "y", "rs"]
+			gameBtn[this.kbd["ka_l"]] = ["lb", "lt"]
+			gameBtn[this.kbd["ka_r"]] = ["rb", "rt"]
+		}
 		this.gamepad = new Gamepad(gameBtn)
 		this.gamepadInterval = setInterval(this.gamepadKeys.bind(this), 1000 / 60 / 2)
 		
@@ -63,7 +77,7 @@ class Keyboard{
 				// Escape, Backspace, Tab
 				event.preventDefault()
 			}
-			var key = this.kbdSearch[event.keyCode]
+			var key = this.kbdSearch[event.key.toLowerCase()]
 			if(key && !event.repeat && this.buttonEnabled(key)){
 				var ms = this.game.getAccurateTime()
 				this.setKey(key, event.type === "keydown", ms)

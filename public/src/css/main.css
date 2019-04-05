@@ -92,6 +92,7 @@ kbd{
 	color: #000;
 }
 .taibtn:hover,
+.taibtn.selected,
 #tutorial-end-button:hover,
 #tutorial-end-button.selected{
 	position: relative;
@@ -148,6 +149,19 @@ kbd{
 	cursor: text;
 	overflow: hidden;
 }
+@keyframes border-pulse{
+	0%{border-color: #ff0}
+	50%{border-color: rgba(255, 255, 0, 0)}
+	100%{border-color: #ff0}
+}
+@keyframes border-pulse2{
+	0%{border-color: #e29e06}
+	50%{border-color: rgba(226, 158, 6, 0)}
+	100%{border-color: #e29e06}
+}
+.settings-outer{
+	background-size: 50vh;
+}
 .setting-box{
 	display: flex;
 	height: 2em;
@@ -165,7 +179,7 @@ kbd{
 #tutorial-content:not(:hover) .setting-box.selected,
 .setting-box:hover{
 	background: #ffb547;
-	border-color: #21211a;
+	animation: 2s linear border-pulse infinite;
 }
 .setting-name{
 	position: relative;
@@ -183,11 +197,24 @@ kbd{
 	padding-left: 0.3em;
 }
 .setting-value{
+	display: flex;
 	background: #fff;
 	width: 50%;
 	border-radius: 0.2em;
 	padding: 0.5em;
 	box-sizing: border-box;
+}
+.setting-value.selected{
+	width: calc(50% + 0.2em);
+	margin: -0.1em;
+	border: 0.2em solid #e29e06;
+	padding: 0.4em;
+	animation: 2s linear border-pulse2 infinite;
+}
+.setting-value>div{
+	padding: 0 0.4em;
+	overflow: hidden;
+	text-overflow: ellipsis;
 }
 @keyframes bgscroll{
 	from{

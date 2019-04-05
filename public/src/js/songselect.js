@@ -289,16 +289,26 @@ class SongSelect{
 		this.startPreview(true)
 		
 		this.pressedKeys = {}
+		var kbdSettings = settings.getItem("keyboardSettings")
+		this.kbd = {
+			confirm: ["enter", " ", kbdSettings.don_l[0], kbdSettings.don_r[0]],
+			back: ["escape"],
+			left: ["arrowleft", kbdSettings.ka_l[0]],
+			right: ["arrowright", kbdSettings.ka_r[0]],
+			up: ["arrowup"],
+			down: ["arrowdown"],
+			session: ["backspace"]
+		}
 		this.gamepad = new Gamepad({
-			"13": ["b", "start", "ls", "rs"],
-			"27": ["a"],
-			"37": ["l", "lb", "lt", "lsl"],
-			"39": ["r", "rb", "rt", "lsr"],
-			"38": ["u", "lsu"],
-			"40": ["d", "lsd"],
-			"8": ["back"],
-			"ctrl": ["y"],
-			"shift": ["x"]
+			confirm: ["b", "start", "ls", "rs"],
+			back: ["a"],
+			left: ["l", "lb", "lt", "lsl"],
+			right: ["r", "rb", "rt", "lsr"],
+			up: ["u", "lsu"],
+			down: ["d", "lsd"],
+			session: ["back"],
+			ctrl: ["y"],
+			shift: ["x"]
 		})
 		
 		if(!assets.customSongs){
@@ -331,57 +341,46 @@ class SongSelect{
 		}
 	}
 	
-	keyDown(event, code){
-		if(code){
+	keyDown(event, key){
+		if(key){
 			var modifiers = {
 				shift: this.pressedKeys["shift"],
 				ctrl: this.pressedKeys["ctrl"]
 			}
 		}else{
-			code = event.keyCode
 			var modifiers = {
 				shift: event.shiftKey,
 				ctrl: event.ctrlKey
 			}
+			for(var i in this.kbd){
+				if(this.kbd[i].indexOf(event.key.toLowerCase()) !== -1){
+					key = i
+					break
+				}
+			}
 		}
-		if(code === "ctrl" || code === "shift" || !this.redrawRunning){
+		if(key === "ctrl" || key === "shift" || !this.redrawRunning){
 			return
 		}
-
-		var key = {
-			confirm: code == 13 || code == 32 || code == 70 || code == 74,
-			// Enter, Space, F, J
-			cancel: code == 27,
-			// Esc
-			session: code == 8,
-			// Backspace
-			left: code == 37 || code == 68,
-			// Left, D
-			right: code == 39 || code == 75,
-			// Right, K
-			up: code == 38,
-			// Up
-			down: code == 40
-			// Down
-		}
-		if(event && (code == 27 || code == 8 || code == 9)){
+		
+		if(event && (event.keyCode === 27 || event.keyCode === 8 || event.keyCode === 9)){
 			// Escape, Backspace, Tab
 			event.preventDefault()
 		}
 		if(this.state.screen === "song"){
-			if(key.confirm){
+			if(key === "confirm"){
 				this.toSelectDifficulty()
-			}else if(key.cancel){
+			}else if(key === "back"){
 				this.toTitleScreen()
-			}else if(key.session){
+			}else if(key === "session"){
 				this.toSession()
-			}else if(key.left){
+			}else if(key === "left"){
 				this.moveToSong(-1)
-			}else if(key.right){
+			}else if(key === "right"){
 				this.moveToSong(1)
 			}
 		}else if(this.state.screen === "difficulty"){
-			if(key.confirm){
+			if(key === "confirm"){
 				if(this.selectedDiff === 0){
 					this.toSongSelect()
 				}else if(this.selectedDiff === 1){
@@ -389,14 +388,14 @@ class SongSelect{
 				}else{
 					this.toLoadSong(this.selectedDiff - this.diffOptions.length, modifiers.shift, modifiers.ctrl)
 				}
-			}else if(key.cancel || key.session){
+			}else if(key === "back" || key === "session"){
 				this.toSongSelect()
-			}else if(key.left){
+			}else if(key === "left"){
 				this.moveToDiff(-1)
-			}else if(key.right){
+			}else if(key === "right"){
 				this.moveToDiff(1)
-			}else if(this.selectedDiff === 1 && (key.up || key.down)){
-				this.toOptions(key.up ? -1 : 1)
+			}else if(this.selectedDiff === 1 && (key === "up" || key === "down")){
+				this.toOptions(key === "up" ? -1 : 1)
 			}
 		}
 	}

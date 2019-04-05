@@ -31,8 +31,12 @@ class Titlescreen{
 			pageEvents.add(this.langDropdown, "change", this.langChange.bind(this))
 			
 			assets.sounds["v_title"].play()
+			var kbdSettings = settings.getItem("keyboardSettings")
+			this.kbd = {
+				confirm: ["enter", " ", kbdSettings.don_l[0], kbdSettings.don_r[0]]
+			}
 			this.gamepad = new Gamepad({
-				"13": ["a", "b", "x", "y", "start", "ls", "rs"]
+				confirm: ["a", "b", "x", "y", "start", "ls", "rs"]
 			}, pressed => {
 				if(pressed){
 					this.onPressed()
@@ -49,15 +53,19 @@ class Titlescreen{
 		}
 	}
 	
-	keyDown(event, code){
-		if(event && event.target === this.langDropdown){
-			return
+	keyDown(event, key){
+		if(!key){
+			if(event.repeat || event.target === this.langDropdown){
+				return
+			}
+			for(var i in this.kbd){
+				if(this.kbd[i].indexOf(event.key.toLowerCase()) !== -1){
+					key = i
+					break
+				}
+			}
 		}
-		if(!code){
-			code = event.keyCode
-		}
-		if(code == 13 || code == 32 || code == 70 || code == 74){
-			// Enter, Space, F, J
+		if(key === "confirm"){
 			this.onPressed()
 		}
 	}

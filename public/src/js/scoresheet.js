@@ -31,8 +31,12 @@ class Scoresheet{
 		this.draw = new CanvasDraw()
 		this.canvasCache = new CanvasCache()
 		
+		var kbdSettings = settings.getItem("keyboardSettings")
+		this.kbd = {
+			confirm: ["enter", " ", "escape", "backspace", kbdSettings.don_l[0], kbdSettings.don_r[0]]
+		}
 		this.gamepad = new Gamepad({
-			"13": ["a", "b", "start", "ls", "rs"]
+			confirm: ["a", "b", "start", "ls", "rs"]
 		})
 		
 		this.difficulty = {
@@ -72,23 +76,22 @@ class Scoresheet{
 			touchEvents: controller.view.touchEvents
 		})
 	}
-	keyDown(event, code){
-		if(!code){
+	keyDown(event, key){
+		if(!key){
 			if(event.repeat){
 				return
 			}
-			code = event.keyCode
+			for(var i in this.kbd){
+				if(this.kbd[i].indexOf(event.key.toLowerCase()) !== -1){
+					key = i
+					break
+				}
+			}
 		}
-		var key = {
-			confirm: code == 13 || code == 32 || code == 70 || code == 74,
-			// Enter, Space, F, J
-			cancel: code == 27 || code == 8
-			// Esc, Backspace
-		}
-		if(key.cancel && event){
+		if(event && event.keyCode === 27 || event.keyCode === 8 || event.keyCode === 9){
 			event.preventDefault()
 		}
-		if(key.confirm || key.cancel){
+		if(key === "confirm"){
 			this.toNext()
 		}
 	}

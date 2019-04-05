@@ -110,6 +110,19 @@
 		touchAnimation: {
 			name: "タッチアニメーション"
 		},
+		keyboardSettings: {
+			name: "キーボード設定",
+			ka_l: "ふち(左)",
+			don_l: "面(左)",
+			don_r: "面(右)",
+			ka_r: "ふち(右)"
+		},
+		gamepadLayout: {
+			name: "そうさタイプ設定",
+			a: "タイプA",
+			b: "タイプB",
+			c: "タイプC"
+		},
 		on: "オン",
 		off: "オフ",
 		ok: "OK"
@@ -232,6 +245,19 @@ function StringsEn(){
 		},
 		touchAnimation: {
 			name: "Touch Animation"
+		},
+		keyboardSettings: {
+			name: "Keyboard Settings",
+			ka_l: "Left Rim",
+			don_l: "Left Surface",
+			don_r: "Right Surface",
+			ka_r: "Right Rim"
+		},
+		gamepadLayout: {
+			name: "Gamepad Layout",
+			a: "Type A",
+			b: "Type B",
+			c: "Type C"
 		},
 		on: "On",
 		off: "Off",
@@ -356,6 +382,19 @@ function StringsCn(){
 		touchAnimation: {
 			name: "触摸动画"
 		},
+		keyboardSettings: {
+			name: "Keyboard Settings",
+			ka_l: "Left Rim",
+			don_l: "Left Surface",
+			don_r: "Right Surface",
+			ka_r: "Right Rim"
+		},
+		gamepadLayout: {
+			name: "操作类型设定",
+			a: "类型A",
+			b: "类型B",
+			c: "类型C"
+		},
 		on: "开",
 		off: "关",
 		ok: "确定"
@@ -479,6 +518,19 @@ function StringsTw(){
 		touchAnimation: {
 			name: "觸摸動畫"
 		},
+		keyboardSettings: {
+			name: "Keyboard Settings",
+			ka_l: "Left Rim",
+			don_l: "Left Surface",
+			don_r: "Right Surface",
+			ka_r: "Right Rim"
+		},
+		gamepadLayout: {
+			name: "操作類型設定",
+			a: "類型A",
+			b: "類型B",
+			c: "類型C"
+		},
 		on: "開",
 		off: "關",
 		ok: "確定"
@@ -601,6 +653,19 @@ function StringsKo(){
 		},
 		touchAnimation: {
 			name: "터치 애니메이션"
+		},
+		keyboardSettings: {
+			name: "Keyboard Settings",
+			ka_l: "Left Rim",
+			don_l: "Left Surface",
+			don_r: "Right Surface",
+			ka_r: "Right Rim"
+		},
+		gamepadLayout: {
+			name: "조작 타입 설정",
+			a: "타입 A",
+			b: "타입 B",
+			c: "타입 C"
 		},
 		on: "온",
 		off: "오프",

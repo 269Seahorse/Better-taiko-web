@@ -16,3 +16,6 @@
 #touch-pause-btn{
 	background-image: url("touch_pause.png");
 }
+.settings-outer{
+	background-image: url("bg_settings.png");
+}

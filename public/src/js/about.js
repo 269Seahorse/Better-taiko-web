@@ -32,22 +32,77 @@
 		var versionUrl = gameConfig._version.url
 		this.getLink(this.linkIssues).href = versionUrl + "issues"
 		
+		var kbdSettings = settings.getItem("keyboardSettings")
+		this.kbd = {
+			confirm: ["enter", " ", kbdSettings.don_l[0], kbdSettings.don_r[0]],
+			previous: ["arrowleft", "arrowup", kbdSettings.ka_l[0]],
+			next: ["arrowright", "arrowdown", kbdSettings.ka_r[0]],
+			back: ["backspace", "escape"]
+		}
 		pageEvents.add(this.linkIssues, ["click", "touchend"], this.linkButton.bind(this))
 		pageEvents.add(this.linkEmail, ["click", "touchend"], this.linkButton.bind(this))
-		pageEvents.once(this.endButton, ["mousedown", "touchstart"]).then(this.onEnd.bind(this))
-		pageEvents.keyOnce(this, 13, "down").then(this.onEnd.bind(this))
+		pageEvents.add(this.endButton, ["mousedown", "touchstart"], this.onEnd.bind(this))
+		pageEvents.keyAdd(this, "all", "down", this.keyEvent.bind(this))
+		this.items = [this.linkIssues, this.linkEmail, this.endButton]
+		this.selected = 2
 		
 		this.gamepad = new Gamepad({
-			"confirm": ["start", "b", "ls", "rs"]
-		}, this.onEnd.bind(this))
+			"confirm": ["b", "ls", "rs"],
+			"previous": ["u", "l", "lb", "lt", "lsu", "lsl"],
+			"next": ["d", "r", "rb", "rt", "lsd", "lsr"],
+			"back": ["start", "a"]
+		}, this.keyPressed.bind(this))
 		
 		pageEvents.send("about", this.addDiag())
 	}
+	keyEvent(event){
+		if(event.keyCode === 27 || event.keyCode === 8 || event.keyCode === 9){
+			// Escape, Backspace, Tab
+			event.preventDefault()
+		}
+		if(!event.repeat){
+			for(var i in this.kbd){
+				if(this.kbd[i].indexOf(event.key.toLowerCase()) !== -1){
+					this.keyPressed(true, i)
+					break
+				}
+			}
+		}
+	}
+	keyPressed(pressed, name){
+		if(!pressed){
+			return
+		}
+		var selected = this.items[this.selected]
+		if(name === "confirm"){
+			if(selected === this.endButton){
+				this.onEnd()
+			}else{
+				this.getLink(selected).click()
+				pageEvents.send("about-link", selected)
+				assets.sounds["se_don"].play()
+			}
+		}else if(name === "previous" || name === "next"){
+			selected.classList.remove("selected")
+			this.selected = this.mod(this.items.length, this.selected + (name === "next" ? 1 : -1))
+			this.items[this.selected].classList.add("selected")
+			assets.sounds["se_ka"].play()
+		}else if(name === "back"){
+			this.onEnd()
+		}
+	}
+	mod(length, index){
+		return ((index % length) + length) % length
+	}
 	onEnd(event){
 		var touched = false
-		if(event && event.type === "touchstart"){
-			event.preventDefault()
-			touched = true
+		if(event){
+			if(event.type === "touchstart"){
+				event.preventDefault()
+				touched = true
+			}else if(event.which !== 1){
+				return
+			}
 		}
 		this.clean()
 		assets.sounds["se_don"].play()
@@ -154,7 +209,8 @@
 	linkButton(event){
 		if(event.target === event.currentTarget){
 			this.getLink(event.currentTarget).click()
-			pageEvents.send("about-link", event)
+			pageEvents.send("about-link", event.currentTarget)
+			assets.sounds["se_don"].play()
 		}
 	}
 	clean(){
@@ -166,7 +222,7 @@
 		if(this.textarea){
 			pageEvents.remove(this.textarea, ["focus", "blur"])
 		}
-		pageEvents.keyRemove(this, 13)
+		pageEvents.keyRemove(this, "all")
 		delete this.endButton
 		delete this.diagTxt
 		delete this.version

@@ -10,7 +10,14 @@ class Tutorial{
 		tutorialTitle.innerText = strings.howToPlay
 		tutorialTitle.setAttribute("alt", strings.howToPlay)
 		var tutorialContent = document.getElementById("tutorial-content")
-		var keys = ["F", "J", "D", "K", "Q", "SHIFT", "CTRL"]
+		var kbdSettings = settings.getItem("keyboardSettings")
+		var keys = [
+			kbdSettings.don_l[0].toUpperCase(),
+			kbdSettings.don_r[0].toUpperCase(),
+			kbdSettings.ka_l[0].toUpperCase(),
+			kbdSettings.ka_r[0].toUpperCase(),
+			"Q", "SHIFT", "CTRL"
+		]
 		var keyIndex = 0
 		strings.tutorial.basics.forEach(string => {
 			var par = document.createElement("p")
@@ -42,8 +49,13 @@ class Tutorial{
 		this.endButton.innerText = strings.tutorial.ok
 		this.endButton.setAttribute("alt", strings.tutorial.ok)
 		
-		pageEvents.once(this.endButton, ["mousedown", "touchstart"]).then(this.onEnd.bind(this))
-		pageEvents.keyOnce(this, 13, "down").then(this.onEnd.bind(this))
+		pageEvents.add(this.endButton, ["mousedown", "touchstart"], this.onEnd.bind(this))
+		pageEvents.keyAdd(this, "all", "down", event => {
+			if(event.keyCode === 13 || event.keyCode === 27 || event.keyCode === 8){
+				// Enter, Esc, Backspace
+				this.onEnd.bind(this)
+			}
+		})
 		
 		this.gamepad = new Gamepad({
 			"confirm": ["start", "b", "ls", "rs"]
@@ -60,9 +72,13 @@ class Tutorial{
 	}
 	onEnd(event){
 		var touched = false
-		if(event && event.type === "touchstart"){
-			event.preventDefault()
-			touched = true
+		if(event){
+			if(event.type === "touchstart"){
+				event.preventDefault()
+				touched = true
+			}else if(event.which !== 1){
+				return
+			}
 		}
 		this.clean()
 		assets.sounds["se_don"].play()
@@ -75,7 +91,7 @@ class Tutorial{
 		this.gamepad.clean()
 		assets.sounds["bgm_setsume"].stop()
 		pageEvents.remove(this.endButton, ["mousedown", "touchstart"])
-		pageEvents.keyRemove(this, 13)
+		pageEvents.keyRemove(this, "all")
 		delete this.endButton
 	}
 }
