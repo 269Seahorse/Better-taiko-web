@@ -23,12 +23,6 @@ class Settings{
 					ka_r: ["k"]
 				},
 				touch: false
-			},
-			gamepadLayout: {
-				type: "select",
-				options: ["a", "b", "c"],
-				default: "a",
-				gamepad: true
 			}
 		}
 		
@@ -82,25 +76,18 @@ class SettingsView{
 		loader.changePage("settings", false)
 		assets.sounds["bgm_settings"].playLoop(0.1, false, 0, 1.392, 26.992)
 		
-		this.endButton = document.getElementById("tutorial-end-button")
 		if(touchEnabled){
 			document.getElementById("tutorial-outer").classList.add("touch-enabled")
-		}
-		var gamepadEnabled = false
-		if("getGamepads" in navigator){
-			var gamepads = navigator.getGamepads()
-			for(var i = 0; i < gamepads.length; i++){
-				if(gamepads[i]){
-					gamepadEnabled = true
-					break
-				}
-			}
 		}
 		this.mode = "settings"
 		
 		var tutorialTitle = document.getElementById("tutorial-title")
 		tutorialTitle.innerText = strings.gameSettings
 		tutorialTitle.setAttribute("alt", strings.gameSettings)
+		this.defaultButton = document.getElementById("settings-default")
+		this.defaultButton.innerText = strings.settings.default
+		this.defaultButton.setAttribute("alt", strings.settings.default)
+		this.endButton = document.getElementById("tutorial-end-button")
 		this.endButton.innerText = strings.settings.ok
 		this.endButton.setAttribute("alt", strings.settings.ok)
 		this.resolution = settings.getItem("resolution")
@@ -112,8 +99,7 @@ class SettingsView{
 			var current = settings.items[i]
 			if(
 				!touchEnabled && current.touch === true ||
-				touchEnabled && current.touch === false ||
-				!gamepadEnabled && current.gamepad === true
+				touchEnabled && current.touch === false
 			){
 				continue
 			}
@@ -146,16 +132,22 @@ class SettingsView{
 			})
 		}
 		this.items.push({
+			id: "default",
+			settingBox: this.defaultButton
+		})
+		this.items.push({
 			id: "back",
 			settingBox: this.endButton
 		})
 		
 		this.setKbd()
+		pageEvents.add(this.defaultButton, ["mousedown", "touchstart"], this.defaultSettings.bind(this))
 		pageEvents.add(this.endButton, ["mousedown", "touchstart"], this.onEnd.bind(this))
 		pageEvents.keyAdd(this, "all", "down", this.keyEvent.bind(this))
 		this.gamepad = new Gamepad({
 			"confirm": ["b", "ls", "rs"],
-			"previous": ["u", "l", "lb", "lt", "lsu", "lsl"],
+			"up": ["u", "lsu"],
+			"previous": ["l", "lb", "lt", "lsl"],
 			"next": ["d", "r", "rb", "rt", "lsd", "lsr"],
 			"back": ["start", "a"]
 		}, this.keyPressed.bind(this))
@@ -166,7 +158,8 @@ class SettingsView{
 		var kbdSettings = settings.getItem("keyboardSettings")
 		this.kbd = {
 			"confirm": ["enter", " ", kbdSettings.don_l[0], kbdSettings.don_r[0]],
-			"previous": ["arrowleft", "arrowup", kbdSettings.ka_l[0]],
+			"up": ["arrowup"],
+			"previous": ["arrowleft", kbdSettings.ka_l[0]],
 			"next": ["arrowright", "arrowdown", kbdSettings.ka_r[0]],
 			"back": ["backspace", "escape"]
 		}
@@ -258,12 +251,16 @@ class SettingsView{
 			if(name === "confirm"){
 				if(selected.id === "back"){
 					this.onEnd()
+				}else if(selected.id === "default"){
+					this.defaultSettings()
 				}else{
 					this.setValue(selected.id)
 				}
-			}else if(name === "previous" || name === "next"){
+			}else if(name === "up" || name === "previous" || name === "next"){
 				selected.settingBox.classList.remove("selected")
-				this.selected = this.mod(this.items.length, this.selected + (name === "next" ? 1 : -1))
+				do{
+					this.selected = this.mod(this.items.length, this.selected + (name === "next" ? 1 : -1))
+				}while(this.items[this.selected].id === "default" && name !== "previous")
 				this.items[this.selected].settingBox.classList.add("selected")
 				assets.sounds["se_ka"].play()
 			}else if(name === "back"){
@@ -303,6 +300,27 @@ class SettingsView{
 		selected.valueDiv.classList.remove("selected")
 		this.getValue(selected.id, selected.valueDiv)
 	}
+	defaultSettings(event){
+		if(event && event.type === "touchstart"){
+			event.preventDefault()
+		}
+		var selectedIndex = this.items.findIndex(item => item.id === "default")
+		if(this.selected !== selectedIndex){
+			this.items[this.selected].settingBox.classList.remove("selected")
+			this.selected = selectedIndex
+			this.items[this.selected].settingBox.classList.add("selected")
+		}
+		for(var i in settings.items){
+			settings.setItem(i, null)
+		}
+		for(var i in this.items){
+			var item = this.items[i]
+			if(item.valueDiv){
+				this.getValue(item.id, item.valueDiv)
+			}
+		}
+		assets.sounds["se_don"].play()
+	}
 	onEnd(event){
 		var touched = false
 		if(event){
@@ -329,6 +347,7 @@ class SettingsView{
 		for(var i in this.items){
 			pageEvents.remove(this.items[i].settingBox, ["mousedown", "touchstart"])
 		}
+		delete this.defaultButton
 		delete this.endButton
 		delete this.items
 		if(this.resolution !== settings.getItem("resolution")){

@@ -117,14 +117,9 @@
 			don_r: "面(右)",
 			ka_r: "ふち(右)"
 		},
-		gamepadLayout: {
-			name: "そうさタイプ設定",
-			a: "タイプA",
-			b: "タイプB",
-			c: "タイプC"
-		},
 		on: "オン",
 		off: "オフ",
+		default: "既定値にリセット",
 		ok: "OK"
 	}
 	this.browserSupport = {
@@ -253,14 +248,9 @@ function StringsEn(){
 			don_r: "Right Surface",
 			ka_r: "Right Rim"
 		},
-		gamepadLayout: {
-			name: "Gamepad Layout",
-			a: "Type A",
-			b: "Type B",
-			c: "Type C"
-		},
 		on: "On",
 		off: "Off",
+		default: "Reset to Defaults",
 		ok: "OK"
 	}
 	this.browserSupport = {
@@ -389,14 +379,9 @@ function StringsCn(){
 			don_r: "Right Surface",
 			ka_r: "Right Rim"
 		},
-		gamepadLayout: {
-			name: "操作类型设定",
-			a: "类型A",
-			b: "类型B",
-			c: "类型C"
-		},
 		on: "开",
 		off: "关",
+		default: "重置为默认值",
 		ok: "确定"
 	}
 	this.browserSupport = {
@@ -525,14 +510,9 @@ function StringsTw(){
 			don_r: "Right Surface",
 			ka_r: "Right Rim"
 		},
-		gamepadLayout: {
-			name: "操作類型設定",
-			a: "類型A",
-			b: "類型B",
-			c: "類型C"
-		},
 		on: "開",
 		off: "關",
+		default: "重置為默認值",
 		ok: "確定"
 	}
 	this.browserSupport = {
@@ -661,14 +641,9 @@ function StringsKo(){
 			don_r: "Right Surface",
 			ka_r: "Right Rim"
 		},
-		gamepadLayout: {
-			name: "조작 타입 설정",
-			a: "타입 A",
-			b: "타입 B",
-			c: "타입 C"
-		},
 		on: "온",
 		off: "오프",
+		default: "기본값으로 재설정",
 		ok: "확인"
 	}
 	this.browserSupport = {

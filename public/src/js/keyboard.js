@@ -31,24 +31,11 @@ class Keyboard{
 		}
 		this.keyboardEvents = 0
 		
-		var layout = settings.getItem("gamepadLayout")
 		var gameBtn = {}
-		if(layout === "b"){
-			gameBtn[this.kbd["don_l"]] = ["d", "r", "ls"]
-			gameBtn[this.kbd["don_r"]] = ["a", "x", "rs"]
-			gameBtn[this.kbd["ka_l"]] = ["u", "l", "lb", "lt"]
-			gameBtn[this.kbd["ka_r"]] = ["b", "y", "rb", "rt"]
-		}else if(layout === "c"){
-			gameBtn[this.kbd["don_l"]] = ["d", "l", "ls"]
-			gameBtn[this.kbd["don_r"]] = ["a", "b", "rs"]
-			gameBtn[this.kbd["ka_l"]] = ["u", "r", "lb", "lt"]
-			gameBtn[this.kbd["ka_r"]] = ["x", "y", "rb", "rt"]
-		}else{
-			gameBtn[this.kbd["don_l"]] = ["u", "d", "l", "r", "ls"]
-			gameBtn[this.kbd["don_r"]] = ["a", "b", "x", "y", "rs"]
-			gameBtn[this.kbd["ka_l"]] = ["lb", "lt"]
-			gameBtn[this.kbd["ka_r"]] = ["rb", "rt"]
-		}
+		gameBtn[this.kbd["don_l"]] = ["u", "d", "l", "r", "ls"]
+		gameBtn[this.kbd["don_r"]] = ["a", "b", "x", "y", "rs"]
+		gameBtn[this.kbd["ka_l"]] = ["lb", "lt"]
+		gameBtn[this.kbd["ka_r"]] = ["rb", "rt"]
 		this.gamepad = new Gamepad(gameBtn)
 		this.gamepadInterval = setInterval(this.gamepadKeys.bind(this), 1000 / 60 / 2)
 		
