@@ -14,7 +14,7 @@ class Titlescreen{
 			document.getElementById("globe-path").setAttribute("d", vectors.globe)
 			this.logo = new Logo()
 		}
-		this.lang = this.getLang()
+		this.lang = settings.getItem("language")
 		this.setLang(allStrings[this.lang], true)
 		
 		if(songId){
@@ -101,32 +101,8 @@ class Titlescreen{
 		}
 	}
 	
-	getLang(){
-		if(localStorage.lang && localStorage.lang in allStrings){
-			return localStorage.lang
-		}
-		if("languages" in navigator){
-			var userLang = navigator.languages.slice()
-			userLang.unshift(navigator.language)
-			for(var i in userLang){
-				for(var j in allStrings){
-					if(allStrings[j].regex.test(userLang[i])){
-						return j
-					}
-				}
-			}
-		}
-		return "ja"
-	}
-	setLang(lang, initial){
-		strings = lang
-		
-		loader.screen.style.fontFamily = strings.font
-		loader.screen.style.fontWeight = strings.font === "Microsoft YaHei, sans-serif" ? "bold" : ""
-		
-		if(failedTests.length !== 0){
-			showUnsupported(strings)
-		}
+	setLang(lang, noEvent){
+		settings.setLang(lang, noEvent || this.songId)
 		if(this.songId){
 			return
 		}
@@ -141,9 +117,6 @@ class Titlescreen{
 		this.disclaimerCopyright.setAttribute("alt", strings.titleCopyright)
 		
 		this.logo.updateSubtitle()
-		if(!initial){
-			pageEvents.send("language-change", lang.id)
-		}
 	}
 	addLangs(){
 		for(var i in allStrings){
@@ -158,7 +131,7 @@ class Titlescreen{
 	}
 	langChange(){
 		this.lang = this.langDropdown.value
-		localStorage.lang = this.lang
+		settings.setItem("language", this.lang)
 		this.setLang(allStrings[this.lang])
 	}
 	

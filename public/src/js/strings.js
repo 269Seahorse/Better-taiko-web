@@ -100,6 +100,9 @@
 		cancel: "キャンセル"
 	}
 	this.settings = {
+		language: {
+			name: "言語"
+		},
 		resolution: {
 			name: "ゲームの解像度",
 			high: "高",
@@ -231,6 +234,9 @@ function StringsEn(){
 		cancel: "Cancel"
 	}
 	this.settings = {
+		language: {
+			name: "Language"
+		},
 		resolution: {
 			name: "Game Resolution",
 			high: "High",
@@ -362,6 +368,9 @@ function StringsCn(){
 		cancel: "取消"
 	}
 	this.settings = {
+		language: {
+			name: "语言"
+		},
 		resolution: {
 			name: "游戏分辨率",
 			high: "高",
@@ -373,7 +382,7 @@ function StringsCn(){
 			name: "触摸动画"
 		},
 		keyboardSettings: {
-			name: "Keyboard Settings",
+			name: "键盘设置",
 			ka_l: "Left Rim",
 			don_l: "Left Surface",
 			don_r: "Right Surface",
@@ -493,6 +502,9 @@ function StringsTw(){
 		cancel: "取消"
 	}
 	this.settings = {
+		language: {
+			name: "語系"
+		},
 		resolution: {
 			name: "遊戲分辨率",
 			high: "高",
@@ -504,7 +516,7 @@ function StringsTw(){
 			name: "觸摸動畫"
 		},
 		keyboardSettings: {
-			name: "Keyboard Settings",
+			name: "鍵盤設置",
 			ka_l: "Left Rim",
 			don_l: "Left Surface",
 			don_r: "Right Surface",
@@ -624,6 +636,9 @@ function StringsKo(){
 		cancel: "취소"
 	}
 	this.settings = {
+		language: {
+			name: "언어"
+		},
 		resolution: {
 			name: "게임 해상도",
 			high: "높은",
@@ -635,7 +650,7 @@ function StringsKo(){
 			name: "터치 애니메이션"
 		},
 		keyboardSettings: {
-			name: "Keyboard Settings",
+			name: "키보드 설정",
 			ka_l: "Left Rim",
 			don_l: "Left Surface",
 			don_r: "Right Surface",

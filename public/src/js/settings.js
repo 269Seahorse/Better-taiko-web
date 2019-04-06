@@ -4,6 +4,11 @@ class Settings{
 		var phone = /Android|iPhone|iPad/.test(navigator.userAgent)
 		
 		this.items = {
+			language: {
+				type: "language",
+				options: ["ja", "en", "cn", "tw", "ko"],
+				default: this.getLang()
+			},
 			resolution: {
 				type: "select",
 				options: ["high", "medium", "low", "lowest"],
@@ -31,13 +36,18 @@ class Settings{
 			var storage = JSON.parse(localStorage.getItem("settings") || "{}")
 			for(var i in this.items){
 				var current = this.items[i]
-				if(i in storage){
+				if(current.type === "language"){
+					this.storage[i] = localStorage.getItem("lang")
+					if(current.options.indexOf(this.storage[i]) === -1){
+						this.storage[i] = null
+					}
+				}else if(i in storage){
 					if(current.type === "select" && current.options.indexOf(storage[i]) === -1){
 						this.storage[i] = null
 					}else if(current.type === "keyboard"){
 						var obj = {}
 						for(var j in current.default){
-							if(storage[i][j] && storage[i][j][0]){
+							if(storage[i] && storage[i][j] && storage[i][j][0]){
 								obj[j] = storage[i][j]
 							}else{
 								obj = null
@@ -65,8 +75,43 @@ class Settings{
 	setItem(name, value){
 		this.storage[name] = value
 		try{
-			localStorage.setItem("settings", JSON.stringify(this.storage))
+			if(name === "language"){
+				if(value){
+					localStorage.setItem("lang", value)
+				}else{
+					localStorage.removeItem("lang")
+				}
+			}else{
+				var language = this.storage.language
+				delete this.storage.language
+				localStorage.setItem("settings", JSON.stringify(this.storage))
+				this.storage.language = language
+			}
 		}catch(e){}
+	}
+	getLang(){
+		if("languages" in navigator){
+			var userLang = navigator.languages.slice()
+			userLang.unshift(navigator.language)
+			for(var i in userLang){
+				for(var j in allStrings){
+					if(allStrings[j].regex.test(userLang[i])){
+						return j
+					}
+				}
+			}
+		}
+		return "ja"
+	}
+	setLang(lang, noEvent){
+		strings = lang
+		var boldFonts = strings.font === "Microsoft YaHei, sans-serif"
+		loader.screen.style.fontFamily = strings.font
+		loader.screen.style.fontWeight = boldFonts ? "bold" : ""
+		loader.screen.classList[boldFonts ? "add" : "remove"]("bold-fonts")
+		if(!noEvent){
+			pageEvents.send("language-change", lang.id)
+		}
 	}
 }
 
@@ -81,15 +126,10 @@ class SettingsView{
 		}
 		this.mode = "settings"
 		
-		var tutorialTitle = document.getElementById("tutorial-title")
-		tutorialTitle.innerText = strings.gameSettings
-		tutorialTitle.setAttribute("alt", strings.gameSettings)
+		this.tutorialTitle = document.getElementById("tutorial-title")
 		this.defaultButton = document.getElementById("settings-default")
-		this.defaultButton.innerText = strings.settings.default
-		this.defaultButton.setAttribute("alt", strings.settings.default)
 		this.endButton = document.getElementById("tutorial-end-button")
-		this.endButton.innerText = strings.settings.ok
-		this.endButton.setAttribute("alt", strings.settings.ok)
+		this.setStrings()
 		this.resolution = settings.getItem("resolution")
 		
 		var content = document.getElementById("tutorial-content")
@@ -128,6 +168,7 @@ class SettingsView{
 			this.items.push({
 				id: i,
 				settingBox: settingBox,
+				nameDiv: nameDiv,
 				valueDiv: valueDiv
 			})
 		}
@@ -167,7 +208,9 @@ class SettingsView{
 	getValue(name, valueDiv){
 		var current = settings.items[name]
 		var value = settings.getItem(name)
-		if(current.type === "select"){
+		if(current.type === "language"){
+			value = allStrings[value].name + " (" + value + ")"
+		}else if(current.type === "select"){
 			value = strings.settings[name][value]
 		}else if(current.type === "toggle"){
 			value = value ? strings.settings.on : strings.settings.off
@@ -199,7 +242,7 @@ class SettingsView{
 			this.selected = selectedIndex
 			selected.settingBox.classList.add("selected")
 		}
-		if(current.type === "select"){
+		if(current.type === "language" || current.type === "select"){
 			value = current.options[this.mod(current.options.length, current.options.indexOf(value) + 1)]
 		}else if(current.type === "toggle"){
 			value = !value
@@ -215,6 +258,9 @@ class SettingsView{
 		settings.setItem(name, value)
 		this.getValue(name, this.items[this.selected].valueDiv)
 		assets.sounds["se_ka"].play()
+		if(current.type === "language"){
+			this.setLang(allStrings[value])
+		}
 	}
 	keyEvent(event){
 		if(event.keyCode === 27 || event.keyCode === 8 || event.keyCode === 9){
@@ -231,6 +277,7 @@ class SettingsView{
 				}
 			}
 			if(this.mode === "keyboard"){
+				event.preventDefault()
 				var currentKey = event.key.toLowerCase()
 				for(var i in this.keyboardKeys){
 					if(this.keyboardKeys[i][0] === currentKey || !currentKey){
@@ -304,21 +351,13 @@ class SettingsView{
 		if(event && event.type === "touchstart"){
 			event.preventDefault()
 		}
-		var selectedIndex = this.items.findIndex(item => item.id === "default")
-		if(this.selected !== selectedIndex){
-			this.items[this.selected].settingBox.classList.remove("selected")
-			this.selected = selectedIndex
-			this.items[this.selected].settingBox.classList.add("selected")
+		if(this.mode === "keyboard"){
+			this.keyboardBack(this.items[this.selected])
 		}
 		for(var i in settings.items){
 			settings.setItem(i, null)
 		}
-		for(var i in this.items){
-			var item = this.items[i]
-			if(item.valueDiv){
-				this.getValue(item.id, item.valueDiv)
-			}
-		}
+		this.setLang(allStrings[settings.getItem("language")])
 		assets.sounds["se_don"].play()
 	}
 	onEnd(event){
@@ -337,6 +376,30 @@ class SettingsView{
 			new SongSelect("settings", false, touched)
 		}, 500)
 	}
+	setLang(lang){
+		settings.setLang(lang)
+		if(failedTests.length !== 0){
+			showUnsupported(strings)
+		}
+		for(var i in this.items){
+			var item = this.items[i]
+			if(item.valueDiv){
+				var name = strings.settings[item.id].name
+				item.nameDiv.innerText = name
+				item.nameDiv.setAttribute("alt", name)
+				this.getValue(item.id, item.valueDiv)
+			}
+		}
+		this.setStrings()
+	}
+	setStrings(){
+		this.tutorialTitle.innerText = strings.gameSettings
+		this.tutorialTitle.setAttribute("alt", strings.gameSettings)
+		this.defaultButton.innerText = strings.settings.default
+		this.defaultButton.setAttribute("alt", strings.settings.default)
+		this.endButton.innerText = strings.settings.ok
+		this.endButton.setAttribute("alt", strings.settings.ok)
+	}
 	mod(length, index){
 		return ((index % length) + length) % length
 	}
@@ -347,6 +410,7 @@ class SettingsView{
 		for(var i in this.items){
 			pageEvents.remove(this.items[i].settingBox, ["mousedown", "touchstart"])
 		}
+		delete this.tutorialTitle
 		delete this.defaultButton
 		delete this.endButton
 		delete this.items

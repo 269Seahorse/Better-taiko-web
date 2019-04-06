@@ -84,6 +84,7 @@ class PageEvents{
 	keyEvent(event){
 		if(this.kbd.indexOf(event.key.toLowerCase()) !== -1){
 			this.lastKeyEvent = Date.now()
+			event.preventDefault()
 		}
 		this.keyListeners.forEach(addedKeyCode => {
 			this.checkListener(addedKeyCode.get("all"), event)

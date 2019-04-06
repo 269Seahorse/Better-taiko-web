@@ -181,6 +181,9 @@ kbd{
 	background: #ffb547;
 	animation: 2s linear border-pulse infinite;
 }
+.bold-fonts .setting-box{
+	line-height: 1em;
+}
 .setting-name{
 	position: relative;
 	width: 50%;
