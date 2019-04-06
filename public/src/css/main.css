@@ -176,7 +176,8 @@ kbd{
 .setting-box:first-child{
 	margin-top: 0;
 }
-#tutorial-content:not(:hover) .setting-box.selected,
+.settings-outer #tutorial-content:not(:hover) .setting-box.selected,
+#tutorial-outer:not(.settings-outer) .setting-box.selected,
 .setting-box:hover{
 	background: #ffb547;
 	animation: 2s linear border-pulse infinite;
@@ -192,6 +193,7 @@ kbd{
 	box-sizing: border-box;
 }
 #tutorial-content:not(:hover) .setting-box.selected .setting-name,
+#tutorial-outer:not(.settings-outer) .setting-box.selected .setting-name,
 .setting-box:hover .setting-name{
 	color: #fff;
 	z-index: 0;

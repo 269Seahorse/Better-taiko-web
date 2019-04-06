@@ -116,30 +116,37 @@ class Settings{
 }
 
 class SettingsView{
-	constructor(touchEnabled){
+	constructor(touchEnabled, tutorial){
 		this.touchEnabled = touchEnabled
-		loader.changePage("settings", false)
-		assets.sounds["bgm_settings"].playLoop(0.1, false, 0, 1.392, 26.992)
-		
+		this.tutorial = tutorial
+		if(!tutorial){
+			loader.changePage("settings", tutorial)
+			assets.sounds["bgm_settings"].playLoop(0.1, false, 0, 1.392, 26.992)
+			this.defaultButton = document.getElementById("settings-default")
+		}else if(touchEnabled){
+			document.getElementById("tutorial-outer").classList.add("settings-outer")
+		}
 		if(touchEnabled){
 			document.getElementById("tutorial-outer").classList.add("touch-enabled")
 		}
 		this.mode = "settings"
 		
 		this.tutorialTitle = document.getElementById("tutorial-title")
-		this.defaultButton = document.getElementById("settings-default")
 		this.endButton = document.getElementById("tutorial-end-button")
-		this.setStrings()
+		if(!tutorial){
+			this.setStrings()
+		}
 		this.resolution = settings.getItem("resolution")
 		
 		var content = document.getElementById("tutorial-content")
 		this.items = []
-		this.selected = 0
+		this.selected = tutorial ? 1 : 0
 		for(let i in settings.items){
 			var current = settings.items[i]
 			if(
 				!touchEnabled && current.touch === true ||
-				touchEnabled && current.touch === false
+				touchEnabled && current.touch === false ||
+				tutorial && current.type !== "language"
 			){
 				continue
 			}
@@ -172,17 +179,19 @@ class SettingsView{
 				valueDiv: valueDiv
 			})
 		}
-		this.items.push({
-			id: "default",
-			settingBox: this.defaultButton
-		})
+		if(!tutorial){
+			this.items.push({
+				id: "default",
+				settingBox: this.defaultButton
+			})
+			pageEvents.add(this.defaultButton, ["mousedown", "touchstart"], this.defaultSettings.bind(this))
+		}
 		this.items.push({
 			id: "back",
 			settingBox: this.endButton
 		})
 		
 		this.setKbd()
-		pageEvents.add(this.defaultButton, ["mousedown", "touchstart"], this.defaultSettings.bind(this))
 		pageEvents.add(this.endButton, ["mousedown", "touchstart"], this.onEnd.bind(this))
 		pageEvents.keyAdd(this, "all", "down", this.keyEvent.bind(this))
 		this.gamepad = new Gamepad({
@@ -192,8 +201,9 @@ class SettingsView{
 			"next": ["d", "r", "rb", "rt", "lsd", "lsr"],
 			"back": ["start", "a"]
 		}, this.keyPressed.bind(this))
-		
-		pageEvents.send("settings")
+		if(!tutorial){
+			pageEvents.send("settings")
+		}
 	}
 	setKbd(){
 		var kbdSettings = settings.getItem("keyboardSettings")
@@ -308,7 +318,9 @@ class SettingsView{
 				do{
 					this.selected = this.mod(this.items.length, this.selected + (name === "next" ? 1 : -1))
 				}while(this.items[this.selected].id === "default" && name !== "previous")
-				this.items[this.selected].settingBox.classList.add("selected")
+				selected = this.items[this.selected]
+				selected.settingBox.classList.add("selected")
+				selected.settingBox.scrollIntoView()
 				assets.sounds["se_ka"].play()
 			}else if(name === "back"){
 				this.onEnd()
@@ -362,6 +374,10 @@ class SettingsView{
 		assets.sounds["se_don"].play()
 	}
 	onEnd(event){
+		if(this.tutorial){
+			this.clean()
+			return this.tutorial.onEnd(event)
+		}
 		var touched = false
 		if(event){
 			if(event.type === "touchstart"){
@@ -394,12 +410,16 @@ class SettingsView{
 		this.setStrings()
 	}
 	setStrings(){
-		this.tutorialTitle.innerText = strings.gameSettings
-		this.tutorialTitle.setAttribute("alt", strings.gameSettings)
-		this.defaultButton.innerText = strings.settings.default
-		this.defaultButton.setAttribute("alt", strings.settings.default)
-		this.endButton.innerText = strings.settings.ok
-		this.endButton.setAttribute("alt", strings.settings.ok)
+		if(this.tutorial){
+			this.tutorial.setStrings()
+		}else{
+			this.tutorialTitle.innerText = strings.gameSettings
+			this.tutorialTitle.setAttribute("alt", strings.gameSettings)
+			this.defaultButton.innerText = strings.settings.default
+			this.defaultButton.setAttribute("alt", strings.settings.default)
+			this.endButton.innerText = strings.settings.ok
+			this.endButton.setAttribute("alt", strings.settings.ok)
+		}
 	}
 	mod(length, index){
 		return ((index % length) + length) % length
@@ -411,8 +431,10 @@ class SettingsView{
 		for(var i in this.items){
 			pageEvents.remove(this.items[i].settingBox, ["mousedown", "touchstart"])
 		}
+		if(this.defaultButton){
+			delete this.defaultButton
+		}
 		delete this.tutorialTitle
-		delete this.defaultButton
 		delete this.endButton
 		delete this.items
 		if(this.resolution !== settings.getItem("resolution")){

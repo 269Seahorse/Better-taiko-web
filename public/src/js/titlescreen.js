@@ -7,15 +7,11 @@ class Titlescreen{
 			
 			this.titleScreen = document.getElementById("title-screen")
 			this.proceed = document.getElementById("title-proceed")
-			this.langDropdown = document.getElementById("lang-dropdown")
-			this.langId = document.getElementById("lang-id")
 			this.disclaimerText = document.getElementById("title-disclaimer-text")
 			this.disclaimerCopyright = document.getElementById("title-disclaimer-copyright")
-			document.getElementById("globe-path").setAttribute("d", vectors.globe)
 			this.logo = new Logo()
 		}
-		this.lang = settings.getItem("language")
-		this.setLang(allStrings[this.lang], true)
+		this.setLang(allStrings[settings.getItem("language")])
 		
 		if(songId){
 			if(localStorage.getItem("tutorial") === "true"){
@@ -24,11 +20,8 @@ class Titlescreen{
 				new Tutorial(false, this.songId)
 			}
 		}else{
-			this.addLangs()
-			
 			pageEvents.keyAdd(this, "all", "down", this.keyDown.bind(this))
 			pageEvents.add(this.titleScreen, ["mousedown", "touchstart"], this.onPressed.bind(this))
-			pageEvents.add(this.langDropdown, "change", this.langChange.bind(this))
 			
 			assets.sounds["v_title"].play()
 			var kbdSettings = settings.getItem("keyboardSettings")
@@ -86,7 +79,7 @@ class Titlescreen{
 	goNext(fromP2){
 		if(p2.session && !fromP2){
 			p2.send("songsel")
-		}else if(fromP2 || this.touched || localStorage.getItem("tutorial") === "true"){
+		}else if(fromP2 || localStorage.getItem("tutorial") === "true"){
 			if(this.touched){
 				localStorage.setItem("tutorial", "true")
 			}
@@ -96,20 +89,17 @@ class Titlescreen{
 			}, 500)
 		}else{
 			setTimeout(() => {
-				new Tutorial(false, this.songId)
+				new Tutorial(false, this.songId, this.touched)
 			}, 500)
 		}
 	}
-	
 	setLang(lang, noEvent){
-		settings.setLang(lang, noEvent || this.songId)
+		settings.setLang(lang, true)
 		if(this.songId){
 			return
 		}
 		this.proceed.innerText = strings.titleProceed
 		this.proceed.setAttribute("alt", strings.titleProceed)
-		this.langId.innerText = strings.id.toUpperCase()
-		this.langId.setAttribute("alt", strings.id.toUpperCase())
 		
 		this.disclaimerText.innerText = strings.titleDisclaimer
 		this.disclaimerText.setAttribute("alt", strings.titleDisclaimer)
@@ -118,34 +108,15 @@ class Titlescreen{
 		
 		this.logo.updateSubtitle()
 	}
-	addLangs(){
-		for(var i in allStrings){
-			var option = document.createElement("option")
-			option.value = i
-			if(i === this.lang){
-				option.selected = true
-			}
-			option.appendChild(document.createTextNode(allStrings[i].name))
-			this.langDropdown.appendChild(option)
-		}
-	}
-	langChange(){
-		this.lang = this.langDropdown.value
-		settings.setItem("language", this.lang)
-		this.setLang(allStrings[this.lang])
-	}
-	
 	clean(){
 		this.gamepad.clean()
 		this.logo.clean()
 		assets.sounds["v_title"].stop()
 		pageEvents.keyRemove(this, "all")
 		pageEvents.remove(this.titleScreen, ["mousedown", "touchstart"])
-		pageEvents.remove(this.langDropdown, "change")
 		delete this.titleScreen
 		delete this.proceed
 		delete this.titleDisclaimer
 		delete this.titleCopyright
-		delete this.langDropdown
 	}
 }

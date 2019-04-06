@@ -1,65 +1,32 @@
 class Tutorial{
-	constructor(fromSongSel, songId){
+	constructor(fromSongSel, songId, touchEnabled){
 		this.fromSongSel = fromSongSel
 		this.songId = songId
-		loader.changePage("tutorial", true)
+		this.touchEnabled = touchEnabled
+		loader.changePage("tutorial", fromSongSel || !touchEnabled)
 		assets.sounds["bgm_setsume"].playLoop(0.1, false, 0, 1.054, 16.054)
 		this.endButton = document.getElementById("tutorial-end-button")
 		
-		var tutorialTitle = document.getElementById("tutorial-title")
-		tutorialTitle.innerText = strings.howToPlay
-		tutorialTitle.setAttribute("alt", strings.howToPlay)
-		var tutorialContent = document.getElementById("tutorial-content")
-		var kbdSettings = settings.getItem("keyboardSettings")
-		var keys = [
-			kbdSettings.don_l[0].toUpperCase(),
-			kbdSettings.don_r[0].toUpperCase(),
-			kbdSettings.ka_l[0].toUpperCase(),
-			kbdSettings.ka_r[0].toUpperCase(),
-			"Q", "SHIFT", "CTRL"
-		]
-		var keyIndex = 0
-		strings.tutorial.basics.forEach(string => {
-			var par = document.createElement("p")
-			var stringKeys = string.split("%s")
-			stringKeys.forEach((stringKey, i) => {
-				if(i !== 0){
-					this.insertKey(keys[keyIndex++], par)
-				}
-				this.insertText(stringKey, par)
-			})
-			tutorialContent.appendChild(par)
-		})
-		var par = document.createElement("p")
-		var span = document.createElement("span")
-		span.style.fontWeight = "bold"
-		span.innerText = strings.tutorial.otherControls
-		par.appendChild(span)
-		strings.tutorial.otherTutorial.forEach(string => {
-			par.appendChild(document.createElement("br"))
-			var stringKeys = string.split("%s")
-			stringKeys.forEach((stringKey, i) => {
-				if(i !== 0){
-					this.insertKey(keys[keyIndex++], par)
-				}
-				this.insertText(stringKey, par)
-			})
-		})
-		tutorialContent.appendChild(par)
-		this.endButton.innerText = strings.tutorial.ok
-		this.endButton.setAttribute("alt", strings.tutorial.ok)
+		this.tutorialTitle = document.getElementById("tutorial-title")
+		this.tutorialDiv = document.createElement("div")
+		document.getElementById("tutorial-content").appendChild(this.tutorialDiv)
+		this.setStrings()
 		
-		pageEvents.add(this.endButton, ["mousedown", "touchstart"], this.onEnd.bind(this))
-		pageEvents.keyAdd(this, "all", "down", event => {
-			if(event.keyCode === 13 || event.keyCode === 27 || event.keyCode === 8){
-				// Enter, Esc, Backspace
-				this.onEnd.bind(this)
-			}
-		})
-		
-		this.gamepad = new Gamepad({
-			"confirm": ["start", "b", "ls", "rs"]
-		}, this.onEnd.bind(this))
+		if(fromSongSel){
+			pageEvents.add(this.endButton, ["mousedown", "touchstart"], this.onEnd.bind(this))
+			pageEvents.keyAdd(this, "all", "down", event => {
+				if(event.keyCode === 13 || event.keyCode === 27 || event.keyCode === 8){
+					// Enter, Esc, Backspace
+					this.onEnd.bind(this)
+				}
+			})
+			
+			this.gamepad = new Gamepad({
+				"confirm": ["start", "b", "ls", "rs"]
+			}, this.onEnd.bind(this))
+		}else{
+			new SettingsView(touchEnabled, this)
+		}
 		pageEvents.send("tutorial")
 	}
 	insertText(text, parent){
@@ -87,11 +54,65 @@ class Tutorial{
 			new SongSelect(this.fromSongSel ? "tutorial" : false, false, touched, this.songId)
 		}, 500)
 	}
+	setStrings(){
+		if(!this.fromSongSel && this.touchEnabled){
+			this.tutorialTitle.innerText = strings.gameSettings
+			this.tutorialTitle.setAttribute("alt", strings.gameSettings)
+			this.endButton.innerText = strings.settings.ok
+			this.endButton.setAttribute("alt", strings.settings.ok)
+			return
+		}
+		this.tutorialTitle.innerText = strings.howToPlay
+		this.tutorialTitle.setAttribute("alt", strings.howToPlay)
+		this.endButton.innerText = strings.tutorial.ok
+		this.endButton.setAttribute("alt", strings.tutorial.ok)
+		this.tutorialDiv.innerHTML = ""
+		var kbdSettings = settings.getItem("keyboardSettings")
+		var keys = [
+			kbdSettings.don_l[0].toUpperCase(),
+			kbdSettings.don_r[0].toUpperCase(),
+			kbdSettings.ka_l[0].toUpperCase(),
+			kbdSettings.ka_r[0].toUpperCase(),
+			"Q", "SHIFT", "CTRL"
+		]
+		var keyIndex = 0
+		strings.tutorial.basics.forEach(string => {
+			var par = document.createElement("p")
+			var stringKeys = string.split("%s")
+			stringKeys.forEach((stringKey, i) => {
+				if(i !== 0){
+					this.insertKey(keys[keyIndex++], par)
+				}
+				this.insertText(stringKey, par)
+			})
+			this.tutorialDiv.appendChild(par)
+		})
+		var par = document.createElement("p")
+		var span = document.createElement("span")
+		span.style.fontWeight = "bold"
+		span.innerText = strings.tutorial.otherControls
+		par.appendChild(span)
+		strings.tutorial.otherTutorial.forEach(string => {
+			par.appendChild(document.createElement("br"))
+			var stringKeys = string.split("%s")
+			stringKeys.forEach((stringKey, i) => {
+				if(i !== 0){
+					this.insertKey(keys[keyIndex++], par)
+				}
+				this.insertText(stringKey, par)
+			})
+		})
+		this.tutorialDiv.appendChild(par)
+	}
 	clean(){
-		this.gamepad.clean()
+		if(this.fromSongSel){
+			this.gamepad.clean()
+			pageEvents.remove(this.endButton, ["mousedown", "touchstart"])
+			pageEvents.keyRemove(this, "all")
+		}
 		assets.sounds["bgm_setsume"].stop()
-		pageEvents.remove(this.endButton, ["mousedown", "touchstart"])
-		pageEvents.keyRemove(this, "all")
+		delete this.tutorialTitle
 		delete this.endButton
+		delete this.tutorialDiv
 	}
 }
