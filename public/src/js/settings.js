@@ -358,6 +358,7 @@ class SettingsView{
 			settings.setItem(i, null)
 		}
 		this.setLang(allStrings[settings.getItem("language")])
+		this.setKbd()
 		assets.sounds["se_don"].play()
 	}
 	onEnd(event){
