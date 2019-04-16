@@ -17,24 +17,26 @@ class Titlescreen{
 			if(localStorage.getItem("tutorial") === "true"){
 				new SongSelect(false, false, this.touched, this.songId)
 			}else{
-				new Tutorial(false, this.songId)
+				new SettingsView(false, true, this.songId)
 			}
 		}else{
-			pageEvents.keyAdd(this, "all", "down", this.keyDown.bind(this))
-			pageEvents.add(this.titleScreen, ["mousedown", "touchstart"], this.onPressed.bind(this))
+			pageEvents.add(this.titleScreen, ["mousedown", "touchstart"], event => {
+				if(event.type === "touchstart"){
+					event.preventDefault()
+					this.touched = true
+				}else if(event.type === "mousedown" && event.which !== 1){
+					return
+				}
+				this.onPressed(true)
+			})
 			
 			assets.sounds["v_title"].play()
-			var kbdSettings = settings.getItem("keyboardSettings")
-			this.kbd = {
-				confirm: ["enter", " ", kbdSettings.don_l[0], kbdSettings.don_r[0]]
-			}
+			this.keyboard = new Keyboard({
+				confirm: ["enter", "space", "don_l", "don_r"]
+			}, this.onPressed.bind(this))
 			this.gamepad = new Gamepad({
 				confirm: ["a", "b", "x", "y", "start", "ls", "rs"]
-			}, pressed => {
-				if(pressed){
-					this.onPressed()
-				}
-			})
+			}, this.onPressed.bind(this))
 			if(p2.session){
 				pageEvents.add(p2, "message", response => {
 					if(response.type === "songsel"){
@@ -46,35 +48,13 @@ class Titlescreen{
 		}
 	}
 	
-	keyDown(event, key){
-		if(!key){
-			if(event.repeat || event.target === this.langDropdown){
-				return
-			}
-			for(var i in this.kbd){
-				if(this.kbd[i].indexOf(event.key.toLowerCase()) !== -1){
-					key = i
-					break
-				}
-			}
+	onPressed(pressed, name){
+		if(pressed){
+			this.titleScreen.style.cursor = "auto"
+			this.clean()
+			assets.sounds["se_don"].play()
+			this.goNext()
 		}
-		if(key === "confirm"){
-			this.onPressed()
-		}
-	}
-	onPressed(event){
-		if(event){
-			if(event.type === "touchstart"){
-				event.preventDefault()
-				this.touched = true
-			}else if(event.type === "mousedown" && event.which !== 1){
-				return
-			}
-		}
-		this.titleScreen.style.cursor = "auto"
-		this.clean()
-		assets.sounds["se_don"].play()
-		this.goNext()
 	}
 	goNext(fromP2){
 		if(p2.session && !fromP2){
@@ -89,7 +69,7 @@ class Titlescreen{
 			}, 500)
 		}else{
 			setTimeout(() => {
-				new Tutorial(false, this.songId, this.touched)
+				new SettingsView(this.touched, true, this.songId)
 			}, 500)
 		}
 	}
@@ -109,10 +89,10 @@ class Titlescreen{
 		this.logo.updateSubtitle()
 	}
 	clean(){
+		this.keyboard.clean()
 		this.gamepad.clean()
 		this.logo.clean()
 		assets.sounds["v_title"].stop()
-		pageEvents.keyRemove(this, "all")
 		pageEvents.remove(this.titleScreen, ["mousedown", "touchstart"])
 		delete this.titleScreen
 		delete this.proceed

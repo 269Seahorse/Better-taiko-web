@@ -254,29 +254,28 @@ class Game{
 			return
 		}
 		var keys = this.controller.getKeys()
-		var kbd = this.controller.getBindings()
 		
-		var don_l = keys[kbd["don_l"]] && !this.controller.isWaiting(kbd["don_l"], "score")
-		var don_r = keys[kbd["don_r"]] && !this.controller.isWaiting(kbd["don_r"], "score")
-		var ka_l = keys[kbd["ka_l"]] && !this.controller.isWaiting(kbd["ka_l"], "score")
-		var ka_r = keys[kbd["ka_r"]] && !this.controller.isWaiting(kbd["ka_r"], "score")
+		var don_l = keys["don_l"] && !this.controller.isWaiting("don_l", "score")
+		var don_r = keys["don_r"] && !this.controller.isWaiting("don_r", "score")
+		var ka_l = keys["ka_l"] && !this.controller.isWaiting("ka_l", "score")
+		var ka_r = keys["ka_r"] && !this.controller.isWaiting("ka_r", "score")
 		
 		var checkDon = () => {
 			if(don_l && don_r){
-				this.checkKey([kbd["don_l"], kbd["don_r"]], circle, "daiDon")
+				this.checkKey(["don_l", "don_r"], circle, "daiDon")
 			}else if(don_l){
-				this.checkKey([kbd["don_l"]], circle, "don")
+				this.checkKey(["don_l"], circle, "don")
 			}else if(don_r){
-				this.checkKey([kbd["don_r"]], circle, "don")
+				this.checkKey(["don_r"], circle, "don")
 			}
 		}
 		var checkKa = () => {
 			if(ka_l && ka_r){
-				this.checkKey([kbd["ka_l"], kbd["ka_r"]], circle, "daiKa")
+				this.checkKey(["ka_l", "ka_r"], circle, "daiKa")
 			}else if(ka_l){
-				this.checkKey([kbd["ka_l"]], circle, "ka")
+				this.checkKey(["ka_l"], circle, "ka")
 			}else if(ka_r){
-				this.checkKey([kbd["ka_r"]], circle, "ka")
+				this.checkKey(["ka_r"], circle, "ka")
 			}
 		}
 		var keyTime = this.controller.getKeyTime()

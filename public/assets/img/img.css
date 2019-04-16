@@ -19,3 +19,7 @@
 .settings-outer{
 	background-image: url("bg_settings.png");
 }
+#gamepad-bg,
+#gamepad-buttons{
+	background-image: url("settings_gamepad.png");
+}

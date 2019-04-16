@@ -120,6 +120,12 @@
 			don_r: "面(右)",
 			ka_r: "ふち(右)"
 		},
+		gamepadLayout: {
+			name: "そうさタイプ設定",
+			a: "タイプA",
+			b: "タイプB",
+			c: "タイプC"
+		},
 		on: "オン",
 		off: "オフ",
 		default: "既定値にリセット",
@@ -254,6 +260,12 @@ function StringsEn(){
 			don_r: "Right Surface",
 			ka_r: "Right Rim"
 		},
+		gamepadLayout: {
+			name: "Gamepad Layout",
+			a: "Type A",
+			b: "Type B",
+			c: "Type C"
+		},
 		on: "On",
 		off: "Off",
 		default: "Reset to Defaults",
@@ -383,10 +395,16 @@ function StringsCn(){
 		},
 		keyboardSettings: {
 			name: "键盘设置",
-			ka_l: "Left Rim",
-			don_l: "Left Surface",
-			don_r: "Right Surface",
-			ka_r: "Right Rim"
+			ka_l: "边缘（左）",
+			don_l: "表面（左）",
+			don_r: "表面（右）",
+			ka_r: "边缘（右）"
+		},
+		gamepadLayout: {
+			name: "操作类型设定",
+			a: "类型A",
+			b: "类型B",
+			c: "类型C"
 		},
 		on: "开",
 		off: "关",
@@ -517,10 +535,16 @@ function StringsTw(){
 		},
 		keyboardSettings: {
 			name: "鍵盤設置",
-			ka_l: "Left Rim",
-			don_l: "Left Surface",
-			don_r: "Right Surface",
-			ka_r: "Right Rim"
+			ka_l: "邊緣（左）",
+			don_l: "表面（左）",
+			don_r: "表面（右）",
+			ka_r: "邊緣（右）"
+		},
+		gamepadLayout: {
+			name: "操作類型設定",
+			a: "類型A",
+			b: "類型B",
+			c: "類型C"
 		},
 		on: "開",
 		off: "關",
@@ -651,10 +675,16 @@ function StringsKo(){
 		},
 		keyboardSettings: {
 			name: "키보드 설정",
-			ka_l: "Left Rim",
-			don_l: "Left Surface",
-			don_r: "Right Surface",
-			ka_r: "Right Rim"
+			ka_l: "가장자리 (왼쪽)",
+			don_l: "표면 (왼쪽)",
+			don_r: "표면 (오른쪽)",
+			ka_r: "가장자리 (오른쪽)"
+		},
+		gamepadLayout: {
+			name: "조작 타입 설정",
+			a: "타입 A",
+			b: "타입 B",
+			c: "타입 C"
 		},
 		on: "온",
 		off: "오프",

@@ -7,6 +7,7 @@ var assets = {
 		"scoresheet.js",
 		"songselect.js",
 		"keyboard.js",
+		"gameinput.js",
 		"game.js",
 		"controller.js",
 		"circle.js",
@@ -36,7 +37,8 @@ var assets = {
 		"loadsong.css",
 		"game.css",
 		"debug.css",
-		"songbg.css"
+		"songbg.css",
+		"view.css"
 	],
 	"assetsCss": [
 		"fonts/fonts.css",
@@ -79,7 +81,8 @@ var assets = {
 		"results_flowers.png",
 		"results_mikoshi.png",
 		"results_tetsuohana.png",
-		"results_tetsuohana2.png"
+		"results_tetsuohana2.png",
+		"settings_gamepad.png"
 	],
 	"audioSfx": [
 		"se_cancel.wav",

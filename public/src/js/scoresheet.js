@@ -31,13 +31,12 @@ class Scoresheet{
 		this.draw = new CanvasDraw()
 		this.canvasCache = new CanvasCache()
 		
-		var kbdSettings = settings.getItem("keyboardSettings")
-		this.kbd = {
-			confirm: ["enter", " ", "escape", "backspace", kbdSettings.don_l[0], kbdSettings.don_r[0]]
-		}
+		this.keyboard = new Keyboard({
+			confirm: ["enter", "space", "esc", "don_l", "don_r"]
+		}, this.keyDown.bind(this))
 		this.gamepad = new Gamepad({
 			confirm: ["a", "b", "start", "ls", "rs"]
-		})
+		}, this.keyDown.bind(this))
 		
 		this.difficulty = {
 			"easy": 0,
@@ -76,22 +75,8 @@ class Scoresheet{
 			touchEvents: controller.view.touchEvents
 		})
 	}
-	keyDown(event, key){
-		if(!key){
-			if(event.repeat){
-				return
-			}
-			for(var i in this.kbd){
-				if(this.kbd[i].indexOf(event.key.toLowerCase()) !== -1){
-					key = i
-					break
-				}
-			}
-		}
-		if(event && event.keyCode === 27 || event.keyCode === 8 || event.keyCode === 9){
-			event.preventDefault()
-		}
-		if(key === "confirm"){
+	keyDown(pressed){
+		if(pressed && this.redrawing){
 			this.toNext()
 		}
 	}
@@ -140,7 +125,6 @@ class Scoresheet{
 		this.winW = null
 		this.winH = null
 		
-		pageEvents.keyAdd(this, "all", "down", this.keyDown.bind(this))
 		pageEvents.add(this.canvas, ["mousedown", "touchstart"], this.mouseDown.bind(this))
 		
 		if(!this.multiplayer){
@@ -179,12 +163,6 @@ class Scoresheet{
 			requestAnimationFrame(this.redrawBind)
 		}
 		var ms = this.getMS()
-		
-		this.gamepad.play((pressed, keyCode) => {
-			if(pressed){
-				this.keyDown(false, keyCode)
-			}
-		})
 		
 		if(!this.redrawRunning){
 			return
@@ -864,12 +842,13 @@ class Scoresheet{
 	}
 	
 	clean(){
+		this.keyboard.clean()
+		this.gamepad.clean()
 		this.draw.clean()
 		this.canvasCache.clean()
 		assets.sounds["bgm_result"].stop()
 		snd.buffer.loadSettings()
 		this.redrawRunning = false
-		pageEvents.keyRemove(this, "all")
 		pageEvents.remove(this.canvas, ["mousedown", "touchstart"])
 		if(this.multiplayer !== 2 && this.touchEnabled){
 			pageEvents.remove(document.getElementById("touch-full-btn"), "touchend")

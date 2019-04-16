@@ -50,7 +50,6 @@ class Mekadon{
 		}
 	}
 	playNow(circle, score, dai, reverse){
-		var kbd = this.controller.getBindings()
 		var type = circle.type
 		var keyDai = false
 		var playDai = !dai || dai === 2
@@ -70,20 +69,20 @@ class Mekadon{
 			}
 		}
 		if(type === "daiDon" && playDai){
-			this.setKey(kbd["don_l"], ms)
-			this.setKey(kbd["don_r"], ms)
+			this.setKey("don_l", ms)
+			this.setKey("don_r", ms)
 			this.lr = false
 			keyDai = true
 		}else if(type === "don" || type === "daiDon" || drumrollNotes && score !== 2){
-			this.setKey(this.lr ? kbd["don_l"] : kbd["don_r"], ms)
+			this.setKey(this.lr ? "don_l" : "don_r", ms)
 			this.lr = !this.lr
 		}else if(type === "daiKa" && playDai){
-			this.setKey(kbd["ka_l"], ms)
-			this.setKey(kbd["ka_r"], ms)
+			this.setKey("ka_l", ms)
+			this.setKey("ka_r", ms)
 			this.lr = false
 			keyDai = true
 		}else if(type === "ka" || type === "daiKa" || drumrollNotes){
-			this.setKey(this.lr ? kbd["ka_l"] : kbd["ka_r"], ms)
+			this.setKey(this.lr ? "ka_l" : "ka_r", ms)
 			this.lr = !this.lr
 		}
 		if(type === "balloon"){
@@ -110,8 +109,7 @@ class Mekadon{
 	getMS(){
 		return this.controller.getElapsedTime()
 	}
-	setKey(keyCode, ms){
-		this.controller.setKey(keyCode, false)
-		this.controller.setKey(keyCode, true, ms)
+	setKey(name, ms){
+		this.controller.setKey(true, name, ms)
 	}
 }

@@ -1,33 +1,36 @@
 class Tutorial{
-	constructor(fromSongSel, songId, touchEnabled){
+	constructor(fromSongSel, songId){
 		this.fromSongSel = fromSongSel
 		this.songId = songId
-		this.touchEnabled = touchEnabled
-		loader.changePage("tutorial", fromSongSel || !touchEnabled)
+		loader.changePage("tutorial", true)
 		assets.sounds["bgm_setsume"].playLoop(0.1, false, 0, 1.054, 16.054)
-		this.endButton = document.getElementById("tutorial-end-button")
+		this.endButton = this.getElement("view-end-button")
 		
-		this.tutorialTitle = document.getElementById("tutorial-title")
+		this.tutorialTitle = this.getElement("view-title")
 		this.tutorialDiv = document.createElement("div")
-		document.getElementById("tutorial-content").appendChild(this.tutorialDiv)
+		this.getElement("view-content").appendChild(this.tutorialDiv)
 		this.setStrings()
 		
-		if(fromSongSel){
-			pageEvents.add(this.endButton, ["mousedown", "touchstart"], this.onEnd.bind(this))
-			pageEvents.keyAdd(this, "all", "down", event => {
-				if(event.keyCode === 13 || event.keyCode === 27 || event.keyCode === 8){
-					// Enter, Esc, Backspace
-					this.onEnd.bind(this)
-				}
-			})
-			
-			this.gamepad = new Gamepad({
-				"confirm": ["start", "b", "ls", "rs"]
-			}, this.onEnd.bind(this))
-		}else{
-			new SettingsView(touchEnabled, this)
-		}
+		pageEvents.add(this.endButton, ["mousedown", "touchstart"], event => {
+			if(event.type === "touchstart"){
+				event.preventDefault()
+				this.touched = true
+			}else if(event.type === "mousedown" && event.which !== 1){
+				return
+			}
+			this.onEnd(true)
+		})
+		this.keyboard = new Keyboard({
+			confirm: ["enter", "space", "esc", "don_l", "don_r"]
+		}, this.onEnd.bind(this))
+		this.gamepad = new Gamepad({
+			confirm: ["start", "b", "ls", "rs"]
+		}, this.onEnd.bind(this))
+		
 		pageEvents.send("tutorial")
+	}
+	getElement(name){
+		return loader.screen.getElementsByClassName(name)[0]
 	}
 	insertText(text, parent){
 		parent.appendChild(document.createTextNode(text))
@@ -37,43 +40,30 @@ class Tutorial{
 		kbd.innerText = key
 		parent.appendChild(kbd)
 	}
-	onEnd(event){
-		var touched = false
-		if(event){
-			if(event.type === "touchstart"){
-				event.preventDefault()
-				touched = true
-			}else if(event.which !== 1){
-				return
-			}
+	onEnd(pressed, name){
+		if(pressed){
+			this.clean()
+			assets.sounds["se_don"].play()
+			localStorage.setItem("tutorial", "true")
+			setTimeout(() => {
+				new SongSelect(this.fromSongSel ? "tutorial" : false, false, this.touched, this.songId)
+			}, 500)
 		}
-		this.clean()
-		assets.sounds["se_don"].play()
-		localStorage.setItem("tutorial", "true")
-		setTimeout(() => {
-			new SongSelect(this.fromSongSel ? "tutorial" : false, false, touched, this.songId)
-		}, 500)
 	}
 	setStrings(){
-		if(!this.fromSongSel && this.touchEnabled){
-			this.tutorialTitle.innerText = strings.gameSettings
-			this.tutorialTitle.setAttribute("alt", strings.gameSettings)
-			this.endButton.innerText = strings.settings.ok
-			this.endButton.setAttribute("alt", strings.settings.ok)
-			return
-		}
 		this.tutorialTitle.innerText = strings.howToPlay
 		this.tutorialTitle.setAttribute("alt", strings.howToPlay)
 		this.endButton.innerText = strings.tutorial.ok
 		this.endButton.setAttribute("alt", strings.tutorial.ok)
 		this.tutorialDiv.innerHTML = ""
 		var kbdSettings = settings.getItem("keyboardSettings")
+		var pauseKey = pageEvents.kbd.indexOf("q") === -1 ? "Q" : "ESC"
 		var keys = [
 			kbdSettings.don_l[0].toUpperCase(),
 			kbdSettings.don_r[0].toUpperCase(),
 			kbdSettings.ka_l[0].toUpperCase(),
 			kbdSettings.ka_r[0].toUpperCase(),
-			"Q", "SHIFT", "CTRL"
+			pauseKey, "SHIFT", "CTRL"
 		]
 		var keyIndex = 0
 		strings.tutorial.basics.forEach(string => {
@@ -105,11 +95,9 @@ class Tutorial{
 		this.tutorialDiv.appendChild(par)
 	}
 	clean(){
-		if(this.fromSongSel){
-			this.gamepad.clean()
-			pageEvents.remove(this.endButton, ["mousedown", "touchstart"])
-			pageEvents.keyRemove(this, "all")
-		}
+		this.keyboard.clean()
+		this.gamepad.clean()
+		pageEvents.remove(this.endButton, ["mousedown", "touchstart"])
 		assets.sounds["bgm_setsume"].stop()
 		delete this.tutorialTitle
 		delete this.endButton

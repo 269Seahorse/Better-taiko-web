@@ -289,16 +289,17 @@ class SongSelect{
 		this.startPreview(true)
 		
 		this.pressedKeys = {}
-		var kbdSettings = settings.getItem("keyboardSettings")
-		this.kbd = {
-			confirm: ["enter", " ", kbdSettings.don_l[0], kbdSettings.don_r[0]],
+		this.keyboard = new Keyboard({
+			confirm: ["enter", "space", "don_l", "don_r"],
 			back: ["escape"],
-			left: ["arrowleft", kbdSettings.ka_l[0]],
-			right: ["arrowright", kbdSettings.ka_r[0]],
-			up: ["arrowup"],
-			down: ["arrowdown"],
-			session: ["backspace"]
-		}
+			left: ["left", "ka_l"],
+			right: ["right", "ka_r"],
+			up: ["up"],
+			down: ["down"],
+			session: ["backspace"],
+			ctrl: ["ctrl"],
+			shift: ["shift"]
+		}, this.keyPress.bind(this))
 		this.gamepad = new Gamepad({
 			confirm: ["b", "start", "ls", "rs"],
 			back: ["a"],
@@ -309,13 +310,12 @@ class SongSelect{
 			session: ["back"],
 			ctrl: ["y"],
 			shift: ["x"]
-		})
+		}, this.keyPress.bind(this))
 		
 		if(!assets.customSongs){
 			this.startP2()
 		}
 		
-		pageEvents.keyAdd(this, "all", "down", this.keyDown.bind(this))
 		pageEvents.add(loader.screen, "mousemove", this.mouseMove.bind(this))
 		pageEvents.add(loader.screen, "mouseleave", () => {
 			this.state.moveHover = null
@@ -341,61 +341,47 @@ class SongSelect{
 		}
 	}
 	
-	keyDown(event, key){
-		if(key){
-			var modifiers = {
-				shift: this.pressedKeys["shift"],
-				ctrl: this.pressedKeys["ctrl"]
+	keyPress(pressed, name, event){
+		if(pressed){
+			if(!this.pressedKeys[name]){
+				this.pressedKeys[name] = this.getMS() + 300
 			}
 		}else{
-			var modifiers = {
-				shift: event.shiftKey,
-				ctrl: event.ctrlKey
-			}
-			for(var i in this.kbd){
-				if(this.kbd[i].indexOf(event.key.toLowerCase()) !== -1){
-					key = i
-					break
-				}
-			}
-		}
-		if(key === "ctrl" || key === "shift" || !this.redrawRunning){
+			this.pressedKeys[name] = 0
 			return
 		}
-		
-		if(event && (event.keyCode === 27 || event.keyCode === 8 || event.keyCode === 9)){
-			// Escape, Backspace, Tab
-			event.preventDefault()
+		if(name === "ctrl" || name === "shift" || !this.redrawRunning){
+			return
 		}
 		if(this.state.screen === "song"){
-			if(key === "confirm"){
+			if(name === "confirm"){
 				this.toSelectDifficulty()
-			}else if(key === "back"){
+			}else if(name === "back"){
 				this.toTitleScreen()
-			}else if(key === "session"){
+			}else if(name === "session"){
 				this.toSession()
-			}else if(key === "left"){
+			}else if(name === "left"){
 				this.moveToSong(-1)
-			}else if(key === "right"){
+			}else if(name === "right"){
 				this.moveToSong(1)
 			}
 		}else if(this.state.screen === "difficulty"){
-			if(key === "confirm"){
+			if(name === "confirm"){
 				if(this.selectedDiff === 0){
 					this.toSongSelect()
 				}else if(this.selectedDiff === 1){
 					this.toOptions(1)
 				}else{
-					this.toLoadSong(this.selectedDiff - this.diffOptions.length, modifiers.shift, modifiers.ctrl)
+					this.toLoadSong(this.selectedDiff - this.diffOptions.length, this.pressedKeys["shift"], this.pressedKeys["ctrl"])
 				}
-			}else if(key === "back" || key === "session"){
+			}else if(name === "back" || name === "session"){
 				this.toSongSelect()
-			}else if(key === "left"){
+			}else if(name === "left"){
 				this.moveToDiff(-1)
-			}else if(key === "right"){
+			}else if(name === "right"){
 				this.moveToDiff(1)
-			}else if(this.selectedDiff === 1 && (key === "up" || key === "down")){
-				this.toOptions(key === "up" ? -1 : 1)
+			}else if(this.selectedDiff === 1 && (name === "up" || name === "down")){
+				this.toOptions(name === "up" ? -1 : 1)
 			}
 		}
 	}
@@ -781,20 +767,10 @@ class SongSelect{
 		requestAnimationFrame(this.redrawBind)
 		var ms = this.getMS()
 		
-		this.gamepad.play((pressed, keyCode) => {
-			if(pressed){
-				if(!this.pressedKeys[keyCode]){
-					this.pressedKeys[keyCode] = ms + 300
-					this.keyDown(false, keyCode)
-				}
-			}else{
-				this.pressedKeys[keyCode] = 0
-			}
-		})
 		for(var key in this.pressedKeys){
 			if(this.pressedKeys[key]){
 				if(ms >= this.pressedKeys[key] + 50){
-					this.keyDown(false, key)
+					this.keyPress(true, key)
 					this.pressedKeys[key] = ms
 				}
 			}
@@ -1957,6 +1933,8 @@ class SongSelect{
 	}
 	
 	clean(){
+		this.keyboard.clean()
+		this.gamepad.clean()
 		this.clearHash()
 		this.draw.clean()
 		this.songTitleCache.clean()
@@ -1979,7 +1957,6 @@ class SongSelect{
 				song.preview_sound.clean()
 			}
 		})
-		pageEvents.keyRemove(this, "all")
 		pageEvents.remove(loader.screen, ["mousemove", "mouseleave", "mousedown", "touchstart"])
 		pageEvents.remove(this.canvas, "touchend")
 		pageEvents.remove(p2, "message")

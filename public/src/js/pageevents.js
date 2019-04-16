@@ -3,10 +3,12 @@ class PageEvents{
 		this.allEvents = new Map()
 		this.keyListeners = new Map()
 		this.mouseListeners = new Map()
+		this.blurListeners = new Map()
 		this.lastKeyEvent = -Infinity
 		this.add(window, "keydown", this.keyEvent.bind(this))
 		this.add(window, "keyup", this.keyEvent.bind(this))
 		this.add(window, "mousemove", this.mouseEvent.bind(this))
+		this.add(window, "blur", this.blurEvent.bind(this))
 		this.kbd = []
 	}
 	add(target, type, callback){
@@ -142,6 +144,15 @@ class PageEvents{
 	mouseRemove(target){
 		this.mouseListeners.delete(target)
 	}
+	blurEvent(event){
+		this.blurListeners.forEach(callback => callback(event))
+	}
+	blurAdd(target, callback){
+		this.blurListeners.set(target, callback)
+	}
+	blurRemove(target){
+		this.blurListeners.delete(target)
+	}
 	getMouse(){
 		return this.lastMouse
 	}
@@ -149,12 +160,13 @@ class PageEvents{
 		dispatchEvent(new CustomEvent(name, {detail: detail}))
 	}
 	setKbd(){
+		this.kbd = []
 		var kbdSettings = settings.getItem("keyboardSettings")
-		this.kbd = [
-			kbdSettings.ka_l[0],
-			kbdSettings.don_l[0],
-			kbdSettings.don_r[0],
-			kbdSettings.ka_r[0]
-		]
+		for(var name in kbdSettings){
+			var keys = kbdSettings[name]
+			for(var i in keys){
+				this.kbd.push(keys[i])
+			}
+		}
 	}
 }

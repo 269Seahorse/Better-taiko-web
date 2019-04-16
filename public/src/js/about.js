@@ -4,20 +4,20 @@
 		loader.changePage("about", true)
 		cancelTouch = false
 		
-		this.endButton = document.getElementById("tutorial-end-button")
+		this.endButton = this.getElement("view-end-button")
 		this.diagTxt = document.getElementById("diag-txt")
 		this.version = document.getElementById("version-link").href
-		this.tutorialOuter = document.getElementById("tutorial-outer")
+		this.tutorialOuter = this.getElement("view-outer")
 		if(touchEnabled){
 			this.tutorialOuter.classList.add("touch-enabled")
 		}
 		this.linkIssues = document.getElementById("link-issues")
 		this.linkEmail = document.getElementById("link-email")
 		
-		var tutorialTitle = document.getElementById("tutorial-title")
+		var tutorialTitle = this.getElement("view-title")
 		tutorialTitle.innerText = strings.aboutSimulator
 		tutorialTitle.setAttribute("alt", strings.aboutSimulator)
-		var tutorialContent = document.getElementById("tutorial-content")
+		var tutorialContent = this.getElement("view-content")
 		strings.about.bugReporting.forEach(string => {
 			tutorialContent.appendChild(document.createTextNode(string))
 			tutorialContent.appendChild(document.createElement("br"))
@@ -32,20 +32,18 @@
 		var versionUrl = gameConfig._version.url
 		this.getLink(this.linkIssues).href = versionUrl + "issues"
 		
-		var kbdSettings = settings.getItem("keyboardSettings")
-		this.kbd = {
-			confirm: ["enter", " ", kbdSettings.don_l[0], kbdSettings.don_r[0]],
-			previous: ["arrowleft", "arrowup", kbdSettings.ka_l[0]],
-			next: ["arrowright", "arrowdown", kbdSettings.ka_r[0]],
-			back: ["backspace", "escape"]
-		}
 		pageEvents.add(this.linkIssues, ["click", "touchend"], this.linkButton.bind(this))
 		pageEvents.add(this.linkEmail, ["click", "touchend"], this.linkButton.bind(this))
 		pageEvents.add(this.endButton, ["mousedown", "touchstart"], this.onEnd.bind(this))
-		pageEvents.keyAdd(this, "all", "down", this.keyEvent.bind(this))
 		this.items = [this.linkIssues, this.linkEmail, this.endButton]
 		this.selected = 2
 		
+		this.keyboard = new Keyboard({
+			confirm: ["enter", "space", "don_l", "don_r"],
+			previous: ["left", "up", "ka_l"],
+			next: ["right", "down", "ka_r"],
+			back: ["escape"]
+		}, this.keyPressed.bind(this))
 		this.gamepad = new Gamepad({
 			"confirm": ["b", "ls", "rs"],
 			"previous": ["u", "l", "lb", "lt", "lsu", "lsl"],
@@ -55,19 +53,8 @@
 		
 		pageEvents.send("about", this.addDiag())
 	}
-	keyEvent(event){
-		if(event.keyCode === 27 || event.keyCode === 8 || event.keyCode === 9){
-			// Escape, Backspace, Tab
-			event.preventDefault()
-		}
-		if(!event.repeat){
-			for(var i in this.kbd){
-				if(this.kbd[i].indexOf(event.key.toLowerCase()) !== -1){
-					this.keyPressed(true, i)
-					break
-				}
-			}
-		}
+	getElement(name){
+		return loader.screen.getElementsByClassName(name)[0]
 	}
 	keyPressed(pressed, name){
 		if(!pressed){
@@ -215,6 +202,7 @@
 	}
 	clean(){
 		cancelTouch = true
+		this.keyboard.clean()
 		this.gamepad.clean()
 		pageEvents.remove(this.linkIssues, ["click", "touchend"])
 		pageEvents.remove(this.linkEmail, ["click", "touchend"])

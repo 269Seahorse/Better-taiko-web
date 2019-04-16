@@ -830,11 +830,10 @@
 		)
 		
 		// Taiko pressed keys
-		var kbd = this.controller.getBindings()
 		var keys = ["ka_l", "ka_r", "don_l", "don_r"]
 		
 		for(var i = 0; i < keys.length; i++){
-			var keyMS = ms - keyTime[kbd[keys[i]]]
+			var keyMS = ms - keyTime[keys[i]]
 			if(keyMS < 130){
 				if(keyMS > 70 && !this.touchEnabled){
 					ctx.globalAlpha = this.draw.easeOut(1 - (keyMS - 70) / 60)
@@ -1769,11 +1768,10 @@
 	}
 	touchNote(note){
 		var keyboard = this.controller.keyboard
-		var kbd = keyboard.getBindings()
 		var ms = this.controller.game.getAccurateTime()
 		this.touch = ms
-		keyboard.setKey(kbd[note], false)
-		keyboard.setKey(kbd[note], true, ms)
+		keyboard.setKey(false, note)
+		keyboard.setKey(true, note, ms)
 	}
 	mod(length, index){
 		return ((index % length) + length) % length

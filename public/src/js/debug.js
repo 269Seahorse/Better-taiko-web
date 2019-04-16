@@ -202,11 +202,10 @@ class Debug{
 			this.controller.autoPlayEnabled = this.autoplayCheckbox.checked
 			if(!this.controller.autoPlayEnabled){
 				var keyboard = debugObj.controller.keyboard
-				var kbd = keyboard.getBindings()
-				keyboard.setKey(kbd.don_l, false)
-				keyboard.setKey(kbd.don_r, false)
-				keyboard.setKey(kbd.ka_l, false)
-				keyboard.setKey(kbd.ka_r, false)
+				keyboard.setKey(false, "don_l")
+				keyboard.setKey(false, "don_r")
+				keyboard.setKey(false, "ka_l")
+				keyboard.setKey(false, "ka_r")
 			}
 		}
 	}

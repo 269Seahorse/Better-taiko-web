@@ -28,6 +28,12 @@ class Settings{
 					ka_r: ["k"]
 				},
 				touch: false
+			},
+			gamepadLayout: {
+				type: "gamepad",
+				options: ["a", "b", "c"],
+				default: "a",
+				gamepad: true
 			}
 		}
 		
@@ -42,7 +48,7 @@ class Settings{
 						this.storage[i] = null
 					}
 				}else if(i in storage){
-					if(current.type === "select" && current.options.indexOf(storage[i]) === -1){
+					if((current.type === "select" || current.type === "gamepad") && current.options.indexOf(storage[i]) === -1){
 						this.storage[i] = null
 					}else if(current.type === "keyboard"){
 						var obj = {}
@@ -116,29 +122,50 @@ class Settings{
 }
 
 class SettingsView{
-	constructor(touchEnabled, tutorial){
+	constructor(touchEnabled, tutorial, songId){
 		this.touchEnabled = touchEnabled
 		this.tutorial = tutorial
-		if(!tutorial){
-			loader.changePage("settings", tutorial)
-			assets.sounds["bgm_settings"].playLoop(0.1, false, 0, 1.392, 26.992)
-			this.defaultButton = document.getElementById("settings-default")
-		}else if(touchEnabled){
-			document.getElementById("tutorial-outer").classList.add("settings-outer")
-		}
+		this.songId = songId
+		
+		loader.changePage("settings", tutorial)
+		assets.sounds["bgm_settings"].playLoop(0.1, false, 0, 1.392, 26.992)
+		this.defaultButton = document.getElementById("settings-default")
 		if(touchEnabled){
-			document.getElementById("tutorial-outer").classList.add("touch-enabled")
+			this.getElement("view-outer").classList.add("touch-enabled")
+		}
+		var gamepadEnabled = false
+		if("getGamepads" in navigator){
+			var gamepads = navigator.getGamepads()
+			for(var i = 0; i < gamepads.length; i++){
+				if(gamepads[i]){
+					gamepadEnabled = true
+					break
+				}
+			}
 		}
 		this.mode = "settings"
 		
-		this.tutorialTitle = document.getElementById("tutorial-title")
-		this.endButton = document.getElementById("tutorial-end-button")
-		if(!tutorial){
-			this.setStrings()
-		}
+		this.keyboard = new Keyboard({
+			"confirm": ["enter", "space", "don_l", "don_r"],
+			"up": ["up"],
+			"previous": ["left", "ka_l"],
+			"next": ["right", "down", "ka_r"],
+			"back": ["esc"],
+			"other": ["wildcard"]
+		}, this.keyPressed.bind(this))
+		this.gamepad = new Gamepad({
+			"confirm": ["b", "ls", "rs"],
+			"up": ["u", "lsu"],
+			"previous": ["l", "lb", "lt", "lsl"],
+			"next": ["d", "r", "rb", "rt", "lsd", "lsr"],
+			"back": ["start", "a"]
+		}, this.keyPressed.bind(this))
+		
+		this.viewTitle = this.getElement("view-title")
+		this.endButton = this.getElement("view-end-button")
 		this.resolution = settings.getItem("resolution")
 		
-		var content = document.getElementById("tutorial-content")
+		var content = this.getElement("view-content")
 		this.items = []
 		this.selected = tutorial ? 1 : 0
 		for(let i in settings.items){
@@ -146,6 +173,7 @@ class SettingsView{
 			if(
 				!touchEnabled && current.touch === true ||
 				touchEnabled && current.touch === false ||
+				!gamepadEnabled && current.gamepad === true ||
 				tutorial && current.type !== "language"
 			){
 				continue
@@ -166,12 +194,7 @@ class SettingsView{
 			if(this.items.length === this.selected){
 				settingBox.classList.add("selected")
 			}
-			pageEvents.add(settingBox, ["mousedown", "touchstart"], event => {
-				if(event.type !== "mousedown" || event.which === 1){
-					event.preventDefault()
-					this.setValue(i)
-				}
-			})
+			this.addTouch(settingBox, event => this.setValue(i))
 			this.items.push({
 				id: i,
 				settingBox: settingBox,
@@ -179,58 +202,82 @@ class SettingsView{
 				valueDiv: valueDiv
 			})
 		}
-		if(!tutorial){
+		if(tutorial){
+			this.defaultButton.style.display = "none"
+			this.endButton.classList.add("selected")
+		}else{
 			this.items.push({
 				id: "default",
 				settingBox: this.defaultButton
 			})
-			pageEvents.add(this.defaultButton, ["mousedown", "touchstart"], this.defaultSettings.bind(this))
+			this.addTouch(this.defaultButton, this.defaultSettings.bind(this))
 		}
 		this.items.push({
 			id: "back",
 			settingBox: this.endButton
 		})
+		this.addTouch(this.endButton, this.onEnd.bind(this))
 		
-		this.setKbd()
-		pageEvents.add(this.endButton, ["mousedown", "touchstart"], this.onEnd.bind(this))
-		pageEvents.keyAdd(this, "all", "down", this.keyEvent.bind(this))
-		this.gamepad = new Gamepad({
-			"confirm": ["b", "ls", "rs"],
-			"up": ["u", "lsu"],
-			"previous": ["l", "lb", "lt", "lsl"],
-			"next": ["d", "r", "rb", "rt", "lsd", "lsr"],
-			"back": ["start", "a"]
-		}, this.keyPressed.bind(this))
-		if(!tutorial){
-			pageEvents.send("settings")
-		}
+		this.gamepadSettings = document.getElementById("settings-gamepad")
+		this.addTouch(this.gamepadSettings, event => {
+			if(event.target === event.currentTarget){
+				this.gamepadBack()
+			}
+		})
+		this.gamepadTitle = this.gamepadSettings.getElementsByClassName("view-title")[0]
+		this.gamepadEndButton = this.gamepadSettings.getElementsByClassName("view-end-button")[0]
+		this.addTouch(this.gamepadEndButton, event => this.gamepadBack(true))
+		this.gamepadBg = document.getElementById("gamepad-bg")
+		this.addTouch(this.gamepadBg, event => this.gamepadSet(1))
+		this.gamepadButtons = document.getElementById("gamepad-buttons")
+		this.gamepadValue = document.getElementById("gamepad-value")
+		
+		this.setStrings()
+		
+		pageEvents.send("settings")
 	}
-	setKbd(){
-		var kbdSettings = settings.getItem("keyboardSettings")
-		this.kbd = {
-			"confirm": ["enter", " ", kbdSettings.don_l[0], kbdSettings.don_r[0]],
-			"up": ["arrowup"],
-			"previous": ["arrowleft", kbdSettings.ka_l[0]],
-			"next": ["arrowright", "arrowdown", kbdSettings.ka_r[0]],
-			"back": ["backspace", "escape"]
-		}
+	getElement(name){
+		return loader.screen.getElementsByClassName(name)[0]
+	}
+	addTouch(element, callback){
+		pageEvents.add(element, ["mousedown", "touchstart"], event => {
+			if(event.type === "touchstart"){
+				event.preventDefault()
+				this.touched = true
+			}else if(event.which !== 1){
+				return
+			}else{
+				this.touched = false
+			}
+			callback(event)
+		})
+	}
+	removeTouch(element){
+		pageEvents.remove(element, ["mousedown", "touchstart"])
 	}
 	getValue(name, valueDiv){
 		var current = settings.items[name]
 		var value = settings.getItem(name)
 		if(current.type === "language"){
 			value = allStrings[value].name + " (" + value + ")"
-		}else if(current.type === "select"){
+		}else if(current.type === "select" || current.type === "gamepad"){
 			value = strings.settings[name][value]
 		}else if(current.type === "toggle"){
 			value = value ? strings.settings.on : strings.settings.off
 		}else if(current.type === "keyboard"){
 			valueDiv.innerHTML = ""
 			for(var i in value){
-				var key = document.createElement("div")
-				key.style.color = i === "ka_l" || i === "ka_r" ? "#009aa5" : "#ef2c10"
-				key.innerText = value[i][0].toUpperCase()
-				valueDiv.appendChild(key)
+				var keyDiv = document.createElement("div")
+				keyDiv.style.color = i === "ka_l" || i === "ka_r" ? "#009aa5" : "#ef2c10"
+				var key = value[i][0]
+				for(var j in this.keyboard.substitute){
+					if(this.keyboard.substitute[j] === key){
+						key = j
+						break
+					}
+				}
+				keyDiv.innerText = key.toUpperCase()
+				valueDiv.appendChild(keyDiv)
 			}
 			return
 		}
@@ -264,6 +311,12 @@ class SettingsView{
 			this.keyboardSet()
 			assets.sounds["se_don"].play()
 			return
+		}else if(current.type === "gamepad"){
+			this.mode = "gamepad"
+			this.gamepadSelected = current.options.indexOf(value)
+			this.gamepadSet()
+			assets.sounds["se_don"].play()
+			return
 		}
 		settings.setItem(name, value)
 		this.getValue(name, this.items[this.selected].valueDiv)
@@ -272,37 +325,11 @@ class SettingsView{
 			this.setLang(allStrings[value])
 		}
 	}
-	keyEvent(event){
-		if(event.keyCode === 27 || event.keyCode === 8 || event.keyCode === 9){
-			// Escape, Backspace, Tab
-			event.preventDefault()
-		}
-		if(!event.repeat){
-			for(var i in this.kbd){
-				if(this.kbd[i].indexOf(event.key.toLowerCase()) !== -1){
-					if(this.mode !== "keyboard" || i === "back"){
-						this.keyPressed(true, i)
-						return
-					}
-				}
-			}
-			if(this.mode === "keyboard"){
-				event.preventDefault()
-				var currentKey = event.key.toLowerCase()
-				for(var i in this.keyboardKeys){
-					if(this.keyboardKeys[i][0] === currentKey || !currentKey){
-						return
-					}
-				}
-				this.keyboardKeys[this.keyboardCurrent] = [currentKey]
-				this.keyboardSet()
-			}
-		}
-	}
-	keyPressed(pressed, name){
+	keyPressed(pressed, name, event){
 		if(!pressed){
 			return
 		}
+		this.touched = false
 		var selected = this.items[this.selected]
 		if(this.mode === "settings"){
 			if(name === "confirm"){
@@ -325,9 +352,30 @@ class SettingsView{
 			}else if(name === "back"){
 				this.onEnd()
 			}
+		}else if(this.mode === "gamepad"){
+			if(name === "confirm"){
+				this.gamepadBack(true)
+			}else if(name === "up" || name === "previous" || name === "next"){
+				this.gamepadSet(name === "next" ? 1 : -1)
+			}else if(name === "back"){
+				this.gamepadBack()
+			}
 		}else if(this.mode === "keyboard"){
 			if(name === "back"){
 				this.keyboardBack(selected)
+				assets.sounds["se_cancel"].play()
+			}else{
+				event.preventDefault()
+				var currentKey = event.key.toLowerCase()
+				for(var i in this.keyboardKeys){
+					if(this.keyboardKeys[i][0] === currentKey || !currentKey){
+						return
+					}
+				}
+				var current = this.keyboardCurrent
+				assets.sounds[current === "ka_l" || current === "ka_r" ? "se_ka" : "se_don"].play()
+				this.keyboardKeys[current] = [currentKey]
+				this.keyboardSet()
 			}
 		}
 	}
@@ -336,21 +384,28 @@ class SettingsView{
 		var current = settings.items[selected.id]
 		selected.valueDiv.innerHTML = ""
 		for(var i in current.default){
-			var key = document.createElement("div")
-			key.style.color = i === "ka_l" || i === "ka_r" ? "#009aa5" : "#ef2c10"
+			var keyDiv = document.createElement("div")
+			keyDiv.style.color = i === "ka_l" || i === "ka_r" ? "#009aa5" : "#ef2c10"
 			if(this.keyboardKeys[i]){
-				key.innerText = this.keyboardKeys[i][0].toUpperCase()
-				selected.valueDiv.appendChild(key)
+				var key = this.keyboardKeys[i][0]
+				for(var j in this.keyboard.substitute){
+					if(this.keyboard.substitute[j] === key){
+						key = j
+						break
+					}
+				}
+				keyDiv.innerText = key.toUpperCase()
+				selected.valueDiv.appendChild(keyDiv)
 			}else{
-				key.innerText = "[" + strings.settings[selected.id][i] + "]"
-				selected.valueDiv.appendChild(key)
+				keyDiv.innerText = "[" + strings.settings[selected.id][i] + "]"
+				selected.valueDiv.appendChild(keyDiv)
 				this.keyboardCurrent = i
 				return
 			}
 		}
 		settings.setItem(selected.id, this.keyboardKeys)
 		this.keyboardBack(selected)
-		this.setKbd()
+		this.keyboard.update()
 		pageEvents.setKbd()
 	}
 	keyboardBack(selected){
@@ -359,10 +414,38 @@ class SettingsView{
 		selected.valueDiv.classList.remove("selected")
 		this.getValue(selected.id, selected.valueDiv)
 	}
-	defaultSettings(event){
-		if(event && event.type === "touchstart"){
-			event.preventDefault()
+	gamepadSet(diff){
+		if(this.mode !== "gamepad"){
+			return
 		}
+		var selected = this.items[this.selected]
+		var current = settings.items[selected.id]
+		if(diff){
+			this.gamepadSelected = this.mod(current.options.length, this.gamepadSelected + diff)
+			assets.sounds["se_ka"].play()
+		}
+		var opt = current.options[this.gamepadSelected]
+		this.gamepadValue.innerText = strings.settings[selected.id][opt]
+		this.gamepadButtons.style.backgroundPosition = "0 " + (-318 - 132 * this.gamepadSelected) + "px"
+		this.gamepadSettings.style.display = "block"
+	}
+	gamepadBack(save){
+		if(this.mode !== "gamepad"){
+			return
+		}
+		if(save){
+			var selected = this.items[this.selected]
+			var current = settings.items[selected.id]
+			settings.setItem(selected.id, current.options[this.gamepadSelected])
+			this.getValue(selected.id, selected.valueDiv)
+			assets.sounds["se_don"].play()
+		}else{
+			assets.sounds["se_cancel"].play()
+		}
+		this.gamepadSettings.style.display = ""
+		this.mode = "settings"
+	}
+	defaultSettings(){
 		if(this.mode === "keyboard"){
 			this.keyboardBack(this.items[this.selected])
 		}
@@ -370,27 +453,19 @@ class SettingsView{
 			settings.setItem(i, null)
 		}
 		this.setLang(allStrings[settings.getItem("language")])
-		this.setKbd()
+		this.keyboard.update()
+		pageEvents.setKbd()
 		assets.sounds["se_don"].play()
 	}
-	onEnd(event){
-		if(this.tutorial){
-			this.clean()
-			return this.tutorial.onEnd(event)
-		}
-		var touched = false
-		if(event){
-			if(event.type === "touchstart"){
-				event.preventDefault()
-				touched = true
-			}else if(event.which !== 1){
-				return
-			}
-		}
+	onEnd(){
 		this.clean()
 		assets.sounds["se_don"].play()
 		setTimeout(() => {
-			new SongSelect("settings", false, touched)
+			if(this.tutorial && !this.touched){
+				new Tutorial(false, this.songId)
+			}else{
+				new SongSelect(this.tutorial ? false : "settings", false, this.touched, this.songId)
+			}
 		}, 500)
 	}
 	setLang(lang){
@@ -410,33 +485,44 @@ class SettingsView{
 		this.setStrings()
 	}
 	setStrings(){
-		if(this.tutorial){
-			this.tutorial.setStrings()
-		}else{
-			this.tutorialTitle.innerText = strings.gameSettings
-			this.tutorialTitle.setAttribute("alt", strings.gameSettings)
+		this.viewTitle.innerText = strings.gameSettings
+		this.viewTitle.setAttribute("alt", strings.gameSettings)
+		this.endButton.innerText = strings.settings.ok
+		this.endButton.setAttribute("alt", strings.settings.ok)
+		this.gamepadTitle.innerText = strings.settings.gamepadLayout.name
+		this.gamepadTitle.setAttribute("alt", strings.settings.gamepadLayout.name)
+		this.gamepadEndButton.innerText = strings.settings.ok
+		this.gamepadEndButton.setAttribute("alt", strings.settings.ok)
+		if(!this.tutorial){
 			this.defaultButton.innerText = strings.settings.default
 			this.defaultButton.setAttribute("alt", strings.settings.default)
-			this.endButton.innerText = strings.settings.ok
-			this.endButton.setAttribute("alt", strings.settings.ok)
 		}
 	}
 	mod(length, index){
 		return ((index % length) + length) % length
 	}
 	clean(){
+		this.keyboard.clean()
 		this.gamepad.clean()
 		assets.sounds["bgm_settings"].stop()
-		pageEvents.keyRemove(this, "all")
 		for(var i in this.items){
-			pageEvents.remove(this.items[i].settingBox, ["mousedown", "touchstart"])
+			this.removeTouch(this.items[i].settingBox)
 		}
 		if(this.defaultButton){
 			delete this.defaultButton
 		}
+		this.removeTouch(this.gamepadSettings)
+		this.removeTouch(this.gamepadEndButton)
+		this.removeTouch(this.gamepadBg)
 		delete this.tutorialTitle
 		delete this.endButton
 		delete this.items
+		delete this.gamepadSettings
+		delete this.gamepadTitle
+		delete this.gamepadEndButton
+		delete this.gamepadBg
+		delete this.gamepadButtons
+		delete this.gamepadValue
 		if(this.resolution !== settings.getItem("resolution")){
 			for(var i in assets.image){
 				if(i === "touch_drum" || i.startsWith("bg_song_") || i.startsWith("bg_stage_") || i.startsWith("bg_don_")){

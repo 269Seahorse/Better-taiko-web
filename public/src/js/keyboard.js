@@ -1,266 +1,105 @@
 class Keyboard{
-	constructor(controller){
-		this.controller = controller
-		this.game = this.controller.game
-		
+	constructor(bindings, callback){
+		this.bindings = bindings
+		this.callback = callback
+		this.wildcard = false
+		this.substitute = {
+			"up": "arrowup",
+			"right": "arrowright",
+			"down": "arrowdown",
+			"left": "arrowleft",
+			"space": " ",
+			"esc": "escape",
+			"ctrl": "control",
+			"altgr": "altgraph"
+		}
+		this.btn = {}
+		this.update()
+		pageEvents.keyAdd(this, "all", "both", this.keyEvent.bind(this))
+		pageEvents.blurAdd(this, this.blurEvent.bind(this))
+	}
+	update(){
 		var kbdSettings = settings.getItem("keyboardSettings")
-		this.kbd = {
-			"ka_l": kbdSettings.ka_l[0],
-			"don_l": kbdSettings.don_l[0],
-			"don_r": kbdSettings.don_r[0],
-			"ka_r": kbdSettings.ka_r[0],
-			"pause": "q",
-			"back": "backspace",
-			"previous": "arrowleft",
-			"next": "arrowright",
-			"confirm": "enter"
-		}
-		this.kbdAlias = {
-			"pause": ["escape"],
-			"previous": ["arrowup"],
-			"next": ["arrowdown"],
-			"confirm": [" "]
-		}
-		this.keys = {}
-		this.waitKeyupScore = {}
-		this.waitKeyupSound = {}
-		this.waitKeyupMenu = {}
-		this.keyTime = {
-			"don": -Infinity,
-			"ka": -Infinity
-		}
-		this.keyboardEvents = 0
-		
-		var gameBtn = {}
-		gameBtn[this.kbd["don_l"]] = ["u", "d", "l", "r", "ls"]
-		gameBtn[this.kbd["don_r"]] = ["a", "b", "x", "y", "rs"]
-		gameBtn[this.kbd["ka_l"]] = ["lb", "lt"]
-		gameBtn[this.kbd["ka_r"]] = ["rb", "rt"]
-		this.gamepad = new Gamepad(gameBtn)
-		this.gamepadInterval = setInterval(this.gamepadKeys.bind(this), 1000 / 60 / 2)
-		
-		var menuBtn = {
-			"cancel": ["a"],
-		}
-		menuBtn[this.kbd["confirm"]] = ["b", "ls", "rs"]
-		menuBtn[this.kbd["previous"]] = ["u", "l", "lb", "lt", "lsu", "lsl"],
-		menuBtn[this.kbd["next"]] = ["d", "r", "rb", "rt", "lsd", "lsr"]
-		menuBtn[this.kbd["pause"]] = ["start"]
-		this.gamepadMenu = new Gamepad(menuBtn)
-		
-		this.kbdSearch = {}
-		for(var name in this.kbdAlias){
-			var list = this.kbdAlias[name]
-			for(var i in list){
-				this.kbdSearch[list[i]] = this.kbd[name]
+		var drumKeys = {}
+		for(var name in kbdSettings){
+			var keys = kbdSettings[name]
+			for(var i in keys){
+				drumKeys[keys[i]] = name
 			}
 		}
-		for(var name in this.kbd){
-			this.kbdSearch[this.kbd[name]] = this.kbd[name]
-		}
-		
-		pageEvents.keyAdd(this, "all", "both", event => {
-			if(event.keyCode === 27 || event.keyCode === 8 || event.keyCode === 9){
-				// Escape, Backspace, Tab
-				event.preventDefault()
-			}
-			var key = this.kbdSearch[event.key.toLowerCase()]
-			if(key && !event.repeat && this.buttonEnabled(key)){
-				var ms = this.game.getAccurateTime()
-				this.setKey(key, event.type === "keydown", ms)
-				if(event.type === "keydown"){
-					this.keyboardEvents++
+		this.kbd = {}
+		for(var name in this.bindings){
+			var keys = this.bindings[name]
+			for(var i in keys){
+				var key = keys[i]
+				if(key in drumKeys){
+					continue
 				}
-			}
-		})
-		
-		if(controller.multiplayer === 1){
-			pageEvents.add(window, "beforeunload", event => {
-				if(p2.otherConnected){
-					pageEvents.send("p2-abandoned", event)
-				}
-			})
-		}
-	}
-	getBindings(){
-		return this.kbd
-	}
-	buttonEnabled(keyCode){
-		if(this.controller.autoPlayEnabled){
-			switch(keyCode){
-				case this.kbd["don_l"]:
-				case this.kbd["don_r"]:
-				case this.kbd["ka_l"]:
-				case this.kbd["ka_r"]:
-					return false
-			}
-		}
-		return true
-	}
-	checkGameKeys(){
-		if(this.controller.autoPlayEnabled){
-			this.checkKeySound(this.kbd["don_l"], "don")
-			this.checkKeySound(this.kbd["don_r"], "don")
-			this.checkKeySound(this.kbd["ka_l"], "ka")
-			this.checkKeySound(this.kbd["ka_r"], "ka")
-		}
-	}
-	gamepadKeys(){
-		if(!this.game.isPaused() && !this.controller.autoPlayEnabled){
-			this.gamepad.play((pressed, keyCode) => {
-				if(pressed){
-					if(this.keys[keyCode]){
-						this.setKey(keyCode, false)
-					}
-					this.setKey(keyCode, true, this.game.getAccurateTime())
-				}else{
-					this.setKey(keyCode, false)
-				}
-			})
-		}
-	}
-	checkMenuKeys(){
-		if(!this.controller.multiplayer && !this.locked){
-			var moveMenu = 0
-			var ms = this.game.getAccurateTime()
-			this.gamepadMenu.play((pressed, keyCode) => {
-				if(pressed){
-					if(this.game.isPaused()){
-						if(keyCode === "cancel"){
-							this.locked = true
-							return setTimeout(() => {
-								this.controller.togglePause()
-								this.locked = false
-							}, 200)
+				if(key in kbdSettings){
+					var keyArray = kbdSettings[key]
+					for(var j in keyArray){
+						key = keyArray[j]
+						if(!(key in this.kbd)){
+							this.kbd[key] = name
 						}
 					}
-					if(this.keys[keyCode]){
-						this.setKey(keyCode, false)
-					}
-					this.setKey(keyCode, true, ms)
 				}else{
-					this.setKey(keyCode, false)
-				}
-			})
-			this.checkKey(this.kbd["pause"], "menu", () => {
-				this.controller.togglePause()
-				for(var key in this.keyTime){
-					this.keys[key] = null
-					this.keyTime[key] = -Infinity
-				}
-			})
-			var moveMenuMinus = () => {
-				moveMenu = -1
-			}
-			var moveMenuPlus = () => {
-				moveMenu = 1
-			}
-			var moveMenuConfirm = () => {
-				if(this.game.isPaused()){
-					this.locked = true
-					setTimeout(() => {
-						this.controller.view.pauseConfirm()
-						this.locked = false
-					}, 200)
-				}
-			}
-			this.checkKey(this.kbd["previous"], "menu", moveMenuMinus)
-			this.checkKey(this.kbd["ka_l"], "menu", moveMenuMinus)
-			this.checkKey(this.kbd["next"], "menu", moveMenuPlus)
-			this.checkKey(this.kbd["ka_r"], "menu", moveMenuPlus)
-			this.checkKey(this.kbd["confirm"], "menu", moveMenuConfirm)
-			this.checkKey(this.kbd["don_l"], "menu", moveMenuConfirm)
-			this.checkKey(this.kbd["don_r"], "menu", moveMenuConfirm)
-			if(moveMenu && this.game.isPaused()){
-				assets.sounds["se_ka"].play()
-				this.controller.view.pauseMove(moveMenu)
-			}
-		}
-		if(this.controller.multiplayer !== 2){
-			this.checkKey(this.kbd["back"], "menu", () => {
-				if(this.controller.multiplayer === 1 && p2.otherConnected){
-					p2.send("gameend")
-					pageEvents.send("p2-abandoned")
-				}
-				this.controller.togglePause()
-				this.controller.songSelection()
-			})
-		}
-	}
-	checkKey(keyCode, type, callback){
-		if(this.keys[keyCode] && !this.isWaiting(keyCode, type)){
-			this.waitForKeyup(keyCode, type)
-			callback()
-		}
-	}
-	checkKeySound(keyCode, sound){
-		this.checkKey(keyCode, "sound", () => {
-			var circles = this.controller.getCircles()
-			var circle = circles[this.controller.getCurrentCircle()]
-			var currentTime = this.keyTime[keyCode]
-			this.keyTime[sound] = currentTime
-			if(circle && !circle.isPlayed){
-				if(circle.type === "balloon"){
-					if(sound === "don" && circle.requiredHits - circle.timesHit <= 1){
-						this.controller.playSound("se_balloon")
-						return
+					if(key in this.substitute){
+						key = this.substitute[key]
+					}
+					if(!(key in this.kbd)){
+						if(key === "wildcard"){
+							this.wildcard = true
+						}
+						this.kbd[key] = name
 					}
 				}
 			}
-			this.controller.playSound("neiro_1_" + sound)
-		})
+		}
 	}
-	getKeys(){
-		return this.keys
-	}
-	setKey(keyCode, down, ms){
-		if(down){
-			this.keys[keyCode] = true
-			if(this.game.isPaused()){
-				return
+	keyEvent(event){
+		var key = event.key.toLowerCase()
+		if(key === "escape" || key === "backspace" || key === "tab"){
+			event.preventDefault()
+		}
+		if(!event.repeat){
+			var pressed = event.type === "keydown"
+			if(pressed){
+				this.btn[key] = true
+			}else{
+				delete this.btn[key]
+				if(key in this.kbd){
+					for(var i in this.btn){
+						if(this.kbd[i] === this.kbd[key]){
+							return
+						}
+					}
+				}
 			}
-			this.keyTime[keyCode] = ms
-			if(keyCode == this.kbd.don_l || keyCode == this.kbd.don_r){
-				this.checkKeySound(keyCode, "don")
-			}else if(keyCode == this.kbd.ka_l || keyCode == this.kbd.ka_r){
-				this.checkKeySound(keyCode, "ka")
+			if(key in this.kbd){
+				this.callback(pressed, this.kbd[key], event)
+			}else if(this.wildcard){
+				this.callback(pressed, this.kbd["wildcard"], event)
 			}
-		}else{
-			this.keys[keyCode] = false
-			this.waitKeyupScore[keyCode] = false
-			this.waitKeyupSound[keyCode] = false
-			this.waitKeyupMenu[keyCode] = false
 		}
 	}
-	isWaiting(keyCode, type){
-		if(type === "score"){
-			return this.waitKeyupScore[keyCode]
-		}else if(type === "sound"){
-			return this.waitKeyupSound[keyCode]
-		}else if(type === "menu"){
-			return this.waitKeyupMenu[keyCode]
+	blurEvent(){
+		for(var key in this.btn){
+			if(this.btn[key]){
+				delete this.btn[key]
+				var name = this.kbd[key] || (this.wildcard ? "wildcard" : false)
+				if(name){
+					this.callback(false, name)
+				}
+			}
 		}
-	}
-	waitForKeyup(keyCode, type){
-		if(!this.keys[keyCode]){
-			return
-		}
-		if(type === "score"){
-			this.waitKeyupScore[keyCode] = true
-		}else if(type === "sound"){
-			this.waitKeyupSound[keyCode] = true
-		}else if(type === "menu"){
-			this.waitKeyupMenu[keyCode] = true
-		}
-	}
-	getKeyTime(){
-		return this.keyTime
 	}
 	clean(){
 		pageEvents.keyRemove(this, "all")
-		clearInterval(this.gamepadInterval)
-		if(this.controller.multiplayer === 1){
-			pageEvents.remove(window, "beforeunload")
-		}
+		pageEvents.blurRemove(this)
+		delete this.bindings
+		delete this.callback
+		delete this.kbd
+		delete this.btn
 	}
 }
