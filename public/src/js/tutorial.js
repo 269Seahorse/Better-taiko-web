@@ -44,7 +44,9 @@ class Tutorial{
 		if(pressed){
 			this.clean()
 			assets.sounds["se_don"].play()
-			localStorage.setItem("tutorial", "true")
+			try{
+				localStorage.setItem("tutorial", "true")
+			}catch(e){}
 			setTimeout(() => {
 				new SongSelect(this.fromSongSel ? "tutorial" : false, false, this.touched, this.songId)
 			}, 500)

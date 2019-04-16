@@ -431,19 +431,15 @@ class SettingsView{
 		this.gamepadButtons.style.backgroundPosition = "0 " + (-318 - 132 * this.gamepadSelected) + "px"
 		this.gamepadSettings.style.display = "block"
 	}
-	gamepadBack(save){
+	gamepadBack(confirm){
 		if(this.mode !== "gamepad"){
 			return
 		}
-		if(save){
-			var selected = this.items[this.selected]
-			var current = settings.items[selected.id]
-			settings.setItem(selected.id, current.options[this.gamepadSelected])
-			this.getValue(selected.id, selected.valueDiv)
-			assets.sounds["se_don"].play()
-		}else{
-			assets.sounds["se_cancel"].play()
-		}
+		var selected = this.items[this.selected]
+		var current = settings.items[selected.id]
+		settings.setItem(selected.id, current.options[this.gamepadSelected])
+		this.getValue(selected.id, selected.valueDiv)
+		assets.sounds[confirm ? "se_don" : "se_cancel"].play()
 		this.gamepadSettings.style.display = ""
 		this.mode = "settings"
 	}
@@ -466,6 +462,9 @@ class SettingsView{
 			if(this.tutorial && !this.touched){
 				new Tutorial(false, this.songId)
 			}else{
+				try{
+					localStorage.setItem("tutorial", "true")
+				}catch(e){}
 				new SongSelect(this.tutorial ? false : "settings", false, this.touched, this.songId)
 			}
 		}, 500)
