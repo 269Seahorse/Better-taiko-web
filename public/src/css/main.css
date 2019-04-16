@@ -40,10 +40,10 @@
 }
 @keyframes bgscroll{
 	from{
-		background-position: 0 top;
+		background-position: 50% top;
 	}
 	to{
-		background-position: calc(-100vh / 720 * 512) top;
+		background-position: calc(50% - 100vh / 720 * 512) top;
 	}
 }
 #song-select{

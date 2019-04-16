@@ -6,6 +6,7 @@
 	position: absolute;
 	width: 100%;
 	height: 100%;
+	background-position: center;
 }
 .view{
 	background: rgb(246, 234, 212);
@@ -13,10 +14,21 @@
 	border: 0.25em black solid;
 	border-radius: 0.5em;
 	width: 800px;
+	max-width: 40em;
 	padding: 1em;
 	margin: 1em;
 	font-size: 21px;
 	position: relative;
+}
+@media (max-width: 950px){
+	.view-outer:not(.touch-enabled) .view{
+		font-size: 3vmin;
+	}
+}
+@media (max-height: 650px){
+	.view-outer:not(.touch-enabled) .view{
+		font-size: 3vmin;
+	}
 }
 .touch-enabled .view{
 	font-size: 3vmin;
@@ -161,6 +173,8 @@ kbd{
 	padding: 0.3em;
 	font-size: 1.3em;
 	box-sizing: border-box;
+	white-space: nowrap;
+	overflow: hidden;
 }
 .view-content:not(:hover) .setting-box.selected .setting-name,
 .view-outer:not(.settings-outer) .setting-box.selected .setting-name,
