@@ -227,8 +227,8 @@ class SettingsView{
 		this.gamepadTitle = this.gamepadSettings.getElementsByClassName("view-title")[0]
 		this.gamepadEndButton = this.gamepadSettings.getElementsByClassName("view-end-button")[0]
 		this.addTouch(this.gamepadEndButton, event => this.gamepadBack(true))
-		this.gamepadBg = document.getElementById("gamepad-bg")
-		this.addTouch(this.gamepadBg, event => this.gamepadSet(1))
+		this.gamepadBox = this.gamepadSettings.getElementsByClassName("setting-box")[0]
+		this.addTouch(this.gamepadBox, event => this.gamepadSet(1))
 		this.gamepadButtons = document.getElementById("gamepad-buttons")
 		this.gamepadValue = document.getElementById("gamepad-value")
 		
@@ -425,7 +425,9 @@ class SettingsView{
 			assets.sounds["se_ka"].play()
 		}
 		var opt = current.options[this.gamepadSelected]
-		this.gamepadValue.innerText = strings.settings[selected.id][opt]
+		var value = strings.settings[selected.id][opt]
+		this.gamepadValue.innerText = value
+		this.gamepadValue.setAttribute("alt", value)
 		this.gamepadButtons.style.backgroundPosition = "0 " + (-318 - 132 * this.gamepadSelected) + "px"
 		this.gamepadSettings.style.display = "block"
 	}
@@ -513,14 +515,14 @@ class SettingsView{
 		}
 		this.removeTouch(this.gamepadSettings)
 		this.removeTouch(this.gamepadEndButton)
-		this.removeTouch(this.gamepadBg)
+		this.removeTouch(this.gamepadBox)
 		delete this.tutorialTitle
 		delete this.endButton
 		delete this.items
 		delete this.gamepadSettings
 		delete this.gamepadTitle
 		delete this.gamepadEndButton
-		delete this.gamepadBg
+		delete this.gamepadBox
 		delete this.gamepadButtons
 		delete this.gamepadValue
 		if(this.resolution !== settings.getItem("resolution")){

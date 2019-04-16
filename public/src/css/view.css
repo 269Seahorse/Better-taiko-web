@@ -164,7 +164,8 @@ kbd{
 }
 .view-content:not(:hover) .setting-box.selected .setting-name,
 .view-outer:not(.settings-outer) .setting-box.selected .setting-name,
-.setting-box:hover .setting-name{
+.setting-box:hover .setting-name,
+.setting-box:hover #gamepad-value{
 	color: #fff;
 	z-index: 0;
 }
@@ -210,15 +211,19 @@ kbd{
 	right: 0;
 	bottom: 0;
 	left: 0;
-	width: 550px;
-	height: 417px;
+	width: 574px;
+	height: 428px;
+	max-height: calc(100vh - 14em + 88px);
+}
+#settings-gamepad .setting-box{
+	height: auto;
 }
 #gamepad-bg{
 	position: relative;
 	width: 550px;
 	height: 317px;
 	max-height: none;
-	background-repeat: none;
+	background-repeat: no-repeat;
 	text-align: center;
 	font-size: 1.4em;
 	cursor: pointer;
@@ -230,6 +235,13 @@ kbd{
 	width: 282px;
 	height: 131px;
 	background-position: 0 -318px;
-	background-repeat: none;
+	background-repeat: no-repeat;
 	pointer-events: none;
+}
+#gamepad-value{
+	position: relative;
+	margin-top: 1em;
+}
+#gamepad-value::before{
+	left: auto;
 }
