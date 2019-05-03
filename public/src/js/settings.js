@@ -206,7 +206,6 @@ class SettingsView{
 			settingBox: this.defaultButton
 		})
 		this.addTouch(this.defaultButton, this.defaultSettings.bind(this))
-		}
 		this.items.push({
 			id: "back",
 			settingBox: this.endButton
