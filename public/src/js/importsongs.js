@@ -29,6 +29,8 @@
 		this.otherFiles = {}
 		this.songs = []
 		this.stylesheet = []
+		this.songTitle = {}
+		this.uraRegex = /\s*[\(（]裏[\)）]$/
 		this.courseTypes = {
 			"easy": 0,
 			"normal": 1,
@@ -82,7 +84,7 @@
 					file: file,
 					index: i
 				})
-			}else if(name === "genre.ini" || name === "box.def"){
+			}else if(name === "genre.ini" || name === "box.def" || name === "songtitle.txt"){
 				var level = (file.webkitRelativePath.match(/\//g) || []).length
 				metaFiles.push({
 					file: file,
@@ -154,6 +156,20 @@
 						break
 					}
 				}
+			}else if(name === "songtitle.txt"){
+				var lastTitle
+				for(var i = 0; i < data.length; i++){
+					var line = data[i].trim()
+					if(line){
+						var lang = line.slice(0, 2)
+						if(line.charAt(2) !== " " || !(lang in allStrings)){
+							this.songTitle[line] = {}
+							lastTitle = line
+						}else if(lastTitle){
+							this.songTitle[lastTitle][lang] = line.slice(3).trim()
+						}
+					}
+				}
 			}
 			if(category){
 				var metaPath = file.webkitRelativePath.toLowerCase().slice(0, file.name.length * -1)
@@ -168,7 +184,11 @@
 				this.osuFiles.forEach(filesLoop)
 			}
 		}).catch(() => {})
-		reader.readAsText(file, "sjis")
+		if(name === "songtitle.txt"){
+			reader.readAsText(file)
+		}else{
+			reader.readAsText(file, "sjis")
+		}
 		return promise
 	}
 	
@@ -212,8 +232,19 @@
 					songObj.song_skin = this.getSkin(dir, meta.taikowebskin)
 				}
 				for(var id in allStrings){
+					var songTitle = songObj.title
+					var ura = ""
+					if(songTitle){
+						var uraPos = songTitle.search(this.uraRegex)
+						if(uraPos !== -1){
+							ura = songTitle.slice(uraPos)
+							songTitle = songTitle.slice(0, uraPos)
+						}
+					}
 					if(meta["title" + id]){
 						titleLang[id] = meta["title" + id]
+					}else if(songTitle in this.songTitle && this.songTitle[songTitle][id]){
+						titleLang[id] = this.songTitle[songTitle][id] + ura
 					}
 					if(meta["subtitle" + id]){
 						subtitleLang[id] = meta["subtitle" + id]

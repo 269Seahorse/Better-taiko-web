@@ -106,6 +106,9 @@ class CanvasCache{
 		this.ctx.clearRect(0, 0, this.w, this.h)
 	}
 	clean(){
+		if(!this.canvas){
+			return
+		}
 		this.resize(1, 1, 1)
 		delete this.map
 		delete this.ctx

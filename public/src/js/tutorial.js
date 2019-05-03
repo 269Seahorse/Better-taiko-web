@@ -4,13 +4,69 @@ class Tutorial{
 		this.songId = songId
 		loader.changePage("tutorial", true)
 		assets.sounds["bgm_setsume"].playLoop(0.1, false, 0, 1.054, 16.054)
-		this.endButton = document.getElementById("tutorial-end-button")
+		this.endButton = this.getElement("view-end-button")
 		
-		var tutorialTitle = document.getElementById("tutorial-title")
-		tutorialTitle.innerText = strings.howToPlay
-		tutorialTitle.setAttribute("alt", strings.howToPlay)
-		var tutorialContent = document.getElementById("tutorial-content")
-		var keys = ["F", "J", "D", "K", "Q", "SHIFT", "CTRL"]
+		this.tutorialTitle = this.getElement("view-title")
+		this.tutorialDiv = document.createElement("div")
+		this.getElement("view-content").appendChild(this.tutorialDiv)
+		this.setStrings()
+		
+		pageEvents.add(this.endButton, ["mousedown", "touchstart"], event => {
+			if(event.type === "touchstart"){
+				event.preventDefault()
+				this.touched = true
+			}else if(event.type === "mousedown" && event.which !== 1){
+				return
+			}
+			this.onEnd(true)
+		})
+		this.keyboard = new Keyboard({
+			confirm: ["enter", "space", "esc", "don_l", "don_r"]
+		}, this.onEnd.bind(this))
+		this.gamepad = new Gamepad({
+			confirm: ["start", "b", "ls", "rs"]
+		}, this.onEnd.bind(this))
+		
+		pageEvents.send("tutorial")
+	}
+	getElement(name){
+		return loader.screen.getElementsByClassName(name)[0]
+	}
+	insertText(text, parent){
+		parent.appendChild(document.createTextNode(text))
+	}
+	insertKey(key, parent){
+		var kbd = document.createElement("kbd")
+		kbd.innerText = key
+		parent.appendChild(kbd)
+	}
+	onEnd(pressed, name){
+		if(pressed){
+			this.clean()
+			assets.sounds["se_don"].play()
+			try{
+				localStorage.setItem("tutorial", "true")
+			}catch(e){}
+			setTimeout(() => {
+				new SongSelect(this.fromSongSel ? "tutorial" : false, false, this.touched, this.songId)
+			}, 500)
+		}
+	}
+	setStrings(){
+		this.tutorialTitle.innerText = strings.howToPlay
+		this.tutorialTitle.setAttribute("alt", strings.howToPlay)
+		this.endButton.innerText = strings.tutorial.ok
+		this.endButton.setAttribute("alt", strings.tutorial.ok)
+		this.tutorialDiv.innerHTML = ""
+		var kbdSettings = settings.getItem("keyboardSettings")
+		var pauseKey = pageEvents.kbd.indexOf("q") === -1 ? "Q" : "ESC"
+		var keys = [
+			kbdSettings.don_l[0].toUpperCase(),
+			kbdSettings.don_r[0].toUpperCase(),
+			kbdSettings.ka_l[0].toUpperCase(),
+			kbdSettings.ka_r[0].toUpperCase(),
+			pauseKey, "SHIFT", "CTRL"
+		]
 		var keyIndex = 0
 		strings.tutorial.basics.forEach(string => {
 			var par = document.createElement("p")
@@ -21,7 +77,7 @@ class Tutorial{
 				}
 				this.insertText(stringKey, par)
 			})
-			tutorialContent.appendChild(par)
+			this.tutorialDiv.appendChild(par)
 		})
 		var par = document.createElement("p")
 		var span = document.createElement("span")
@@ -38,44 +94,15 @@ class Tutorial{
 				this.insertText(stringKey, par)
 			})
 		})
-		tutorialContent.appendChild(par)
-		this.endButton.innerText = strings.tutorial.ok
-		this.endButton.setAttribute("alt", strings.tutorial.ok)
-		
-		pageEvents.once(this.endButton, ["mousedown", "touchstart"]).then(this.onEnd.bind(this))
-		pageEvents.keyOnce(this, 13, "down").then(this.onEnd.bind(this))
-		
-		this.gamepad = new Gamepad({
-			"confirm": ["start", "b", "ls", "rs"]
-		}, this.onEnd.bind(this))
-		pageEvents.send("tutorial")
-	}
-	insertText(text, parent){
-		parent.appendChild(document.createTextNode(text))
-	}
-	insertKey(key, parent){
-		var kbd = document.createElement("kbd")
-		kbd.innerText = key
-		parent.appendChild(kbd)
-	}
-	onEnd(event){
-		var touched = false
-		if(event && event.type === "touchstart"){
-			event.preventDefault()
-			touched = true
-		}
-		this.clean()
-		assets.sounds["se_don"].play()
-		localStorage.setItem("tutorial", "true")
-		setTimeout(() => {
-			new SongSelect(this.fromSongSel ? "tutorial" : false, false, touched, this.songId)
-		}, 500)
+		this.tutorialDiv.appendChild(par)
 	}
 	clean(){
+		this.keyboard.clean()
 		this.gamepad.clean()
-		assets.sounds["bgm_setsume"].stop()
 		pageEvents.remove(this.endButton, ["mousedown", "touchstart"])
-		pageEvents.keyRemove(this, 13)
+		assets.sounds["bgm_setsume"].stop()
+		delete this.tutorialTitle
 		delete this.endButton
+		delete this.tutorialDiv
 	}
 }

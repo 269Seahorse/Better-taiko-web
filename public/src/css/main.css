@@ -23,115 +23,6 @@
 	left: 0;
 	z-index: -1;
 }
-#tutorial-outer{
-	display: flex;
-	justify-content: center;
-	align-items: center;
-	overflow: hidden;
-	position: absolute;
-	width: 100%;
-	height: 100%;
-}
-#tutorial{
-	background: rgb(246, 234, 212);
-	color: black;
-	border: 0.25em black solid;
-	border-radius: 0.5em;
-	width: 800px;
-	padding: 1em;
-	margin: 1em;
-	font-size: 21px;
-	position: relative;
-}
-.touch-enabled #tutorial{
-	font-size: 3vmin;
-}
-#tutorial-title{
-	z-index: 1;
-	position: absolute;
-	color: white;
-	top: -0.7em;
-	font-size: 1.65em;
-}
-#tutorial-content{
-	margin: 0.7em 0;
-	overflow-y: auto;
-	max-height: calc(100vh - 14em);
-}
-kbd{
-	font-family: inherit;
-	padding: 0.1em 0.6em;
-	border: 1px solid #ccc;
-	font-size: 0.6em;
-	background-color: #f7f7f7;
-	color: #333;
-	box-shadow: 0 1px 0px rgba(0, 0, 0, 0.2), 0 0 0 2px #ffffff inset;
-	border-radius: 3px;
-	display: inline-block;
-	text-shadow: 0 1px 0 #fff;
-	line-height: 1.4;
-	white-space: nowrap;
-}
-.taibtn{
-	display: inline-block;
-	background: #f6ead4;
-	padding: 0.4em 0.4em;
-	border-radius: 0.5em;
-	border: 0.1em rgba(218, 205, 178, 1) solid;
-	cursor: pointer;
-	font-size: 1.4em;
-	box-sizing: border-box;
-	color: #555;
-	text-align: center;
-}
-#tutorial-end-button{
-	float: right;
-	padding: 0.4em 1.5em;
-	font-weight: bold;
-	border-color: #000;
-	color: #000;
-}
-.taibtn:hover,
-#tutorial-end-button:hover{
-	position: relative;
-	z-index: 1;
-	color: #fff;
-	background: #ffb547;
-	border-color: #fff;
-}
-.taibtn::before{
-	padding-left: inherit;
-}
-#about-link-btns{
-	float: left;
-	display: flex;
-}
-#about-link-btns .taibtn{
-	margin-right: 0.4em;
-}
-#diag-txt textarea,
-#diag-txt iframe{
-	width: 100%;
-	height: 5em;
-	font-size: inherit;
-	resize: none;
-	word-break: break-all;
-	margin-bottom: 1em;
-	background: #fff;
-	border: 1px solid #a9a9a9;
-	user-select: all;
-}
-.text-warn{
-	color: #d00;
-}
-.link-btn a{
-	color: inherit;
-	text-decoration: none;
-	pointer-events: none;
-}
-.nowrap{
-	white-space: nowrap;
-}
 #session-invite{
 	width: 100%;
 	height: 1.9em;
@@ -149,10 +40,10 @@ kbd{
 }
 @keyframes bgscroll{
 	from{
-		background-position: 0 top;
+		background-position: 50% top;
 	}
 	to{
-		background-position: calc(-100vh / 720 * 512) top;
+		background-position: calc(50% - 100vh / 720 * 512) top;
 	}
 }
 #song-select{

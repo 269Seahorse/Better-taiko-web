@@ -118,12 +118,15 @@
 		
 		this.touchEnabled = this.controller.touchEnabled
 		this.touch = -Infinity
+		this.touchAnimation = settings.getItem("touchAnimation")
 		
 		if(this.multiplayer !== 2){
 			
 			if(this.controller.touchEnabled){
 				this.touchDrumDiv = document.getElementById("touch-drum")
 				this.touchDrumImg = document.getElementById("touch-drum-img")
+				
+				this.setBgImage(this.touchDrumImg, assets.image["touch_drum"].src)
 				
 				if(this.controller.autoPlayEnabled){
 					this.touchDrumDiv.style.display = "none"
@@ -180,6 +183,14 @@
 		var touchMultiplayer = this.touchEnabled && this.multiplayer && !this.portrait
 		
 		this.pixelRatio = window.devicePixelRatio || 1
+		var resolution = settings.getItem("resolution")
+		if(resolution === "medium"){
+			this.pixelRatio *= 0.75
+		}else if(resolution === "low"){
+			this.pixelRatio *= 0.5
+		}else if(resolution === "lowest"){
+			this.pixelRatio *= 0.25
+		}
 		winW *= this.pixelRatio
 		winH *= this.pixelRatio
 		if(this.portrait){
@@ -819,11 +830,10 @@
 		)
 		
 		// Taiko pressed keys
-		var kbd = this.controller.getBindings()
 		var keys = ["ka_l", "ka_r", "don_l", "don_r"]
 		
 		for(var i = 0; i < keys.length; i++){
-			var keyMS = ms - keyTime[kbd[keys[i]]]
+			var keyMS = ms - keyTime[keys[i]]
 			if(keyMS < 130){
 				if(keyMS > 70 && !this.touchEnabled){
 					ctx.globalAlpha = this.draw.easeOut(1 - (keyMS - 70) / 60)
@@ -1123,6 +1133,7 @@
 		
 		if(!selectedSong.songSkin.stage){
 			this.songStage.classList.add("song-stage-" + selectedSong.songStage)
+			this.setBgImage(this.songStage, assets.image["bg_stage_" + selectedSong.songStage].src)
 		}else if(selectedSong.songSkin.stage !== "none"){
 			var prefix = selectedSong.songSkin.prefix || ""
 			this.setBgImage(this.songStage, assets.image[prefix + "bg_stage_" + songSkinName].src)
@@ -1180,9 +1191,10 @@
 	}
 	setDonBgHeight(){
 		this.donBg.style.setProperty("--h", getComputedStyle(this.donBg).height)
-		this.gameDiv.classList.add("fix-animations")
+		var gameDiv = this.gameDiv
+		gameDiv.classList.add("fix-animations")
 		setTimeout(()=>{
-			this.gameDiv.classList.remove("fix-animations")
+			gameDiv.classList.remove("fix-animations")
 		}, 50)
 	}
 	setLayers(elements, file, ab){
@@ -1700,14 +1712,16 @@
 				this.touchDrumDiv.style.width = drumWidth + "px"
 				this.touchDrumDiv.style.height = drumHeight + "px"
 			}
-			if(this.touch > ms - 100){
-				if(!this.drumPadding){
-					this.drumPadding = true
-					this.touchDrumImg.style.backgroundPositionY = "7px"
+			if(this.touchAnimation){
+				if(this.touch > ms - 100){
+					if(!this.drumPadding){
+						this.drumPadding = true
+						this.touchDrumImg.style.backgroundPositionY = "7px"
+					}
+				}else if(this.drumPadding){
+					this.drumPadding = false
+					this.touchDrumImg.style.backgroundPositionY = ""
 				}
-			}else if(this.drumPadding){
-				this.drumPadding = false
-				this.touchDrumImg.style.backgroundPositionY = ""
 			}
 		}
 	}
@@ -1754,11 +1768,10 @@
 	}
 	touchNote(note){
 		var keyboard = this.controller.keyboard
-		var kbd = keyboard.getBindings()
 		var ms = this.controller.game.getAccurateTime()
 		this.touch = ms
-		keyboard.setKey(kbd[note], false)
-		keyboard.setKey(kbd[note], true, ms)
+		keyboard.setKey(false, note)
+		keyboard.setKey(true, note, ms)
 	}
 	mod(length, index){
 		return ((index % length) + length) % length

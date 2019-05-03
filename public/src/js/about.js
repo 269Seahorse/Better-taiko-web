@@ -4,20 +4,20 @@
 		loader.changePage("about", true)
 		cancelTouch = false
 		
-		this.endButton = document.getElementById("tutorial-end-button")
+		this.endButton = this.getElement("view-end-button")
 		this.diagTxt = document.getElementById("diag-txt")
 		this.version = document.getElementById("version-link").href
-		this.tutorialOuter = document.getElementById("tutorial-outer")
+		this.tutorialOuter = this.getElement("view-outer")
 		if(touchEnabled){
 			this.tutorialOuter.classList.add("touch-enabled")
 		}
 		this.linkIssues = document.getElementById("link-issues")
 		this.linkEmail = document.getElementById("link-email")
 		
-		var tutorialTitle = document.getElementById("tutorial-title")
+		var tutorialTitle = this.getElement("view-title")
 		tutorialTitle.innerText = strings.aboutSimulator
 		tutorialTitle.setAttribute("alt", strings.aboutSimulator)
-		var tutorialContent = document.getElementById("tutorial-content")
+		var tutorialContent = this.getElement("view-content")
 		strings.about.bugReporting.forEach(string => {
 			tutorialContent.appendChild(document.createTextNode(string))
 			tutorialContent.appendChild(document.createElement("br"))
@@ -34,20 +34,62 @@
 		
 		pageEvents.add(this.linkIssues, ["click", "touchend"], this.linkButton.bind(this))
 		pageEvents.add(this.linkEmail, ["click", "touchend"], this.linkButton.bind(this))
-		pageEvents.once(this.endButton, ["mousedown", "touchstart"]).then(this.onEnd.bind(this))
-		pageEvents.keyOnce(this, 13, "down").then(this.onEnd.bind(this))
+		pageEvents.add(this.endButton, ["mousedown", "touchstart"], this.onEnd.bind(this))
+		this.items = [this.linkIssues, this.linkEmail, this.endButton]
+		this.selected = 2
 		
+		this.keyboard = new Keyboard({
+			confirm: ["enter", "space", "don_l", "don_r"],
+			previous: ["left", "up", "ka_l"],
+			next: ["right", "down", "ka_r"],
+			back: ["escape"]
+		}, this.keyPressed.bind(this))
 		this.gamepad = new Gamepad({
-			"confirm": ["start", "b", "ls", "rs"]
-		}, this.onEnd.bind(this))
+			"confirm": ["b", "ls", "rs"],
+			"previous": ["u", "l", "lb", "lt", "lsu", "lsl"],
+			"next": ["d", "r", "rb", "rt", "lsd", "lsr"],
+			"back": ["start", "a"]
+		}, this.keyPressed.bind(this))
 		
 		pageEvents.send("about", this.addDiag())
 	}
+	getElement(name){
+		return loader.screen.getElementsByClassName(name)[0]
+	}
+	keyPressed(pressed, name){
+		if(!pressed){
+			return
+		}
+		var selected = this.items[this.selected]
+		if(name === "confirm"){
+			if(selected === this.endButton){
+				this.onEnd()
+			}else{
+				this.getLink(selected).click()
+				pageEvents.send("about-link", selected)
+				assets.sounds["se_don"].play()
+			}
+		}else if(name === "previous" || name === "next"){
+			selected.classList.remove("selected")
+			this.selected = this.mod(this.items.length, this.selected + (name === "next" ? 1 : -1))
+			this.items[this.selected].classList.add("selected")
+			assets.sounds["se_ka"].play()
+		}else if(name === "back"){
+			this.onEnd()
+		}
+	}
+	mod(length, index){
+		return ((index % length) + length) % length
+	}
 	onEnd(event){
 		var touched = false
-		if(event && event.type === "touchstart"){
-			event.preventDefault()
-			touched = true
+		if(event){
+			if(event.type === "touchstart"){
+				event.preventDefault()
+				touched = true
+			}else if(event.which !== 1){
+				return
+			}
 		}
 		this.clean()
 		assets.sounds["se_don"].play()
@@ -154,11 +196,13 @@
 	linkButton(event){
 		if(event.target === event.currentTarget){
 			this.getLink(event.currentTarget).click()
-			pageEvents.send("about-link", event)
+			pageEvents.send("about-link", event.currentTarget)
+			assets.sounds["se_don"].play()
 		}
 	}
 	clean(){
 		cancelTouch = true
+		this.keyboard.clean()
 		this.gamepad.clean()
 		pageEvents.remove(this.linkIssues, ["click", "touchend"])
 		pageEvents.remove(this.linkEmail, ["click", "touchend"])
@@ -166,7 +210,7 @@
 		if(this.textarea){
 			pageEvents.remove(this.textarea, ["focus", "blur"])
 		}
-		pageEvents.keyRemove(this, 13)
+		pageEvents.keyRemove(this, "all")
 		delete this.endButton
 		delete this.diagTxt
 		delete this.version

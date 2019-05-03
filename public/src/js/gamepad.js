@@ -1,6 +1,7 @@
 class Gamepad{
 	constructor(bindings, callback){
 		this.bindings = bindings
+		this.callback = !!callback
 		this.b = {
 			"a": 0,
 			"b": 1,
@@ -87,6 +88,9 @@ class Gamepad{
 					for(var name in bindings[bind]){
 						var bindName = bindings[bind][name]
 						this.checkButton(gamepads, this.b[bindName], bind, callback, force[bindName])
+						if(!this.b){
+							return
+						}
 					}
 				}
 				break
@@ -136,6 +140,11 @@ class Gamepad{
 		}
 	}
 	clean(){
-		clearInterval(this.interval)
+		if(this.callback){
+			clearInterval(this.interval)
+		}
+		delete this.bindings
+		delete this.b
+		delete this.btn
 	}
 }

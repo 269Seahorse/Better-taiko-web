@@ -28,7 +28,7 @@ class Controller{
 		this.game = new Game(this, this.selectedSong, this.parsedSongData)
 		this.view = new View(this)
 		this.mekadon = new Mekadon(this, this.game)
-		this.keyboard = new Keyboard(this)
+		this.keyboard = new GameInput(this)
 		
 		this.playedSounds = {}
 	}
@@ -210,11 +210,8 @@ class Controller{
 	getKeys(){
 		return this.keyboard.getKeys()
 	}
-	setKey(keyCode, down, ms){
-		return this.keyboard.setKey(keyCode, down, ms)
-	}
-	getBindings(){
-		return this.keyboard.getBindings()
+	setKey(pressed, name, ms){
+		return this.keyboard.setKey(pressed, name, ms)
 	}
 	getElapsedTime(){
 		return this.game.elapsedTime

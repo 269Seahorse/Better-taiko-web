@@ -277,7 +277,7 @@
 	
 	verticalText(config){
 		var ctx = config.ctx
-		var inputText = config.text
+		var inputText = config.text.toString()
 		var mul = config.fontSize / 40
 		var ura = false
 		var r = this.regex
@@ -601,7 +601,7 @@
 	
 	layeredText(config, layers){
 		var ctx = config.ctx
-		var inputText = config.text
+		var inputText = config.text.toString()
 		var mul = config.fontSize / 40
 		var ura = false
 		var r = this.regex

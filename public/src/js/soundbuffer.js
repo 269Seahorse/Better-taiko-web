@@ -101,7 +101,7 @@ class SoundGain{
 		this.volume = amount
 	}
 	setVolumeMul(amount){
-		this.setVolume(Math.sqrt(amount * amount * this.defaultVol))
+		this.setVolume(amount * this.defaultVol)
 	}
 	setCrossfade(amount){
 		this.setVolume(Math.sqrt(Math.sin(Math.PI / 2 * amount)))

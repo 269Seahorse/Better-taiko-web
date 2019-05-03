@@ -25,21 +25,27 @@ class SongSelect{
 			},
 			"tutorial": {
 				sort: 7,
-				background: "#9afbe1",
-				border: ["#d6ffff", "#6bae9c"],
-				outline: "#31ae94"
+				background: "#29e8aa",
+				border: ["#86ffbd", "#009a8c"],
+				outline: "#08a28c"
 			},
 			"about": {
 				sort: 7,
-				background: "#91cfff",
-				border: ["#dff0ff", "#6890b2"],
-				outline: "#217abb"
+				background: "#a2d0e7",
+				border: ["#c6dfff", "#4485d9"],
+				outline: "#2390d9"
+			},
+			"settings": {
+				sort: 7,
+				background: "#ce93fa",
+				border: ["#dec4fd", "#a543ef"],
+				outline: "#a741ef"
 			},
 			"browse": {
 				sort: 7,
-				background: "#9791ff",
-				border: ["#e2dfff", "#6d68b2"],
-				outline: "#5350ba"
+				background: "#fab5d3",
+				border: ["#ffe7ef", "#d36aa2"],
+				outline: "#d36aa2"
 			},
 			"J-POP": {
 				sort: 0,
@@ -147,6 +153,12 @@ class SongSelect{
 			title: strings.aboutSimulator,
 			skin: this.songSkin.about,
 			action: "about",
+			category: strings.random
+		})
+		this.songs.push({
+			title: strings.gameSettings,
+			skin: this.songSkin.settings,
+			action: "settings",
 			category: strings.random
 		})
 		if("webkitdirectory" in HTMLInputElement.prototype && !(/Android|iPhone|iPad/.test(navigator.userAgent))){
@@ -277,23 +289,33 @@ class SongSelect{
 		this.startPreview(true)
 		
 		this.pressedKeys = {}
+		this.keyboard = new Keyboard({
+			confirm: ["enter", "space", "don_l", "don_r"],
+			back: ["escape"],
+			left: ["left", "ka_l"],
+			right: ["right", "ka_r"],
+			up: ["up"],
+			down: ["down"],
+			session: ["backspace"],
+			ctrl: ["ctrl"],
+			shift: ["shift"]
+		}, this.keyPress.bind(this))
 		this.gamepad = new Gamepad({
-			"13": ["b", "start", "ls", "rs"],
-			"27": ["a"],
-			"37": ["l", "lb", "lt", "lsl"],
-			"39": ["r", "rb", "rt", "lsr"],
-			"38": ["u", "lsu"],
-			"40": ["d", "lsd"],
-			"8": ["back"],
-			"ctrl": ["y"],
-			"shift": ["x"]
-		})
+			confirm: ["b", "start", "ls", "rs"],
+			back: ["a"],
+			left: ["l", "lb", "lt", "lsl"],
+			right: ["r", "rb", "rt", "lsr"],
+			up: ["u", "lsu"],
+			down: ["d", "lsd"],
+			session: ["back"],
+			ctrl: ["y"],
+			shift: ["x"]
+		}, this.keyPress.bind(this))
 		
 		if(!assets.customSongs){
 			this.startP2()
 		}
 		
-		pageEvents.keyAdd(this, "all", "down", this.keyDown.bind(this))
 		pageEvents.add(loader.screen, "mousemove", this.mouseMove.bind(this))
 		pageEvents.add(loader.screen, "mouseleave", () => {
 			this.state.moveHover = null
@@ -319,71 +341,47 @@ class SongSelect{
 		}
 	}
 	
-	keyDown(event, code){
-		if(code){
-			var modifiers = {
-				shift: this.pressedKeys["shift"],
-				ctrl: this.pressedKeys["ctrl"]
+	keyPress(pressed, name, event){
+		if(pressed){
+			if(!this.pressedKeys[name]){
+				this.pressedKeys[name] = this.getMS() + 300
 			}
 		}else{
-			code = event.keyCode
-			var modifiers = {
-				shift: event.shiftKey,
-				ctrl: event.ctrlKey
-			}
-		}
-		if(code === "ctrl" || code === "shift" || !this.redrawRunning){
+			this.pressedKeys[name] = 0
 			return
 		}
-
-		var key = {
-			confirm: code == 13 || code == 32 || code == 70 || code == 74,
-			// Enter, Space, F, J
-			cancel: code == 27,
-			// Esc
-			session: code == 8,
-			// Backspace
-			left: code == 37 || code == 68,
-			// Left, D
-			right: code == 39 || code == 75,
-			// Right, K
-			up: code == 38,
-			// Up
-			down: code == 40
-			// Down
-		}
-		if(event && (code == 27 || code == 8)){
-			event.preventDefault()
+		if(name === "ctrl" || name === "shift" || !this.redrawRunning){
+			return
 		}
 		if(this.state.screen === "song"){
-			if(key.confirm){
+			if(name === "confirm"){
 				this.toSelectDifficulty()
-			}else if(key.cancel){
+			}else if(name === "back"){
 				this.toTitleScreen()
-			}else if(key.session){
+			}else if(name === "session"){
 				this.toSession()
-			}else if(key.left){
+			}else if(name === "left"){
 				this.moveToSong(-1)
-			}else if(key.right){
+			}else if(name === "right"){
 				this.moveToSong(1)
 			}
 		}else if(this.state.screen === "difficulty"){
-			if(key.confirm){
+			if(name === "confirm"){
 				if(this.selectedDiff === 0){
 					this.toSongSelect()
 				}else if(this.selectedDiff === 1){
 					this.toOptions(1)
 				}else{
-					this.toLoadSong(this.selectedDiff - this.diffOptions.length, modifiers.shift, modifiers.ctrl)
+					this.toLoadSong(this.selectedDiff - this.diffOptions.length, this.pressedKeys["shift"], this.pressedKeys["ctrl"])
 				}
-			}else if(key.cancel || key.session){
+			}else if(name === "back" || name === "session"){
 				this.toSongSelect()
-			}else if(key.left){
+			}else if(name === "left"){
 				this.moveToDiff(-1)
-			}else if(key.right){
+			}else if(name === "right"){
 				this.moveToDiff(1)
-			}else if(this.selectedDiff === 1 && (key.up || key.down)){
-				this.toOptions(key.up ? -1 : 1)
+			}else if(this.selectedDiff === 1 && (name === "up" || name === "down")){
+				this.toOptions(name === "up" ? -1 : 1)
 			}
 		}
 	}
@@ -523,7 +521,7 @@ class SongSelect{
 			}else if(550 < x && x < 1050 && 95 < y && y < 524){
 				var moveBy = Math.floor((x - 550) / ((1050 - 550) / 5)) + this.diffOptions.length
 				var currentSong = this.songs[this.selectedSong]
-				if(this.state.ura && moveBy === this.diffOptions + 3 || currentSong.stars[moveBy - this.diffOptions.length]){
+				if(this.state.ura && moveBy === this.diffOptions.length + 3 || currentSong.stars[moveBy - this.diffOptions.length]){
 					return moveBy
 				}
 			}
@@ -624,6 +622,8 @@ class SongSelect{
 				this.toTutorial()
 			}else if(currentSong.action === "about"){
 				this.toAbout()
+			}else if(currentSong.action === "settings"){
+				this.toSettings()
 			}else if(currentSong.action === "browse"){
 				this.toBrowse()
 			}
@@ -722,6 +722,13 @@ class SongSelect{
 			new About(this.touchEnabled)
 		}, 500)
 	}
+	toSettings(){
+		assets.sounds["se_don"].play()
+		this.clean()
+		setTimeout(() => {
+			new SettingsView(this.touchEnabled)
+		}, 500)
+	}
 	toSession(){
 		if(p2.socket.readyState !== 1 || assets.customSongs){
 			return
@@ -760,20 +767,10 @@ class SongSelect{
 		requestAnimationFrame(this.redrawBind)
 		var ms = this.getMS()
 		
-		this.gamepad.play((pressed, keyCode) => {
-			if(pressed){
-				if(!this.pressedKeys[keyCode]){
-					this.pressedKeys[keyCode] = ms + 300
-					this.keyDown(false, keyCode)
-				}
-			}else{
-				this.pressedKeys[keyCode] = 0
-			}
-		})
 		for(var key in this.pressedKeys){
 			if(this.pressedKeys[key]){
 				if(ms >= this.pressedKeys[key] + 50){
-					this.keyDown(false, key)
+					this.keyPress(true, key)
 					this.pressedKeys[key] = ms
 				}
 			}
@@ -790,6 +787,14 @@ class SongSelect{
 			winW = winH / 9 * 32
 		}
 		this.pixelRatio = window.devicePixelRatio || 1
+		var resolution = settings.getItem("resolution")
+		if(resolution === "medium"){
+			this.pixelRatio *= 0.75
+		}else if(resolution === "low"){
+			this.pixelRatio *= 0.5
+		}else if(resolution === "lowest"){
+			this.pixelRatio *= 0.25
+		}
 		winW *= this.pixelRatio
 		winH *= this.pixelRatio
 		var ratioX = winW / 1280
@@ -1928,6 +1933,8 @@ class SongSelect{
 	}
 	
 	clean(){
+		this.keyboard.clean()
+		this.gamepad.clean()
 		this.clearHash()
 		this.draw.clean()
 		this.songTitleCache.clean()
@@ -1950,7 +1957,6 @@ class SongSelect{
 				song.preview_sound.clean()
 			}
 		})
-		pageEvents.keyRemove(this, "all")
 		pageEvents.remove(loader.screen, ["mousemove", "mouseleave", "mousedown", "touchstart"])
 		pageEvents.remove(this.canvas, "touchend")
 		pageEvents.remove(p2, "message")

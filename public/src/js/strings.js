@@ -24,6 +24,7 @@
 	this.randomSong = "ランダムに曲をえらぶ"
 	this.howToPlay = "あそびかた説明"
 	this.aboutSimulator = "このシミュレータについて"
+	this.gameSettings = "ゲーム設定"
 	this.browse = "参照する…"
 	this.defaultSongList = "デフォルト曲リスト"
 	this.songOptions = "演奏オプション"
@@ -98,6 +99,38 @@
 		linkTutorial: "Share this link with your friend to start playing together! Do not leave this screen while they join.",
 		cancel: "キャンセル"
 	}
+	this.settings = {
+		language: {
+			name: "言語"
+		},
+		resolution: {
+			name: "ゲームの解像度",
+			high: "高",
+			medium: "中",
+			low: "低",
+			lowest: "最低"
+		},
+		touchAnimation: {
+			name: "タッチアニメーション"
+		},
+		keyboardSettings: {
+			name: "キーボード設定",
+			ka_l: "ふち(左)",
+			don_l: "面(左)",
+			don_r: "面(右)",
+			ka_r: "ふち(右)"
+		},
+		gamepadLayout: {
+			name: "そうさタイプ設定",
+			a: "タイプA",
+			b: "タイプB",
+			c: "タイプC"
+		},
+		on: "オン",
+		off: "オフ",
+		default: "既定値にリセット",
+		ok: "OK"
+	}
 	this.browserSupport = {
 		browserWarning: "サポートされていないブラウザを実行しています (%s)",
 		details: "詳しく",
@@ -131,6 +164,7 @@ function StringsEn(){
 	this.randomSong = "Random Song"
 	this.howToPlay = "How to Play"
 	this.aboutSimulator = "About Simulator"
+	this.gameSettings = "Game Settings"
 	this.browse = "Browse…"
 	this.defaultSongList = "Default Song List"
 	this.songOptions = "Song Options"
@@ -205,6 +239,38 @@ function StringsEn(){
 		linkTutorial: "Share this link with your friend to start playing together! Do not leave this screen while they join.",
 		cancel: "Cancel"
 	}
+	this.settings = {
+		language: {
+			name: "Language"
+		},
+		resolution: {
+			name: "Game Resolution",
+			high: "High",
+			medium: "Medium",
+			low: "Low",
+			lowest: "Lowest"
+		},
+		touchAnimation: {
+			name: "Touch Animation"
+		},
+		keyboardSettings: {
+			name: "Keyboard Settings",
+			ka_l: "Left Rim",
+			don_l: "Left Surface",
+			don_r: "Right Surface",
+			ka_r: "Right Rim"
+		},
+		gamepadLayout: {
+			name: "Gamepad Layout",
+			a: "Type A",
+			b: "Type B",
+			c: "Type C"
+		},
+		on: "On",
+		off: "Off",
+		default: "Reset to Defaults",
+		ok: "OK"
+	}
 	this.browserSupport = {
 		browserWarning: "You are running an unsupported browser (%s)",
 		details: "Details...",
@@ -238,6 +304,7 @@ function StringsCn(){
 	this.randomSong = "随机选曲"
 	this.howToPlay = "操作说明"
 	this.aboutSimulator = "关于模拟器"
+	this.gameSettings = "游戏设定"
 	this.browse = "浏览…"
 	this.defaultSongList = "默认歌曲列表"
 	this.songOptions = "选项"
@@ -312,6 +379,38 @@ function StringsCn(){
 		linkTutorial: "Share this link with your friend to start playing together! Do not leave this screen while they join.",
 		cancel: "取消"
 	}
+	this.settings = {
+		language: {
+			name: "语言"
+		},
+		resolution: {
+			name: "游戏分辨率",
+			high: "高",
+			medium: "中",
+			low: "低",
+			lowest: "最低"
+		},
+		touchAnimation: {
+			name: "触摸动画"
+		},
+		keyboardSettings: {
+			name: "键盘设置",
+			ka_l: "边缘（左）",
+			don_l: "表面（左）",
+			don_r: "表面（右）",
+			ka_r: "边缘（右）"
+		},
+		gamepadLayout: {
+			name: "操作类型设定",
+			a: "类型A",
+			b: "类型B",
+			c: "类型C"
+		},
+		on: "开",
+		off: "关",
+		default: "重置为默认值",
+		ok: "确定"
+	}
 	this.browserSupport = {
 		browserWarning: "You are running an unsupported browser (%s)",
 		details: "Details...",
@@ -345,6 +444,7 @@ function StringsTw(){
 	this.randomSong = "隨機選曲"
 	this.howToPlay = "操作說明"
 	this.aboutSimulator = "關於模擬器"
+	this.gameSettings = "遊戲設定"
 	this.browse = "開啟檔案…"
 	this.defaultSongList = "默認歌曲列表"
 	this.songOptions = "選項"
@@ -419,6 +519,38 @@ function StringsTw(){
 		linkTutorial: "Share this link with your friend to start playing together! Do not leave this screen while they join.",
 		cancel: "取消"
 	}
+	this.settings = {
+		language: {
+			name: "語系"
+		},
+		resolution: {
+			name: "遊戲分辨率",
+			high: "高",
+			medium: "中",
+			low: "低",
+			lowest: "最低"
+		},
+		touchAnimation: {
+			name: "觸摸動畫"
+		},
+		keyboardSettings: {
+			name: "鍵盤設置",
+			ka_l: "邊緣（左）",
+			don_l: "表面（左）",
+			don_r: "表面（右）",
+			ka_r: "邊緣（右）"
+		},
+		gamepadLayout: {
+			name: "操作類型設定",
+			a: "類型A",
+			b: "類型B",
+			c: "類型C"
+		},
+		on: "開",
+		off: "關",
+		default: "重置為默認值",
+		ok: "確定"
+	}
 	this.browserSupport = {
 		browserWarning: "You are running an unsupported browser (%s)",
 		details: "Details...",
@@ -452,6 +584,7 @@ function StringsKo(){
 	this.randomSong = "랜덤"
 	this.howToPlay = "지도 시간"
 	this.aboutSimulator = "게임 정보"
+	this.gameSettings = "게임 설정"
 	this.browse = "찾아보기…"
 	this.defaultSongList = "기본 노래 목록"
 	this.songOptions = "옵션"
@@ -525,6 +658,38 @@ function StringsKo(){
 		multiplayerSession: "Multiplayer Session",
 		linkTutorial: "Share this link with your friend to start playing together! Do not leave this screen while they join.",
 		cancel: "취소"
+	}
+	this.settings = {
+		language: {
+			name: "언어"
+		},
+		resolution: {
+			name: "게임 해상도",
+			high: "높은",
+			medium: "중간",
+			low: "저",
+			lowest: "최저"
+		},
+		touchAnimation: {
+			name: "터치 애니메이션"
+		},
+		keyboardSettings: {
+			name: "키보드 설정",
+			ka_l: "가장자리 (왼쪽)",
+			don_l: "표면 (왼쪽)",
+			don_r: "표면 (오른쪽)",
+			ka_r: "가장자리 (오른쪽)"
+		},
+		gamepadLayout: {
+			name: "조작 타입 설정",
+			a: "타입 A",
+			b: "타입 B",
+			c: "타입 C"
+		},
+		on: "온",
+		off: "오프",
+		default: "기본값으로 재설정",
+		ok: "확인"
 	}
 	this.browserSupport = {
 		browserWarning: "You are running an unsupported browser (%s)",

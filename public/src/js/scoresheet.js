@@ -31,9 +31,12 @@ class Scoresheet{
 		this.draw = new CanvasDraw()
 		this.canvasCache = new CanvasCache()
 		
+		this.keyboard = new Keyboard({
+			confirm: ["enter", "space", "esc", "don_l", "don_r"]
+		}, this.keyDown.bind(this))
 		this.gamepad = new Gamepad({
-			"13": ["a", "b", "start", "ls", "rs"]
-		})
+			confirm: ["a", "b", "start", "ls", "rs"]
+		}, this.keyDown.bind(this))
 		
 		this.difficulty = {
 			"easy": 0,
@@ -72,23 +75,8 @@ class Scoresheet{
 			touchEvents: controller.view.touchEvents
 		})
 	}
-	keyDown(event, code){
-		if(!code){
-			if(event.repeat){
-				return
-			}
-			code = event.keyCode
-		}
-		var key = {
-			confirm: code == 13 || code == 32 || code == 70 || code == 74,
-			// Enter, Space, F, J
-			cancel: code == 27 || code == 8
-			// Esc, Backspace
-		}
-		if(key.cancel && event){
-			event.preventDefault()
-		}
-		if(key.confirm || key.cancel){
+	keyDown(pressed){
+		if(pressed && this.redrawing){
 			this.toNext()
 		}
 	}
@@ -137,7 +125,6 @@ class Scoresheet{
 		this.winW = null
 		this.winH = null
 		
-		pageEvents.keyAdd(this, "all", "down", this.keyDown.bind(this))
 		pageEvents.add(this.canvas, ["mousedown", "touchstart"], this.mouseDown.bind(this))
 		
 		if(!this.multiplayer){
@@ -177,12 +164,6 @@ class Scoresheet{
 		}
 		var ms = this.getMS()
 		
-		this.gamepad.play((pressed, keyCode) => {
-			if(pressed){
-				this.keyDown(false, keyCode)
-			}
-		})
-		
 		if(!this.redrawRunning){
 			return
 		}
@@ -193,6 +174,14 @@ class Scoresheet{
 		var winW = innerWidth
 		var winH = lastHeight
 		this.pixelRatio = window.devicePixelRatio || 1
+		var resolution = settings.getItem("resolution")
+		if(resolution === "medium"){
+			this.pixelRatio *= 0.75
+		}else if(resolution === "low"){
+			this.pixelRatio *= 0.5
+		}else if(resolution === "lowest"){
+			this.pixelRatio *= 0.25
+		}
 		winW *= this.pixelRatio
 		winH *= this.pixelRatio
 		var ratioX = winW / 1280
@@ -853,12 +842,13 @@ class Scoresheet{
 	}
 	
 	clean(){
+		this.keyboard.clean()
+		this.gamepad.clean()
 		this.draw.clean()
 		this.canvasCache.clean()
 		assets.sounds["bgm_result"].stop()
 		snd.buffer.loadSettings()
 		this.redrawRunning = false
-		pageEvents.keyRemove(this, "all")
 		pageEvents.remove(this.canvas, ["mousedown", "touchstart"])
 		if(this.multiplayer !== 2 && this.touchEnabled){
 			pageEvents.remove(document.getElementById("touch-full-btn"), "touchend")

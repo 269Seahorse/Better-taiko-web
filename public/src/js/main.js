@@ -82,6 +82,7 @@ var perf = {
 }
 var strings
 var vectors
+var settings
 
 pageEvents.add(root, ["touchstart", "touchmove", "touchend"], event => {
 	if(event.cancelable && cancelTouch && event.target.tagName !== "SELECT"){
@@ -90,6 +91,7 @@ pageEvents.add(root, ["touchstart", "touchmove", "touchend"], event => {
 })
 var versionDiv = document.getElementById("version")
 var versionLink = document.getElementById("version-link")
+versionLink.tabIndex = -1
 pageEvents.add(versionDiv, ["click", "touchend"], event => {
 	if(event.target === versionDiv){
 		versionLink.click()

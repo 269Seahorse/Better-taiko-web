@@ -141,6 +141,7 @@ class Debug{
 					if(circles[i].endTime >= measureMS){
 						break
 					}
+					game.skipNote(circles[i])
 				}
 				if(game.mainMusicPlaying){
 					game.mainMusicPlaying = false
@@ -201,11 +202,10 @@ class Debug{
 			this.controller.autoPlayEnabled = this.autoplayCheckbox.checked
 			if(!this.controller.autoPlayEnabled){
 				var keyboard = debugObj.controller.keyboard
-				var kbd = keyboard.getBindings()
-				keyboard.setKey(kbd.don_l, false)
-				keyboard.setKey(kbd.don_r, false)
-				keyboard.setKey(kbd.ka_l, false)
-				keyboard.setKey(kbd.ka_r, false)
+				keyboard.setKey(false, "don_l")
+				keyboard.setKey(false, "don_r")
+				keyboard.setKey(false, "ka_l")
+				keyboard.setKey(false, "ka_r")
 			}
 		}
 	}
@@ -215,6 +215,9 @@ class Debug{
 			var name = this.branchSelect.value
 			game.branch = name === "auto" ? false : name
 			game.branchSet = name === "auto"
+			if(noRestart){
+				game.branchStatic = true
+			}
 			var selectedOption = this.branchSelect.selectedOptions[0]
 			this.branchSelect.style.background = selectedOption.style.background
 			if(this.restartCheckbox.checked && !noRestart){

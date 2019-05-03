@@ -7,6 +7,7 @@ var assets = {
 		"scoresheet.js",
 		"songselect.js",
 		"keyboard.js",
+		"gameinput.js",
 		"game.js",
 		"controller.js",
 		"circle.js",
@@ -27,7 +28,8 @@ var assets = {
 		"debug.js",
 		"session.js",
 		"importsongs.js",
-		"logo.js"
+		"logo.js",
+		"settings.js"
 	],
 	"css": [
 		"main.css",
@@ -35,7 +37,8 @@ var assets = {
 		"loadsong.css",
 		"game.css",
 		"debug.css",
-		"songbg.css"
+		"songbg.css",
+		"view.css"
 	],
 	"assetsCss": [
 		"fonts/fonts.css",
@@ -71,18 +74,15 @@ var assets = {
 		"bg_score_p2.png",
 		"bg_settings.png",
 		"bg_pause.png",
-		"bg_stage_1.png",
-		"bg_stage_2.png",
-		"bg_stage_3.png",
 		"badge_auto.png",
-		"touch_drum.png",
 		"touch_pause.png",
 		"touch_fullscreen.png",
 		"mimizu.png",
 		"results_flowers.png",
 		"results_mikoshi.png",
 		"results_tetsuohana.png",
-		"results_tetsuohana2.png"
+		"results_tetsuohana2.png",
+		"settings_gamepad.png"
 	],
 	"audioSfx": [
 		"se_cancel.wav",
@@ -154,7 +154,8 @@ var assets = {
 	"audioMusic": [
 		"bgm_songsel.mp3",
 		"bgm_result.mp3",
-		"bgm_setsume.mp3"
+		"bgm_setsume.mp3",
+		"bgm_settings.mp3"
 	],
 	"fonts": [
 		"Kozuka",
@@ -168,7 +169,8 @@ var assets = {
 		"tutorial.html",
 		"about.html",
 		"debug.html",
-		"session.html"
+		"session.html",
+		"settings.html"
 	],
 	
 	"songs": [],
