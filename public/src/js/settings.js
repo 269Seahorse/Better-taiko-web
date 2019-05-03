@@ -167,14 +167,13 @@ class SettingsView{
 		
 		var content = this.getElement("view-content")
 		this.items = []
-		this.selected = tutorial ? 1 : 0
+		this.selected = 0
 		for(let i in settings.items){
 			var current = settings.items[i]
 			if(
 				!touchEnabled && current.touch === true ||
 				touchEnabled && current.touch === false ||
-				!gamepadEnabled && current.gamepad === true ||
-				tutorial && current.type !== "language"
+				!gamepadEnabled && current.gamepad === true
 			){
 				continue
 			}
@@ -202,15 +201,11 @@ class SettingsView{
 				valueDiv: valueDiv
 			})
 		}
-		if(tutorial){
-			this.defaultButton.style.display = "none"
-			this.endButton.classList.add("selected")
-		}else{
-			this.items.push({
-				id: "default",
-				settingBox: this.defaultButton
-			})
-			this.addTouch(this.defaultButton, this.defaultSettings.bind(this))
+		this.items.push({
+			id: "default",
+			settingBox: this.defaultButton
+		})
+		this.addTouch(this.defaultButton, this.defaultSettings.bind(this))
 		}
 		this.items.push({
 			id: "back",
@@ -494,10 +489,8 @@ class SettingsView{
 		this.gamepadTitle.setAttribute("alt", strings.settings.gamepadLayout.name)
 		this.gamepadEndButton.innerText = strings.settings.ok
 		this.gamepadEndButton.setAttribute("alt", strings.settings.ok)
-		if(!this.tutorial){
-			this.defaultButton.innerText = strings.settings.default
-			this.defaultButton.setAttribute("alt", strings.settings.default)
-		}
+		this.defaultButton.innerText = strings.settings.default
+		this.defaultButton.setAttribute("alt", strings.settings.default)
 	}
 	mod(length, index){
 		return ((index % length) + length) % length
