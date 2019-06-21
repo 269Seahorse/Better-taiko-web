@@ -582,6 +582,9 @@ class Game{
 		if(this.combo === 50 || this.combo > 0 && this.combo % 100 === 0 && this.combo < 1500 || this.combo > 0 && this.combo % 500 === 0){
 			this.controller.playSoundMeka("v_combo_" + (this.combo <= 1400 ? this.combo : "over1500"))
 		}
+		if (this.songData.scoremode == 2 && this.combo > 0 && this.combo % 100 == 0) { 
+			this.globalScore.points += 10000;
+		}
 		this.view.updateCombo(this.combo)
 	}
 	getCombo(){
@@ -603,6 +606,16 @@ class Game{
 				this.globalScore.bad++
 				break
 		}
+		if (this.songData.scoremode) { 
+			switch (score) {
+				case 450:
+					score = this.songData.scoreinit;
+					break;
+				case 230:
+					score = Math.floor(this.songData.scoreinit / 2);
+					break;
+			}
+		}
 		// Gauge update
 		if(score !== 0){
 			this.globalScore.gauge += this.HPGain
@@ -612,7 +625,21 @@ class Game{
 			this.globalScore.gauge = 0
 		}
 		// Points update
-		score += Math.max(0, Math.floor((Math.min(this.combo, 100) - 1) / 10) * 100)
+		if (this.songData.scoremode == 2) {
+			var diff_mul = 0;
+			if (this.combo >= 100) {
+				diff_mul = 8;
+			} else if (this.combo >= 50) {
+				diff_mul = 4;
+			} else if (this.combo >= 30) {
+				diff_mul = 2;
+			} else if (this.combo >= 10) {
+				diff_mul = 1;
+			}
+			score += this.songData.scorediff * diff_mul;
+		} else { 
+			score += Math.max(0, Math.floor((Math.min(this.combo, 100) - 1) / 10) * (this.songData.scoremode ? this.songData.scorediff : 100));
+		}
 		
 		if(gogoTime){
 			multiplier *= 1.2

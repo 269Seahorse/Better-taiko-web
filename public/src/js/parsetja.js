@@ -41,7 +41,7 @@
 		}
 	}
 	parseMetadata(){
-		var metaNumbers = ["bpm", "offset", "demostart", "level"]
+		var metaNumbers = ["bpm", "offset", "demostart", "level", "scoremode", "scorediff"]
 		var inSong = false
 		var hasSong = false
 		var courses = {}
@@ -99,7 +99,10 @@
 					}else if(this.inArray(name, metaNumbers)){
 						value = parseFloat(value)
 					}
-					
+					else if (name === "scoreinit") {
+						value = value ? parseFloat(value.split(",")[0]) : 0; 
+					}
+
 					currentCourse[name] = value
 				}
 				
@@ -119,6 +122,11 @@
 	}
 	parseCircles(){
 		var meta = this.metadata[this.difficulty]
+		this.scoreinit = meta.scoreinit;
+		this.scorediff = meta.scorediff;
+		if (this.scoreinit && this.scorediff) { 
+			this.scoremode = meta.scoremode || 1;
+		}
 		var ms = (meta.offset || 0) * -1000 + this.offset
 		var bpm = Math.abs(meta.bpm) || 120
 		var scroll = 1
