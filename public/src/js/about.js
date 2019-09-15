@@ -31,7 +31,16 @@
 		
 		var versionUrl = gameConfig._version.url
 		this.getLink(this.linkIssues).href = versionUrl + "issues"
-		
+
+		var contactEmail = gameConfig.email
+		if (typeof contactEmail === 'string') {
+			this.linkEmail.setAttribute("alt", contactEmail)
+			this.getLink(this.linkEmail).href = "mailto:" + contactEmail
+			this.getLink(this.linkEmail).text = contactEmail
+		} else {
+			this.linkEmail.style.display = "none"
+		}
+
 		pageEvents.add(this.linkIssues, ["click", "touchend"], this.linkButton.bind(this))
 		pageEvents.add(this.linkEmail, ["click", "touchend"], this.linkButton.bind(this))
 		pageEvents.add(this.endButton, ["mousedown", "touchstart"], this.onEnd.bind(this))
