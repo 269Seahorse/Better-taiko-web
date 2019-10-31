@@ -1,5 +1,5 @@
 class ParseOsu{
-	constructor(fileContent, offset, metaOnly){
+	constructor(fileContent, difficulty, offset, metaOnly){
 		this.osu = {
 			OFFSET: 0,
 			MSPERBEAT: 1,
@@ -52,6 +52,7 @@ class ParseOsu{
 		this.metadata = this.parseMetadata()
 		this.editor = this.parseEditor()
 		this.difficulty = this.parseDifficulty()
+		this._difficulty = difficulty;
 		if(!metaOnly){
 			this.timingPoints = this.parseTiming()
 			this.circles = this.parseCircles()
@@ -354,6 +355,10 @@ class ParseOsu{
 				console.warn("Unknown note type found on line " + (i + 1) + ": " + this.data[i])
 			}
 		}
+		this.scoremode = 2;
+		var autoscore = new AutoScore(this._difficulty, this.difficulty.overallDifficulty, 2, circles);
+		this.scoreinit = autoscore.ScoreInit;
+		this.scorediff = autoscore.ScoreDiff;
 		return circles
 	}
 }

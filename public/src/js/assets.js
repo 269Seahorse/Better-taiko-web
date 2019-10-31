@@ -24,6 +24,7 @@ var assets = {
 		"canvastest.js",
 		"canvascache.js",
 		"parsetja.js",
+		"autoscore.js",
 		"about.js",
 		"debug.js",
 		"session.js",

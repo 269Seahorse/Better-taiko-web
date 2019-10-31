@@ -283,7 +283,7 @@
 		var reader = new FileReader()
 		var promise = pageEvents.load(reader).then(event => {
 			var data = event.target.result.replace(/\0/g, "").split("\n")
-			var osu = new ParseOsu(data, 0, true)
+			var osu = new ParseOsu(data, "oni", 0, true);
 			var dir = file.webkitRelativePath.toLowerCase()
 			dir = dir.slice(0, dir.lastIndexOf("/") + 1)
 			var songObj = {

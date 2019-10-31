@@ -122,11 +122,6 @@
 	}
 	parseCircles(){
 		var meta = this.metadata[this.difficulty]
-		this.scoreinit = meta.scoreinit;
-		this.scorediff = meta.scorediff;
-		if (this.scoreinit && this.scorediff) { 
-			this.scoremode = meta.scoremode || 1;
-		}
 		var ms = (meta.offset || 0) * -1000 + this.offset
 		var bpm = Math.abs(meta.bpm) || 120
 		var scroll = 1
@@ -452,6 +447,16 @@
 			circles.sort((a, b) => a.ms > b.ms ? 1 : -1)
 			this.measures.sort((a, b) => a.ms > b.ms ? 1 : -1)
 			circles.forEach((circle, i) => circle.id = i + 1)
+		}
+		this.scoreinit = meta.scoreinit;
+		this.scorediff = meta.scorediff;
+		if (this.scoreinit && this.scorediff) {
+			this.scoremode = meta.scoremode || 1;
+		} else { 
+			this.scoremode = meta.scoremode || 2;
+			var autoscore = new AutoScore(this.difficulty, meta.level, this.scoremode, circles);
+			this.scoreinit = autoscore.ScoreInit;
+			this.scorediff = autoscore.ScoreDiff;
 		}
 		return circles
 	}
