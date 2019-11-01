@@ -356,7 +356,7 @@ class ParseOsu{
 			}
 		}
 		this.scoremode = 2;
-		var autoscore = new AutoScore(this._difficulty, 0, 2, circles);
+		var autoscore = new AutoScore(this._difficulty, parseInt(this.difficulty.overallDifficulty) * 2, 2, circles);
 		this.scoreinit = autoscore.ScoreInit;
 		this.scorediff = autoscore.ScoreDiff;
 		return circles
