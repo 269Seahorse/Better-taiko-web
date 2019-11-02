@@ -64,7 +64,7 @@ class AutoScore {
 		this.ScoreDiff = 0;
 		this.ScoreInit = 0;
 		var max_init = this.GetMaxPossibleInit(target);
-		var min_init = 100;
+		var min_init = 0;
 		while (true) { 
 			this.ScoreInit = (max_init + min_init) / 2;
 			this.ScoreDiff = Math.round(this.ScoreInit / 4);
