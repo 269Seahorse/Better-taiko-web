@@ -59,6 +59,11 @@ class AutoScore {
 				380000,
 			]
 		}
+		if (this.GetMaxCombo() === 0) { 
+			this.ScoreDiff = 100;
+			this.ScoreInit = 450;
+			return;
+		}
 		const target = this.GetTargetScore(difficulty, level);
 		this.Score = 0;
 		this.ScoreDiff = 0;
