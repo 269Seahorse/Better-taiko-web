@@ -687,7 +687,8 @@ class SongSelect{
 			"category": selectedSong.category,
 			"type": selectedSong.type,
 			"offset": selectedSong.offset,
-			"songSkin": selectedSong.songSkin
+			"songSkin": selectedSong.songSkin,
+			"stars": selectedSong.stars[difficulty]
 		}, autoplay, multiplayer, touch)
 	}
 	toOptions(moveBy){

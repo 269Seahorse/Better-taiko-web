@@ -12,9 +12,9 @@ class Controller{
 		}
 		
 		if(selectedSong.type === "tja"){
-			this.parsedSongData = new ParseTja(songData, selectedSong.difficulty, selectedSong.offset)
+			this.parsedSongData = new ParseTja(songData, selectedSong.difficulty, selectedSong.stars, selectedSong.offset)
 		}else{
-			this.parsedSongData = new ParseOsu(songData, selectedSong.offset)
+			this.parsedSongData = new ParseOsu(songData, selectedSong.difficulty, selectedSong.stars, selectedSong.offset)
 		}
 		this.offset = this.parsedSongData.soundOffset
 		
