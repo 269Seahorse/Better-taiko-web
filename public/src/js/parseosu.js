@@ -1,5 +1,5 @@
 class ParseOsu{
-	constructor(fileContent, difficulty, offset, metaOnly){
+	constructor(fileContent, difficulty, stars, offset, metaOnly){
 		this.osu = {
 			OFFSET: 0,
 			MSPERBEAT: 1,
@@ -53,6 +53,7 @@ class ParseOsu{
 		this.editor = this.parseEditor()
 		this.difficulty = this.parseDifficulty()
 		this._difficulty = difficulty;
+		this.stars = stars
 		if(!metaOnly){
 			this.timingPoints = this.parseTiming()
 			this.circles = this.parseCircles()
@@ -356,7 +357,7 @@ class ParseOsu{
 			}
 		}
 		this.scoremode = 2;
-		var autoscore = new AutoScore(this._difficulty, parseInt(this.difficulty.overallDifficulty) * 2, 2, circles);
+		var autoscore = new AutoScore(this._difficulty, this.stars, 2, circles);
 		this.scoreinit = autoscore.ScoreInit;
 		this.scorediff = autoscore.ScoreDiff;
 		return circles

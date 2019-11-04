@@ -1,5 +1,5 @@
 ﻿class ParseTja{
-	constructor(file, difficulty, offset, metaOnly){
+	constructor(file, difficulty, stars, offset, metaOnly){
 		this.data = []
 		for(let line of file){
 			line = line.replace(/\/\/.*/, "").trim()
@@ -8,6 +8,7 @@
 			}
 		}
 		this.difficulty = difficulty
+		this.stars = stars
 		this.offset = (offset || 0) * -1000
 		this.soundOffset = 0
 		this.noteTypes = {
@@ -454,7 +455,7 @@
 			this.scoremode = meta.scoremode || 1;
 		} else { 
 			this.scoremode = meta.scoremode || 2;
-			var autoscore = new AutoScore(this.difficulty, meta.level, this.scoremode, circles);
+			var autoscore = new AutoScore(this.difficulty, this.stars, this.scoremode, circles);
 			this.scoreinit = autoscore.ScoreInit;
 			this.scorediff = autoscore.ScoreDiff;
 		}
