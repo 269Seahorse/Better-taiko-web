@@ -208,8 +208,8 @@ function StringsEn(){
 	}
 	this.ex_note = {
 		don: [
-			"Don",
-			"Don"
+			"Do",
+			"Do"
 		],
 		ka: [
 			"Ka"
@@ -676,8 +676,8 @@ function StringsKo(){
 	}
 	this.ex_note = {
 		don: [
-			"쿵",
-			"쿵"
+			"쿠",
+			"쿠"
 		],
 		ka: [
 			"딱"
