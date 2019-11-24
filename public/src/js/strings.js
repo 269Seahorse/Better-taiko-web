@@ -137,6 +137,10 @@
 		failedTests: "このテストは失敗しました：",
 		supportedBrowser: "%sなどのサポートされているブラウザを使用してください"
 	}
+	this.creative = {
+		creative: '創作',
+		maker: 'メーカー'
+	}
 }
 function StringsEn(){
 	this.id = "en"
@@ -276,6 +280,10 @@ function StringsEn(){
 		details: "Details...",
 		failedTests: "The following tests have failed:",
 		supportedBrowser: "Please use a supported browser such as %s"
+	}
+	this.creative = {
+		creative: 'Creative',
+		maker: 'Maker:'
 	}
 }
 function StringsCn(){
@@ -417,6 +425,10 @@ function StringsCn(){
 		failedTests: "The following tests have failed:",
 		supportedBrowser: "Please use a supported browser such as %s"
 	}
+	this.creative = {
+		creative: '创作',
+		maker: '制作者'
+	}
 }
 function StringsTw(){
 	this.id = "tw"
@@ -557,6 +569,10 @@ function StringsTw(){
 		failedTests: "The following tests have failed:",
 		supportedBrowser: "Please use a supported browser such as %s"
 	}
+	this.creative = {
+		creative: '創作',
+		maker: '製作者'
+	}
 }
 function StringsKo(){
 	this.id = "ko"
@@ -696,6 +712,10 @@ function StringsKo(){
 		details: "Details...",
 		failedTests: "The following tests have failed:",
 		supportedBrowser: "Please use a supported browser such as %s"
+	}
+	this.creative = {
+		creative: '창작',
+		maker: '만드는 사람'
 	}
 }
 var allStrings = {
