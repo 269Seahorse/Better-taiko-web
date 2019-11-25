@@ -107,7 +107,7 @@ def route_api_preview():
 @app.route('/api/songs')
 @app.cache.cached(timeout=15)
 def route_api_songs():
-    songs = query_db('select * from songs where enabled = 1')
+    songs = query_db('select s.*, m.name, m.url from songs s left join makers m on s.maker_id = m.maker_id where enabled = 1')
     
     raw_categories = query_db('select * from categories')
     categories = {}
@@ -127,6 +127,11 @@ def route_api_songs():
         
         category_out = categories[song[11]] if song[11] in categories else ""
         song_skin_out = song_skins[song[14]] if song[14] in song_skins else None
+        maker = None
+        if song[17] == 0:
+            maker = 0
+        elif song[17] and song[17] > 0:
+            maker = {'name': song[18], 'url': song[19], 'id': song[17]}
         
         songs_out.append({
             'id': song_id,
@@ -142,7 +147,8 @@ def route_api_songs():
             'type': song_type,
             'offset': song[13],
             'song_skin': song_skin_out,
-            'volume': song[16]
+            'volume': song[16],
+            'maker': maker
         })
 
     return jsonify(songs_out)

@@ -5,7 +5,7 @@ class SongSelect{
 		loader.changePage("songselect", false)
 		this.canvas = document.getElementById("song-sel-canvas")
 		this.ctx = this.canvas.getContext("2d")
-		
+
 		this.songSkin = {
 			"selected": {
 				background: "#ffdb2c",
@@ -114,7 +114,8 @@ class SongSelect{
 				offset: song.offset,
 				songSkin: song.song_skin || {},
 				music: song.music,
-				volume: song.volume
+				volume: song.volume,
+				maker: song.maker
 			})
 		}
 		this.songs.sort((a, b) => {
@@ -431,6 +432,8 @@ class SongSelect{
 				this.toSongSelect()
 			}else if(moveBy === 1){
 				this.toOptions(1)
+			}else if(moveBy === "maker"){
+				window.open(this.songs[this.selectedSong].maker.url)
 			}else if(moveBy === this.diffOptions.length + 4){
 				this.state.ura = !this.state.ura
 				assets.sounds["se_ka"].play()
@@ -518,6 +521,8 @@ class SongSelect{
 		if(this.state.locked === 0){
 			if(223 < x && x < 367 && 118 < y && y < 422){
 				return Math.floor((x - 223) / ((367 - 223) / 2))
+			}else if(this.songs[this.selectedSong].maker && this.songs[this.selectedSong].maker.id > 0 && this.songs[this.selectedSong].maker.url && x > 230 && x < 485 && y > 432 && y < 519) {
+				return "maker"
 			}else if(550 < x && x < 1050 && 95 < y && y < 524){
 				var moveBy = Math.floor((x - 550) / ((1050 - 550) / 5)) + this.diffOptions.length
 				var currentSong = this.songs[this.selectedSong]
@@ -1472,6 +1477,112 @@ class SongSelect{
 							align: "bottom"
 						})
 					})
+				}
+
+				if(currentSong.maker !== null){
+					if (songSel) {
+						var _x = x + 38
+						var _y = y + 10
+						ctx.lineWidth = 5
+
+						var grd = ctx.createLinearGradient(_x, _y, _x, _y+50);
+						grd.addColorStop(0, '#fa251a');
+						grd.addColorStop(1, '#ffdc33');
+
+						ctx.fillStyle = grd;
+						this.draw.roundedRect({
+							ctx: ctx,
+							x: _x - 28,
+							y: _y,
+							w: 130,
+							h: 50,
+							radius: 24
+						})
+						ctx.fill()
+						ctx.stroke()
+						ctx.beginPath()
+						ctx.arc(_x, _y + 28, 20, 0, Math.PI * 2)
+						ctx.fill()
+
+						this.draw.layeredText({
+							ctx: ctx,
+							text: strings.creative.creative,
+							fontSize: strings.id == "en" ? 30 : 34,
+							fontFamily: this.font,
+							align: "center",
+							baseline: "middle",
+							x: _x + 38,
+							y: _y + (["ja", "en"].indexOf(strings.id) >= 0 ? 25 : 28),
+							width: 110
+						}, [
+							{outline: "#fff", letterBorder: 8},
+							{fill: "#000"}
+						])
+					} else if(currentSong.maker && currentSong.maker.id > 0 && currentSong.maker.name){
+						var _x = x + 62
+						var _y = y + 380
+						ctx.lineWidth = 5
+
+						var grd = ctx.createLinearGradient(_x, _y, _x, _y+50);
+						grd.addColorStop(0, '#fa251a');
+						grd.addColorStop(1, '#ffdc33');
+
+						ctx.fillStyle = '#75E2EE';
+						this.draw.roundedRect({
+							ctx: ctx,
+							x: _x - 28,
+							y: _y,
+							w: 250,
+							h: 80,
+							radius: 15
+						})
+						ctx.fill()
+						ctx.stroke()
+						ctx.beginPath()
+						ctx.arc(_x, _y + 28, 20, 0, Math.PI * 2)
+						ctx.fill()
+
+						this.draw.layeredText({
+							ctx: ctx,
+							text: strings.creative.maker,
+							fontSize: 24,
+							fontFamily: this.font,
+							align: "left",
+							baseline: "middle",
+							x: _x - 15,
+							y: _y + 23
+						}, [
+							{outline: "#000", letterBorder: 8},
+							{fill: "#fff"}
+						])
+
+						this.draw.layeredText({
+							ctx: ctx,
+							text: currentSong.maker.name,
+							fontSize: 28,
+							fontFamily: this.font,
+							align: "center",
+							baseline: "middle",
+							x: _x + 100,
+							y: _y + 56,
+							width: 210
+						}, [
+							{outline: "#fff", letterBorder: 8},
+							{fill: "#000"}
+						])
+
+						if(this.state.moveHover === "maker"){
+							this.draw.highlight({
+								ctx: ctx,
+								x: _x - 32,
+								y: _y - 3,
+								w: 250 + 7,
+								h: 80 + 7,
+								opacity: 0.8,
+								radius: 15
+							})
+						}
+					}
 				}
 				
 				if(!songSel && currentSong.stars[4]){

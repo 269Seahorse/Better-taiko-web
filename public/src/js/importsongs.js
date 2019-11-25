@@ -231,6 +231,9 @@
 				if(meta.taikowebskin){
 					songObj.song_skin = this.getSkin(dir, meta.taikowebskin)
 				}
+				if(meta.maker){
+				    songObj.maker = {name: meta.maker, id: 1}
+				}
 				for(var id in allStrings){
 					var songTitle = songObj.title
 					var ura = ""
