@@ -1518,7 +1518,7 @@ class SongSelect{
 							{outline: "#fff", letterBorder: 8},
 							{fill: "#000"}
 						])
-					} else if(currentSong.maker && currentSong.maker.id > 0){
+					} else if(currentSong.maker && currentSong.maker.id > 0 && currentSong.maker.name){
 						var _x = x + 62
 						var _y = y + 380
 						ctx.lineWidth = 5
