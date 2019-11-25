@@ -992,6 +992,7 @@ class SongSelect{
 				}
 				this.state.move = 0
 				this.state.locked = 2
+				localStorage["selectedSong"] = this.selectedSong
 				
 				if(this.songs[this.selectedSong].action !== "back"){
 					var cat = this.songs[this.selectedSong].category
