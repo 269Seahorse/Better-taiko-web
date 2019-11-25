@@ -5,7 +5,7 @@ class SongSelect{
 		loader.changePage("songselect", false)
 		this.canvas = document.getElementById("song-sel-canvas")
 		this.ctx = this.canvas.getContext("2d")
-		
+
 		this.songSkin = {
 			"selected": {
 				background: "#ffdb2c",
@@ -432,7 +432,7 @@ class SongSelect{
 				this.toSongSelect()
 			}else if(moveBy === 1){
 				this.toOptions(1)
-			}else if(moveBy === "maker" && this.songs[this.selectedSong].maker.url){
+			}else if(moveBy === "maker"){
 				window.open(this.songs[this.selectedSong].maker.url)
 			}else if(moveBy === this.diffOptions.length + 4){
 				this.state.ura = !this.state.ura
@@ -521,7 +521,7 @@ class SongSelect{
 		if(this.state.locked === 0){
 			if(223 < x && x < 367 && 118 < y && y < 422){
 				return Math.floor((x - 223) / ((367 - 223) / 2))
-			}else if(this.songs[this.selectedSong].maker && this.songs[this.selectedSong].maker.url && x > 230 && x < 485 && y > 432 && y < 519) {
+			}else if(this.songs[this.selectedSong].maker && this.songs[this.selectedSong].maker.id > 0 && this.songs[this.selectedSong].maker.url && x > 230 && x < 485 && y > 432 && y < 519) {
 				return "maker"
 			}else if(550 < x && x < 1050 && 95 < y && y < 524){
 				var moveBy = Math.floor((x - 550) / ((1050 - 550) / 5)) + this.diffOptions.length
@@ -1479,7 +1479,7 @@ class SongSelect{
 					})
 				}
 
-				if(currentSong.maker){
+				if(currentSong.maker !== null){
 					if (songSel) {
 						var _x = x + 38
 						var _y = y + 10
@@ -1518,7 +1518,7 @@ class SongSelect{
 							{outline: "#fff", letterBorder: 8},
 							{fill: "#000"}
 						])
-					} else {
+					} else if(currentSong.maker && currentSong.maker.id > 0){
 						var _x = x + 62
 						var _y = y + 380
 						ctx.lineWidth = 5

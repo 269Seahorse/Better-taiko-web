@@ -127,7 +127,11 @@ def route_api_songs():
         
         category_out = categories[song[11]] if song[11] in categories else ""
         song_skin_out = song_skins[song[14]] if song[14] in song_skins else None
-        maker = {'name': song[18], 'url': song[19]} if song[17] else None
+        maker = None
+        if song[17] == 0:
+            maker = 0
+        elif song[17] > 0:
+            maker = {'name': song[18], 'url': song[19], 'id': song[17]}
         
         songs_out.append({
             'id': song_id,
