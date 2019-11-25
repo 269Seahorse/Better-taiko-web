@@ -130,7 +130,7 @@ def route_api_songs():
         maker = None
         if song[17] == 0:
             maker = 0
-        elif song[17] > 0:
+        elif song[17] and song[17] > 0:
             maker = {'name': song[18], 'url': song[19], 'id': song[17]}
         
         songs_out.append({
