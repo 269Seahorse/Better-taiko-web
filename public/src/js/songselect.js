@@ -1480,7 +1480,7 @@ class SongSelect{
 					})
 				}
 
-				if(currentSong.maker !== null){
+				if(currentSong.maker || currentSong.maker === 0){
 					if (songSel) {
 						var _x = x + 38
 						var _y = y + 10
