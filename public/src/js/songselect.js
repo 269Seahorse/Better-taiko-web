@@ -115,7 +115,8 @@ class SongSelect{
 				songSkin: song.song_skin || {},
 				music: song.music,
 				volume: song.volume,
-				maker: song.maker
+				maker: song.maker,
+				canJump: true
 			})
 		}
 		this.songs.sort((a, b) => {
@@ -136,7 +137,8 @@ class SongSelect{
 			title: strings.randomSong,
 			skin: this.songSkin.random,
 			action: "random",
-			category: strings.random
+			category: strings.random,
+			canJump: true
 		})
 		if(touchEnabled){
 			if(fromTutorial === "tutorial"){
@@ -279,7 +281,8 @@ class SongSelect{
 			locked: true,
 			hasPointer: false,
 			options: 0,
-			selLock: false
+			selLock: false,
+			catJump: false
 		}
 		this.songSelecting = {
 			speed: 800,
@@ -304,13 +307,15 @@ class SongSelect{
 		this.gamepad = new Gamepad({
 			confirm: ["b", "start", "ls", "rs"],
 			back: ["a"],
-			left: ["l", "lb", "lt", "lsl"],
-			right: ["r", "rb", "rt", "lsr"],
+			left: ["l", "lsl"],
+			right: ["r", "lsr"],
 			up: ["u", "lsu"],
 			down: ["d", "lsd"],
 			session: ["back"],
 			ctrl: ["y"],
-			shift: ["x"]
+			shift: ["x"],
+			jump_left: ["lb", "lt"],
+			jump_right: ["rb", "rt"]
 		}, this.keyPress.bind(this))
 		
 		if(!assets.customSongs){
@@ -362,9 +367,21 @@ class SongSelect{
 			}else if(name === "session"){
 				this.toSession()
 			}else if(name === "left"){
-				this.moveToSong(-1)
+				if(this.pressedKeys["shift"]){
+					this.categoryJump(-1)
+				}else{
+					this.moveToSong(-1)
+				}
 			}else if(name === "right"){
-				this.moveToSong(1)
+				if(this.pressedKeys["shift"]){
+					this.categoryJump(1)
+				}else{
+					this.moveToSong(1)
+				}
+			}else if(name === "jump_left"){
+				this.categoryJump(-1)
+			}else if(name === "jump_right"){
+				this.categoryJump(1)
 			}
 		}else if(this.state.screen === "difficulty"){
 			if(name === "confirm"){
@@ -569,6 +586,16 @@ class SongSelect{
 			this.pointer(false)
 		}
 	}
+
+	categoryJump(moveBy){
+		this.state.catJump = true
+		this.state.move = moveBy;
+		this.state.locked = 1
+
+		this.endPreview()
+		assets.sounds["se_jump"].play()
+	}
+
 	moveToDiff(moveBy){
 		if(this.state.locked !== 1){
 			this.state.move = moveBy
@@ -984,9 +1011,52 @@ class SongSelect{
 			var scroll = resize2 - resize - scrollDelay * 2
 			var elapsed = ms - this.state.moveMS
 			if(this.state.move && ms > this.state.moveMS + resize2 - scrollDelay){
-				assets.sounds["se_ka"].play()
+				var isJump = this.state.catJump
 				var previousSelectedSong = this.selectedSong
-				this.selectedSong = this.mod(this.songs.length, this.selectedSong + this.state.move)
+
+				if(!isJump){
+					assets.sounds["se_ka"].play()
+					this.selectedSong = this.mod(this.songs.length, this.selectedSong + this.state.move)
+				}else{
+					var currentCat = this.songs[this.selectedSong].category
+					var currentIdx = this.mod(this.songs.length, this.selectedSong)
+					if(this.state.move > 0){
+						var nextSong = this.songs.find(song => this.mod(this.songs.length, this.songs.indexOf(song)) > currentIdx && song.category !== currentCat && song.canJump)
+						if(!nextSong){
+							nextSong = this.songs[0]
+						}
+					}else{
+						var isFirstInCat = this.songs.findIndex(song => song.category === currentCat) == this.selectedSong
+						if(!isFirstInCat){
+							var nextSong = this.songs.find(song => this.mod(this.songs.length, this.songs.indexOf(song)) < currentIdx && song.category === currentCat && song.canJump)
+						}else{
+							var idx = this.songs.length - 1
+							var nextSong
+							var lastCat
+							for(;idx>=0;idx--){
+								if(this.songs[idx].category !== lastCat && this.songs[idx].action !== "back"){
+									lastCat = this.songs[idx].category
+									if(nextSong){
+										break
+									}
+								}
+								if(lastCat !== currentCat && idx < currentIdx){
+									nextSong = idx
+								}
+							}
+							nextSong = this.songs[nextSong]
+						}
+
+						if(!nextSong){
+							var rev = [...this.songs].reverse()
+							nextSong = rev.find(song => song.canJump)
+						}
+					}
+
+					this.selectedSong = this.songs.indexOf(nextSong)
+					this.state.catJump = false
+				}
+
 				if(previousSelectedSong !== this.selectedSong){
 					pageEvents.send("song-select-move", this.songs[this.selectedSong])
 				}
