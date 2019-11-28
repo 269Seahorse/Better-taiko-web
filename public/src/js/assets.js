@@ -114,7 +114,8 @@ var assets = {
 		"v_sanka.wav",
 		"v_songsel.wav",
 		"v_start.wav",
-		"v_title.wav"
+		"v_title.wav",
+		"calibration.wav"
 	],
 	"audioSfxLR": [
 		"neiro_1_don.wav",

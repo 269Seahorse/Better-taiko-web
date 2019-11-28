@@ -94,7 +94,7 @@ class GameInput{
 		}
 	}
 	checkMenuKeys(){
-		if(!this.controller.multiplayer && !this.locked){
+		if(!this.controller.multiplayer && !this.locked && this.controller.view.pauseOptions.length !== 0){
 			var moveMenu = 0
 			var ms = this.game.getAccurateTime()
 			this.gamepadMenu.play((pressed, name) => {
@@ -146,7 +146,7 @@ class GameInput{
 			this.checkKey("don_l", "menu", moveMenuConfirm)
 			this.checkKey("don_r", "menu", moveMenuConfirm)
 			if(moveMenu && this.game.isPaused()){
-				assets.sounds["se_ka"].play()
+				this.controller.playSound("se_ka", 0, true)
 				this.controller.view.pauseMove(moveMenu)
 			}
 		}
@@ -197,11 +197,19 @@ class GameInput{
 				return
 			}
 			this.keyTime[name] = ms
+			var calibrationState = this.game.calibrationState
+			var calibration = calibrationState && !this.game.paused
 			if(name == "don_l" || name == "don_r"){
-				this.checkKeySound(name, "don")
+				if(calibration){
+					this.game.calibrationHit(ms)
+				}else{
+					this.checkKeySound(name, "don")
+				}
 				this.keyboardEvents++
 			}else if(name == "ka_l" || name == "ka_r"){
-				this.checkKeySound(name, "ka")
+				if(!calibration){
+					this.checkKeySound(name, "ka")
+				}
 				this.keyboardEvents++
 			}
 		}else{

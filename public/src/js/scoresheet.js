@@ -10,6 +10,14 @@ class Scoresheet{
 		
 		this.canvas = document.getElementById("canvas")
 		this.ctx = this.canvas.getContext("2d")
+		var resolution = settings.getItem("resolution")
+		var noSmoothing = resolution === "low" || resolution === "lowest"
+		if(noSmoothing){
+			this.ctx.imageSmoothingEnabled = false
+		}
+		if(resolution === "lowest"){
+			this.canvas.style.imageRendering = "pixelated"
+		}
 		this.game = document.getElementById("game")
 		
 		this.fadeScreen = document.createElement("div")
@@ -28,8 +36,8 @@ class Scoresheet{
 		this.frame = 1000 / 60
 		this.numbers = "001122334455667788900112233445".split("")
 		
-		this.draw = new CanvasDraw()
-		this.canvasCache = new CanvasCache()
+		this.draw = new CanvasDraw(noSmoothing)
+		this.canvasCache = new CanvasCache(noSmoothing)
 		
 		this.keyboard = new Keyboard({
 			confirm: ["enter", "space", "esc", "don_l", "don_r"]
@@ -105,7 +113,7 @@ class Scoresheet{
 		if(!p2.session){
 			this.state.screen = "scoresShown"
 			this.state.screenMS = this.getMS()
-			assets.sounds["neiro_1_don"].play()
+			this.controller.playSound("neiro_1_don", 0, true)
 		}
 	}
 	toSongsel(fromP2){
@@ -114,7 +122,7 @@ class Scoresheet{
 			this.state.screen = "fadeOut"
 			this.state.screenMS = this.getMS()
 			if(!fromP2){
-				assets.sounds["neiro_1_don"].play()
+				this.controller.playSound("neiro_1_don", 0, true)
 			}
 		}
 	}

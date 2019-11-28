@@ -1,5 +1,6 @@
 class CanvasCache{
-	constructor(w, h, scale){
+	constructor(noSmoothing, w, h, scale){
+		this.noSmoothing = noSmoothing
 		if(w){
 			this.resize(w, h, scale)
 		}
@@ -11,6 +12,9 @@ class CanvasCache{
 			this.map = new Map()
 			this.canvas = document.createElement("canvas")
 			this.ctx = this.canvas.getContext("2d")
+			if(this.noSmoothing){
+				this.ctx.imageSmoothingEnabled = false
+			}
 		}
 		this.scale = scale
 		this.x = 0

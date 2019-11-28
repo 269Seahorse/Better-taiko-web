@@ -45,7 +45,12 @@ class Game{
 	}
 	initTiming(){
 		// Date when the chrono is started (before the game begins)
-		var offsetTime = Math.max(0, this.timeForDistanceCircle - this.songData.circles[0].ms) |0
+		var firstCircle = this.songData.circles[0]
+		if(this.controller.calibrationMode){
+			var offsetTime = 0
+		}else{
+			var offsetTime = Math.max(0, this.timeForDistanceCircle - (firstCircle ? firstCircle.ms : 0)) |0
+		}
 		if(this.controller.multiplayer){
 			var syncWith = this.controller.syncWith
 			var syncCircles = syncWith.game.songData.circles
@@ -57,8 +62,8 @@ class Game{
 		this.startDate = Date.now() + offsetTime
 	}
 	update(){
-		// Main operations
 		this.updateTime()
+		// Main operations
 		this.updateCirclesStatus()
 		this.checkPlays()
 		// Event operations
@@ -82,10 +87,10 @@ class Game{
 			if(circle && (!circle.branch || circle.branch.active) && !circle.isPlayed){
 				var type = circle.type
 				var drumrollNotes = type === "balloon" || type === "drumroll" || type === "daiDrumroll"
-				var endTime = circle.endTime + (drumrollNotes ? 0 : this.rules.bad)
+				var endTime = circle.endTime + (drumrollNotes ? 0 : this.rules.bad) + this.controller.audioLatency
 				
-				if(ms >= circle.ms){
-					if(drumrollNotes && !circle.rendaPlayed && ms < endTime){
+				if(ms >= circle.ms + this.controller.audioLatency){
+					if(drumrollNotes && !circle.rendaPlayed && ms < endTime + this.controller.audioLatency){
 						circle.rendaPlayed = true
 						if(this.rules.difficulty === "easy"){
 							assets.sounds["v_renda" + this.controller.snd].stop()
@@ -109,7 +114,7 @@ class Game{
 							this.updateCurrentCircle()
 							if(this.controller.multiplayer === 1){
 								var value = {
-									pace: (ms - circle.ms) / circle.timesHit
+									pace: (ms - circle.ms - this.controller.audioLatency) / circle.timesHit
 								}
 								if(type === "drumroll" || type === "daiDrumroll"){
 									value.kaAmount = circle.timesKa / circle.timesHit
@@ -211,7 +216,7 @@ class Game{
 		
 		for(var i = this.currentCircle + 1; i < circles.length; i++){
 			var circle = circles[i]
-			var relative = ms - circle.ms
+			var relative = ms - circle.ms - this.controller.audioLatency
 			if(!circle.branch || circle.branch.active){
 				if((!circleIsNote(circle) || relative < -this.rules.bad)){
 					break
@@ -310,7 +315,7 @@ class Game{
 		
 		var keyTime = this.controller.getKeyTime()
 		var currentTime = keysDon ? keyTime["don"] : keyTime["ka"]
-		var relative = currentTime - circle.ms
+		var relative = currentTime - circle.ms - this.controller.audioLatency
 		
 		if(relative >= this.rules.ok){
 			var fixedNote = this.fixNoteStream(keysDon)
@@ -366,7 +371,7 @@ class Game{
 			if(this.controller.multiplayer === 1){
 				var value = {
 					score: score,
-					ms: circle.ms - currentTime,
+					ms: circle.ms - currentTime - this.controller.audioLatency,
 					dai: typeDai ? (keyDai ? 2 : 1) : 0
 				}
 				if((!keysDon || !typeDon) && (!keysKa || !typeKa)){
@@ -375,7 +380,7 @@ class Game{
 				p2.send("note", value)
 			}
 		}else{
-			if(circle.ms > currentTime || currentTime > circle.endTime){
+			if(circle.ms + this.controller.audioLatency > currentTime || currentTime > circle.endTime + this.controller.audioLatency){
 				return true
 			}
 			if(keysDon && type === "balloon"){
@@ -400,7 +405,7 @@ class Game{
 			circle.played(score)
 			if(this.controller.multiplayer == 1){
 				p2.send("drumroll", {
-					pace: (this.elapsedTime - circle.ms) / circle.timesHit
+					pace: (this.elapsedTime - circle.ms + this.controller.audioLatency) / circle.timesHit
 				})
 			}
 		}else{
@@ -447,17 +452,19 @@ class Game{
 		var ms = this.elapsedTime
 		if(!this.lastCircle){
 			var circles = this.songData.circles
-			this.lastCircle = circles[circles.length - 1].endTime
+			var circle = circles[circles.length - 1]
+			this.lastCircle = circle ? circle.endTime : 0
 			if(this.controller.multiplayer){
 				var syncWith = this.controller.syncWith
 				var syncCircles = syncWith.game.songData.circles
-				var syncLastCircle = syncCircles[syncCircles.length - 1].endTime
+				circle = syncCircles[syncCircles.length - 1]
+				var syncLastCircle = circle ? circle.endTime : 0
 				if(syncLastCircle > this.lastCircle){
 					this.lastCircle = syncLastCircle
 				}
 			}
 		}
-		if(!this.fadeOutStarted && ms >= this.lastCircle + 2000){
+		if(!this.fadeOutStarted && ms >= this.lastCircle + 2000 + this.controller.audioLatency){
 			this.fadeOutStarted = ms
 			if(this.controller.multiplayer){
 				this.controller.syncWith.game.fadeOutStarted = ms
@@ -495,28 +502,51 @@ class Game{
 	playMainMusic(){
 		var ms = this.elapsedTime + this.controller.offset
 		if(!this.mainMusicPlaying && (!this.fadeOutStarted || ms < this.fadeOutStarted + 1600)){
-			if(this.controller.multiplayer !== 2 && this.mainAsset){
+			if(this.calibrationState === "audio"){
+				var beatInterval = this.controller.view.beatInterval
+				var startAt = ms % beatInterval
+				var duration = this.mainAsset.duration * 1000
+				if(startAt < duration){
+					this.mainAsset.playLoop(0, false, startAt / 1000, 0, beatInterval / 1000)
+				}else{
+					this.mainAsset.playLoop((startAt - duration) / 1000, false, 0, 0, beatInterval / 1000)
+				}
+			}else if(this.controller.multiplayer !== 2 && this.mainAsset){
 				this.mainAsset.play((ms < 0 ? -ms : 0) / 1000, false, Math.max(0, ms / 1000))
 			}
 			this.mainMusicPlaying = true
 		}
 	}
-	togglePause(){
+	togglePause(forcePause, pauseMove, noSound){
 		if(!this.paused){
-			assets.sounds["se_pause"].play()
+			if(forcePause === false){
+				return
+			}
+			if(!noSound){
+				this.controller.playSound("se_pause", 0, true)
+			}
 			this.paused = true
 			this.latestDate = Date.now()
 			if(this.mainAsset){
 				this.mainAsset.stop()
 			}
 			this.mainMusicPlaying = false
-			this.view.pauseMove(0, true)
+			this.view.pauseMove(pauseMove || 0, true)
 			this.view.gameDiv.classList.add("game-paused")
 			this.view.lastMousemove = this.view.getMS()
 			this.view.cursorHidden = false
 			pageEvents.send("pause")
-		}else{
-			assets.sounds["se_cancel"].play()
+		}else if(!forcePause){
+			if(forcePause !== false && this.calibrationState && ["audioHelp", "audioComplete", "videoHelp", "videoComplete", "results"].indexOf(this.calibrationState) !== -1){
+				return
+			}
+			if(this.calibrationState === "audioHelp" || this.calibrationState === "videoHelp"){
+				this.calibrationState = this.calibrationState === "audioHelp" ? "audio" : "video"
+				this.controller.view.pauseOptions = strings.pauseOptions
+				this.controller.playSound("se_don", 0, true)
+			}else if(!noSound){
+				this.controller.playSound("se_cancel", 0, true)
+			}
 			this.paused = false
 			var currentDate = Date.now()
 			this.startDate += currentDate - this.latestDate
@@ -683,7 +713,7 @@ class Game{
 		if(!circle || circle.branch === currentBranch[pastActive]){
 			var ms = this.elapsedTime
 			var closestCircle = circles.findIndex(circle => {
-				return (!circle.branch || circle.branch.active) && circle.endTime >= ms
+				return (!circle.branch || circle.branch.active) && circle.endTime + this.controller.audioLatency >= ms
 			})
 			if(closestCircle !== -1){
 				this.currentCircle = closestCircle
@@ -700,5 +730,105 @@ class Game{
 	resetSection(){
 		this.sectionNotes = []
 		this.sectionDrumroll = 0
+	}
+	clearKeyTime(){
+		var keyboard = this.controller.keyboard
+		for(var key in keyboard.keyTime){
+			keyboard.keys[key] = null
+			keyboard.keyTime[key] = -Infinity
+		}
+	}
+	calibration(){
+		var view = this.controller.view
+		if(!this.calibrationState){
+			this.controller.parsedSongData.measures = []
+			this.calibrationProgress = {
+				audio: 0,
+				video: 0,
+				requirement: 40
+			}
+			this.calibrationReset("audio", true)
+		}
+		var progress = this.calibrationProgress
+		var state = this.calibrationState
+		switch(state){
+			case "audio":
+			case "video":
+				if(state === "audio" && !this.mainAsset){
+					this.mainAsset = assets.sounds["calibration"]
+					this.mainMusicPlaying = false
+				}
+				if(progress.hit >= progress.requirement){
+					var reduced = 0
+					for(var i = 2; i < progress.offsets.length; i++){
+						reduced += progress.offsets[i]
+					}
+					progress[state] = Math.max(0, Math.round(reduced / progress.offsets.length - 2))
+					this.calibrationState += "Complete"
+					view.pauseOptions = []
+					this.clearKeyTime()
+					this.togglePause(true, 1)
+					this.mainAsset = null
+				}
+				break
+			case "audioComplete":
+			case "videoComplete":
+				if(Date.now() - this.latestDate > 3000){
+					var audioComplete = this.calibrationState === "audioComplete"
+					this.controller.playSound("se_pause", 0, true)
+					if(audioComplete){
+						this.calibrationReset("video")
+					}else{
+						view.pauseOptions = [
+							strings.calibration.retryPrevious,
+							strings.calibration.finish
+						]
+					}
+					this.calibrationState = audioComplete ? "videoHelp" : "results"
+				}
+				break
+		}
+	}
+	calibrationHit(ms){
+		var progress = this.calibrationProgress
+		var beatInterval = this.controller.view.beatInterval
+		var current = Math.floor((ms + 100) / beatInterval)
+		if(current !== progress.last){
+			var offset = ((ms + 100) % beatInterval) - 100
+			var offsets = progress.offsets
+			if(offsets.length >= progress.requirement){
+				offsets.shift()
+			}
+			offsets.push(offset)
+			progress.hit++
+			progress.last = current
+			this.globalScore.gauge = 100 / (progress.requirement / progress.hit)
+		}
+	}
+	calibrationReset(to, togglePause){
+		var view = this.controller.view
+		this.songData.circles = []
+		view.pauseOptions = [
+			to === "audio" ? strings.calibration.back : strings.calibration.retryPrevious,
+			strings.calibration.start
+		]
+		this.calibrationState = to + "Help"
+		var progress = this.calibrationProgress
+		progress.offsets = []
+		progress.hit = 0
+		progress.last = null
+		this.globalScore.gauge = 0
+		if(to === "video"){
+			this.clearKeyTime()
+			this.initTiming()
+			this.latestDate = this.startDate
+			this.elapsedTime = 0
+			view.ms = 0
+		}
+		if(togglePause){
+			this.togglePause(true, 1, true)
+		}else{
+			view.pauseMove(1, true)
+		}
 	}
 }

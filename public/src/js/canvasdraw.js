@@ -1,5 +1,5 @@
 ﻿class CanvasDraw{
-	constructor(){
+	constructor(noSmoothing){
 		this.diffStarPath = new Path2D(vectors.diffStar)
 		this.longVowelMark = new Path2D(vectors.longVowelMark)
 		
@@ -68,7 +68,8 @@
 			emCap: /[MWＭＷ]/,
 			rWidth: /[abdfIjo-rtvａｂｄｆＩｊｏ-ｒｔｖ]/,
 			lWidth: /[ilｉｌ]/,
-			ura: /\s*[\(（]裏[\)）]$/
+			ura: /\s*[\(（]裏[\)）]$/,
+			cjk: /[\u3040-ゞ゠-ヾ一-\u9ffe]/
 		}
 		
 		var numbersFull = "０１２３４５６７８９"
@@ -78,10 +79,12 @@
 			this.numbersFullToHalf[numbersFull[i]] = numbersHalf[i]
 			this.numbersFullToHalf[numbersHalf[i]] = numbersHalf[i]
 		}
+		this.wrapOn = [" ", "\n", "%s"]
+		this.stickySymbols = "!,.:;?~‐–‼、。々〜ぁぃぅぇぉっゃゅょァィゥェォッャュョ・ーヽヾ！：；？"
 		
-		this.songFrameCache = new CanvasCache()
-		this.diffStarCache = new CanvasCache()
-		this.crownCache = new CanvasCache()
+		this.songFrameCache = new CanvasCache(noSmoothing)
+		this.diffStarCache = new CanvasCache(noSmoothing)
+		this.crownCache = new CanvasCache(noSmoothing)
 		
 		this.tmpCanvas = document.createElement("canvas")
 		this.tmpCtx = this.tmpCanvas.getContext("2d")
@@ -815,6 +818,163 @@
 				ctx.restore()
 			}
 		}
+		ctx.restore()
+	}
+	
+	wrappingText(config){
+		var ctx = config.ctx
+		var inputText = config.text.toString()
+		var words = []
+		var start = 0
+		var substituteIndex = 0
+		while(start < inputText.length){
+			var character = inputText.slice(start, start + 1)
+			if(words.length !== 0){
+				var previous = words[words.length - 1]
+				if(!previous.substitute && previous !== "\n" && this.stickySymbols.indexOf(character) !== -1){
+					words[words.length - 1] += character
+					start++
+					continue
+				}
+			}
+			var index = Infinity
+			var currentIndex = inputText.slice(start).search(this.regex.cjk)
+			if(currentIndex !== -1){
+				index = start + currentIndex
+				var on = inputText.charAt(index)
+			}
+			for(var i = 0; i < this.wrapOn.length; i++){
+				var currentIndex = inputText.indexOf(this.wrapOn[i], start)
+				if(currentIndex !== -1 && currentIndex < index){
+					var on = this.wrapOn[i]
+					index = currentIndex
+				}
+			}
+			if(index === Infinity){
+				if(start !== inputText.length){
+					words.push(inputText.slice(start, inputText.length))
+				}
+				break
+			}
+			var end = index + (on === " " ? 1 : 0)
+			if(start !== end){
+				words.push(inputText.slice(start, end))
+			}
+			if(on === "%s" && config.substitute){
+				words.push({
+					substitute: true,
+					index: substituteIndex,
+					width: config.substitute(config, substituteIndex, true) || 0
+				})
+				substituteIndex++
+			}else if(on !== " "){
+				words.push(on)
+			}
+			start = index + on.length
+		}
+		
+		ctx.save()
+		
+		var bold = this.bold(config.fontFamily)
+		ctx.font = bold + config.fontSize + "px " + config.fontFamily
+		ctx.textBaseline = config.baseline || "top"
+		ctx.textAlign = "left"
+		ctx.fillStyle = config.fill
+		var lineHeight = config.lineHeight || config.fontSize
+		
+		var x = 0
+		var y = 0
+		var totalW = 0
+		var totalH = 0
+		var line = ""
+		var toDraw = []
+		var lastWidth = 0
+		
+		var addToDraw = obj => {
+			toDraw.push(obj)
+			if(x + lastWidth > totalW){
+				totalW = x + lastWidth
+			}
+			if(y + lineHeight > totalH){
+				totalH = y + lineHeight
+			}
+		}
+		var recenter = () => {
+			if(config.textAlign === "center"){
+				for(var j in toDraw){
+					if(toDraw[j].y === y){
+						toDraw[j].x += (config.width - x - lastWidth) / 2
+					}
+				}
+			}
+		}
+		
+		for(var i in words){
+			var skip = words[i].substitute || words[i] === "\n"
+			if(!skip){
+				var currentWidth = ctx.measureText(line + words[i]).width
+			}
+			if(skip || (x !== 0 || line) && x + currentWidth > config.width){
+				if(line){
+					addToDraw({
+						text: line,
+						x: x, y: y
+					})
+				}
+				if(words[i].substitute){
+					line = ""
+					var currentWidth = words[i].width
+					if(x + lastWidth + currentWidth > config.width){
+						recenter()
+						x = 0
+						y += lineHeight
+						lastWidth = 0
+					}
+					addToDraw({
+						substitute: true,
+						index: words[i].index,
+						x: x + lastWidth, y: y
+					})
+					x += lastWidth + currentWidth
+					lastWidth = currentWidth
+				}else{
+					recenter()
+					x = 0
+					y += lineHeight
+					line = words[i] === "\n" ? "" : words[i]
+					lastWidth = ctx.measureText(line).width
+				}
+			}else{
+				line += words[i]
+				lastWidth = currentWidth
+			}
+		}
+		if(line){
+			addToDraw({
+				text: line,
+				x: x, y: y
+			})
+			recenter()
+		}
+		
+		var addX = 0
+		var addY = 0
+		if(config.verticalAlign === "middle"){
+			addY = ((config.height || 0) - totalH) / 2
+		}
+		for(var i in toDraw){
+			var x = config.x + toDraw[i].x + addX
+			var y = config.y + toDraw[i].y + addY
+			if(toDraw[i].text){
+				ctx.fillText(toDraw[i].text, x, y)
+			}else if(toDraw[i].substitute){
+				ctx.save()
+				ctx.translate(x, y)
+				config.substitute(config, toDraw[i].index)
+				ctx.restore()
+			}
+		}
+		
 		ctx.restore()
 	}
 	

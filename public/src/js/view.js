@@ -4,8 +4,15 @@
 		
 		this.canvas = document.getElementById("canvas")
 		this.ctx = this.canvas.getContext("2d")
+		var resolution = settings.getItem("resolution")
+		var noSmoothing = resolution === "low" || resolution === "lowest"
+		if(noSmoothing){
+			this.ctx.imageSmoothingEnabled = false
+		}
+		if(resolution === "lowest"){
+			this.canvas.style.imageRendering = "pixelated"
+		}
 		
-		this.cursor = document.getElementById("cursor")
 		this.gameDiv = document.getElementById("game")
 		this.songBg = document.getElementById("songbg")
 		this.songStage = document.getElementById("song-stage")
@@ -73,6 +80,7 @@
 		}
 		this.nextBeat = 0
 		this.gogoTime = 0
+		this.gogoTimeStarted = -Infinity
 		this.drumroll = []
 		this.touchEvents = 0
 		if(this.controller.parsedSongData.branches){
@@ -103,22 +111,29 @@
 			}
 		}
 		
-		this.beatInterval = this.controller.parsedSongData.beatInfo.beatInterval
+		if(this.controller.calibrationMode){
+			this.beatInterval = 512
+		}else{
+			this.beatInterval = this.controller.parsedSongData.beatInfo.beatInterval
+		}
 		this.font = strings.font
 		
-		this.draw = new CanvasDraw()
+		this.draw = new CanvasDraw(noSmoothing)
 		this.assets = new ViewAssets(this)
 		
-		this.titleCache = new CanvasCache()
-		this.comboCache = new CanvasCache()
-		this.pauseCache = new CanvasCache()
-		this.branchCache = new CanvasCache()
+		this.titleCache = new CanvasCache(noSmoothing)
+		this.comboCache = new CanvasCache(noSmoothing)
+		this.pauseCache = new CanvasCache(noSmoothing)
+		this.branchCache = new CanvasCache(noSmoothing)
 		
 		this.multiplayer = this.controller.multiplayer
 		
 		this.touchEnabled = this.controller.touchEnabled
 		this.touch = -Infinity
 		this.touchAnimation = settings.getItem("touchAnimation")
+		
+		versionDiv.classList.add("version-hide")
+		loader.screen.parentNode.insertBefore(versionDiv, loader.screen)
 		
 		if(this.multiplayer !== 2){
 			
@@ -134,7 +149,6 @@
 				pageEvents.add(this.canvas, "touchstart", this.ontouch.bind(this))
 				
 				this.gameDiv.classList.add("touch-visible")
-				document.getElementById("version").classList.add("version-hide")
 				
 				this.touchFullBtn = document.getElementById("touch-full-btn")
 				pageEvents.add(this.touchFullBtn, "touchend", toggleFullscreen)
@@ -444,12 +458,14 @@
 			ctx.fill()
 			
 			// Difficulty
-			ctx.drawImage(assets.image["difficulty"],
-				0, 144 * this.difficulty[this.controller.selectedSong.difficulty],
-				168, 143,
-				126, this.multiplayer === 2 ? 497 : 228,
-				62, 53
-			)
+			if(this.controller.selectedSong.difficulty){
+				ctx.drawImage(assets.image["difficulty"],
+					0, 144 * this.difficulty[this.controller.selectedSong.difficulty],
+					168, 143,
+					126, this.multiplayer === 2 ? 497 : 228,
+					62, 53
+				)
+			}
 			
 			// Badges
 			if(this.controller.autoPlayEnabled && !this.controller.multiplayer){
@@ -593,24 +609,26 @@
 			ctx.globalAlpha = 1
 			
 			// Difficulty
-			ctx.drawImage(assets.image["difficulty"],
-				0, 144 * this.difficulty[this.controller.selectedSong.difficulty],
-				168, 143,
-				16, this.multiplayer === 2 ? 194 : 232,
-				141, 120
-			)
-			var diff = this.controller.selectedSong.difficulty
-			var text = strings[diff === "ura" ? "oni" : diff]
-			ctx.font = this.draw.bold(this.font) + "20px " + this.font
-			ctx.textAlign = "center"
-			ctx.textBaseline = "bottom"
-			ctx.strokeStyle = "#000"
-			ctx.fillStyle = "#fff"
-			ctx.lineWidth = 7
-			ctx.miterLimit = 1
-			ctx.strokeText(text, 87, this.multiplayer === 2 ? 310 : 348)
-			ctx.fillText(text, 87, this.multiplayer === 2 ? 310 : 348)
-			ctx.miterLimit = 10
+			if(this.controller.selectedSong.difficulty){
+				ctx.drawImage(assets.image["difficulty"],
+					0, 144 * this.difficulty[this.controller.selectedSong.difficulty],
+					168, 143,
+					16, this.multiplayer === 2 ? 194 : 232,
+					141, 120
+				)
+				var diff = this.controller.selectedSong.difficulty
+				var text = strings[diff === "ura" ? "oni" : diff]
+				ctx.font = this.draw.bold(this.font) + "20px " + this.font
+				ctx.textAlign = "center"
+				ctx.textBaseline = "bottom"
+				ctx.strokeStyle = "#000"
+				ctx.fillStyle = "#fff"
+				ctx.lineWidth = 7
+				ctx.miterLimit = 1
+				ctx.strokeText(text, 87, this.multiplayer === 2 ? 310 : 348)
+				ctx.fillText(text, 87, this.multiplayer === 2 ? 310 : 348)
+				ctx.miterLimit = 10
+			}
 			
 			// Badges
 			if(this.controller.autoPlayEnabled && !this.controller.multiplayer){
@@ -947,6 +965,20 @@
 		ctx.clip()
 		
 		this.drawCircles(this.controller.getCircles())
+		if(this.controller.game.calibrationState === "video"){
+			if(ms % this.beatInterval < 1000 / 60 * 5){
+				this.drawCircle({
+					ms: ms,
+					type: "don",
+					endTime: ms + 100,
+					speed: 0
+				}, {
+					x: this.slotPos.x,
+					y: this.slotPos.y
+				})
+			}
+		}
+		
 		ctx.restore()
 		
 		// Hit notes explosion
@@ -1001,6 +1033,22 @@
 				ctx.translate(frameLeft, frameTop)
 			}
 			
+			var state = this.controller.game.calibrationState
+			if(state && state in strings.calibration){
+				var boldTitle = strings.calibration[state].title
+			}
+			if(boldTitle){
+				this.draw.layeredText({
+					ctx: ctx,
+					text: boldTitle,
+					fontSize: 35,
+					fontFamily: this.font,
+					x: 300,
+					y: 70
+				}, [
+					{outline: "#fff", letterBorder: 22}
+				])
+			}
 			var pauseRect = (ctx, mul) => {
 				this.draw.roundedRect({
 					ctx: ctx,
@@ -1025,85 +1073,283 @@
 				dx: 68,
 				dy: 11
 			})
-			
-			ctx.drawImage(assets.image["mimizu"],
-				313, 247, 136, 315
-			)
-			
-			var _y = 108
-			var _w = 80
-			var _h = 464
-			for(var i = 0; i < this.pauseOptions.length; i++){
-				var _x = 520 + 110 * i
-				if(this.state.moveHover !== null){
-					var selected = i === this.state.moveHover
-				}else{
-					var selected = i === this.state.pausePos
-				}
-				if(selected){
-					ctx.fillStyle = "#ffb447"
-					this.draw.roundedRect({
-						ctx: ctx,
-						x: _x - _w / 2,
-						y: _y,
-						w: _w,
-						h: _h,
-						radius: 30
-					})
-					ctx.fill()
-				}
-				this.pauseCache.get({
+			if(boldTitle){
+				this.draw.layeredText({
 					ctx: ctx,
-					x: _x - _w / 2,
-					y: _y,
-					w: _w,
-					h: _h,
-					id: this.pauseOptions[i] + (selected ? "1" : "0")
-				}, ctx => {
-					var textConfig = {
+					text: boldTitle,
+					fontSize: 35,
+					fontFamily: this.font,
+					x: 300,
+					y: 70
+				}, [
+					{outline: "#000", letterBorder: 10},
+					{fill: "#fff"}
+				])
+			}
+			
+			switch(state){
+				case "audioHelp":
+				case "videoHelp":
+				case "results":
+					var content = state === "audioHelp" && this.touchEnabled ? "contentAlt" : "content"
+					if(state === "audioHelp"){
+						var kbdSettings = settings.getItem("keyboardSettings")
+						var keys = [
+							kbdSettings.don_l[0].toUpperCase(),
+							kbdSettings.don_r[0].toUpperCase()
+						]
+						var substitute = (config, index, width) => {
+							var ctx = config.ctx
+							var bold = this.draw.bold(config.fontFamily)
+							ctx.font = bold + (config.fontSize * 0.66) + "px " + config.fontFamily
+							var w = config.fontSize * 0.6 + ctx.measureText(keys[index]).width
+							if(width){
+								return w
+							}else{
+								var h = 30
+								ctx.lineWidth = 3
+								ctx.strokeStyle = "rgba(0, 0, 0, 0.2)"
+								this.draw.roundedRect({
+									ctx: ctx,
+									x: 0, y: 1, w: w, h: h,
+									radius: 3
+								})
+								ctx.stroke()
+								ctx.strokeStyle = "#ccc"
+								ctx.fillStyle = "#fff"
+								this.draw.roundedRect({
+									ctx: ctx,
+									x: 0, y: 0, w: w, h: h,
+									radius: 3
+								})
+								ctx.stroke()
+								ctx.fill()
+								ctx.fillStyle = "#f7f7f7"
+								ctx.fillRect(2, 2, w - 4, h - 4)
+								
+								ctx.fillStyle = "#333"
+								ctx.textBaseline = "middle"
+								ctx.textAlign = "center"
+								ctx.fillText(keys[index], w / 2, h / 2)
+							}
+						}
+					}else if(state === "results"){
+						var progress = this.controller.game.calibrationProgress
+						var latency = [
+							progress.audio,
+							progress.video
+						]
+						var substitute = (config, index, width) => {
+							var ctx = config.ctx
+							var bold = this.draw.bold(config.fontFamily)
+							ctx.font = bold + (config.fontSize * 1.1) + "px " + config.fontFamily
+							var text = this.addMs(latency[index])
+							if(width){
+								return ctx.measureText(text).width
+							}else{
+								ctx.fillText(text, 0, 0)
+							}
+						}
+					}else{
+						var substitute = null
+					}
+					this.draw.wrappingText({
 						ctx: ctx,
-						text: this.pauseOptions[i],
-						x: _w / 2,
-						y: 18,
-						width: _w,
-						height: _h - 54,
+						text: strings.calibration[state][content],
+						fontSize: 30,
+						fontFamily: this.font,
+						x: 300,
+						y: 130,
+						width: 680,
+						height: 240,
+						lineHeight: 35,
+						fill: "#000",
+						verticalAlign: "middle",
+						substitute: substitute
+					})
+					
+					var _x = 640
+					var _w = 464
+					var _h = 80
+					for(var i = 0; i < this.pauseOptions.length; i++){
+						var text = this.pauseOptions[i]
+						var _y = 470 - 90 * (this.pauseOptions.length - i - 1)
+						if(this.state.moveHover !== null){
+							var selected = i === this.state.moveHover
+						}else{
+							var selected = i === this.state.pausePos
+						}
+						if(selected){
+							ctx.fillStyle = "#ffb447"
+							this.draw.roundedRect({
+								ctx: ctx,
+								x: _x - _w / 2,
+								y: _y,
+								w: _w,
+								h: _h,
+								radius: 30
+							})
+							ctx.fill()
+						}
+						if(selected){
+							var layers = [
+								{outline: "#000", letterBorder: 10},
+								{fill: "#fff"}
+							]
+						}else{
+							var layers = [
+								{fill: "#000"}
+							]
+						}
+						this.draw.layeredText({
+							ctx: ctx,
+							text: text,
+							x: _x,
+							y: _y + 18,
+							width: _w,
+							height: _h - 54,
+							fontSize: 40,
+							fontFamily: this.font,
+							letterSpacing: -1,
+							align: "center"
+						}, layers)
+						
+						var highlight = 0
+						if(this.state.moveHover === i){
+							highlight = 2
+						}else if(selected){
+							highlight = 1
+						}
+						if(highlight){
+							this.draw.highlight({
+								ctx: ctx,
+								x: _x - _w / 2 - 3.5,
+								y: _y - 3.5,
+								w: _w + 7,
+								h: _h + 7,
+								animate: highlight === 1,
+								animateMS: this.state.moveMS,
+								opacity: highlight === 2 ? 0.8 : 1,
+								radius: 30
+							})
+						}
+					}
+					break
+				case "audioComplete":
+				case "videoComplete":
+					this.draw.wrappingText({
+						ctx: ctx,
+						text: strings.calibration[state],
 						fontSize: 40,
 						fontFamily: this.font,
-						letterSpacing: -1
-					}
-					if(selected){
-						textConfig.fill = "#fff"
-						textConfig.outline = "#000"
-						textConfig.outlineSize = 10
-					}else{
-						textConfig.fill = "#000"
-					}
-					this.draw.verticalText(textConfig)
-				})
-				
-				var highlight = 0
-				if(this.state.moveHover === i){
-					highlight = 2
-				}else if(selected){
-					highlight = 1
-				}
-				if(highlight){
-					this.draw.highlight({
-						ctx: ctx,
-						x: _x - _w / 2 - 3.5,
-						y: _y - 3.5,
-						w: _w + 7,
-						h: _h + 7,
-						animate: highlight === 1,
-						animateMS: this.state.moveMS,
-						opacity: highlight === 2 ? 0.8 : 1,
-						radius: 30
+						x: 300,
+						y: 130,
+						width: 680,
+						height: 420,
+						lineHeight: 47,
+						fill: "#000",
+						verticalAlign: "middle",
+						textAlign: "center",
 					})
-				}
+					break
+				default:
+					ctx.drawImage(assets.image["mimizu"],
+						313, 247, 136, 315
+					)
+					
+					var _y = 108
+					var _w = 80
+					var _h = 464
+					for(var i = 0; i < this.pauseOptions.length; i++){
+						var text = this.pauseOptions[i]
+						if(this.controller.calibrationMode && i === this.pauseOptions.length - 1){
+							text = strings.calibration.back
+						}
+						var _x = 520 + 110 * i
+						if(this.state.moveHover !== null){
+							var selected = i === this.state.moveHover
+						}else{
+							var selected = i === this.state.pausePos
+						}
+						if(selected){
+							ctx.fillStyle = "#ffb447"
+							this.draw.roundedRect({
+								ctx: ctx,
+								x: _x - _w / 2,
+								y: _y,
+								w: _w,
+								h: _h,
+								radius: 30
+							})
+							ctx.fill()
+						}
+						this.pauseCache.get({
+							ctx: ctx,
+							x: _x - _w / 2,
+							y: _y,
+							w: _w,
+							h: _h,
+							id: text + (selected ? "1" : "0")
+						}, ctx => {
+							var textConfig = {
+								ctx: ctx,
+								text: text,
+								x: _w / 2,
+								y: 18,
+								width: _w,
+								height: _h - 54,
+								fontSize: 40,
+								fontFamily: this.font,
+								letterSpacing: -1
+							}
+							if(selected){
+								textConfig.fill = "#fff"
+								textConfig.outline = "#000"
+								textConfig.outlineSize = 10
+							}else{
+								textConfig.fill = "#000"
+							}
+							this.draw.verticalText(textConfig)
+						})
+						
+						var highlight = 0
+						if(this.state.moveHover === i){
+							highlight = 2
+						}else if(selected){
+							highlight = 1
+						}
+						if(highlight){
+							this.draw.highlight({
+								ctx: ctx,
+								x: _x - _w / 2 - 3.5,
+								y: _y - 3.5,
+								w: _w + 7,
+								h: _h + 7,
+								animate: highlight === 1,
+								animateMS: this.state.moveMS,
+								opacity: highlight === 2 ? 0.8 : 1,
+								radius: 30
+							})
+						}
+					}
+					break
 			}
 			
 			ctx.restore()
 		}
+	}
+	addMs(input){
+		var split = strings.calibration.ms.split("%s")
+		var index = 0
+		var output = ""
+		var inputStrings = [(input > 0 ? "+" : "") + input.toString()]
+		split.forEach((string, i) => {
+			if(i !== 0){
+				output += inputStrings[index++]
+			}
+			output += string
+		})
+		return output
 	}
 	setBackground(){
 		var selectedSong = this.controller.selectedSong
@@ -1219,10 +1465,10 @@
 		
 		measures.forEach(measure => {
 			var timeForDistance = this.posToMs(distanceForCircle, measure.speed)
-			var startingTime = measure.ms - timeForDistance
-			var finishTime = measure.ms + this.posToMs(this.slotPos.x - this.slotPos.paddingLeft + 3, measure.speed)
+			var startingTime = measure.ms - timeForDistance + this.controller.videoLatency
+			var finishTime = measure.ms + this.posToMs(this.slotPos.x - this.slotPos.paddingLeft + 3, measure.speed) + this.controller.videoLatency
 			if(measure.visible && (!measure.branch || measure.branch.active) && ms >= startingTime && ms <= finishTime){
-				var measureX = this.slotPos.x + this.msToPos(measure.ms - ms, measure.speed)
+				var measureX = this.slotPos.x + this.msToPos(measure.ms - ms + this.controller.videoLatency, measure.speed)
 				this.ctx.strokeStyle = measure.branchFirst ? "#ff0" : "#bdbdbd"
 				this.ctx.lineWidth = 3
 				this.ctx.beginPath()
@@ -1267,8 +1513,8 @@
 			var speed = circle.speed
 			
 			var timeForDistance = this.posToMs(distanceForCircle + this.slotPos.size / 2, speed)
-			var startingTime = circle.ms - timeForDistance
-			var finishTime = circle.endTime + this.posToMs(this.slotPos.x - this.slotPos.paddingLeft + this.slotPos.size * 2, speed)
+			var startingTime = circle.ms - timeForDistance + this.controller.videoLatency
+			var finishTime = circle.endTime + this.posToMs(this.slotPos.x - this.slotPos.paddingLeft + this.slotPos.size * 2, speed) + this.controller.videoLatency
 			
 			if(circle.isPlayed <= 0 || circle.score === 0){
 				if((!circle.branch || circle.branch.active) && ms >= startingTime && ms <= finishTime && circle.isPlayed !== -1){
@@ -1350,7 +1596,7 @@
 		
 		if(!circlePos){
 			circlePos = {
-				x: this.slotPos.x + this.msToPos(circleMs - ms, speed),
+				x: this.slotPos.x + this.msToPos(circleMs - ms + this.controller.videoLatency, speed),
 				y: this.slotPos.y
 			}
 		}
@@ -1388,10 +1634,10 @@
 				size = circleSize
 				faceID = noteFace.small
 				var h = size * 1.8
-				if(circleMs < ms && ms <= endTime){
+				if(circleMs + this.controller.audioLatency < ms && ms <= endTime + this.controller.audioLatency){
 					circlePos.x = this.slotPos.x
-				}else if(ms > endTime){
-					circlePos.x = this.slotPos.x + this.msToPos(endTime - ms, speed)
+				}else if(ms > endTime + this.controller.audioLatency){
+					circlePos.x = this.slotPos.x + this.msToPos(endTime - ms + this.controller.audioLatency, speed)
 				}
 				ctx.drawImage(assets.image["balloon"],
 					circlePos.x + size - 4,
@@ -1596,7 +1842,9 @@
 	}
 	toggleGogoTime(circle){
 		this.gogoTime = circle.gogoTime
-		this.gogoTimeStarted = circle.ms
+		if(circle.gogoTime || this.gogoTimeStarted !== -Infinity){
+			this.gogoTimeStarted = circle.ms
+		}
 		
 		if(this.gogoTime){
 			this.assets.fireworks.forEach(fireworksAsset => {
@@ -1789,21 +2037,62 @@
 		if(typeof pos === "undefined"){
 			pos = this.state.pausePos
 		}
+		var game = this.controller.game
+		var state = game.calibrationState
+		switch(state){
+			case "audioHelp":
+				pos = pos === 0 ? 2 : 0
+				break
+			case "videoHelp":
+				if(pos === 0){
+					assets.sounds["se_don"].play()
+					game.calibrationReset("audio")
+					return
+				}else{
+					pos = 0
+				}
+				break
+			case "results":
+				if(pos === 0){
+					assets.sounds["se_don"].play()
+					game.calibrationReset("video")
+					return
+				}else{
+					var input = settings.getItem("latency")
+					var output = {}
+					var progress = game.calibrationProgress
+					for(var i in input){
+						if(i === "audio" || i === "video"){
+							output[i] = progress[i]
+						}else{
+							output[i] = input[i]
+						}
+					}
+					settings.setItem("latency", output)
+					pos = 2
+				}
+				break
+		}
 		switch(pos){
 			case 1:
-				assets.sounds["se_don"].play()
-				this.controller.restartSong()
+				this.controller.playSound("se_don", 0, true)
+				if(state === "video"){
+					game.calibrationReset(state)
+				}else{
+					this.controller.restartSong()
+				}
 				pageEvents.send("pause-restart")
 				break
 			case 2:
-				assets.sounds["se_don"].play()
+				this.controller.playSound("se_don", 0, true)
 				this.controller.songSelection()
 				pageEvents.send("pause-song-select")
 				break
 			default:
-				this.controller.togglePause()
+				this.controller.togglePause(false)
 				break
 		}
+		return true
 	}
 	onmousedown(event){
 		if(this.controller.game.paused){
@@ -1855,23 +2144,30 @@
 			x = x * pauseScale + 257
 			y = y * pauseScale - 328
 		}
-		if(104 <= y && y <= 575 && 465 <= x && x <= 465 + 110 * this.pauseOptions.length){
-			return Math.floor((x - 465) / 110)
+		switch(this.controller.game.calibrationState){
+			case "audioHelp":
+			case "videoHelp":
+			case "results":
+				if(554 - 90 * this.pauseOptions.length <= y && y <= 554 && 404 <= x && x <= 876){
+					return Math.floor((y - 554 + 90 * this.pauseOptions.length) / 90)
+				}
+				break
+			default:
+				if(104 <= y && y <= 575 && 465 <= x && x <= 465 + 110 * this.pauseOptions.length){
+					return Math.floor((x - 465) / 110)
+				}
+				break
 		}
 		return null
 	}
 	mouseIdle(){
 		var lastMouse = pageEvents.getMouse()
-		if(lastMouse && !this.cursorHidden){
+		if(lastMouse && !this.cursorHidden && !this.state.hasPointer){
 			if(this.getMS() >= this.lastMousemove + 2000){
-				this.cursor.style.top = lastMouse.clientY + "px"
-				this.cursor.style.left = lastMouse.clientX + "px"
-				this.cursor.style.pointerEvents = "auto"
+				this.canvas.style.cursor = "none"
 				this.cursorHidden = true
 			}else{
-				this.cursor.style.top = ""
-				this.cursor.style.left = ""
-				this.cursor.style.pointerEvents = ""
+				this.canvas.style.cursor = ""
 			}
 		}
 	}
@@ -1890,12 +2186,13 @@
 		this.pauseCache.clean()
 		this.branchCache.clean()
 		
+		versionDiv.classList.remove("version-hide")
+		loader.screen.parentNode.appendChild(versionDiv)
 		if(this.multiplayer !== 2){
 			if(this.touchEnabled){
 				pageEvents.remove(this.canvas, "touchstart")
 				pageEvents.remove(this.touchPauseBtn, "touchend")
 				this.gameDiv.classList.add("touch-results")
-				document.getElementById("version").classList.remove("version-hide")
 				this.touchDrumDiv.parentNode.removeChild(this.touchDrumDiv)
 				delete this.touchDrumDiv
 				delete this.touchDrumImg
@@ -1915,7 +2212,6 @@
 		pageEvents.mouseRemove(this)
 
 		delete this.pauseMenu
-		delete this.cursor
 		delete this.gameDiv
 		delete this.canvas
 		delete this.ctx

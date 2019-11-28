@@ -7,6 +7,16 @@ class Controller{
 		this.touchEnabled = touchEnabled
 		this.snd = this.multiplayer ? "_p" + this.multiplayer : ""
 		
+		this.calibrationMode = selectedSong.folder === "calibration"
+		this.audioLatency = 0
+		this.videoLatency = 0
+		if(!this.calibrationMode){
+			var latency = settings.getItem("latency")
+			if(!autoPlayEnabled){
+				this.audioLatency = Math.round(latency.audio) || 0
+			}
+			this.videoLatency = Math.round(latency.video) || 0 + this.audioLatency
+		}
 		if(this.multiplayer !== 2){
 			loader.changePage("game", false)
 		}
@@ -18,18 +28,23 @@ class Controller{
 		}
 		this.offset = this.parsedSongData.soundOffset
 		
-		assets.songs.forEach(song => {
-			if(song.id == this.selectedSong.folder){
-				this.mainAsset = song.sound
-				this.volume = song.volume || 1
-			}
-		})
+		if(this.calibrationMode){
+			this.volume = 1
+		}else{
+			assets.songs.forEach(song => {
+				if(song.id == this.selectedSong.folder){
+					this.mainAsset = song.sound
+					this.volume = song.volume || 1
+				}
+			})
+		}
 		
 		this.game = new Game(this, this.selectedSong, this.parsedSongData)
 		this.view = new View(this)
 		this.mekadon = new Mekadon(this, this.game)
 		this.keyboard = new GameInput(this)
 		
+		this.drumSounds = settings.getItem("latency").drumSounds
 		this.playedSounds = {}
 	}
 	run(syncWith){
@@ -72,8 +87,8 @@ class Controller{
 	}
 	stopMainLoop(){
 		this.mainLoopRunning = false
-		if(this.mainAsset){
-			this.mainAsset.stop()
+		if(this.game.mainAsset){
+			this.game.mainAsset.stop()
 		}
 		if(this.multiplayer !== 2){
 			clearInterval(this.gameInterval)
@@ -90,13 +105,18 @@ class Controller{
 			if(this.game.musicFadeOut < 3){
 				this.keyboard.checkMenuKeys()
 			}
+			if(this.calibrationMode){
+				this.game.calibration()
+			}
 			if(!this.game.isPaused()){
 				this.keyboard.checkGameKeys()
 				
 				if(ms < 0){
 					this.game.updateTime()
 				}else{
-					this.game.update()
+					if(!this.calibrationMode){
+						this.game.update()
+					}
 					if(!this.mainLoopRunning){
 						return
 					}
@@ -158,7 +178,11 @@ class Controller{
 		if(!fadeIn){
 			this.clean()
 		}
-		new SongSelect(false, fadeIn, this.touchEnabled)
+		if(this.calibrationMode){
+			new SettingsView(this.touchEnabled, false, null, "latency")
+		}else{
+			new SongSelect(false, fadeIn, this.touchEnabled)
+		}
 	}
 	restartSong(){
 		this.clean()
@@ -166,20 +190,24 @@ class Controller{
 			new LoadSong(this.selectedSong, false, true, this.touchEnabled)
 		}else{
 			new Promise(resolve => {
-				var songObj = assets.songs.find(song => song.id === this.selectedSong.folder)
-				if(songObj.chart){
-					var reader = new FileReader()
-					var promise = pageEvents.load(reader).then(event => {
-						this.songData = event.target.result.replace(/\0/g, "").split("\n")
-						resolve()
-					})
-					if(this.selectedSong.type === "tja"){
-						reader.readAsText(songObj.chart, "sjis")
-					}else{
-						reader.readAsText(songObj.chart)
-					}
-				}else{
+				if(this.calibrationMode){
 					resolve()
+				}else{
+					var songObj = assets.songs.find(song => song.id === this.selectedSong.folder)
+					if(songObj.chart && songObj.chart !== "blank"){
+						var reader = new FileReader()
+						var promise = pageEvents.load(reader).then(event => {
+							this.songData = event.target.result.replace(/\0/g, "").split("\n")
+							resolve()
+						})
+						if(this.selectedSong.type === "tja"){
+							reader.readAsText(songObj.chart, "sjis")
+						}else{
+							reader.readAsText(songObj.chart)
+						}
+					}else{
+						resolve()
+					}
 				}
 			}).then(() => {
 				var taikoGame = new Controller(this.selectedSong, this.songData, this.autoPlayEnabled, false, this.touchEnabled)
@@ -187,10 +215,13 @@ class Controller{
 			})
 		}
 	}
-	playSound(id, time){
+	playSound(id, time, noSnd){
+		if(!this.drumSounds && (id === "neiro_1_don" || id === "neiro_1_ka" || id === "se_don" || id === "se_ka")){
+			return
+		}
 		var ms = Date.now() + (time || 0) * 1000
 		if(!(id in this.playedSounds) || ms > this.playedSounds[id] + 30){
-			assets.sounds[id + this.snd].play(time)
+			assets.sounds[id + (noSnd ? "" : this.snd)].play(time)
 			this.playedSounds[id] = ms
 		}
 	}
@@ -201,11 +232,11 @@ class Controller{
 		}
 		this.playSound(soundID + meka, time)
 	}
-	togglePause(){
+	togglePause(forcePause, pauseMove, noSound){
 		if(this.multiplayer === 1){
-			this.syncWith.game.togglePause()
+			this.syncWith.game.togglePause(forcePause, pauseMove, noSound)
 		}
-		this.game.togglePause()
+		this.game.togglePause(forcePause, pauseMove, noSound)
 	}
 	getKeys(){
 		return this.keyboard.getKeys()

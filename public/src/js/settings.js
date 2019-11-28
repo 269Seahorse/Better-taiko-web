@@ -2,11 +2,15 @@ class Settings{
 	constructor(){
 		var ios = /iPhone|iPad/.test(navigator.userAgent)
 		var phone = /Android|iPhone|iPad/.test(navigator.userAgent)
+		this.allLanguages = []
+		for(var i in allStrings){
+			this.allLanguages.push(i)
+		}
 		
 		this.items = {
 			language: {
 				type: "language",
-				options: ["ja", "en", "cn", "tw", "ko"],
+				options: this.allLanguages,
 				default: this.getLang()
 			},
 			resolution: {
@@ -34,6 +38,14 @@ class Settings{
 				options: ["a", "b", "c"],
 				default: "a",
 				gamepad: true
+			},
+			latency: {
+				type: "latency",
+				default: {
+					"audio": 0,
+					"video": 0,
+					"drumSounds": true
+				}
 			}
 		}
 		
@@ -59,6 +71,22 @@ class Settings{
 								obj = null
 								break
 							}
+						}
+						this.storage[i] = obj
+					}else if(current.type === "latency"){
+						var obj = {}
+						for(var j in current.default){
+							if(storage[i] && j in storage[i]){
+								if(j === "drumSounds"){
+									obj[j] = !!storage[i][j]
+									continue
+								}else if(!isNaN(storage[i][j])){
+									obj[j] = Math.round(parseFloat(storage[i][j]) || 0)
+									continue
+								}
+							}
+							obj = null
+							break
 						}
 						this.storage[i] = obj
 					}else{
@@ -107,7 +135,7 @@ class Settings{
 				}
 			}
 		}
-		return "ja"
+		return this.allLanguages[0]
 	}
 	setLang(lang, noEvent){
 		strings = lang
@@ -122,7 +150,7 @@ class Settings{
 }
 
 class SettingsView{
-	constructor(touchEnabled, tutorial, songId){
+	constructor(touchEnabled, tutorial, songId, toSetting){
 		this.touchEnabled = touchEnabled
 		this.tutorial = tutorial
 		this.songId = songId
@@ -130,9 +158,15 @@ class SettingsView{
 		loader.changePage("settings", tutorial)
 		assets.sounds["bgm_settings"].playLoop(0.1, false, 0, 1.392, 26.992)
 		this.defaultButton = document.getElementById("settings-default")
+		this.viewOuter = this.getElement("view-outer")
 		if(touchEnabled){
-			this.getElement("view-outer").classList.add("touch-enabled")
+			this.viewOuter.classList.add("touch-enabled")
 		}
+		this.touchEnd = []
+		pageEvents.add(this.viewOuter, ["mouseup", "touchend"], event => {
+			this.touchEnd.forEach(func => func(event))
+		})
+		
 		var gamepadEnabled = false
 		if("getGamepads" in navigator){
 			var gamepads = navigator.getGamepads()
@@ -145,19 +179,22 @@ class SettingsView{
 		}
 		this.mode = "settings"
 		
+		this.pressedKeys = {}
 		this.keyboard = new Keyboard({
 			"confirm": ["enter", "space", "don_l", "don_r"],
 			"up": ["up"],
-			"previous": ["left", "ka_l"],
-			"next": ["right", "down", "ka_r"],
+			"right": ["right", "ka_r"],
+			"down": ["down"],
+			"left": ["left", "ka_l"],
 			"back": ["esc"],
 			"other": ["wildcard"]
 		}, this.keyPressed.bind(this))
 		this.gamepad = new Gamepad({
 			"confirm": ["b", "ls", "rs"],
 			"up": ["u", "lsu"],
-			"previous": ["l", "lb", "lt", "lsl"],
-			"next": ["d", "r", "rb", "rt", "lsd", "lsr"],
+			"right": ["r", "rb", "rt", "lsr"],
+			"down": ["d", "lsd"],
+			"left": ["l", "lb", "lt", "lsl"],
 			"back": ["start", "a"]
 		}, this.keyPressed.bind(this))
 		
@@ -182,15 +219,15 @@ class SettingsView{
 			var nameDiv = document.createElement("div")
 			nameDiv.classList.add("setting-name", "stroke-sub")
 			var name = strings.settings[i].name
-			nameDiv.innerText = name
-			nameDiv.setAttribute("alt", name)
+			this.setAltText(nameDiv, name)
 			settingBox.appendChild(nameDiv)
 			var valueDiv = document.createElement("div")
 			valueDiv.classList.add("setting-value")
 			this.getValue(i, valueDiv)
 			settingBox.appendChild(valueDiv)
 			content.appendChild(settingBox)
-			if(this.items.length === this.selected){
+			if(!toSetting && this.items.length === this.selected || toSetting === i){
+				this.selected = this.items.length
 				settingBox.classList.add("selected")
 			}
 			this.addTouch(settingBox, event => this.setValue(i))
@@ -226,8 +263,99 @@ class SettingsView{
 		this.gamepadButtons = document.getElementById("gamepad-buttons")
 		this.gamepadValue = document.getElementById("gamepad-value")
 		
+		this.latencySettings = document.getElementById("settings-latency")
+		this.addTouch(this.latencySettings, event => {
+			if(event.target === event.currentTarget){
+				this.latencyBack()
+			}
+		})
+		this.latencyTitle = this.latencySettings.getElementsByClassName("view-title")[0]
+		this.latencyItems = []
+		this.latencySelected = 0
+		var latencyContent = this.latencySettings.getElementsByClassName("view-content")[0]
+		var latencyWindow = ["calibration", "audio", "video", "drumSounds"]
+		for(let i in latencyWindow){
+			let current = latencyWindow[i]
+			var settingBox = document.createElement("div")
+			settingBox.classList.add("setting-box")
+			var nameDiv = document.createElement("div")
+			nameDiv.classList.add("setting-name", "stroke-sub")
+			var name = strings.settings.latency[current]
+			this.setAltText(nameDiv, name)
+			settingBox.appendChild(nameDiv)
+			let outputObject = {
+				id: current,
+				settingBox: settingBox,
+				nameDiv: nameDiv
+			}
+			if(current === "calibration"){
+				nameDiv.style.width = "100%"
+			}else{
+				var valueDiv = document.createElement("div")
+				valueDiv.classList.add("setting-value")
+				settingBox.appendChild(valueDiv)
+				var valueText = document.createTextNode("")
+				valueDiv.appendChild(valueText)
+				this.latencyGetValue(current, valueText)
+				if(current !== "drumSounds"){
+					var buttons = document.createElement("div")
+					buttons.classList.add("latency-buttons")
+					var buttonMinus = document.createElement("span")
+					buttonMinus.innerText = "-"
+					buttons.appendChild(buttonMinus)
+					this.addTouchRepeat(buttonMinus, event => {
+						this.latencySetAdjust(outputObject, -1)
+					})
+					var buttonPlus = document.createElement("span")
+					buttonPlus.innerText = "+"
+					buttons.appendChild(buttonPlus)
+					this.addTouchRepeat(buttonPlus, event => {
+						this.latencySetAdjust(outputObject, 1)
+					})
+					valueDiv.appendChild(buttons)
+				}
+			}
+			latencyContent.appendChild(settingBox)
+			if(this.latencyItems.length === this.latencySelected){
+				settingBox.classList.add("selected")
+			}
+			this.addTouch(settingBox, event => {
+				if(event.target.tagName !== "SPAN"){
+					this.latencySetValue(current, event.type === "touchstart")
+				}
+			})
+			if(current !== "calibration"){
+				outputObject.valueDiv = valueDiv
+				outputObject.valueText = valueText
+				outputObject.buttonMinus = buttonMinus
+				outputObject.buttonPlus = buttonPlus
+			}
+			this.latencyItems.push(outputObject)
+		}
+		this.latencyDefaultButton = document.getElementById("latency-default")
+		this.latencyItems.push({
+			id: "default",
+			settingBox: this.latencyDefaultButton
+		})
+		this.addTouch(this.latencyDefaultButton, event => this.latencyDefault())
+		this.latencyEndButton = this.latencySettings.getElementsByClassName("view-end-button")[0]
+		this.latencyItems.push({
+			id: "back",
+			settingBox: this.latencyEndButton
+		})
+		this.addTouch(this.latencyEndButton, event => this.latencyBack(true))
+		
 		this.setStrings()
 		
+		this.drumSounds = settings.getItem("latency").drumSounds
+		this.playedSounds = {}
+		this.redrawRunning = true
+		this.redrawBind = this.redraw.bind(this)
+		this.redraw()
+		if(toSetting === "latency"){
+			this.mode = "latency"
+			this.latencySet()
+		}
 		pageEvents.send("settings")
 	}
 	getElement(name){
@@ -244,6 +372,23 @@ class SettingsView{
 				this.touched = false
 			}
 			callback(event)
+		})
+	}
+	addTouchRepeat(element, callback){
+		this.addTouch(element, event => {
+			var active = true
+			var func = () => {
+				active = false
+				this.touchEnd.splice(this.touchEnd.indexOf(func), 1)
+			}
+			this.touchEnd.push(func)
+			var repeat = delay => {
+				if(active){
+					callback()
+					setTimeout(() => repeat(50), delay)
+				}
+			}
+			repeat(400)
 		})
 	}
 	removeTouch(element){
@@ -274,6 +419,17 @@ class SettingsView{
 				valueDiv.appendChild(keyDiv)
 			}
 			return
+		}else if(current.type === "latency"){
+			var audioVideo = [Math.round(value.audio), Math.round(value.video)]
+			var latencyValue = strings.settings[name].value.split("%s")
+			var latencyIndex = 0
+			value = ""
+			latencyValue.forEach((string, i) => {
+				if(i !== 0){
+					value += this.addMs(audioVideo[latencyIndex++])
+				}
+				value += string
+			})
 		}
 		valueDiv.innerText = value
 	}
@@ -285,6 +441,7 @@ class SettingsView{
 		if(this.mode !== "settings"){
 			if(this.selected === selectedIndex){
 				this.keyboardBack(selected)
+				this.playSound("se_don")
 			}
 			return
 		}
@@ -303,24 +460,37 @@ class SettingsView{
 			selected.valueDiv.classList.add("selected")
 			this.keyboardKeys = {}
 			this.keyboardSet()
-			assets.sounds["se_don"].play()
+			this.playSound("se_don")
 			return
 		}else if(current.type === "gamepad"){
 			this.mode = "gamepad"
 			this.gamepadSelected = current.options.indexOf(value)
 			this.gamepadSet()
-			assets.sounds["se_don"].play()
+			this.playSound("se_don")
+			return
+		}else if(current.type === "latency"){
+			this.mode = "latency"
+			this.latencySet()
+			this.playSound("se_don")
 			return
 		}
 		settings.setItem(name, value)
 		this.getValue(name, this.items[this.selected].valueDiv)
-		assets.sounds["se_ka"].play()
+		this.playSound("se_ka")
 		if(current.type === "language"){
 			this.setLang(allStrings[value])
 		}
 	}
-	keyPressed(pressed, name, event){
-		if(!pressed){
+	keyPressed(pressed, name, event, repeat){
+		if(pressed){
+			if(!this.pressedKeys[name]){
+				this.pressedKeys[name] = this.getMS() + 300
+			}
+		}else{
+			this.pressedKeys[name] = 0
+			return
+		}
+		if(repeat && name !== "up" && name !== "right" && name !== "down" && name !== "left"){
 			return
 		}
 		this.touched = false
@@ -334,31 +504,31 @@ class SettingsView{
 				}else{
 					this.setValue(selected.id)
 				}
-			}else if(name === "up" || name === "previous" || name === "next"){
+			}else if(name === "up" || name === "right" || name === "down" || name === "left"){
 				selected.settingBox.classList.remove("selected")
 				do{
-					this.selected = this.mod(this.items.length, this.selected + (name === "next" ? 1 : -1))
-				}while(this.items[this.selected].id === "default" && name !== "previous")
+					this.selected = this.mod(this.items.length, this.selected + ((name === "right" || name === "down") ? 1 : -1))
+				}while(this.items[this.selected].id === "default" && name !== "left")
 				selected = this.items[this.selected]
 				selected.settingBox.classList.add("selected")
 				selected.settingBox.scrollIntoView()
-				assets.sounds["se_ka"].play()
+				this.playSound("se_ka")
 			}else if(name === "back"){
 				this.onEnd()
 			}
 		}else if(this.mode === "gamepad"){
 			if(name === "confirm"){
 				this.gamepadBack(true)
-			}else if(name === "up" || name === "previous" || name === "next"){
-				this.gamepadSet(name === "next" ? 1 : -1)
+			}else if(name === "up" || name === "right" || name === "down" || name === "left"){
+				this.gamepadSet((name === "right" || name === "down") ? 1 : -1)
 			}else if(name === "back"){
 				this.gamepadBack()
 			}
 		}else if(this.mode === "keyboard"){
 			if(name === "back"){
 				this.keyboardBack(selected)
-				assets.sounds["se_cancel"].play()
-			}else{
+				this.playSound("se_cancel")
+			}else if(event){
 				event.preventDefault()
 				var currentKey = event.key.toLowerCase()
 				for(var i in this.keyboardKeys){
@@ -367,9 +537,39 @@ class SettingsView{
 					}
 				}
 				var current = this.keyboardCurrent
-				assets.sounds[current === "ka_l" || current === "ka_r" ? "se_ka" : "se_don"].play()
+				this.playSound(current === "ka_l" || current === "ka_r" ? "se_ka" : "se_don")
 				this.keyboardKeys[current] = [currentKey]
 				this.keyboardSet()
+			}
+		}else if(this.mode === "latency"){
+			var latencySelected = this.latencyItems[this.latencySelected]
+			if(name === "confirm"){
+				if(latencySelected.id === "back"){
+					this.latencyBack(true)
+				}else if(latencySelected.id === "default"){
+					this.latencyDefault()
+				}else{
+					this.latencySetValue(latencySelected.id)
+				}
+			}else if(name === "up" || name === "right" || name === "down" || name === "left"){
+				latencySelected.settingBox.classList.remove("selected")
+				do{
+					this.latencySelected = this.mod(this.latencyItems.length, this.latencySelected + ((name === "right" || name === "down") ? 1 : -1))
+				}while(this.latencyItems[this.latencySelected].id === "default" && name !== "left")
+				latencySelected = this.latencyItems[this.latencySelected]
+				latencySelected.settingBox.classList.add("selected")
+				latencySelected.settingBox.scrollIntoView()
+				this.playSound("se_ka")
+			}else if(name === "back"){
+				this.latencyBack()
+			}
+		}else if(this.mode === "latencySet"){
+			var latencySelected = this.latencyItems[this.latencySelected]
+			if(name === "confirm" || name === "back"){
+				this.latencySetBack(latencySelected)
+				this.playSound(name === "confirm" ? "se_don" : "se_cancel")
+			}else if(name === "up" || name === "right" || name === "down" || name === "left"){
+				this.latencySetAdjust(latencySelected, (name === "up" || name === "right") ? 1 : -1)
 			}
 		}
 	}
@@ -416,14 +616,13 @@ class SettingsView{
 		var current = settings.items[selected.id]
 		if(diff){
 			this.gamepadSelected = this.mod(current.options.length, this.gamepadSelected + diff)
-			assets.sounds["se_ka"].play()
+			this.playSound("se_ka")
 		}
 		var opt = current.options[this.gamepadSelected]
 		var value = strings.settings[selected.id][opt]
-		this.gamepadValue.innerText = value
-		this.gamepadValue.setAttribute("alt", value)
-		this.gamepadButtons.style.backgroundPosition = "0 " + (-318 - 132 * this.gamepadSelected) + "px"
-		this.gamepadSettings.style.display = "block"
+		this.setAltText(this.gamepadValue, value)
+		this.gamepadButtons.style.backgroundPosition = "0 " + (-11.87 - 4.93 * this.gamepadSelected) + "em"
+		this.gamepadSettings.style.display = "flex"
 	}
 	gamepadBack(confirm){
 		if(this.mode !== "gamepad"){
@@ -433,9 +632,141 @@ class SettingsView{
 		var current = settings.items[selected.id]
 		settings.setItem(selected.id, current.options[this.gamepadSelected])
 		this.getValue(selected.id, selected.valueDiv)
-		assets.sounds[confirm ? "se_don" : "se_cancel"].play()
+		this.playSound(confirm ? "se_don" : "se_cancel")
 		this.gamepadSettings.style.display = ""
 		this.mode = "settings"
+	}
+	latencySet(){
+		if(this.mode !== "latency"){
+			return
+		}
+		var selected = this.items[this.selected]
+		var current = settings.items[selected.id]
+		this.latencySettings.style.display = "flex"
+	}
+	latencyGetValue(name, valueText){
+		var currentLatency = settings.getItem("latency")
+		if(name === "drumSounds"){
+			valueText.data = currentLatency[name] ? strings.settings.on : strings.settings.off
+		}else{
+			valueText.data = this.addMs(currentLatency[name] || 0)
+		}
+	}
+	latencySetValue(name, touched){
+		var selectedIndex = this.latencyItems.findIndex(item => item.id === name)
+		var selected = this.latencyItems[selectedIndex]
+		if(this.mode === "latencySet"){
+			this.latencySetBack(this.latencyItems[this.latencySelected])
+			if(this.latencySelected === selectedIndex){
+				this.playSound("se_don")
+				return
+			}
+		}else if(this.mode !== "latency"){
+			return
+		}
+		if(name === "calibration"){
+			this.playSound("se_don")
+			this.clean()
+			new LoadSong({
+				"title": strings.calibration.title,
+				"folder": "calibration",
+				"type": "tja",
+				"songSkin": {}
+			}, false, false, touched)
+		}else if(name === "drumSounds"){
+			this.drumSounds = !settings.getItem("latency")[name]
+			this.latencySave(name, this.drumSounds)
+			this.latencyGetValue(name, selected.valueText)
+			this.playSound("se_don")
+		}else{
+			var value = Math.round(settings.getItem("latency")[name] || 0)
+			if(this.latencySelected !== selectedIndex){
+				this.latencyItems[this.latencySelected].settingBox.classList.remove("selected")
+				this.latencySelected = selectedIndex
+				selected.settingBox.classList.add("selected")
+			}
+			this.mode = "latencySet"
+			selected.settingBox.style.animation = "none"
+			selected.valueDiv.classList.add("selected")
+			selected.value = value
+			this.playSound("se_don")
+		}
+	}
+	latencySetAdjust(selected, add){
+		selected.value += add
+		if(selected.value > 500){
+			selected.value = 500
+		}else if(selected.value < -200){
+			selected.value = -200
+		}else{
+			this.playSound("se_ka")
+		}
+		selected.valueText.data = this.addMs(selected.value)
+	}
+	latencySetBack(selected){
+		this.mode = "latency"
+		selected.settingBox.style.animation = ""
+		selected.valueDiv.classList.remove("selected")
+		this.latencySave(selected.id, selected.value)
+		this.latencyGetValue(selected.id, selected.valueText)
+	}
+	latencySave(id, value){
+		var input = settings.getItem("latency")
+		var output = {}
+		for(var i in input){
+			if(i === id){
+				output[i] = value
+			}else{
+				output[i] = input[i]
+			}
+		}
+		settings.setItem("latency", output)
+	}
+	latencyDefault(){
+		if(this.mode === "latencySet"){
+			this.latencySetBack(this.latencyItems[this.latencySelected])
+		}else if(this.mode !== "latency"){
+			return
+		}
+		settings.setItem("latency", null)
+		this.latencyItems.forEach(item => {
+			if(item.id === "audio" || item.id === "video" || item.id === "drumSounds"){
+				this.latencyGetValue(item.id, item.valueText)
+			}
+		})
+		this.drumSounds = settings.getItem("latency").drumSounds
+		this.playSound("se_don")
+	}
+	latencyBack(confirm){
+		if(this.mode === "latencySet"){
+			this.latencySetBack(this.latencyItems[this.latencySelected])
+			if(!confirm){
+				this.playSound("se_don")
+				return
+			}
+		}
+		if(this.mode !== "latency"){
+			return
+		}
+		var selected = this.items[this.selected]
+		var current = settings.items[selected.id]
+		this.getValue(selected.id, selected.valueDiv)
+		this.playSound(confirm ? "se_don" : "se_cancel")
+		this.latencySettings.style.display = ""
+		this.mode = "settings"
+	}
+	addMs(input){
+		var split = strings.calibration.ms.split("%s")
+		var index = 0
+		var output = ""
+		var inputStrings = [(input > 0 ? "+" : "") + input.toString()]
+		split.forEach((string, i) => {
+			if(i !== 0){
+				output += inputStrings[index++]
+			}
+			output += string
+		})
+		return output
 	}
 	defaultSettings(){
 		if(this.mode === "keyboard"){
@@ -447,11 +778,17 @@ class SettingsView{
 		this.setLang(allStrings[settings.getItem("language")])
 		this.keyboard.update()
 		pageEvents.setKbd()
-		assets.sounds["se_don"].play()
+		this.latencyItems.forEach(item => {
+			if(item.id === "audio" || item.id === "video" || item.id === "drumSounds"){
+				this.latencyGetValue(item.id, item.valueText)
+			}
+		})
+		this.drumSounds = settings.getItem("latency").drumSounds
+		this.playSound("se_don")
 	}
 	onEnd(){
 		this.clean()
-		assets.sounds["se_don"].play()
+		this.playSound("se_don")
 		setTimeout(() => {
 			if(this.tutorial && !this.touched){
 				new Tutorial(false, this.songId)
@@ -472,34 +809,82 @@ class SettingsView{
 			var item = this.items[i]
 			if(item.valueDiv){
 				var name = strings.settings[item.id].name
-				item.nameDiv.innerText = name
-				item.nameDiv.setAttribute("alt", name)
+				this.setAltText(item.nameDiv, name)
 				this.getValue(item.id, item.valueDiv)
+			}
+		}
+		for(var i in this.latencyItems){
+			var current = this.latencyItems[i]
+			if(current.nameDiv){
+				this.setAltText(current.nameDiv, strings.settings.latency[current.id])
+			}
+			if(current.valueText){
+				this.latencyGetValue(current.id, current.valueText)
 			}
 		}
 		this.setStrings()
 	}
 	setStrings(){
-		this.viewTitle.innerText = strings.gameSettings
-		this.viewTitle.setAttribute("alt", strings.gameSettings)
-		this.endButton.innerText = strings.settings.ok
-		this.endButton.setAttribute("alt", strings.settings.ok)
-		this.gamepadTitle.innerText = strings.settings.gamepadLayout.name
-		this.gamepadTitle.setAttribute("alt", strings.settings.gamepadLayout.name)
-		this.gamepadEndButton.innerText = strings.settings.ok
-		this.gamepadEndButton.setAttribute("alt", strings.settings.ok)
-		this.defaultButton.innerText = strings.settings.default
-		this.defaultButton.setAttribute("alt", strings.settings.default)
+		this.setAltText(this.viewTitle, strings.gameSettings)
+		this.setAltText(this.endButton, strings.settings.ok)
+		this.setAltText(this.gamepadTitle, strings.settings.gamepadLayout.name)
+		this.setAltText(this.gamepadEndButton, strings.settings.ok)
+		this.setAltText(this.latencyTitle, strings.settings.latency.name)
+		this.setAltText(this.latencyDefaultButton, strings.settings.default)
+		this.setAltText(this.latencyEndButton, strings.settings.ok)
+		this.setAltText(this.defaultButton, strings.settings.default)
+	}
+	setAltText(element, text){
+		element.innerText = text
+		element.setAttribute("alt", text)
 	}
 	mod(length, index){
 		return ((index % length) + length) % length
 	}
+	playSound(id, time){
+		if(!this.drumSounds && (id === "se_don" || id === "se_ka" || id === "se_cancel")){
+			return
+		}
+		var ms = Date.now() + (time || 0) * 1000
+		if(!(id in this.playedSounds) || ms > this.playedSounds[id] + 30){
+			assets.sounds[id].play(time)
+			this.playedSounds[id] = ms
+		}
+	}
+	redraw(){
+		if(!this.redrawRunning){
+			return
+		}
+		requestAnimationFrame(this.redrawBind)
+		var ms = this.getMS()
+		
+		for(var key in this.pressedKeys){
+			if(this.pressedKeys[key]){
+				if(ms >= this.pressedKeys[key] + 50){
+					this.keyPressed(true, key, null, true)
+					this.pressedKeys[key] = ms
+				}
+			}
+		}
+	}
+	getMS(){
+		return Date.now()
+	}
 	clean(){
+		this.redrawRunning = false
 		this.keyboard.clean()
 		this.gamepad.clean()
 		assets.sounds["bgm_settings"].stop()
+		pageEvents.remove(this.viewOuter, ["mouseup", "touchend"])
 		for(var i in this.items){
 			this.removeTouch(this.items[i].settingBox)
+		}
+		for(var i in this.latencyItems){
+			this.removeTouch(this.latencyItems[i].settingBox)
+			if(this.latencyItems[i].buttonMinus){
+				this.removeTouch(this.latencyItems[i].buttonMinus)
+				this.removeTouch(this.latencyItems[i].buttonPlus)
+			}
 		}
 		if(this.defaultButton){
 			delete this.defaultButton
@@ -507,6 +892,11 @@ class SettingsView{
 		this.removeTouch(this.gamepadSettings)
 		this.removeTouch(this.gamepadEndButton)
 		this.removeTouch(this.gamepadBox)
+		this.removeTouch(this.latencySettings)
+		this.removeTouch(this.latencyDefaultButton)
+		this.removeTouch(this.latencyEndButton)
+		delete this.viewOuter
+		delete this.touchEnd
 		delete this.tutorialTitle
 		delete this.endButton
 		delete this.items
@@ -516,6 +906,11 @@ class SettingsView{
 		delete this.gamepadBox
 		delete this.gamepadButtons
 		delete this.gamepadValue
+		delete this.latencyItems
+		delete this.latencySettings
+		delete this.latencyTitle
+		delete this.latencyDefaultButton
+		delete this.latencyEndButton
 		if(this.resolution !== settings.getItem("resolution")){
 			for(var i in assets.image){
 				if(i === "touch_drum" || i.startsWith("bg_song_") || i.startsWith("bg_stage_") || i.startsWith("bg_don_")){
