@@ -94,7 +94,7 @@ class Game{
 						circle.rendaPlayed = true
 						if(this.rules.difficulty === "easy"){
 							assets.sounds["v_renda" + this.controller.snd].stop()
-							this.controller.playSoundMeka("v_renda")
+							this.controller.playSound("v_renda")
 						}
 					}
 					if(!circle.beatMSCopied){
@@ -609,8 +609,8 @@ class Game{
 		if(this.combo > this.globalScore.maxCombo){
 			this.globalScore.maxCombo = this.combo
 		}
-		if(this.combo === 50 || this.combo > 0 && this.combo % 100 === 0 && this.combo < 1500 || this.combo > 0 && this.combo % 500 === 0){
-			this.controller.playSoundMeka("v_combo_" + (this.combo <= 1400 ? this.combo : "over1500"))
+		if(this.combo === 50 || this.combo > 0 && this.combo % 100 === 0 && this.combo <= 5000){
+			this.controller.playSound("v_combo_" + this.combo)
 		}
 		if (this.songData.scoremode == 2 && this.combo > 0 && this.combo % 100 == 0) { 
 			this.globalScore.points += 10000;
@@ -755,7 +755,7 @@ class Game{
 			case "audio":
 			case "video":
 				if(state === "audio" && !this.mainAsset){
-					this.mainAsset = assets.sounds["calibration"]
+					this.mainAsset = assets.sounds["se_calibration"]
 					this.mainMusicPlaying = false
 				}
 				if(progress.hit >= progress.requirement){

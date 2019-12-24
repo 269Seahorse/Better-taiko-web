@@ -157,7 +157,7 @@ class Controller{
 		if(Math.round(score.gauge / 2) - 1 >= 25){
 			if(score.bad === 0){
 				vp = "fullcombo"
-				this.playSoundMeka("v_fullcombo", 1.350)
+				this.playSound("v_fullcombo", 1.350)
 			}else{
 				vp = "clear"
 			}
@@ -224,13 +224,6 @@ class Controller{
 			assets.sounds[id + (noSnd ? "" : this.snd)].play(time)
 			this.playedSounds[id] = ms
 		}
-	}
-	playSoundMeka(soundID, time){
-		var meka = ""
-		if(this.autoPlayEnabled && !this.multiplayer){
-			meka = "_meka"
-		}
-		this.playSound(soundID + meka, time)
 	}
 	togglePause(forcePause, pauseMove, noSound){
 		if(this.multiplayer === 1){
