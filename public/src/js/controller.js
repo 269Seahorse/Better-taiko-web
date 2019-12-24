@@ -27,6 +27,23 @@ class Controller{
 			this.parsedSongData = new ParseOsu(songData, selectedSong.difficulty, selectedSong.stars, selectedSong.offset)
 		}
 		this.offset = this.parsedSongData.soundOffset
+
+		var maxCombo = this.parsedSongData.circles.filter(circle => ["don", "ka", "daiDon", "daiKa"].indexOf(circle.type) > -1 && (!circle.branch || circle.branch.name == "master")).length
+		if (maxCombo >= 50) {
+			var comboVoices = ["v_combo_50"].concat([...Array(Math.floor(maxCombo/100)).keys()].map(i => "v_combo_" + (i + 1)*100))
+			var promises = []
+
+			comboVoices.forEach(name => {
+				if (!assets.sounds[name + "_p1"]) {
+					promises.push(loader.loadSound(name + ".wav", snd.sfxGain).then(sound => {
+						assets.sounds[name + "_p1"] = assets.sounds[name].copy(snd.sfxGainL)
+						assets.sounds[name + "_p2"] = assets.sounds[name].copy(snd.sfxGainR)
+					}))
+				}
+			})
+
+			Promise.all(this.promises)
+		}
 		
 		if(this.calibrationMode){
 			this.volume = 1
