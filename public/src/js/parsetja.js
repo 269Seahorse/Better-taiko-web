@@ -25,6 +25,7 @@
 			"A": {name: "daiDon", txt: strings.note.daiDon},
 			"B": {name: "daiKa", txt: strings.note.daiKa}
 		}
+		this.noteTypes_ex = strings.ex_note;
 		this.courseTypes = {
 			"0": "easy",
 			"1": "normal",
@@ -122,7 +123,7 @@
 		return [string.slice(0, index), string.slice(index + delimiter.length)]
 	}
 	parseCircles(){
-		var meta = this.metadata[this.difficulty]
+		var meta = this.metadata[this.difficulty] || {}
 		var ms = (meta.offset || 0) * -1000 + this.offset
 		var bpm = Math.abs(meta.bpm) || 120
 		var scroll = 1
@@ -148,7 +149,32 @@
 		var circles = []
 		var circleID = 0
 		var regexAZ = /[A-Z]/
-		
+		var isAllDon = (note_chain, start_pos) => { 
+			for (var i = start_pos; i < note_chain.length; ++i) { 
+				var note = note_chain[i];
+				if (note && note.type !== "don" && note.type !== "daiDon") { 
+					return false;
+				}
+			}
+			return true;
+		}
+		var checkChain = (note_chain, measure_length, is_last) => {
+			//console.log(note_chain, measure_length, is_last);
+			/*if (measure_length >= 24) {
+				for (var note of note_chain) {
+					note.text = this.noteTypes_ex[note.type][0];
+				}
+			} else { */
+				var alldon_pos = null;
+				for (var i = 0; i < note_chain.length - (is_last ? 1 : 0); ++i) {
+					var note = note_chain[i];
+					if (alldon_pos === null && is_last && isAllDon(note_chain, i)) { 
+						alldon_pos = i;
+					}
+					note.text = this.noteTypes_ex[note.type][alldon_pos != null ? (i - alldon_pos) % 2 : 0];
+				}
+			//}
+		}
 		var pushMeasure = () => {
 			var note = currentMeasure[0]
 			if(note){
@@ -183,9 +209,11 @@
 					var msPerMeasure = 60000 * measure / note.bpm
 					ms += msPerMeasure / currentMeasure.length
 				}
-				for(var i = 0; i < currentMeasure.length; i++){
+				var note_chain = [];
+				for (var i = 0; i < currentMeasure.length; i++){
+					//console.log(note_chain.length);
 					var note = currentMeasure[i]
-					if(note.type){
+					if (note.type) {
 						circleID++
 						var circleObj = new Circle({
 							id: circleID,
@@ -200,12 +228,29 @@
 							branch: currentBranch,
 							section: note.section
 						})
-						if(lastDrumroll === note){
+						if (note.type === "don" || note.type === "ka" || note.type === "daiDon" || note.type === "daiKa") {
+							note_chain.push(circleObj);
+						} else { 
+							if (note_chain.length > 1 && currentMeasure.length >= 8) { 
+								checkChain(note_chain, currentMeasure.length, false);
+							}
+							note_chain = [];
+						} 
+						if (lastDrumroll === note) {
 							lastDrumroll = circleObj
 						}
 						
 						circles.push(circleObj)
+					} else if (!(currentMeasure.length >= 24 && (!currentMeasure[i + 1] || currentMeasure[i + 1].type))
+						&& !(currentMeasure.length >= 48 && (!currentMeasure[i + 2] || currentMeasure[i + 2].type || !currentMeasure[i + 3] || currentMeasure[i + 3].type))) { 
+						if (note_chain.length > 1 && currentMeasure.length >= 8) { 
+							checkChain(note_chain, currentMeasure.length, true);
+						}
+						note_chain = [];
 					}
+				}
+				if (note_chain.length > 1 && currentMeasure.length >= 8) { 
+					checkChain(note_chain, currentMeasure.length, false);
 				}
 			}else{
 				var msPerMeasure = 60000 * measure / bpm

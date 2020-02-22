@@ -158,8 +158,7 @@ kbd{
 .setting-box:first-child{
 	margin-top: 0;
 }
-.settings-outer .view-content:not(:hover) .setting-box.selected,
-.view-outer:not(.settings-outer) .setting-box.selected,
+.view-content:not(:hover) .setting-box.selected,
 .setting-box:hover{
 	background: #ffb547;
 	animation: 2s linear border-pulse infinite;
@@ -177,7 +176,6 @@ kbd{
 	overflow: hidden;
 }
 .view-content:not(:hover) .setting-box.selected .setting-name,
-.view-outer:not(.settings-outer) .setting-box.selected .setting-name,
 .setting-box:hover .setting-name,
 .setting-box:hover #gamepad-value{
 	color: #fff;
@@ -193,6 +191,8 @@ kbd{
 	border-radius: 0.2em;
 	padding: 0.5em;
 	box-sizing: border-box;
+	overflow: hidden;
+	white-space: nowrap;
 }
 .setting-value.selected{
 	width: calc(50% + 0.2em);
@@ -215,27 +215,26 @@ kbd{
 	background: rgba(0, 0, 0, 0.5);
 	z-index: 1;
 }
-#settings-gamepad{
+#settings-gamepad,
+#settings-latency{
 	display: none;
 }
 #settings-gamepad .view{
-	position: absolute;
-	margin: auto;
-	top: 0;
-	right: 0;
-	bottom: 0;
-	left: 0;
-	width: 574px;
-	height: 428px;
-	max-height: calc(100vh - 14em + 88px);
+	width: 29.9em;
+	max-width: 100vw;
 }
 #settings-gamepad .setting-box{
 	height: auto;
+	overflow: hidden;
+}
+#gamepad-bg,
+#gamepad-buttons{
+	background-size: 20.53em;
 }
 #gamepad-bg{
 	position: relative;
-	width: 550px;
-	height: 317px;
+	width: 20.53em;
+	height: 11.83em;
 	max-height: none;
 	background-repeat: no-repeat;
 	text-align: center;
@@ -244,11 +243,11 @@ kbd{
 }
 #gamepad-buttons{
 	position: absolute;
-	left: 141px;
-	top: 120px;
-	width: 282px;
-	height: 131px;
-	background-position: 0 -318px;
+	left: 5.26em;
+	top: 4.48em;
+	width: 10.52em;
+	height: 4.89em;
+	background-position: 0 -11.87em;
 	background-repeat: no-repeat;
 	pointer-events: none;
 }
@@ -258,4 +257,37 @@ kbd{
 }
 #gamepad-value::before{
 	left: auto;
+}
+#settings-latency .view{
+	width: 30em;
+}
+#settings-latency .setting-value{
+	position: relative;
+}
+.setting-value:not(.selected) .latency-buttons{
+	display: none;
+}
+.setting-value .latency-buttons{
+	position: absolute;
+	top: 0;
+	right: 0;
+	bottom: 0;
+	padding: 0;
+}
+.latency-buttons span{
+	display: inline-block;
+	width: 2em;
+	height: 100%;
+	text-align: center;
+	background-color: #c3862a;
+	color: #fff;
+	line-height: 2em;
+	outline: none;
+}
+.latency-buttons span:hover,
+.latency-buttons span:active{
+	background-color: #946013;
+}
+.left-buttons .taibtn{
+	z-index: 1;
 }

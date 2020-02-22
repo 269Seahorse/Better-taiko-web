@@ -5,6 +5,14 @@ class SongSelect{
 		loader.changePage("songselect", false)
 		this.canvas = document.getElementById("song-sel-canvas")
 		this.ctx = this.canvas.getContext("2d")
+		var resolution = settings.getItem("resolution")
+		var noSmoothing = resolution === "low" || resolution === "lowest"
+		if(noSmoothing){
+			this.ctx.imageSmoothingEnabled = false
+		}
+		if(resolution === "lowest"){
+			this.canvas.style.imageRendering = "pixelated"
+		}
 
 		this.songSkin = {
 			"selected": {
@@ -209,13 +217,13 @@ class SongSelect{
 		}]
 		this.optionsList = [strings.none, strings.auto, strings.netplay]
 		
-		this.draw = new CanvasDraw()
-		this.songTitleCache = new CanvasCache()
-		this.selectTextCache = new CanvasCache()
-		this.categoryCache = new CanvasCache()
-		this.difficultyCache = new CanvasCache()
-		this.sessionCache = new CanvasCache()
-		this.currentSongCache = new CanvasCache()
+		this.draw = new CanvasDraw(noSmoothing)
+		this.songTitleCache = new CanvasCache(noSmoothing)
+		this.selectTextCache = new CanvasCache(noSmoothing)
+		this.categoryCache = new CanvasCache(noSmoothing)
+		this.difficultyCache = new CanvasCache(noSmoothing)
+		this.sessionCache = new CanvasCache(noSmoothing)
+		this.currentSongCache = new CanvasCache(noSmoothing)
 		
 		this.difficulty = [strings.easy, strings.normal, strings.hard, strings.oni]
 		this.difficultyId = ["easy", "normal", "hard", "oni", "ura"]
@@ -236,6 +244,9 @@ class SongSelect{
 			fromTutorial = false
 		}
 		
+		this.drumSounds = settings.getItem("latency").drumSounds
+		this.playedSounds = {}
+		
 		var songIdIndex = -1
 		if(fromTutorial){
 			this.selectedSong = this.songs.findIndex(song => song.action === fromTutorial)
@@ -254,7 +265,7 @@ class SongSelect{
 			}else if((!p2.session || fadeIn) && "selectedSong" in localStorage){
 				this.selectedSong = Math.min(Math.max(0, localStorage["selectedSong"] |0), this.songs.length - 1)
 			}
-			assets.sounds[songIdIndex !== -1 ? "v_diffsel" : "v_songsel"].play()
+			this.playSound(songIdIndex !== -1 ? "v_diffsel" : "v_songsel")
 			snd.musicGain.fadeOut()
 			this.playBgm(false)
 		}
@@ -453,7 +464,7 @@ class SongSelect{
 				window.open(this.songs[this.selectedSong].maker.url)
 			}else if(moveBy === this.diffOptions.length + 4){
 				this.state.ura = !this.state.ura
-				assets.sounds["se_ka"].play()
+				this.playSound("se_ka")
 				if(this.selectedDiff === this.diffOptions.length + 4 && !this.state.ura){
 					this.state.move = -1
 				}
@@ -581,7 +592,7 @@ class SongSelect{
 			var soundsDelay = Math.abs((scroll + resize) / moveBy)
 			
 			for(var i = 0; i < Math.abs(moveBy) - 1; i++){
-				assets.sounds["se_ka"].play((resize + i * soundsDelay) / 1000)
+				this.playSound("se_ka", (resize + i * soundsDelay) / 1000)
 			}
 			this.pointer(false)
 		}
@@ -605,7 +616,7 @@ class SongSelect{
 			this.state.move = moveBy
 			this.state.moveMS = this.getMS() - 500
 			this.state.locked = 1
-			assets.sounds["se_ka"].play()
+			this.playSound("se_ka")
 		}
 	}
 	
@@ -636,15 +647,15 @@ class SongSelect{
 					this.selectedDiff = this.diffOptions.length + 3
 				}
 				
-				assets.sounds["se_don"].play()
+				this.playSound("se_don")
 				assets.sounds["v_songsel"].stop()
-				assets.sounds["v_diffsel"].play(0.3)
+				this.playSound("v_diffsel", 0.3)
 				pageEvents.send("song-select-difficulty", currentSong)
 			}else if(currentSong.action === "back"){
 				this.clean()
 				this.toTitleScreen()
 			}else if(currentSong.action === "random"){
-				assets.sounds["se_don"].play()
+				this.playSound("se_don")
 				this.state.locked = true
 				do{
 					var i = Math.floor(Math.random() * this.songs.length)
@@ -681,7 +692,7 @@ class SongSelect{
 			this.state.moveHover = null
 			
 			assets.sounds["v_diffsel"].stop()
-			assets.sounds["se_cancel"].play()
+			this.playSound("se_cancel")
 		}
 		this.clearHash()
 		pageEvents.send("song-select-back")
@@ -690,7 +701,7 @@ class SongSelect{
 		this.clean()
 		var selectedSong = this.songs[this.selectedSong]
 		assets.sounds["v_diffsel"].stop()
-		assets.sounds["se_don"].play()
+		this.playSound("se_don")
 		
 		try{
 			if(assets.customSongs){
@@ -729,7 +740,7 @@ class SongSelect{
 	}
 	toOptions(moveBy){
 		if(!p2.session){
-			assets.sounds["se_ka"].play()
+			this.playSound("se_ka")
 			this.selectedDiff = 1
 			do{
 				this.state.options = this.mod(this.optionsList.length, this.state.options + moveBy)
@@ -738,7 +749,7 @@ class SongSelect{
 	}
 	toTitleScreen(){
 		if(!p2.session){
-			assets.sounds["se_cancel"].play()
+			this.playSound("se_cancel")
 			this.clean()
 			setTimeout(() => {
 				new Titlescreen()
@@ -746,21 +757,21 @@ class SongSelect{
 		}
 	}
 	toTutorial(){
-		assets.sounds["se_don"].play()
+		this.playSound("se_don")
 		this.clean()
 		setTimeout(() => {
 			new Tutorial(true)
 		}, 500)
 	}
 	toAbout(){
-		assets.sounds["se_don"].play()
+		this.playSound("se_don")
 		this.clean()
 		setTimeout(() => {
 			new About(this.touchEnabled)
 		}, 500)
 	}
 	toSettings(){
-		assets.sounds["se_don"].play()
+		this.playSound("se_don")
 		this.clean()
 		setTimeout(() => {
 			new SettingsView(this.touchEnabled)
@@ -775,7 +786,7 @@ class SongSelect{
 		}else{
 			localStorage["selectedSong"] = this.selectedSong
 
-			assets.sounds["se_don"].play()
+			this.playSound("se_don")
 			this.clean()
 			setTimeout(() => {
 				new Session(this.touchEnabled)
@@ -786,7 +797,7 @@ class SongSelect{
 		if(assets.customSongs){
 			assets.customSongs = false
 			assets.songs = assets.songsDefault
-			assets.sounds["se_don"].play()
+			this.playSound("se_don")
 			this.clean()
 			setTimeout(() => {
 				new SongSelect("browse", false, this.touchEnabled)
@@ -1014,6 +1025,7 @@ class SongSelect{
 			var resize2 = changeSpeed - resize
 			var scroll = resize2 - resize - scrollDelay * 2
 			var elapsed = ms - this.state.moveMS
+
 			if(this.state.catJump || (this.state.move && ms > this.state.moveMS + resize2 - scrollDelay)){
 				var isJump = this.state.catJump
 				var previousSelectedSong = this.selectedSong
@@ -2113,6 +2125,17 @@ class SongSelect{
 	clearHash(){
 		if(location.hash.toLowerCase().startsWith("#song=")){
 			p2.hash("")
+		}
+	}
+	
+	playSound(id, time){
+		if(!this.drumSounds && (id === "se_don" || id === "se_ka" || id === "se_cancel")){
+			return
+		}
+		var ms = Date.now() + (time || 0) * 1000
+		if(!(id in this.playedSounds) || ms > this.playedSounds[id] + 30){
+			assets.sounds[id].play(time)
+			this.playedSounds[id] = ms
 		}
 	}
 	

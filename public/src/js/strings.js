@@ -50,6 +50,22 @@
 		daiDrumroll: "連打(大)ーっ!!",
 		balloon: "ふうせん"
 	}
+	this.ex_note = {
+		don: [
+			"ド",
+			"コ"
+		],
+		ka: [
+			"カ"
+		],
+		daiDon: [
+			"ドン(大)",
+			"ドン(大)"
+		],
+		daiKa: [
+			"カッ(大)"
+		]
+	}
 	this.combo = "コンボ"
 	this.clear = "クリア"
 	this.good = "良"
@@ -127,10 +143,41 @@
 			b: "タイプB",
 			c: "タイプC"
 		},
+		latency: {
+			name: "Latency",
+			value: "Audio: %s, Video: %s",
+			calibration: "Latency Calibration",
+			audio: "Audio",
+			video: "Video",
+			drumSounds: "Drum Sounds"
+		},
 		on: "オン",
 		off: "オフ",
 		default: "既定値にリセット",
 		ok: "OK"
+	}
+	this.calibration = {
+		title: "Latency Calibration",
+		ms: "%sms",
+		back: "Back to Settings",
+		retryPrevious: "Retry Previous",
+		start: "Start",
+		finish: "Finish",
+		audioHelp: {
+			title: "Audio Latency Calibration",
+			content: "Listen to a sound playing in the background.\n\nHit the surface of the drum (%s or %s) as you hear it!",
+			contentAlt: "Listen to a sound playing in the background.\n\nHit the surface of the drum as you hear it!"
+		},
+		audioComplete: "Audio Latency Calibration completed!",
+		videoHelp: {
+			title: "Video Latency Calibration",
+			content: "This time there will be no sounds.\n\nInstead, watch for notes blinking on the circle-shaped frame, hit the drum as they appear!"
+		},
+		videoComplete: "Video Latency Calibration completed!",
+		results: {
+			title: "Latency Calibration Results",
+			content: "Audio latency: %s\nVideo latency: %s\n\nYou can configure these latency values in the settings."
+		}
 	}
 	this.browserSupport = {
 		browserWarning: "サポートされていないブラウザを実行しています (%s)",
@@ -194,6 +241,22 @@ function StringsEn(){
 		drumroll: "Drum rollー!!",
 		daiDrumroll: "DRUM ROLLー!!",
 		balloon: "Balloon"
+	}
+	this.ex_note = {
+		don: [
+			"Do",
+			"Do"
+		],
+		ka: [
+			"Ka"
+		],
+		daiDon: [
+			"DON",
+			"DON"
+		],
+		daiKa: [
+			"KA"
+		]
 	}
 	this.combo = "Combo"
 	this.clear = "Clear"
@@ -272,10 +335,41 @@ function StringsEn(){
 			b: "Type B",
 			c: "Type C"
 		},
+		latency: {
+			name: "Latency",
+			value: "Audio: %s, Video: %s",
+			calibration: "Latency Calibration",
+			audio: "Audio",
+			video: "Video",
+			drumSounds: "Drum Sounds"
+		},
 		on: "On",
 		off: "Off",
 		default: "Reset to Defaults",
 		ok: "OK"
+	}
+	this.calibration = {
+		title: "Latency Calibration",
+		ms: "%sms",
+		back: "Back to Settings",
+		retryPrevious: "Retry Previous",
+		start: "Start",
+		finish: "Finish",
+		audioHelp: {
+			title: "Audio Latency Calibration",
+			content: "Listen to a sound playing in the background.\n\nHit the surface of the drum (%s or %s) as you hear it!",
+			contentAlt: "Listen to a sound playing in the background.\n\nHit the surface of the drum as you hear it!"
+		},
+		audioComplete: "Audio Latency Calibration completed!",
+		videoHelp: {
+			title: "Video Latency Calibration",
+			content: "This time there will be no sounds.\n\nInstead, watch for notes blinking on the circle-shaped frame, hit the drum as they appear!"
+		},
+		videoComplete: "Video Latency Calibration completed!",
+		results: {
+			title: "Latency Calibration Results",
+			content: "Audio latency: %s\nVideo latency: %s\n\nYou can configure these latency values in the settings."
+		}
 	}
 	this.browserSupport = {
 		browserWarning: "You are running an unsupported browser (%s)",
@@ -339,6 +433,22 @@ function StringsCn(){
 		drumroll: "连打ー!!",
 		daiDrumroll: "连打(大)ー!!",
 		balloon: "气球"
+	}
+	this.ex_note = {
+		don: [
+			"咚",
+			"咚"
+		],
+		ka: [
+			"咔"
+		],
+		daiDon: [
+			"咚(大)",
+			"咚(大)"
+		],
+		daiKa: [
+			"咔(大)"
+		]
 	}
 	this.combo = "连段"
 	this.clear = "通关"
@@ -417,10 +527,41 @@ function StringsCn(){
 			b: "类型B",
 			c: "类型C"
 		},
+		latency: {
+			name: "Latency",
+			value: "Audio: %s, Video: %s",
+			calibration: "Latency Calibration",
+			audio: "Audio",
+			video: "Video",
+			drumSounds: "Drum Sounds"
+		},
 		on: "开",
 		off: "关",
 		default: "重置为默认值",
 		ok: "确定"
+	}
+	this.calibration = {
+		title: "Latency Calibration",
+		ms: "%sms",
+		back: "Back to Settings",
+		retryPrevious: "Retry Previous",
+		start: "Start",
+		finish: "Finish",
+		audioHelp: {
+			title: "Audio Latency Calibration",
+			content: "Listen to a sound playing in the background.\n\nHit the surface of the drum (%s or %s) as you hear it!",
+			contentAlt: "Listen to a sound playing in the background.\n\nHit the surface of the drum as you hear it!"
+		},
+		audioComplete: "Audio Latency Calibration completed!",
+		videoHelp: {
+			title: "Video Latency Calibration",
+			content: "This time there will be no sounds.\n\nInstead, watch for notes blinking on the circle-shaped frame, hit the drum as they appear!"
+		},
+		videoComplete: "Video Latency Calibration completed!",
+		results: {
+			title: "Latency Calibration Results",
+			content: "Audio latency: %s\nVideo latency: %s\n\nYou can configure these latency values in the settings."
+		}
 	}
 	this.browserSupport = {
 		browserWarning: "You are running an unsupported browser (%s)",
@@ -484,6 +625,22 @@ function StringsTw(){
 		drumroll: "連打ー!!",
 		daiDrumroll: "連打(大)ー!!",
 		balloon: "氣球"
+	}
+	this.ex_note = {
+		don: [
+			"咚",
+			"咚"
+		],
+		ka: [
+			"咔"
+		],
+		daiDon: [
+			"咚(大)",
+			"咚(大)"
+		],
+		daiKa: [
+			"咔(大)"
+		]
 	}
 	this.combo = "連段"
 	this.clear = "通關"
@@ -562,10 +719,41 @@ function StringsTw(){
 			b: "類型B",
 			c: "類型C"
 		},
+		latency: {
+			name: "Latency",
+			value: "Audio: %s, Video: %s",
+			calibration: "Latency Calibration",
+			audio: "Audio",
+			video: "Video",
+			drumSounds: "Drum Sounds"
+		},
 		on: "開",
 		off: "關",
 		default: "重置為默認值",
 		ok: "確定"
+	}
+	this.calibration = {
+		title: "Latency Calibration",
+		ms: "%sms",
+		back: "Back to Settings",
+		retryPrevious: "Retry Previous",
+		start: "Start",
+		finish: "Finish",
+		audioHelp: {
+			title: "Audio Latency Calibration",
+			content: "Listen to a sound playing in the background.\n\nHit the surface of the drum (%s or %s) as you hear it!",
+			contentAlt: "Listen to a sound playing in the background.\n\nHit the surface of the drum as you hear it!"
+		},
+		audioComplete: "Audio Latency Calibration completed!",
+		videoHelp: {
+			title: "Video Latency Calibration",
+			content: "This time there will be no sounds.\n\nInstead, watch for notes blinking on the circle-shaped frame, hit the drum as they appear!"
+		},
+		videoComplete: "Video Latency Calibration completed!",
+		results: {
+			title: "Latency Calibration Results",
+			content: "Audio latency: %s\nVideo latency: %s\n\nYou can configure these latency values in the settings."
+		}
 	}
 	this.browserSupport = {
 		browserWarning: "You are running an unsupported browser (%s)",
@@ -629,6 +817,22 @@ function StringsKo(){
 		drumroll: "연타ー!!",
 		daiDrumroll: "연타(대)ー!!",
 		balloon: "풍선"
+	}
+	this.ex_note = {
+		don: [
+			"쿠",
+			"쿠"
+		],
+		ka: [
+			"딱"
+		],
+		daiDon: [
+			"쿵(대)",
+			"쿵(대)"
+		],
+		daiKa: [
+			"딱(대)"
+		]
 	}
 	this.combo = "콤보"
 	this.clear = "클리어"
@@ -707,10 +911,41 @@ function StringsKo(){
 			b: "타입 B",
 			c: "타입 C"
 		},
+		latency: {
+			name: "Latency",
+			value: "Audio: %s, Video: %s",
+			calibration: "Latency Calibration",
+			audio: "Audio",
+			video: "Video",
+			drumSounds: "Drum Sounds"
+		},
 		on: "온",
 		off: "오프",
 		default: "기본값으로 재설정",
 		ok: "확인"
+	}
+	this.calibration = {
+		title: "Latency Calibration",
+		ms: "%sms",
+		back: "Back to Settings",
+		retryPrevious: "Retry Previous",
+		start: "Start",
+		finish: "Finish",
+		audioHelp: {
+			title: "Audio Latency Calibration",
+			content: "Listen to a sound playing in the background.\n\nHit the surface of the drum (%s or %s) as you hear it!",
+			contentAlt: "Listen to a sound playing in the background.\n\nHit the surface of the drum as you hear it!"
+		},
+		audioComplete: "Audio Latency Calibration completed!",
+		videoHelp: {
+			title: "Video Latency Calibration",
+			content: "This time there will be no sounds.\n\nInstead, watch for notes blinking on the circle-shaped frame, hit the drum as they appear!"
+		},
+		videoComplete: "Video Latency Calibration completed!",
+		results: {
+			title: "Latency Calibration Results",
+			content: "Audio latency: %s\nVideo latency: %s\n\nYou can configure these latency values in the settings."
+		}
 	}
 	this.browserSupport = {
 		browserWarning: "You are running an unsupported browser (%s)",
