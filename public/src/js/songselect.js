@@ -123,7 +123,8 @@ class SongSelect{
 				songSkin: song.song_skin || {},
 				music: song.music,
 				volume: song.volume,
-				maker: song.maker
+				maker: song.maker,
+				canJump: true
 			})
 		}
 		this.songs.sort((a, b) => {
@@ -144,7 +145,8 @@ class SongSelect{
 			title: strings.randomSong,
 			skin: this.songSkin.random,
 			action: "random",
-			category: strings.random
+			category: strings.random,
+			canJump: true
 		})
 		if(touchEnabled){
 			if(fromTutorial === "tutorial"){
@@ -290,7 +292,8 @@ class SongSelect{
 			locked: true,
 			hasPointer: false,
 			options: 0,
-			selLock: false
+			selLock: false,
+			catJump: false
 		}
 		this.songSelecting = {
 			speed: 800,
@@ -315,13 +318,15 @@ class SongSelect{
 		this.gamepad = new Gamepad({
 			confirm: ["b", "start", "ls", "rs"],
 			back: ["a"],
-			left: ["l", "lb", "lt", "lsl"],
-			right: ["r", "rb", "rt", "lsr"],
+			left: ["l", "lsl", "lt"],
+			right: ["r", "lsr", "rt"],
 			up: ["u", "lsu"],
 			down: ["d", "lsd"],
 			session: ["back"],
 			ctrl: ["y"],
-			shift: ["x"]
+			shift: ["x"],
+			jump_left: ["lb"],
+			jump_right: ["rb"]
 		}, this.keyPress.bind(this))
 		
 		if(!assets.customSongs){
@@ -353,7 +358,7 @@ class SongSelect{
 		}
 	}
 	
-	keyPress(pressed, name, event){
+	keyPress(pressed, name, event, repeat){
 		if(pressed){
 			if(!this.pressedKeys[name]){
 				this.pressedKeys[name] = this.getMS() + 300
@@ -365,6 +370,7 @@ class SongSelect{
 		if(name === "ctrl" || name === "shift" || !this.redrawRunning){
 			return
 		}
+		var shift = event ? event.shiftKey : this.pressedKeys["shift"]
 		if(this.state.screen === "song"){
 			if(name === "confirm"){
 				this.toSelectDifficulty()
@@ -373,9 +379,25 @@ class SongSelect{
 			}else if(name === "session"){
 				this.toSession()
 			}else if(name === "left"){
-				this.moveToSong(-1)
+				if(shift){
+					if(!repeat){
+						this.categoryJump(-1)
+					}
+				}else{
+					this.moveToSong(-1)
+				}
 			}else if(name === "right"){
-				this.moveToSong(1)
+				if(shift){
+					if(!repeat){
+						this.categoryJump(1)
+					}
+				}else{
+					this.moveToSong(1)
+				}
+			}else if(name === "jump_left" && !repeat){
+				this.categoryJump(-1)
+			}else if(name === "jump_right" && !repeat){
+				this.categoryJump(1)
 			}
 		}else if(this.state.screen === "difficulty"){
 			if(name === "confirm"){
@@ -384,7 +406,7 @@ class SongSelect{
 				}else if(this.selectedDiff === 1){
 					this.toOptions(1)
 				}else{
-					this.toLoadSong(this.selectedDiff - this.diffOptions.length, this.pressedKeys["shift"], this.pressedKeys["ctrl"])
+					this.toLoadSong(this.selectedDiff - this.diffOptions.length, shift, this.pressedKeys["ctrl"])
 				}
 			}else if(name === "back" || name === "session"){
 				this.toSongSelect()
@@ -424,7 +446,9 @@ class SongSelect{
 			var touch = true
 		}
 		if(this.state.screen === "song"){
-			if(mouse.x > 641 && mouse.y > 603){
+			if(20 < mouse.y && mouse.y < 90 && 410 < mouse.x && mouse.x < 880 && (mouse.x < 540 || mouse.x > 750)){
+				this.categoryJump(mouse.x < 640 ? -1 : 1)
+			}else if(mouse.x > 641 && mouse.y > 603){
 				this.toSession()
 			}else{
 				var moveBy = this.songSelMouse(mouse.x, mouse.y)
@@ -473,7 +497,9 @@ class SongSelect{
 		var mouse = this.mouseOffset(event.offsetX, event.offsetY)
 		var moveTo = null
 		if(this.state.screen === "song"){
-			if(mouse.x > 641 && mouse.y > 603 && p2.socket.readyState === 1 && !assets.customSongs){
+			if(20 < mouse.y && mouse.y < 90 && 410 < mouse.x && mouse.x < 880 && (mouse.x < 540 || mouse.x > 750)){
+				moveTo = mouse.x < 640 ? "categoryPrev" : "categoryNext"
+			}else if(mouse.x > 641 && mouse.y > 603 && p2.socket.readyState === 1 && !assets.customSongs){
 				moveTo = "session"
 			}else{
 				var moveTo = this.songSelMouse(mouse.x, mouse.y)
@@ -580,6 +606,20 @@ class SongSelect{
 			this.pointer(false)
 		}
 	}
+
+	categoryJump(moveBy){
+		if(this.state.locked === 1){
+			return
+		}
+
+		this.state.catJump = true
+		this.state.move = moveBy;
+		this.state.locked = 1
+
+		this.endPreview()
+		this.playSound("se_jump")
+	}
+
 	moveToDiff(moveBy){
 		if(this.state.locked !== 1){
 			this.state.move = moveBy
@@ -787,7 +827,7 @@ class SongSelect{
 		for(var key in this.pressedKeys){
 			if(this.pressedKeys[key]){
 				if(ms >= this.pressedKeys[key] + 50){
-					this.keyPress(true, key)
+					this.keyPress(true, key, null, true)
 					this.pressedKeys[key] = ms
 				}
 			}
@@ -949,16 +989,31 @@ class SongSelect{
 			})
 			
 			var category = this.songs[this.selectedSong].category
-			if(category){
-				var selectedSong = this.songs[this.selectedSong]
-				this.categoryCache.get({
-					ctx: ctx,
-					x: winW / 2 - 280 / 2,
-					y: frameTop,
-					w: 280,
-					h: this.songAsset.marginTop,
-					id: category + selectedSong.skin.outline
-				}, ctx => {
+			var selectedSong = this.songs[this.selectedSong]
+			this.draw.category({
+				ctx: ctx,
+				x: winW / 2 - 280 / 2 - 30,
+				y: frameTop + 60,
+				fill: selectedSong.skin.background,
+				highlight: this.state.moveHover === "categoryPrev"
+			})
+			this.draw.category({
+				ctx: ctx,
+				x: winW / 2 + 280 / 2 + 30,
+				y: frameTop + 60,
+				right: true,
+				fill: selectedSong.skin.background,
+				highlight: this.state.moveHover === "categoryNext"
+			})
+			this.categoryCache.get({
+				ctx: ctx,
+				x: winW / 2 - 280 / 2,
+				y: frameTop,
+				w: 280,
+				h: this.songAsset.marginTop,
+				id: category + selectedSong.skin.outline
+			}, ctx => {
+				if(category){
 					if(category in strings.categories){
 						var categoryName = strings.categories[category]
 					}else{
@@ -978,8 +1033,8 @@ class SongSelect{
 						{outline: selectedSong.skin.outline, letterBorder: 12, shadow: [3, 3, 3]},
 						{fill: "#fff"}
 					])
-				})
-			}
+				}
+			})
 		}
 		
 		if(screen === "song"){
@@ -994,16 +1049,67 @@ class SongSelect{
 			var resize2 = changeSpeed - resize
 			var scroll = resize2 - resize - scrollDelay * 2
 			var elapsed = ms - this.state.moveMS
-			if(this.state.move && ms > this.state.moveMS + resize2 - scrollDelay){
-				this.playSound("se_ka")
+
+			if(this.state.catJump || (this.state.move && ms > this.state.moveMS + resize2 - scrollDelay)){
+				var isJump = this.state.catJump
 				var previousSelectedSong = this.selectedSong
-				this.selectedSong = this.mod(this.songs.length, this.selectedSong + this.state.move)
+
+				if(!isJump){
+					this.playSound("se_ka")
+					this.selectedSong = this.mod(this.songs.length, this.selectedSong + this.state.move)
+				}else{
+					var currentCat = this.songs[this.selectedSong].category
+					var currentIdx = this.mod(this.songs.length, this.selectedSong)
+
+					if(this.state.move > 0){
+						var nextSong = this.songs.find(song => this.mod(this.songs.length, this.songs.indexOf(song)) > currentIdx && song.category !== currentCat && song.canJump)
+						if(!nextSong){
+							nextSong = this.songs[0]
+						}
+					}else{
+						var isFirstInCat = this.songs.findIndex(song => song.category === currentCat) == this.selectedSong
+						if(!isFirstInCat){
+							var nextSong = this.songs.find(song => this.mod(this.songs.length, this.songs.indexOf(song)) < currentIdx && song.category === currentCat && song.canJump)
+						}else{
+							var idx = this.songs.length - 1
+							var nextSong
+							var lastCat
+							for(;idx>=0;idx--){
+								if(this.songs[idx].category !== lastCat && this.songs[idx].action !== "back"){
+									lastCat = this.songs[idx].category
+									if(nextSong){
+										break
+									}
+								}
+								if(lastCat !== currentCat && idx < currentIdx){
+									nextSong = idx
+								}
+							}
+							nextSong = this.songs[nextSong]
+						}
+
+						if(!nextSong){
+							var rev = [...this.songs].reverse()
+							nextSong = rev.find(song => song.canJump)
+						}
+					}
+
+					this.selectedSong = this.songs.indexOf(nextSong)
+					this.state.catJump = false
+				}
+
 				if(previousSelectedSong !== this.selectedSong){
 					pageEvents.send("song-select-move", this.songs[this.selectedSong])
 				}
 				this.state.move = 0
 				this.state.locked = 2
-				localStorage["selectedSong"] = this.selectedSong
+				if(assets.customSongs){
+					assets.customSelected = this.selectedSong
+				}else if(!p2.session){
+					try{
+						localStorage["selectedSong"] = this.selectedSong
+					}catch(e){}
+				}
 				
 				if(this.songs[this.selectedSong].action !== "back"){
 					var cat = this.songs[this.selectedSong].category

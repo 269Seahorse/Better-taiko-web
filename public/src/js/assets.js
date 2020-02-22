@@ -90,6 +90,7 @@ var assets = {
 		"se_don.wav",
 		"se_ka.wav",
 		"se_pause.wav",
+		"se_jump.wav",
 		"se_calibration.wav",
 
 		"v_results.wav",

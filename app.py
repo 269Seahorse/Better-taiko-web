@@ -86,7 +86,7 @@ def route_index():
 
 
 @app.route('/api/preview')
-@app.cache.cached(timeout=15)
+@app.cache.cached(timeout=15, query_string=True)
 def route_api_preview():
     song_id = request.args.get('id', None)
     if not song_id or not re.match('^[0-9]+$', song_id):

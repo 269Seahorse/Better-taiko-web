@@ -96,6 +96,7 @@
 		otherControls: "他のコントロール",
 		otherTutorial: [
 			"%sはゲームを一時停止します",
+			"曲をえらぶしながら%sか%sキーを押してジャンルをスキップします",
 			"むずかしさをえらぶしながら%sキーを押しながらオートモードを有効",
 			"むずかしさをえらぶしながら%sキーを押しながらネットプレイモードを有効"
 		],
@@ -287,6 +288,7 @@ function StringsEn(){
 		otherControls: "Other controls",
 		otherTutorial: [
 			"%s \u2014 pause game",
+			'%s and %s while selecting song \u2014 navigate categories',
 			"%s while selecting difficulty \u2014 enable autoplay mode",
 			"%s while selecting difficulty \u2014 enable 2P mode"
 		],
@@ -478,6 +480,7 @@ function StringsCn(){
 		otherControls: "其他控制",
 		otherTutorial: [
 			"%s暂停游戏",
+			'%s and %s while selecting song \u2014 navigate categories',
 			"选择难度时按住%s以启用自动模式",
 			"选择难度时按住%s以启用网络对战模式"
 		],
@@ -669,6 +672,7 @@ function StringsTw(){
 		otherControls: "其他控制",
 		otherTutorial: [
 			"%s暫停遊戲",
+			'%s and %s while selecting song \u2014 navigate categories',
 			"選擇難度時按住%s以啟用自動模式",
 			"選擇難度時按住%s以啟用網上對打模式"
 		],
@@ -860,6 +864,7 @@ function StringsKo(){
 		otherControls: "기타 컨트롤",
 		otherTutorial: [
 			"%s \u2014 게임을 일시 중지합니다",
+			'%s and %s while selecting song \u2014 navigate categories',
 			"난이도 선택 동안 %s 홀드 \u2014 오토 모드 활성화",
 			"난이도 선택 동안 %s 홀드 \u2014 넷 플레이 모드 활성화"
 		],

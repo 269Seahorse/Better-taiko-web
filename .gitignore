@@ -35,6 +35,8 @@ $RECYCLE.BIN/
 .Spotlight-V100
 .Trashes
 
+.vscode
+
 # Directories potentially created on remote AFP share
 .AppleDB
 .AppleDesktop

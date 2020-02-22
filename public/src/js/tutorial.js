@@ -59,13 +59,13 @@ class Tutorial{
 		this.endButton.setAttribute("alt", strings.tutorial.ok)
 		this.tutorialDiv.innerHTML = ""
 		var kbdSettings = settings.getItem("keyboardSettings")
-		var pauseKey = pageEvents.kbd.indexOf("q") === -1 ? "Q" : "ESC"
+		var pauseKey = "ESC"
 		var keys = [
 			kbdSettings.don_l[0].toUpperCase(),
 			kbdSettings.don_r[0].toUpperCase(),
 			kbdSettings.ka_l[0].toUpperCase(),
 			kbdSettings.ka_r[0].toUpperCase(),
-			pauseKey, "SHIFT", "CTRL"
+			pauseKey, "SHIFT+LEFT", "SHIFT+RIGHT", "SHIFT", "CTRL"
 		]
 		var keyIndex = 0
 		strings.tutorial.basics.forEach(string => {
