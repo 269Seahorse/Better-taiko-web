@@ -45,6 +45,12 @@
 			shadow: new Path2D(vectors.optionsShadow)
 		}
 		
+		this.categoryPath = {
+			main: new Path2D(vectors.category),
+			shadow: new Path2D(vectors.categoryShadow),
+			highlight: new Path2D(vectors.categoryHighlight)
+		}
+		
 		this.regex = {
 			comma: /[,.]/,
 			ideographicComma: /[、。]/,
@@ -225,10 +231,14 @@
 	highlight(config){
 		var ctx = config.ctx
 		ctx.save()
-		var _x = config.x + 3.5
-		var _y = config.y + 3.5
-		var _w = config.w - 7
-		var _h = config.h - 7
+		if(config.shape){
+			ctx.translate(config.x, config.y)
+		}else{
+			var _x = config.x + 3.5
+			var _y = config.y + 3.5
+			var _w = config.w - 7
+			var _h = config.h - 7
+		}
 		if(config.animate){
 			ctx.globalAlpha = this.fade((this.getMS() - config.animateMS) % 2000 / 2000)
 		}else if(config.opacity){
@@ -243,19 +253,25 @@
 				h: _h,
 				radius: config.radius
 			})
-		}else{
+		}else if(!config.shape){
 			ctx.beginPath()
 			ctx.rect(_x, _y, _w, _h)
 		}
+		if(config.shape){
+			var stroke = () => ctx.stroke(config.shape)
+		}else{
+			var stroke = () => ctx.stroke()
+		}
+		var size = config.size || 14
 		ctx.strokeStyle = "rgba(255, 249, 1, 0.45)"
-		ctx.lineWidth = 14
-		ctx.stroke()
+		ctx.lineWidth = size
+		stroke()
 		ctx.strokeStyle = "rgba(255, 249, 1, .8)"
-		ctx.lineWidth = 8
-		ctx.stroke()
+		ctx.lineWidth = 8 / 14 * size
+		stroke()
 		ctx.strokeStyle = "#fff"
-		ctx.lineWidth = 6
-		ctx.stroke()
+		ctx.lineWidth = 6 / 14 * size
+		stroke()
 		
 		ctx.restore()
 	}
@@ -1469,6 +1485,48 @@
 		ctx.beginPath()
 		ctx.arc(x, y, 51.5 * mul, 0, Math.PI * 2)
 		ctx.stroke()
+		ctx.restore()
+	}
+	
+	category(config){
+		var ctx = config.ctx
+		ctx.save()
+		
+		ctx.translate(config.x, config.y)
+		if(config.scale || config.right){
+			ctx.scale((config.right ? -1 : 1) * (config.scale || 1), config.scale || 1)
+		}
+		ctx.translate(-15.5 + 14, -11)
+		for(var i = 0; i < 4; i++){
+			if(i < 2){
+				ctx.lineWidth = 6
+				ctx.strokeStyle = "#000"
+				ctx.stroke(this.categoryPath.main)
+			}else{
+				ctx.fillStyle = config.fill
+				ctx.fill(this.categoryPath.main)
+				ctx.fillStyle = "rgba(255, 255, 255, 0.25)"
+				ctx.fill(this.categoryPath.main)
+				ctx.fillStyle = "rgba(0, 0, 0, 0.25)"
+				ctx.fill(this.categoryPath.shadow)
+			}
+			if(i % 2 === 0){
+				ctx.translate(-14, 0)
+			}else if(i === 1){
+				ctx.translate(14, 0)
+			}
+		}
+		if(config.highlight){
+			this.highlight({
+				ctx: ctx,
+				x: 0,
+				y: 0,
+				opacity: 0.8,
+				shape: this.categoryPath.highlight,
+				size: 8
+			})
+		}
+		
 		ctx.restore()
 	}
 	

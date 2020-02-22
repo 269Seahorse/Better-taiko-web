@@ -358,7 +358,7 @@ class SongSelect{
 		}
 	}
 	
-	keyPress(pressed, name, event){
+	keyPress(pressed, name, event, repeat){
 		if(pressed){
 			if(!this.pressedKeys[name]){
 				this.pressedKeys[name] = this.getMS() + 300
@@ -370,6 +370,7 @@ class SongSelect{
 		if(name === "ctrl" || name === "shift" || !this.redrawRunning){
 			return
 		}
+		var shift = event ? event.shiftKey : this.pressedKeys["shift"]
 		if(this.state.screen === "song"){
 			if(name === "confirm"){
 				this.toSelectDifficulty()
@@ -378,20 +379,24 @@ class SongSelect{
 			}else if(name === "session"){
 				this.toSession()
 			}else if(name === "left"){
-				if(this.pressedKeys["shift"]){
-					this.categoryJump(-1)
+				if(shift){
+					if(!repeat){
+						this.categoryJump(-1)
+					}
 				}else{
 					this.moveToSong(-1)
 				}
 			}else if(name === "right"){
-				if(this.pressedKeys["shift"]){
-					this.categoryJump(1)
+				if(shift){
+					if(!repeat){
+						this.categoryJump(1)
+					}
 				}else{
 					this.moveToSong(1)
 				}
-			}else if(name === "jump_left"){
+			}else if(name === "jump_left" && !repeat){
 				this.categoryJump(-1)
-			}else if(name === "jump_right"){
+			}else if(name === "jump_right" && !repeat){
 				this.categoryJump(1)
 			}
 		}else if(this.state.screen === "difficulty"){
@@ -401,7 +406,7 @@ class SongSelect{
 				}else if(this.selectedDiff === 1){
 					this.toOptions(1)
 				}else{
-					this.toLoadSong(this.selectedDiff - this.diffOptions.length, this.pressedKeys["shift"], this.pressedKeys["ctrl"])
+					this.toLoadSong(this.selectedDiff - this.diffOptions.length, shift, this.pressedKeys["ctrl"])
 				}
 			}else if(name === "back" || name === "session"){
 				this.toSongSelect()
@@ -441,7 +446,9 @@ class SongSelect{
 			var touch = true
 		}
 		if(this.state.screen === "song"){
-			if(mouse.x > 641 && mouse.y > 603){
+			if(20 < mouse.y && mouse.y < 90 && 410 < mouse.x && mouse.x < 880 && (mouse.x < 540 || mouse.x > 750)){
+				this.categoryJump(mouse.x < 640 ? -1 : 1)
+			}else if(mouse.x > 641 && mouse.y > 603){
 				this.toSession()
 			}else{
 				var moveBy = this.songSelMouse(mouse.x, mouse.y)
@@ -490,7 +497,9 @@ class SongSelect{
 		var mouse = this.mouseOffset(event.offsetX, event.offsetY)
 		var moveTo = null
 		if(this.state.screen === "song"){
-			if(mouse.x > 641 && mouse.y > 603 && p2.socket.readyState === 1 && !assets.customSongs){
+			if(20 < mouse.y && mouse.y < 90 && 410 < mouse.x && mouse.x < 880 && (mouse.x < 540 || mouse.x > 750)){
+				moveTo = mouse.x < 640 ? "categoryPrev" : "categoryNext"
+			}else if(mouse.x > 641 && mouse.y > 603 && p2.socket.readyState === 1 && !assets.customSongs){
 				moveTo = "session"
 			}else{
 				var moveTo = this.songSelMouse(mouse.x, mouse.y)
@@ -608,7 +617,7 @@ class SongSelect{
 		this.state.locked = 1
 
 		this.endPreview()
-		assets.sounds["se_jump"].play()
+		this.playSound("se_jump")
 	}
 
 	moveToDiff(moveBy){
@@ -818,7 +827,7 @@ class SongSelect{
 		for(var key in this.pressedKeys){
 			if(this.pressedKeys[key]){
 				if(ms >= this.pressedKeys[key] + 50){
-					this.keyPress(true, key)
+					this.keyPress(true, key, null, true)
 					this.pressedKeys[key] = ms
 				}
 			}
@@ -980,16 +989,31 @@ class SongSelect{
 			})
 			
 			var category = this.songs[this.selectedSong].category
-			if(category){
-				var selectedSong = this.songs[this.selectedSong]
-				this.categoryCache.get({
-					ctx: ctx,
-					x: winW / 2 - 280 / 2,
-					y: frameTop,
-					w: 280,
-					h: this.songAsset.marginTop,
-					id: category + selectedSong.skin.outline
-				}, ctx => {
+			var selectedSong = this.songs[this.selectedSong]
+			this.draw.category({
+				ctx: ctx,
+				x: winW / 2 - 280 / 2 - 30,
+				y: frameTop + 60,
+				fill: selectedSong.skin.background,
+				highlight: this.state.moveHover === "categoryPrev"
+			})
+			this.draw.category({
+				ctx: ctx,
+				x: winW / 2 + 280 / 2 + 30,
+				y: frameTop + 60,
+				right: true,
+				fill: selectedSong.skin.background,
+				highlight: this.state.moveHover === "categoryNext"
+			})
+			this.categoryCache.get({
+				ctx: ctx,
+				x: winW / 2 - 280 / 2,
+				y: frameTop,
+				w: 280,
+				h: this.songAsset.marginTop,
+				id: category + selectedSong.skin.outline
+			}, ctx => {
+				if(category){
 					if(category in strings.categories){
 						var categoryName = strings.categories[category]
 					}else{
@@ -1009,8 +1033,8 @@ class SongSelect{
 						{outline: selectedSong.skin.outline, letterBorder: 12, shadow: [3, 3, 3]},
 						{fill: "#fff"}
 					])
-				})
-			}
+				}
+			})
 		}
 		
 		if(screen === "song"){
@@ -1031,7 +1055,7 @@ class SongSelect{
 				var previousSelectedSong = this.selectedSong
 
 				if(!isJump){
-					assets.sounds["se_ka"].play()
+					this.playSound("se_ka")
 					this.selectedSong = this.mod(this.songs.length, this.selectedSong + this.state.move)
 				}else{
 					var currentCat = this.songs[this.selectedSong].category
@@ -1079,7 +1103,13 @@ class SongSelect{
 				}
 				this.state.move = 0
 				this.state.locked = 2
-				localStorage["selectedSong"] = this.selectedSong
+				if(assets.customSongs){
+					assets.customSelected = this.selectedSong
+				}else if(!p2.session){
+					try{
+						localStorage["selectedSong"] = this.selectedSong
+					}catch(e){}
+				}
 				
 				if(this.songs[this.selectedSong].action !== "back"){
 					var cat = this.songs[this.selectedSong].category
