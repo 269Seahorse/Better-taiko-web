@@ -42,7 +42,7 @@ class Controller{
 				}
 			})
 
-			Promise.all(this.promises)
+			Promise.all(promises)
 		}
 		
 		if(this.calibrationMode){
