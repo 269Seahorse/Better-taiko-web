@@ -307,15 +307,15 @@ class SongSelect{
 		this.gamepad = new Gamepad({
 			confirm: ["b", "start", "ls", "rs"],
 			back: ["a"],
-			left: ["l", "lsl"],
-			right: ["r", "lsr"],
+			left: ["l", "lsl", "lt"],
+			right: ["r", "lsr", "rt"],
 			up: ["u", "lsu"],
 			down: ["d", "lsd"],
 			session: ["back"],
 			ctrl: ["y"],
 			shift: ["x"],
-			jump_left: ["lb", "lt"],
-			jump_right: ["rb", "rt"]
+			jump_left: ["lb"],
+			jump_right: ["rb"]
 		}, this.keyPress.bind(this))
 		
 		if(!assets.customSongs){
@@ -588,6 +588,10 @@ class SongSelect{
 	}
 
 	categoryJump(moveBy){
+		if(this.state.locked === 1){
+			return
+		}
+
 		this.state.catJump = true
 		this.state.move = moveBy;
 		this.state.locked = 1
@@ -1010,7 +1014,7 @@ class SongSelect{
 			var resize2 = changeSpeed - resize
 			var scroll = resize2 - resize - scrollDelay * 2
 			var elapsed = ms - this.state.moveMS
-			if(this.state.move && ms > this.state.moveMS + resize2 - scrollDelay){
+			if(this.state.catJump || (this.state.move && ms > this.state.moveMS + resize2 - scrollDelay)){
 				var isJump = this.state.catJump
 				var previousSelectedSong = this.selectedSong
 
@@ -1020,6 +1024,7 @@ class SongSelect{
 				}else{
 					var currentCat = this.songs[this.selectedSong].category
 					var currentIdx = this.mod(this.songs.length, this.selectedSong)
+
 					if(this.state.move > 0){
 						var nextSong = this.songs.find(song => this.mod(this.songs.length, this.songs.indexOf(song)) > currentIdx && song.category !== currentCat && song.canJump)
 						if(!nextSong){
