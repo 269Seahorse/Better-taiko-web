@@ -50,6 +50,22 @@
 		daiDrumroll: "連打(大)ーっ!!",
 		balloon: "ふうせん"
 	}
+	this.ex_note = {
+		don: [
+			"ド",
+			"コ"
+		],
+		ka: [
+			"カ"
+		],
+		daiDon: [
+			"ドン(大)",
+			"ドン(大)"
+		],
+		daiKa: [
+			"カッ(大)"
+		]
+	}
 	this.combo = "コンボ"
 	this.clear = "クリア"
 	this.good = "良"
@@ -193,6 +209,22 @@ function StringsEn(){
 		drumroll: "Drum rollー!!",
 		daiDrumroll: "DRUM ROLLー!!",
 		balloon: "Balloon"
+	}
+	this.ex_note = {
+		don: [
+			"Do",
+			"Do"
+		],
+		ka: [
+			"Ka"
+		],
+		daiDon: [
+			"DON",
+			"DON"
+		],
+		daiKa: [
+			"KA"
+		]
 	}
 	this.combo = "Combo"
 	this.clear = "Clear"
@@ -338,6 +370,22 @@ function StringsCn(){
 		daiDrumroll: "连打(大)ー!!",
 		balloon: "气球"
 	}
+	this.ex_note = {
+		don: [
+			"咚",
+			"咚"
+		],
+		ka: [
+			"咔"
+		],
+		daiDon: [
+			"咚(大)",
+			"咚(大)"
+		],
+		daiKa: [
+			"咔(大)"
+		]
+	}
 	this.combo = "连段"
 	this.clear = "通关"
 	this.good = "良"
@@ -482,6 +530,22 @@ function StringsTw(){
 		daiDrumroll: "連打(大)ー!!",
 		balloon: "氣球"
 	}
+	this.ex_note = {
+		don: [
+			"咚",
+			"咚"
+		],
+		ka: [
+			"咔"
+		],
+		daiDon: [
+			"咚(大)",
+			"咚(大)"
+		],
+		daiKa: [
+			"咔(大)"
+		]
+	}
 	this.combo = "連段"
 	this.clear = "通關"
 	this.good = "良"
@@ -625,6 +689,22 @@ function StringsKo(){
 		drumroll: "연타ー!!",
 		daiDrumroll: "연타(대)ー!!",
 		balloon: "풍선"
+	}
+	this.ex_note = {
+		don: [
+			"쿠",
+			"쿠"
+		],
+		ka: [
+			"딱"
+		],
+		daiDon: [
+			"쿵(대)",
+			"쿵(대)"
+		],
+		daiKa: [
+			"딱(대)"
+		]
 	}
 	this.combo = "콤보"
 	this.clear = "클리어"
