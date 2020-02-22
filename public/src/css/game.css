@@ -16,14 +16,6 @@
 	width: 100%;
 	height: 100%;
 }
-#cursor{
-	position: fixed;
-	width: 1px;
-	height: 1px;
-	cursor: none;
-	pointer-events: none;
-	z-index: 1;
-}
 #touch-drum{
 	display: none;
 	position: absolute;

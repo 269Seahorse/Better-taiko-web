@@ -123,7 +123,7 @@
 		return [string.slice(0, index), string.slice(index + delimiter.length)]
 	}
 	parseCircles(){
-		var meta = this.metadata[this.difficulty]
+		var meta = this.metadata[this.difficulty] || {}
 		var ms = (meta.offset || 0) * -1000 + this.offset
 		var bpm = Math.abs(meta.bpm) || 120
 		var scroll = 1

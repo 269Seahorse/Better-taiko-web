@@ -29,23 +29,30 @@
 		this.endButton.innerText = strings.tutorial.ok
 		this.endButton.setAttribute("alt", strings.tutorial.ok)
 		
+		this.items = []
+		
 		var versionUrl = gameConfig._version.url
 		this.getLink(this.linkIssues).href = versionUrl + "issues"
-
+		this.items.push(this.linkIssues)
+		
 		var contactEmail = gameConfig.email
-		if (typeof contactEmail === 'string') {
+		this.hasEmail = typeof contactEmail === "string"
+		if(this.hasEmail){
 			this.linkEmail.setAttribute("alt", contactEmail)
 			this.getLink(this.linkEmail).href = "mailto:" + contactEmail
-			this.getLink(this.linkEmail).text = contactEmail
-		} else {
-			this.linkEmail.style.display = "none"
+			this.getLink(this.linkEmail).innerText = contactEmail
+			this.items.push(this.linkEmail)
+		}else{
+			this.linkEmail.parentNode.removeChild(this.linkEmail)
 		}
-
+		
 		pageEvents.add(this.linkIssues, ["click", "touchend"], this.linkButton.bind(this))
-		pageEvents.add(this.linkEmail, ["click", "touchend"], this.linkButton.bind(this))
+		if(this.hasEmail){
+			pageEvents.add(this.linkEmail, ["click", "touchend"], this.linkButton.bind(this))
+		}
 		pageEvents.add(this.endButton, ["mousedown", "touchstart"], this.onEnd.bind(this))
-		this.items = [this.linkIssues, this.linkEmail, this.endButton]
-		this.selected = 2
+		this.items.push(this.endButton)
+		this.selected = this.items.length - 1
 		
 		this.keyboard = new Keyboard({
 			confirm: ["enter", "space", "don_l", "don_r"],
@@ -146,6 +153,8 @@
 			}
 		}
 		diag.push("Language: " + strings.id + userLangStr)
+		var latency = settings.getItem("latency")
+		diag.push("Audio Latency: " + (latency.audio > 0 ? "+" : "") + latency.audio.toString() + "ms, Video Latency: " + (latency.video > 0 ? "+" : "") + latency.video.toString() + "ms")
 		var errorObj = {}
 		if(localStorage["lastError"]){
 			try{
@@ -195,7 +204,9 @@
 		}
 		
 		var issueBody = strings.about.issueTemplate + "\n\n\n\n" + diag
-		this.getLink(this.linkEmail).href += "?body=" + encodeURIComponent(issueBody.replace(/\n/g, "<br>\r\n"))
+		if(this.hasEmail){
+			this.getLink(this.linkEmail).href += "?body=" + encodeURIComponent(issueBody.replace(/\n/g, "<br>\r\n"))
+		}
 		
 		return diag
 	}
@@ -214,7 +225,9 @@
 		this.keyboard.clean()
 		this.gamepad.clean()
 		pageEvents.remove(this.linkIssues, ["click", "touchend"])
-		pageEvents.remove(this.linkEmail, ["click", "touchend"])
+		if(this.hasEmail){
+			pageEvents.remove(this.linkEmail, ["click", "touchend"])
+		}
 		pageEvents.remove(this.endButton, ["mousedown", "touchstart"])
 		if(this.textarea){
 			pageEvents.remove(this.textarea, ["focus", "blur"])

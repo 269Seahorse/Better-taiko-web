@@ -35,13 +35,19 @@ class LoadSong{
 		var song = this.selectedSong
 		var id = song.folder
 		var promises = []
-		assets.sounds["v_start"].play()
+		if(song.folder !== "calibration"){
+			assets.sounds["v_start"].play()
+			var songObj = assets.songs.find(song => song.id === id)
+		}else{
+			var songObj = {
+				"music": "muted",
+				"chart": "blank"
+			}
+		}
 		
 		song.songBg = this.randInt(1, 5)
 		song.songStage = this.randInt(1, 3)
 		song.donBg = this.randInt(1, 6)
-		
-		var songObj = assets.songs.find(song => song.id === id)
 		
 		if(song.songSkin && song.songSkin.name){
 			var imgLoad = []
@@ -117,14 +123,18 @@ class LoadSong{
 			}
 		}))
 		if(songObj.chart){
-			var reader = new FileReader()
-			promises.push(pageEvents.load(reader).then(event => {
-				this.songData = event.target.result.replace(/\0/g, "").split("\n")
-			}))
-			if(song.type === "tja"){
-				reader.readAsText(songObj.chart, "sjis")
+			if(songObj.chart === "blank"){
+				this.songData = ""
 			}else{
-				reader.readAsText(songObj.chart)
+				var reader = new FileReader()
+				promises.push(pageEvents.load(reader).then(event => {
+					this.songData = event.target.result.replace(/\0/g, "").split("\n")
+				}))
+				if(song.type === "tja"){
+					reader.readAsText(songObj.chart, "sjis")
+				}else{
+					reader.readAsText(songObj.chart)
+				}
 			}
 		}else{
 			promises.push(loader.ajax(this.getSongPath(song)).then(data => {

@@ -142,10 +142,41 @@
 			b: "タイプB",
 			c: "タイプC"
 		},
+		latency: {
+			name: "Latency",
+			value: "Audio: %s, Video: %s",
+			calibration: "Latency Calibration",
+			audio: "Audio",
+			video: "Video",
+			drumSounds: "Drum Sounds"
+		},
 		on: "オン",
 		off: "オフ",
 		default: "既定値にリセット",
 		ok: "OK"
+	}
+	this.calibration = {
+		title: "Latency Calibration",
+		ms: "%sms",
+		back: "Back to Settings",
+		retryPrevious: "Retry Previous",
+		start: "Start",
+		finish: "Finish",
+		audioHelp: {
+			title: "Audio Latency Calibration",
+			content: "Listen to a sound playing in the background.\n\nHit the surface of the drum (%s or %s) as you hear it!",
+			contentAlt: "Listen to a sound playing in the background.\n\nHit the surface of the drum as you hear it!"
+		},
+		audioComplete: "Audio Latency Calibration completed!",
+		videoHelp: {
+			title: "Video Latency Calibration",
+			content: "This time there will be no sounds.\n\nInstead, watch for notes blinking on the circle-shaped frame, hit the drum as they appear!"
+		},
+		videoComplete: "Video Latency Calibration completed!",
+		results: {
+			title: "Latency Calibration Results",
+			content: "Audio latency: %s\nVideo latency: %s\n\nYou can configure these latency values in the settings."
+		}
 	}
 	this.browserSupport = {
 		browserWarning: "サポートされていないブラウザを実行しています (%s)",
@@ -302,10 +333,41 @@ function StringsEn(){
 			b: "Type B",
 			c: "Type C"
 		},
+		latency: {
+			name: "Latency",
+			value: "Audio: %s, Video: %s",
+			calibration: "Latency Calibration",
+			audio: "Audio",
+			video: "Video",
+			drumSounds: "Drum Sounds"
+		},
 		on: "On",
 		off: "Off",
 		default: "Reset to Defaults",
 		ok: "OK"
+	}
+	this.calibration = {
+		title: "Latency Calibration",
+		ms: "%sms",
+		back: "Back to Settings",
+		retryPrevious: "Retry Previous",
+		start: "Start",
+		finish: "Finish",
+		audioHelp: {
+			title: "Audio Latency Calibration",
+			content: "Listen to a sound playing in the background.\n\nHit the surface of the drum (%s or %s) as you hear it!",
+			contentAlt: "Listen to a sound playing in the background.\n\nHit the surface of the drum as you hear it!"
+		},
+		audioComplete: "Audio Latency Calibration completed!",
+		videoHelp: {
+			title: "Video Latency Calibration",
+			content: "This time there will be no sounds.\n\nInstead, watch for notes blinking on the circle-shaped frame, hit the drum as they appear!"
+		},
+		videoComplete: "Video Latency Calibration completed!",
+		results: {
+			title: "Latency Calibration Results",
+			content: "Audio latency: %s\nVideo latency: %s\n\nYou can configure these latency values in the settings."
+		}
 	}
 	this.browserSupport = {
 		browserWarning: "You are running an unsupported browser (%s)",
@@ -462,10 +524,41 @@ function StringsCn(){
 			b: "类型B",
 			c: "类型C"
 		},
+		latency: {
+			name: "Latency",
+			value: "Audio: %s, Video: %s",
+			calibration: "Latency Calibration",
+			audio: "Audio",
+			video: "Video",
+			drumSounds: "Drum Sounds"
+		},
 		on: "开",
 		off: "关",
 		default: "重置为默认值",
 		ok: "确定"
+	}
+	this.calibration = {
+		title: "Latency Calibration",
+		ms: "%sms",
+		back: "Back to Settings",
+		retryPrevious: "Retry Previous",
+		start: "Start",
+		finish: "Finish",
+		audioHelp: {
+			title: "Audio Latency Calibration",
+			content: "Listen to a sound playing in the background.\n\nHit the surface of the drum (%s or %s) as you hear it!",
+			contentAlt: "Listen to a sound playing in the background.\n\nHit the surface of the drum as you hear it!"
+		},
+		audioComplete: "Audio Latency Calibration completed!",
+		videoHelp: {
+			title: "Video Latency Calibration",
+			content: "This time there will be no sounds.\n\nInstead, watch for notes blinking on the circle-shaped frame, hit the drum as they appear!"
+		},
+		videoComplete: "Video Latency Calibration completed!",
+		results: {
+			title: "Latency Calibration Results",
+			content: "Audio latency: %s\nVideo latency: %s\n\nYou can configure these latency values in the settings."
+		}
 	}
 	this.browserSupport = {
 		browserWarning: "You are running an unsupported browser (%s)",
@@ -622,10 +715,41 @@ function StringsTw(){
 			b: "類型B",
 			c: "類型C"
 		},
+		latency: {
+			name: "Latency",
+			value: "Audio: %s, Video: %s",
+			calibration: "Latency Calibration",
+			audio: "Audio",
+			video: "Video",
+			drumSounds: "Drum Sounds"
+		},
 		on: "開",
 		off: "關",
 		default: "重置為默認值",
 		ok: "確定"
+	}
+	this.calibration = {
+		title: "Latency Calibration",
+		ms: "%sms",
+		back: "Back to Settings",
+		retryPrevious: "Retry Previous",
+		start: "Start",
+		finish: "Finish",
+		audioHelp: {
+			title: "Audio Latency Calibration",
+			content: "Listen to a sound playing in the background.\n\nHit the surface of the drum (%s or %s) as you hear it!",
+			contentAlt: "Listen to a sound playing in the background.\n\nHit the surface of the drum as you hear it!"
+		},
+		audioComplete: "Audio Latency Calibration completed!",
+		videoHelp: {
+			title: "Video Latency Calibration",
+			content: "This time there will be no sounds.\n\nInstead, watch for notes blinking on the circle-shaped frame, hit the drum as they appear!"
+		},
+		videoComplete: "Video Latency Calibration completed!",
+		results: {
+			title: "Latency Calibration Results",
+			content: "Audio latency: %s\nVideo latency: %s\n\nYou can configure these latency values in the settings."
+		}
 	}
 	this.browserSupport = {
 		browserWarning: "You are running an unsupported browser (%s)",
@@ -782,10 +906,41 @@ function StringsKo(){
 			b: "타입 B",
 			c: "타입 C"
 		},
+		latency: {
+			name: "Latency",
+			value: "Audio: %s, Video: %s",
+			calibration: "Latency Calibration",
+			audio: "Audio",
+			video: "Video",
+			drumSounds: "Drum Sounds"
+		},
 		on: "온",
 		off: "오프",
 		default: "기본값으로 재설정",
 		ok: "확인"
+	}
+	this.calibration = {
+		title: "Latency Calibration",
+		ms: "%sms",
+		back: "Back to Settings",
+		retryPrevious: "Retry Previous",
+		start: "Start",
+		finish: "Finish",
+		audioHelp: {
+			title: "Audio Latency Calibration",
+			content: "Listen to a sound playing in the background.\n\nHit the surface of the drum (%s or %s) as you hear it!",
+			contentAlt: "Listen to a sound playing in the background.\n\nHit the surface of the drum as you hear it!"
+		},
+		audioComplete: "Audio Latency Calibration completed!",
+		videoHelp: {
+			title: "Video Latency Calibration",
+			content: "This time there will be no sounds.\n\nInstead, watch for notes blinking on the circle-shaped frame, hit the drum as they appear!"
+		},
+		videoComplete: "Video Latency Calibration completed!",
+		results: {
+			title: "Latency Calibration Results",
+			content: "Audio latency: %s\nVideo latency: %s\n\nYou can configure these latency values in the settings."
+		}
 	}
 	this.browserSupport = {
 		browserWarning: "You are running an unsupported browser (%s)",
