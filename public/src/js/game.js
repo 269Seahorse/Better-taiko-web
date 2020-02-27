@@ -330,8 +330,10 @@ class Game{
 			}
 			var score = 0
 			if(keysDon && typeDon || keysKa && typeKa){
-				if(typeDai && !keyDai){
-					if(!circle.daiFailed){
+				if (typeDai && !keyDai) {
+					if (this.controller.TaikoForceLv5) { // Taiko Force Lv5 can't hit both Dons at the same time, so dai offered
+						keyDai = true;
+					} else if(!circle.daiFailed){
 						circle.daiFailed = ms
 						return false
 					}else if(ms < circle.daiFailed + this.rules.daiLeniency){
