@@ -152,7 +152,7 @@
 			drumSounds: "Drum Sounds"
 		},
 		easierBigNotes: {
-			name: "大きな音符を簡単にする"
+			name: "簡単な大きな音符"
 		},
 		on: "オン",
 		off: "オフ",
@@ -542,7 +542,7 @@ function StringsCn(){
 			drumSounds: "Drum Sounds"
 		},
 		easierBigNotes: {
-			name: "使大音符变得容易"
+			name: "简单的大音符"
 		},
 		on: "开",
 		off: "关",
@@ -737,7 +737,7 @@ function StringsTw(){
 			drumSounds: "Drum Sounds"
 		},
 		easierBigNotes: {
-			name: "使大音符變得容易"
+			name: "簡單的大音符"
 		},
 		on: "開",
 		off: "關",
