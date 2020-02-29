@@ -31,6 +31,7 @@ class Game{
 		this.branchNames = ["normal", "advanced", "master"]
 		this.resetSection()
 		this.gameLagSync = !this.controller.touchEnabled && !(/Firefox/.test(navigator.userAgent))
+		this.lastPressedKeys = [false, false, false, false]
 		
 		assets.songs.forEach(song => {
 			if(song.id == selectedSong.folder){
@@ -264,6 +265,11 @@ class Game{
 		var don_r = keys["don_r"] && !this.controller.isWaiting("don_r", "score")
 		var ka_l = keys["ka_l"] && !this.controller.isWaiting("ka_l", "score")
 		var ka_r = keys["ka_r"] && !this.controller.isWaiting("ka_r", "score")
+		if(don_l || don_r || ka_l || ka_r){
+			this.lastPressedKeys = [don_l, don_r, ka_l, ka_r]
+		}else{
+			[don_l, don_r, ka_l, ka_r] = this.lastPressedKeys
+		}
 		
 		var checkDon = () => {
 			if(don_l && don_r){
@@ -330,10 +336,11 @@ class Game{
 			}
 			var score = 0
 			if(keysDon && typeDon || keysKa && typeKa){
-				if (typeDai && !keyDai) {
-					if (this.controller.TaikoForceLv5) { // Taiko Force Lv5 can't hit both Dons at the same time, so dai offered
-						keyDai = true;
-					} else if(!circle.daiFailed){
+				if(typeDai && !keyDai){
+					if(this.controller.easierBigNotes){
+						// Taiko Force Lv5 can't hit both Dons at the same time, so dai offered
+						keyDai = true
+					}else if(!circle.daiFailed){
 						circle.daiFailed = ms
 						return false
 					}else if(ms < circle.daiFailed + this.rules.daiLeniency){

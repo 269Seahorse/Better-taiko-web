@@ -19,14 +19,13 @@ class Keyboard{
 		pageEvents.keyAdd(this, "all", "both", this.keyEvent.bind(this))
 		pageEvents.blurAdd(this, this.blurEvent.bind(this))
 	}
-	isTaikoForceLv5(kbdSettings) { // the key of Taiko Force Lv5's PC module looks like this
-		//console.log(kbdSettings);
+	isTaikoForceLv5(kbdSettings){
+		// the key of Taiko Force Lv5's PC module looks like this
 		return (kbdSettings.ka_l[0] === "f") && (kbdSettings.ka_r[0] === "e") && (kbdSettings.don_l[0] === "i") && (kbdSettings.don_r[0] === "j");
 	}
 	update(){
 		var kbdSettings = settings.getItem("keyboardSettings")
-		this.TaikoForceLv5 = this.isTaikoForceLv5(kbdSettings);
-		//console.log("Taiko Force Lv5", this.TaikoForceLv5);
+		this.TaikoForceLv5 = this.isTaikoForceLv5(kbdSettings)
 		var drumKeys = {}
 		for(var name in kbdSettings){
 			var keys = kbdSettings[name]

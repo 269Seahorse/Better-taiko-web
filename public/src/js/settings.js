@@ -46,6 +46,10 @@ class Settings{
 					"video": 0,
 					"drumSounds": true
 				}
+			},
+			easierBigNotes: {
+				type: "toggle",
+				default: false
 			}
 		}
 		

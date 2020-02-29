@@ -151,6 +151,9 @@
 			video: "Video",
 			drumSounds: "Drum Sounds"
 		},
+		easierBigNotes: {
+			name: "大きな音符を簡単にする"
+		},
 		on: "オン",
 		off: "オフ",
 		default: "既定値にリセット",
@@ -342,6 +345,9 @@ function StringsEn(){
 			audio: "Audio",
 			video: "Video",
 			drumSounds: "Drum Sounds"
+		},
+		easierBigNotes: {
+			name: "Easier Big Notes"
 		},
 		on: "On",
 		off: "Off",
@@ -535,6 +541,9 @@ function StringsCn(){
 			video: "Video",
 			drumSounds: "Drum Sounds"
 		},
+		easierBigNotes: {
+			name: "使大音符变得容易"
+		},
 		on: "开",
 		off: "关",
 		default: "重置为默认值",
@@ -727,6 +736,9 @@ function StringsTw(){
 			video: "Video",
 			drumSounds: "Drum Sounds"
 		},
+		easierBigNotes: {
+			name: "使大音符變得容易"
+		},
 		on: "開",
 		off: "關",
 		default: "重置為默認值",
@@ -918,6 +930,9 @@ function StringsKo(){
 			audio: "Audio",
 			video: "Video",
 			drumSounds: "Drum Sounds"
+		},
+		easierBigNotes: {
+			name: "쉬운 큰 음표"
 		},
 		on: "온",
 		off: "오프",
