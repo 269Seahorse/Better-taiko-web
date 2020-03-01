@@ -60,6 +60,11 @@ class Controller{
 		this.view = new View(this)
 		this.mekadon = new Mekadon(this, this.game)
 		this.keyboard = new GameInput(this)
+		if(!autoPlayEnabled && this.multiplayer !== 2){
+			this.easierBigNotes = settings.getItem("easierBigNotes") || this.keyboard.keyboard.TaikoForceLv5
+		}else{
+			this.easierBigNotes = false
+		}
 		
 		this.drumSounds = settings.getItem("latency").drumSounds
 		this.playedSounds = {}

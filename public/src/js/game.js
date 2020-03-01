@@ -104,7 +104,9 @@ class Game{
 						circle.beatMSCopied = true
 					}
 				}
-				if(ms > endTime){
+				if(circle.daiFailed && (ms >= circle.daiFailed.ms + this.rules.daiLeniency || ms > endTime)){
+					this.checkScore(circle, circle.daiFailed.check)
+				}else if(ms > endTime){
 					if(!this.controller.autoPlayEnabled){
 						if(drumrollNotes){
 							if(circle.section && circle.timesHit === 0){
@@ -314,7 +316,7 @@ class Game{
 		var typeDai = type === "daiDon" || type === "daiKa"
 		
 		var keyTime = this.controller.getKeyTime()
-		var currentTime = keysDon ? keyTime["don"] : keyTime["ka"]
+		var currentTime = circle.daiFailed ? circle.daiFailed.ms : keysDon ? keyTime["don"] : keyTime["ka"]
 		var relative = currentTime - circle.ms - this.controller.audioLatency
 		
 		if(relative >= this.rules.ok){
@@ -330,14 +332,6 @@ class Game{
 			}
 			var score = 0
 			if(keysDon && typeDon || keysKa && typeKa){
-				if(typeDai && !keyDai){
-					if(!circle.daiFailed){
-						circle.daiFailed = ms
-						return false
-					}else if(ms < circle.daiFailed + this.rules.daiLeniency){
-						return false
-					}
-				}
 				var circleStatus = -1
 				relative = Math.abs(relative)
 				if(relative < this.rules.good){
@@ -346,6 +340,23 @@ class Game{
 					circleStatus = 230
 				}else if(relative < this.rules.bad){
 					circleStatus = 0
+				}
+				if(typeDai && !keyDai){
+					if(this.controller.easierBigNotes){
+						// Taiko Force Lv5 can't hit both Dons at the same time, so dai offered
+						keyDai = true
+					}else if(!circle.daiFailed){
+						circle.daiFailed = {
+							ms: ms,
+							status: circleStatus,
+							check: check
+						}
+						return false
+					}else if(ms < circle.daiFailed.ms + this.rules.daiLeniency){
+						return false
+					}else{
+						circleStatus = circle.daiFailed.status
+					}
 				}
 				if(circleStatus === 230 || circleStatus === 450){
 					score = circleStatus
