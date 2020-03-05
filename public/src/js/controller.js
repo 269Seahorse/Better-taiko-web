@@ -171,7 +171,7 @@ class Controller{
 	gameEnded(){
 		var score = this.getGlobalScore()
 		var vp
-		if(Math.round(score.gauge / 2) - 1 >= 25){
+		if(this.game.rules.clearReached(score.gauge)){
 			if(score.bad === 0){
 				vp = "fullcombo"
 				this.playSound("v_fullcombo", 1.350)

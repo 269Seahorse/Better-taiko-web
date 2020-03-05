@@ -18,10 +18,11 @@ class Game{
 			title: selectedSong.title,
 			difficulty: this.rules.difficulty
 		}
-		this.HPGain = 100 / this.songData.circles.filter(circle => {
+		var combo = this.songData.circles.filter(circle => {
 			var type = circle.type
 			return (type === "don" || type === "ka" || type === "daiDon" || type === "daiKa") && (!circle.branch || circle.branch.active)
 		}).length
+		this.soulPoints = this.rules.soulPoints(combo)
 		this.paused = false
 		this.started = false
 		this.mainMusicPlaying = false
@@ -628,12 +629,15 @@ class Game{
 		switch(score){
 			case 450:
 				this.globalScore.good++
+				this.globalScore.gauge += this.soulPoints.good
 				break
 			case 230:
 				this.globalScore.ok++
+				this.globalScore.gauge += this.soulPoints.ok
 				break
 			case 0:
 				this.globalScore.bad++
+				this.globalScore.gauge += this.soulPoints.bad
 				break
 		}
 		if (this.songData.scoremode) { 
@@ -647,12 +651,10 @@ class Game{
 			}
 		}
 		// Gauge update
-		if(score !== 0){
-			this.globalScore.gauge += this.HPGain
-		}else if(this.globalScore.gauge - this.HPGain > 0){
-			this.globalScore.gauge -= this.HPGain
-		}else{
+		if(this.globalScore.gauge < 0){
 			this.globalScore.gauge = 0
+		}else if(this.globalScore.gauge > 10000){
+			this.globalScore.gauge = 10000
 		}
 		// Points update
 		if (this.songData.scoremode == 2) {
@@ -719,10 +721,6 @@ class Game{
 				this.currentCircle = closestCircle
 			}
 		}
-		this.HPGain = 100 / this.songData.circles.filter(circle => {
-			var type = circle.type
-			return (type === "don" || type === "ka" || type === "daiDon" || type === "daiKa") && (!circle.branch || circle.branch.active)
-		}).length
 		if(this.controller.multiplayer === 1){
 			p2.send("branch", activeName)
 		}

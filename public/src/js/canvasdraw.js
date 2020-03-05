@@ -1347,10 +1347,10 @@
 		var secondTop = config.multiplayer ? 0 : 8
 		
 		config.percentage = Math.max(0, Math.min(1, config.percentage))
-		var cleared = config.percentage - 1 / 50 >= config.clear
+		var cleared = config.percentage >= config.clear
 		
 		var gaugeW = 14 * 50
-		var gaugeClear = gaugeW * config.clear
+		var gaugeClear = gaugeW * (config.clear - 1 / 50)
 		var gaugeFilled = gaugeW * config.percentage
 		
 		ctx.fillStyle = "#000"

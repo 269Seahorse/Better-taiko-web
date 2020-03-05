@@ -42,16 +42,20 @@ class ViewAssets{
 				var length = this.don.getAnimationLength("gogo")
 				this.don.setUpdateSpeed(4 / length)
 				this.don.setAnimation("gogo")
-			}else if(Math.round(this.controller.getGlobalScore().gauge / 2) - 1 >= 25){
-				this.don.setAnimationStart(0)
-				var length = this.don.getAnimationLength("clear")
-				this.don.setUpdateSpeed(2 / length)
-				this.don.setAnimation("clear")
 			}else{
-				this.don.setAnimationStart(0)
-				var length = this.don.getAnimationLength("normal")
-				this.don.setUpdateSpeed(4 / length)
-				this.don.setAnimation("normal")
+				var score = this.controller.getGlobalScore()
+				var cleared = this.controller.game.rules.clearReached(score.gauge)
+				if(cleared){
+					this.don.setAnimationStart(0)
+					var length = this.don.getAnimationLength("clear")
+					this.don.setUpdateSpeed(2 / length)
+					this.don.setAnimation("clear")
+				}else{
+					this.don.setAnimationStart(0)
+					var length = this.don.getAnimationLength("normal")
+					this.don.setUpdateSpeed(4 / length)
+					this.don.setAnimation("normal")
+				}
 			}
 		}
 		this.don.addFrames("clear", 30, "don_anim_clear")
