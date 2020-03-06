@@ -1273,27 +1273,29 @@
 		ctx.translate(-47, -39)
 		ctx.miterLimit = 1.7
 		
-		if(!this.crownCache.w){
-			this.crownCache.resize(140, 140, config.ratio)
+		if(config.whiteOutline){
+			if(!this.crownCache.w){
+				this.crownCache.resize(140, 140, config.ratio)
+			}
+			var offset = 140 / 2 - 94 / 2
+			this.crownCache.get({
+				ctx: ctx,
+				x: -offset,
+				y: -offset,
+				w: 140,
+				h: 140,
+				id: "crown"
+			}, ctx => {
+				ctx.save()
+				ctx.translate(offset, offset)
+				ctx.strokeStyle = "#fff"
+				ctx.lineWidth = 35
+				ctx.miterLimit = 1.7
+				ctx.filter = "blur(1.5px)"
+				ctx.stroke(this.crownPath)
+				ctx.restore()
+			})
 		}
-		var offset = 140 / 2 - 94 / 2
-		this.crownCache.get({
-			ctx: ctx,
-			x: -offset,
-			y: -offset,
-			w: 140,
-			h: 140,
-			id: "crown"
-		}, ctx => {
-			ctx.save()
-			ctx.translate(offset, offset)
-			ctx.strokeStyle = "#fff"
-			ctx.lineWidth = 35
-			ctx.miterLimit = 1.7
-			ctx.filter = "blur(1.5px)"
-			ctx.stroke(this.crownPath)
-			ctx.restore()
-		})
 		
 		if(config.shine){
 			ctx.strokeStyle = "#fff"
@@ -1302,7 +1304,7 @@
 			ctx.globalAlpha = 1 - config.shine
 		}
 		
-		ctx.strokeStyle = "#000"
+		ctx.strokeStyle = config.type ? "#000" : "rgba(255, 193, 0, 0.5)"
 		ctx.lineWidth = 18
 		ctx.stroke(this.crownPath)
 		
@@ -1313,21 +1315,25 @@
 			ctx.globalAlpha = 1 - config.shine
 		}
 		
-		var grd = ctx.createLinearGradient(0, 0, 94, 0)
-		if(config.type === "gold"){
-			grd.addColorStop(0, "#ffffc5")
-			grd.addColorStop(0.23, "#ffff44")
-			grd.addColorStop(0.53, "#efbd12")
-			grd.addColorStop(0.83, "#ffff44")
-			grd.addColorStop(1, "#efbd12")
-		}else if(config.type === "silver"){
-			grd.addColorStop(0, "#d6efef")
-			grd.addColorStop(0.23, "#bddfde")
-			grd.addColorStop(0.53, "#97c1c0")
-			grd.addColorStop(0.83, "#bddfde")
-			grd.addColorStop(1, "#97c1c0")
+		if(config.type){
+			var grd = ctx.createLinearGradient(0, 0, 94, 0)
+			if(config.type === "gold"){
+				grd.addColorStop(0, "#ffffc5")
+				grd.addColorStop(0.23, "#ffff44")
+				grd.addColorStop(0.53, "#efbd12")
+				grd.addColorStop(0.83, "#ffff44")
+				grd.addColorStop(1, "#efbd12")
+			}else if(config.type === "silver"){
+				grd.addColorStop(0, "#d6efef")
+				grd.addColorStop(0.23, "#bddfde")
+				grd.addColorStop(0.53, "#97c1c0")
+				grd.addColorStop(0.83, "#bddfde")
+				grd.addColorStop(1, "#97c1c0")
+			}
+			ctx.fillStyle = grd
+		}else{
+			ctx.fillStyle = "#ffdb2c"
 		}
-		ctx.fillStyle = grd
 		ctx.fill(this.crownPath)
 		
 		ctx.restore()

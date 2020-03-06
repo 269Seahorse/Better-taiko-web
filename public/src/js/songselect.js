@@ -959,86 +959,6 @@ class SongSelect{
 			}
 		}
 		
-		if(screen === "title" || screen === "titleFadeIn" || screen === "song"){
-			var textW = strings.id === "en" ? 350 : 280
-			this.selectTextCache.get({
-				ctx: ctx,
-				x: frameLeft,
-				y: frameTop,
-				w: textW + 53 + 60,
-				h: this.songAsset.marginTop + 15,
-				id: "song"
-			}, ctx => {
-				this.draw.layeredText({
-					ctx: ctx,
-					text: strings.selectSong,
-					fontSize: 48,
-					fontFamily: this.font,
-					x: 53,
-					y: 30,
-					width: textW,
-					letterSpacing: strings.id === "en" ? 0 : 2,
-					forceShadow: true
-				}, [
-					{x: -2, y: -2, outline: "#000", letterBorder: 22},
-					{},
-					{x: 2, y: 2, shadow: [3, 3, 3]},
-					{x: 2, y: 2, outline: "#ad1516", letterBorder: 10},
-					{x: -2, y: -2, outline: "#ff797b"},
-					{outline: "#f70808"},
-					{fill: "#fff", shadow: [-1, 1, 3, 1.5]}
-				])
-			})
-			
-			var category = this.songs[this.selectedSong].category
-			var selectedSong = this.songs[this.selectedSong]
-			this.draw.category({
-				ctx: ctx,
-				x: winW / 2 - 280 / 2 - 30,
-				y: frameTop + 60,
-				fill: selectedSong.skin.background,
-				highlight: this.state.moveHover === "categoryPrev"
-			})
-			this.draw.category({
-				ctx: ctx,
-				x: winW / 2 + 280 / 2 + 30,
-				y: frameTop + 60,
-				right: true,
-				fill: selectedSong.skin.background,
-				highlight: this.state.moveHover === "categoryNext"
-			})
-			this.categoryCache.get({
-				ctx: ctx,
-				x: winW / 2 - 280 / 2,
-				y: frameTop,
-				w: 280,
-				h: this.songAsset.marginTop,
-				id: category + selectedSong.skin.outline
-			}, ctx => {
-				if(category){
-					if(category in strings.categories){
-						var categoryName = strings.categories[category]
-					}else{
-						var categoryName = category
-					}
-					this.draw.layeredText({
-						ctx: ctx,
-						text: categoryName,
-						fontSize: 40,
-						fontFamily: this.font,
-						x: 280 / 2,
-						y: 38,
-						width: 255,
-						align: "center",
-						forceShadow: true
-					}, [
-						{outline: selectedSong.skin.outline, letterBorder: 12, shadow: [3, 3, 3]},
-						{fill: "#fff"}
-					])
-				}
-			})
-		}
-		
 		if(screen === "song"){
 			if(this.songs[this.selectedSong].stars){
 				selectedWidth = this.songAsset.selectedWidth
@@ -1228,6 +1148,86 @@ class SongSelect{
 			}
 		}
 		
+		if(screen === "title" || screen === "titleFadeIn" || screen === "song"){
+			var textW = strings.id === "en" ? 350 : 280
+			this.selectTextCache.get({
+				ctx: ctx,
+				x: frameLeft,
+				y: frameTop,
+				w: textW + 53 + 60,
+				h: this.songAsset.marginTop + 15,
+				id: "song"
+			}, ctx => {
+				this.draw.layeredText({
+					ctx: ctx,
+					text: strings.selectSong,
+					fontSize: 48,
+					fontFamily: this.font,
+					x: 53,
+					y: 30,
+					width: textW,
+					letterSpacing: strings.id === "en" ? 0 : 2,
+					forceShadow: true
+				}, [
+					{x: -2, y: -2, outline: "#000", letterBorder: 22},
+					{},
+					{x: 2, y: 2, shadow: [3, 3, 3]},
+					{x: 2, y: 2, outline: "#ad1516", letterBorder: 10},
+					{x: -2, y: -2, outline: "#ff797b"},
+					{outline: "#f70808"},
+					{fill: "#fff", shadow: [-1, 1, 3, 1.5]}
+				])
+			})
+			
+			var category = this.songs[this.selectedSong].category
+			var selectedSong = this.songs[this.selectedSong]
+			this.draw.category({
+				ctx: ctx,
+				x: winW / 2 - 280 / 2 - 30,
+				y: frameTop + 60,
+				fill: selectedSong.skin.background,
+				highlight: this.state.moveHover === "categoryPrev"
+			})
+			this.draw.category({
+				ctx: ctx,
+				x: winW / 2 + 280 / 2 + 30,
+				y: frameTop + 60,
+				right: true,
+				fill: selectedSong.skin.background,
+				highlight: this.state.moveHover === "categoryNext"
+			})
+			this.categoryCache.get({
+				ctx: ctx,
+				x: winW / 2 - 280 / 2,
+				y: frameTop,
+				w: 280,
+				h: this.songAsset.marginTop,
+				id: category + selectedSong.skin.outline
+			}, ctx => {
+				if(category){
+					if(category in strings.categories){
+						var categoryName = strings.categories[category]
+					}else{
+						var categoryName = category
+					}
+					this.draw.layeredText({
+						ctx: ctx,
+						text: categoryName,
+						fontSize: 40,
+						fontFamily: this.font,
+						x: 280 / 2,
+						y: 38,
+						width: 255,
+						align: "center",
+						forceShadow: true
+					}, [
+						{outline: selectedSong.skin.outline, letterBorder: 12, shadow: [3, 3, 3]},
+						{fill: "#fff"}
+					])
+				}
+			})
+		}
+		
 		var currentSong = this.songs[this.selectedSong]
 		var highlight = 0
 		if(!currentSong.stars){
@@ -1387,6 +1387,20 @@ class SongSelect{
 				}
 				var drawDifficulty = (ctx, i, currentUra) => {
 					if(currentSong.stars[i] || currentUra){
+						var score = scoreStorage.get(currentSong.originalTitle)
+						var crownDiff = currentUra ? "ura" : this.difficultyId[i]
+						var crownType = ""
+						if(score && score[crownDiff]){
+							crownType = score[crownDiff].crown
+						}
+						this.draw.crown({
+							ctx: ctx,
+							type: crownType,
+							x: songSel ? x + 33 + i * 60 : x + 402 + i * 100,
+							y: songSel ? y + 75 : y + 30,
+							scale: 0.25,
+							ratio: this.ratio / this.pixelRatio
+						})
 						if(songSel){
 							var _x = x + 33 + i * 60
 							var _y = y + 120
@@ -1912,6 +1926,35 @@ class SongSelect{
 	drawClosedSong(config){
 		var ctx = config.ctx
 		
+		if(!config.song.action && config.song.originalTitle){
+			var score = scoreStorage.get(config.song.originalTitle)
+			for(var i = this.difficultyId.length; i--;){
+				var diff = this.difficultyId[i]
+				if(!score){
+					break
+				}
+				if(config.song.stars[i] && score[diff] && score[diff].crown){
+					this.draw.crown({
+						ctx: ctx,
+						type: score[diff].crown,
+						x: config.x + this.songAsset.width / 2,
+						y: config.y - 13,
+						scale: 0.3,
+						ratio: this.ratio / this.pixelRatio
+					})
+					this.draw.diffIcon({
+						ctx: ctx,
+						diff: i,
+						x: config.x + this.songAsset.width / 2 + 8,
+						y: config.y - 8,
+						scale: diff === "hard" || diff === "normal" ? 0.45 : 0.5,
+						border: 6.5,
+						small: true
+					})
+					break
+				}
+			}
+		}
 		config.width = this.songAsset.width
 		config.height = this.songAsset.height
 		config.border = this.songAsset.border

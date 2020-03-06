@@ -678,6 +678,7 @@ class Scoresheet{
 							y: 218,
 							scale: crownScale,
 							shine: shine,
+							whiteOutline: true,
 							ratio: ratio
 						})
 						
@@ -865,10 +866,14 @@ class Scoresheet{
 			var difficulty = this.resultsObj.difficulty
 			var oldScore = scoreStorage.get(title, difficulty)
 			if(!oldScore || oldScore.points <= this.resultsObj.points){
-				this.resultsObj.crown = ""
+				var crown = ""
 				if(this.controller.game.rules.clearReached(this.resultsObj.gauge)){
-					this.resultsObj.crown = this.resultsObj.bad === 0 ? "gold" : "silver"
+					crown = this.resultsObj.bad === 0 ? "gold" : "silver"
 				}
+				if(oldScore && (oldScore.crown === "gold" || oldScore.crown === "silver" && !crown)){
+					crown = oldScore.crown
+				}
+				this.resultsObj.crown = crown
 				delete this.resultsObj.title
 				delete this.resultsObj.difficulty
 				delete this.resultsObj.gauge
