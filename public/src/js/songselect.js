@@ -113,6 +113,7 @@ class SongSelect{
 			this.songs.push({
 				id: song.id,
 				title: title,
+				originalTitle: song.title,
 				subtitle: subtitle,
 				skin: song.category in this.songSkin ? this.songSkin[song.category] : this.songSkin.default,
 				stars: song.stars,
@@ -738,6 +739,7 @@ class SongSelect{
 		
 		new LoadSong({
 			"title": selectedSong.title,
+			"originalTitle": selectedSong.originalTitle,
 			"folder": selectedSong.id,
 			"difficulty": this.difficultyId[difficulty],
 			"category": selectedSong.category,

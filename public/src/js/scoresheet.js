@@ -1,6 +1,7 @@
 class Scoresheet{
 	constructor(controller, results, multiplayer, touchEnabled){
 		this.controller = controller
+		this.resultsObj = results
 		this.results = {}
 		for(var i in results){
 			this.results[i] = results[i].toString()
@@ -54,6 +55,7 @@ class Scoresheet{
 			"ura": 4
 		}
 		
+		this.scoreSaved = false
 		this.redrawRunning = true
 		this.redrawBind = this.redraw.bind(this)
 		this.redraw()
@@ -247,6 +249,9 @@ class Scoresheet{
 		var elapsed = ms - this.state.screenMS
 		if(this.state.screen === "fadeIn" && elapsed < 1000){
 			bgOffset = Math.min(1, this.draw.easeIn(1 - elapsed / 1000)) * (winH / 2)
+		}
+		if((this.state.screen !== "fadeIn" || elapsed >= 1000) && !this.scoreSaved){
+			this.saveScore()
 		}
 		
 		if(bgOffset){
@@ -852,6 +857,25 @@ class Scoresheet{
 	
 	getMS(){
 		return Date.now()
+	}
+	
+	saveScore(){
+		if(!this.controller.autoPlayEnabled && this.resultsObj.points > 0){
+			var title = this.controller.selectedSong.originalTitle
+			var difficulty = this.resultsObj.difficulty
+			var oldScore = scoreStorage.get(title, difficulty)
+			if(!oldScore || oldScore.points <= this.resultsObj.points){
+				this.resultsObj.crown = ""
+				if(this.controller.game.rules.clearReached(this.resultsObj.gauge)){
+					this.resultsObj.crown = this.resultsObj.bad === 0 ? "gold" : "silver"
+				}
+				delete this.resultsObj.title
+				delete this.resultsObj.difficulty
+				delete this.resultsObj.gauge
+				scoreStorage.add(title, difficulty, this.resultsObj)
+			}
+		}
+		this.scoreSaved = true
 	}
 	
 	clean(){

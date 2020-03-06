@@ -204,6 +204,7 @@ class Loader{
 			}
 			
 			settings = new Settings()
+			scoreStorage = new ScoreStorage()
 			pageEvents.setKbd()
 			
 			Promise.all(this.promises).then(() => {

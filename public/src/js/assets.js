@@ -30,7 +30,8 @@ var assets = {
 		"session.js",
 		"importsongs.js",
 		"logo.js",
-		"settings.js"
+		"settings.js",
+		"scorestorage.js"
 	],
 	"css": [
 		"main.css",
