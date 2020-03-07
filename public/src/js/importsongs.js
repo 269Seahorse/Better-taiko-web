@@ -304,8 +304,7 @@
 				subtitle_lang: osu.metadata.Artist || osu.metadata.ArtistUnicode,
 				preview: osu.generalInfo.PreviewTime / 1000,
 				stars: [null, null, null, parseInt(osu.difficulty.overallDifficulty) || 1],
-				music: this.otherFiles[dir + osu.generalInfo.AudioFilename.toLowerCase()] || "muted",
-				hash: md5.base64(event.target.result).slice(0, -2)
+				music: this.otherFiles[dir + osu.generalInfo.AudioFilename.toLowerCase()] || "muted"
 			}
 			var filename = file.name.slice(0, file.name.lastIndexOf("."))
 			var title = osu.metadata.TitleUnicode || osu.metadata.Title
@@ -322,6 +321,13 @@
 			}
 			this.songs[index] = songObj
 			songObj.category = category || this.getCategory(file)
+			var hash = md5.base64(event.target.result).slice(0, -2)
+			songObj.hash = hash
+			scoreStorage.songTitles[songObj.title] = hash
+			var score = scoreStorage.get(hash)
+			if(score){
+				score.title = songObj.title
+			}
 		}).catch(() => {})
 		reader.readAsText(file)
 		return promise
