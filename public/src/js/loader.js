@@ -206,6 +206,19 @@ class Loader{
 			settings = new Settings()
 			pageEvents.setKbd()
 			
+			scoreStorage = new ScoreStorage()
+			for(var i in assets.songsDefault){
+				var song = assets.songsDefault[i]
+				if(!song.hash){
+					song.hash = song.title
+				}
+				scoreStorage.songTitles[song.title] = song.hash
+				var score = scoreStorage.get(song.hash)
+				if(score){
+					score.title = song.title
+				}
+			}
+			
 			Promise.all(this.promises).then(() => {
 				this.canvasTest.drawAllImages().then(result => {
 					perf.allImg = result

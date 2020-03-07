@@ -1,0 +1,196 @@
+<html>
+<head>
+<title>Merge Image</title>
+<style>
+body{
+	transition: background-color 0.5s;
+	background-color: #fff;
+	font-family: sans-serif;
+	font-size: 20px;
+}
+input[type=number]{
+	font-family: monospace;
+	font-size: 18px;
+	padding: 5px;
+}
+#settings{
+	display: flex;
+	margin-bottom: 18px;
+	height: 40px;
+}
+label{
+	display: flex;
+	align-items: center;
+	height: 100%;
+}
+label:not(:first-child){
+	margin-left: 10px;
+	border-left: 2px solid #ccc;
+	padding-left: 8px;
+}
+input{
+	margin: 5px;
+}
+</style>
+</head>
+<body>
+<div id="settings">
+	<label>
+	Max height
+	<input id="max-height" type="number" min="1" max="5000" step="1" value="2000">
+	px
+	</label>
+	<label>
+	Spacing
+	<input id="spacing" type="number" min="0" max="100" step="1" value="0">
+	px
+	</label>
+	<label>
+	<input id="vertical" type="checkbox" checked>
+	Vertical
+	</label>
+</div>
+<div id="hint">Drag and drop your images here...</div>
+<canvas id="canvas"></canvas>
+<script>
+var canvas = document.getElementById("canvas")
+var ctx = canvas.getContext("2d")
+var allFiles
+var maxHeightElement = document.getElementById("max-height")
+var spacingElement = document.getElementById("spacing")
+var maxHeight = parseInt(maxHeightElement.value)
+var spacing = parseInt(spacingElement.value)
+var vectical = true
+
+document.addEventListener("dragover", event => {
+	event.preventDefault()
+	event.dataTransfer.dropEffect = "copy"
+	document.body.style.backgroundColor = "#ccc"
+})
+document.addEventListener("dragleave", () => {
+	document.body.style.backgroundColor = "#fff"
+})
+document.addEventListener("drop", event => {
+	document.getElementById("hint").style.display = "none"
+	document.body.style.backgroundColor = "#fff"
+	event.preventDefault()
+	allFiles = []
+	var promises = []
+	for(let file of event.dataTransfer.files){
+		promises.push(readFile(file))
+	}
+	Promise.all(promises).then(drawCanvas)
+})
+maxHeightElement.addEventListener("change", event => {
+	var value = parseInt(event.currentTarget.value)
+	if(value >= 1 && value <= 5000){
+		maxHeight = value
+		if(allFiles && allFiles.length){
+			drawCanvas()
+		}
+	}
+})
+spacingElement.addEventListener("change", event => {
+	var value = parseInt(event.currentTarget.value)
+	if(value >= 0 && value <= 100){
+		spacing = value
+		if(allFiles && allFiles.length){
+			drawCanvas()
+		}
+	}
+})
+document.getElementById("vertical").addEventListener("change", event => {
+	vertical = event.currentTarget.checked
+	if(allFiles && allFiles.length){
+		drawCanvas()
+	}
+})
+
+function readFile(file){
+	return new Promise((resolve, reject) => {
+		var reader = new FileReader()
+		reader.addEventListener("load", () => {
+			if(reader.result){
+				var img = document.createElement("img")
+				img.addEventListener("load", () => {
+					var noExt = file.name.slice(0, file.name.lastIndexOf("."))
+					if(parseInt(noExt) == noExt){
+						var name = parseInt(noExt)
+					}else{
+						var name = noExt
+					}
+					allFiles.push({
+						name: name,
+						img: img
+					})
+					resolve()
+				})
+				img.addEventListener("error", resolve)
+				img.addEventListener("abort", resolve)
+				img.src = reader.result
+			}else{
+				resolve()
+			}
+		})
+		reader.addEventListener("error", resolve)
+		reader.addEventListener("abort", resolve)
+		reader.readAsDataURL(file)
+	})
+}
+
+function drawCanvas(){
+	var x = 0
+	var y = 0
+	var biggestWidth = 0
+	var canvasWidth = 0
+	var canvasHeight = 0
+	allFiles.sort((a, b) => a.name > b.name ? 1 : -1)
+	for(var i in allFiles){
+		var file = allFiles[i]
+		if(vertical){
+			if(y + file.img.height > maxHeight + spacing){
+				y = 0
+				x += biggestWidth
+				biggestWidth = 0
+			}
+			file.x = x + (x === 0 ? 0 : spacing)
+			file.y = y + (y === 0 ? 0 : spacing)
+			y += file.img.height + (y === 0 ? 0 : spacing)
+			if(file.img.width > biggestWidth){
+				biggestWidth = file.img.width
+			}
+			if(y > canvasHeight){
+				canvasHeight = y
+			}
+		}else{
+			if(x + file.img.width > maxHeight + spacing){
+				x = 0
+				y += biggestWidth
+				biggestWidth = 0
+			}
+			file.x = x + (x === 0 ? 0 : spacing)
+			file.y = y + (y === 0 ? 0 : spacing)
+			x += file.img.width + (x === 0 ? 0 : spacing)
+			if(file.img.height > biggestWidth){
+				biggestWidth = file.img.height
+			}
+			if(x > canvasWidth){
+				canvasWidth = x
+			}
+		}
+	}
+	if(vertical){
+		canvasWidth = x + biggestWidth
+	}else{
+		canvasHeight = y + biggestWidth
+	}
+	canvas.width = canvasWidth
+	canvas.height = canvasHeight
+	for(var i in allFiles){
+		var file = allFiles[i]
+		ctx.drawImage(file.img, file.x, file.y, file.img.width, file.img.height)
+	}
+}
+</script>
+</body>
+</html>

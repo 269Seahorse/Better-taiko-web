@@ -83,6 +83,7 @@ var perf = {
 var strings
 var vectors
 var settings
+var scoreStorage
 
 pageEvents.add(root, ["touchstart", "touchmove", "touchend"], event => {
 	if(event.cancelable && cancelTouch && event.target.tagName !== "SELECT"){

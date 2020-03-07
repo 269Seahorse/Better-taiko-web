@@ -1,6 +1,7 @@
 class Scoresheet{
 	constructor(controller, results, multiplayer, touchEnabled){
 		this.controller = controller
+		this.resultsObj = results
 		this.results = {}
 		for(var i in results){
 			this.results[i] = results[i].toString()
@@ -54,6 +55,7 @@ class Scoresheet{
 			"ura": 4
 		}
 		
+		this.scoreSaved = false
 		this.redrawRunning = true
 		this.redrawBind = this.redraw.bind(this)
 		this.redraw()
@@ -248,6 +250,9 @@ class Scoresheet{
 		if(this.state.screen === "fadeIn" && elapsed < 1000){
 			bgOffset = Math.min(1, this.draw.easeIn(1 - elapsed / 1000)) * (winH / 2)
 		}
+		if((this.state.screen !== "fadeIn" || elapsed >= 1000) && !this.scoreSaved){
+			this.saveScore()
+		}
 		
 		if(bgOffset){
 			ctx.save()
@@ -319,15 +324,18 @@ class Scoresheet{
 			var elapsed = 0
 		}
 		
-		var gaugePercent = Math.round(this.results.gauge / 2) / 50
+		var gaugePercent = Math.round(this.results.gauge / 200) / 50
+		var gaugeClear = [this.controller.game.rules.gaugeClear]
 		if(players === 2){
-			var gauge2 = Math.round(p2.results.gauge / 2) / 50
-			if(gauge2 > gaugePercent){
-				gaugePercent = gauge2
+			gaugeClear.push(this.controller.syncWith.game.rules.gaugeClear)
+		}
+		var failedOffset = gaugePercent >= gaugeClear[0] ? 0 : -2000
+		if(players === 2){
+			var gauge2 = Math.round(p2.results.gauge / 200) / 50
+			if(gauge2 > gaugePercent && failedOffset !== 0 && gauge2 >= gaugeClear[1]){
+				failedOffset = 0
 			}
 		}
-		var gaugeClear = 25 / 50
-		var failedOffset = gaugePercent >= gaugeClear ? 0 : -2000
 		if(elapsed >= 3100 + failedOffset){
 			for(var p = 0; p < players; p++){
 				ctx.save()
@@ -335,8 +343,8 @@ class Scoresheet{
 				if(p === 1){
 					results = p2.results
 				}
-				var resultGauge = Math.round(results.gauge / 2) / 50
-				var clear = resultGauge >= gaugeClear
+				var resultGauge = Math.round(results.gauge / 200) / 50
+				var clear = resultGauge >= gaugeClear[p]
 				if(p === 1 || !this.multiplayer && clear){
 					ctx.translate(0, 290)
 				}
@@ -570,7 +578,7 @@ class Scoresheet{
 					if(this.tetsuoHanaClass){
 						this.tetsuoHana.classList.remove(this.tetsuoHanaClass)
 					}
-					this.tetsuoHanaClass = gaugePercent >= gaugeClear ? "dance" : "failed"
+					this.tetsuoHanaClass = this.controller.game.rules.clearReached(this.results.gauge) ? "dance" : "failed"
 					this.tetsuoHana.classList.add(this.tetsuoHanaClass)
 				}
 			}
@@ -589,25 +597,26 @@ class Scoresheet{
 						results = p2.results
 						ctx.translate(0, p2Offset)
 					}
-					var gaugePercent = Math.round(results.gauge / 2) / 50
+					var gaugePercent = Math.round(results.gauge / 200) / 50
 					var w = 712
 					this.draw.gauge({
 						ctx: ctx,
 						x: 558 + w,
 						y: 116,
-						clear: 25 / 50,
+						clear: gaugeClear[p],
 						percentage: gaugePercent,
 						font: this.font,
 						scale: w / 788,
 						scoresheet: true,
 						blue: p === 1
 					})
+					var rules = p === 0 ? this.controller.game.rules : this.controller.syncWith.game.rules
 					this.draw.soul({
 						ctx: ctx,
 						x: 1215,
 						y: 144,
 						scale: 36 / 42,
-						cleared: gaugePercent - 1 / 50 >= 25 / 50
+						cleared: rules.clearReached(results.gauge)
 					})
 				}
 			})
@@ -625,7 +634,8 @@ class Scoresheet{
 					results = p2.results
 				}
 				var crownType = null
-				if(Math.round(results.gauge / 2) - 1 >= 25){
+				var rules = p === 0 ? this.controller.game.rules : this.controller.syncWith.game.rules
+				if(rules.clearReached(results.gauge)){
 					crownType = results.bad === "0" ? "gold" : "silver"
 				}
 				if(crownType !== null){
@@ -668,6 +678,7 @@ class Scoresheet{
 							y: 218,
 							scale: crownScale,
 							shine: shine,
+							whiteOutline: true,
 							ratio: ratio
 						})
 						
@@ -847,6 +858,37 @@ class Scoresheet{
 	
 	getMS(){
 		return Date.now()
+	}
+	
+	saveScore(){
+		if(!this.controller.autoPlayEnabled){
+			if(this.resultsObj.points < 0){
+				this.resultsObj.points = 0
+			}
+			var title = this.controller.selectedSong.originalTitle
+			var hash = this.controller.selectedSong.hash
+			var difficulty = this.resultsObj.difficulty
+			var oldScore = scoreStorage.get(hash, difficulty, true)
+			var clearReached = this.controller.game.rules.clearReached(this.resultsObj.gauge)
+			var crown = ""
+			if(clearReached){
+				crown = this.resultsObj.bad === 0 ? "gold" : "silver"
+			}
+			if(!oldScore || oldScore.points <= this.resultsObj.points){
+				if(oldScore && (oldScore.crown === "gold" || oldScore.crown === "silver" && !crown)){
+					crown = oldScore.crown
+				}
+				this.resultsObj.crown = crown
+				delete this.resultsObj.title
+				delete this.resultsObj.difficulty
+				delete this.resultsObj.gauge
+				scoreStorage.add(hash, difficulty, this.resultsObj, true, title)
+			}else if(oldScore && (crown === "gold" && oldScore.crown !== "gold" || crown && !oldScore.crown)){
+				oldScore.crown = crown
+				scoreStorage.add(hash, difficulty, oldScore, true, title)
+			}
+		}
+		this.scoreSaved = true
 	}
 	
 	clean(){

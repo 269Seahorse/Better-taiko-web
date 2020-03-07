@@ -1,6 +1,7 @@
 var assets = {
 	"js": [
 		"lib/fontdetect.min.js",
+		"lib/md5.min.js",
 		"loadsong.js",
 		"parseosu.js",
 		"titlescreen.js",
@@ -30,7 +31,8 @@ var assets = {
 		"session.js",
 		"importsongs.js",
 		"logo.js",
-		"settings.js"
+		"settings.js",
+		"scorestorage.js"
 	],
 	"css": [
 		"main.css",

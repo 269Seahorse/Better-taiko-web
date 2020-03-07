@@ -274,6 +274,13 @@
 			if(songObj.stars.length !== 0){
 				this.songs[index] = songObj
 			}
+			var hash = md5.base64(event.target.result).slice(0, -2)
+			songObj.hash = hash
+			scoreStorage.songTitles[songObj.title] = hash
+			var score = scoreStorage.get(hash)
+			if(score){
+				score.title = songObj.title
+			}
 		}).catch(() => {})
 		reader.readAsText(file, "sjis")
 		return promise
@@ -314,6 +321,13 @@
 			}
 			this.songs[index] = songObj
 			songObj.category = category || this.getCategory(file)
+			var hash = md5.base64(event.target.result).slice(0, -2)
+			songObj.hash = hash
+			scoreStorage.songTitles[songObj.title] = hash
+			var score = scoreStorage.get(hash)
+			if(score){
+				score.title = songObj.title
+			}
 		}).catch(() => {})
 		reader.readAsText(file)
 		return promise

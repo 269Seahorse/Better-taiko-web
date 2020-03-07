@@ -17,6 +17,7 @@
 		this.songBg = document.getElementById("songbg")
 		this.songStage = document.getElementById("song-stage")
 		
+		this.rules = this.controller.game.rules
 		this.portraitClass = false
 		this.touchp2Class = false
 		this.darkDonBg = false
@@ -347,7 +348,7 @@
 		}
 		
 		var score = this.controller.getGlobalScore()
-		var gaugePercent = Math.round(score.gauge / 2) / 50
+		var gaugePercent = Math.round(score.gauge / 200) / 50
 		
 		if(this.multiplayer === 2){
 			var scoreImg = "bg_score_p2"
@@ -497,7 +498,7 @@
 				ctx: ctx,
 				x: winW,
 				y: this.multiplayer === 2 ? 468 : 273,
-				clear: 25 / 50,
+				clear: this.rules.gaugeClear,
 				percentage: gaugePercent,
 				font: this.font,
 				scale: 0.7,
@@ -509,7 +510,7 @@
 				x: winW - 40,
 				y: this.multiplayer === 2 ? 484 : 293,
 				scale: 0.75,
-				cleared: gaugePercent - 1 / 50 >= 25 / 50
+				cleared: this.rules.clearReached(score.gauge)
 			})
 			
 			// Note bar
@@ -572,7 +573,7 @@
 				ctx: ctx,
 				x: winW,
 				y: this.multiplayer === 2 ? 357 : 135,
-				clear: 25 / 50,
+				clear: this.rules.gaugeClear,
 				percentage: gaugePercent,
 				font: this.font,
 				multiplayer: this.multiplayer === 2,
@@ -582,7 +583,7 @@
 				ctx: ctx,
 				x: winW - 57,
 				y: this.multiplayer === 2 ? 378 : 165,
-				cleared: gaugePercent - 1 / 50 >= 25 / 50
+				cleared: this.rules.clearReached(score.gauge)
 			})
 			
 			// Note bar
@@ -1881,8 +1882,8 @@
 			}
 		}else{
 			var animation = this.assets.don.getAnimation()
-			var gauge = this.controller.getGlobalScore().gauge
-			var cleared = Math.round(gauge / 2) - 1 >= 25
+			var score = this.controller.getGlobalScore()
+			var cleared = this.rules.clearReached(score.gauge)
 			if(animation === "gogo" || cleared && animation === "normal" || !cleared && animation === "clear"){
 				this.assets.don.normalAnimation()
 			}
