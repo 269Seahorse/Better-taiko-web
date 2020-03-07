@@ -861,16 +861,20 @@ class Scoresheet{
 	}
 	
 	saveScore(){
-		if(!this.controller.autoPlayEnabled && this.resultsObj.points > 0){
+		if(!this.controller.autoPlayEnabled){
+			if(this.resultsObj.points < 0){
+				this.resultsObj.points = 0
+			}
 			var title = this.controller.selectedSong.originalTitle
 			var hash = this.controller.selectedSong.hash
 			var difficulty = this.resultsObj.difficulty
 			var oldScore = scoreStorage.get(hash, difficulty, true)
+			var clearReached = this.controller.game.rules.clearReached(this.resultsObj.gauge)
+			var crown = ""
+			if(clearReached){
+				crown = this.resultsObj.bad === 0 ? "gold" : "silver"
+			}
 			if(!oldScore || oldScore.points <= this.resultsObj.points){
-				var crown = ""
-				if(this.controller.game.rules.clearReached(this.resultsObj.gauge)){
-					crown = this.resultsObj.bad === 0 ? "gold" : "silver"
-				}
 				if(oldScore && (oldScore.crown === "gold" || oldScore.crown === "silver" && !crown)){
 					crown = oldScore.crown
 				}
@@ -879,6 +883,9 @@ class Scoresheet{
 				delete this.resultsObj.difficulty
 				delete this.resultsObj.gauge
 				scoreStorage.add(hash, difficulty, this.resultsObj, true, title)
+			}else if(oldScore && (crown === "gold" && oldScore.crown !== "gold" || crown && !oldScore.crown)){
+				oldScore.crown = crown
+				scoreStorage.add(hash, difficulty, oldScore, true, title)
 			}
 		}
 		this.scoreSaved = true
