@@ -1,6 +1,7 @@
 class ScoreStorage{
 	constructor(){
 		this.scores = {}
+		this.songTitles = {}
 		this.difficulty = ["oni", "ura", "hard", "normal", "easy"]
 		this.scoreKeys = ["points", "good", "ok", "bad", "maxCombo", "drumroll"]
 		this.crownValue = ["", "silver", "gold"]
@@ -15,8 +16,8 @@ class ScoreStorage{
 				this.scoreStrings = JSON.parse(localScores)
 			}
 		}catch(e){}
-		for(var song in this.scoreStrings){
-			var scoreString = this.scoreStrings[song]
+		for(var hash in this.scoreStrings){
+			var scoreString = this.scoreStrings[hash]
 			var songAdded = false
 			if(typeof scoreString === "string" && scoreString){
 				var diffArray = scoreString.split(";")
@@ -36,18 +37,18 @@ class ScoreStorage{
 							score[name] = value
 						}
 						if(!songAdded){
-							this.scores[song] = []
+							this.scores[hash] = {title: null}
 							songAdded = true
 						}
-						this.scores[song][this.difficulty[i]] = score
+						this.scores[hash][this.difficulty[i]] = score
 					}
 				}
 			}
 		}
 	}
 	save(){
-		for(var song in this.scores){
-			this.writeString(song)
+		for(var hash in this.scores){
+			this.writeString(hash)
 		}
 		this.write()
 	}
@@ -56,8 +57,8 @@ class ScoreStorage{
 			localStorage.setItem("scoreStorage", JSON.stringify(this.scoreStrings))
 		}catch(e){}
 	}
-	writeString(song){
-		var score = this.scores[song]
+	writeString(hash){
+		var score = this.scores[hash]
 		var diffArray = []
 		var notEmpty = false
 		for(var i = this.difficulty.length; i--;){
@@ -77,25 +78,39 @@ class ScoreStorage{
 				diffArray.unshift("")
 			}
 		}
-		this.scoreStrings[song] = diffArray.join(";")
+		this.scoreStrings[hash] = diffArray.join(";")
 	}
-	get(song, difficulty){
+	titleHash(song){
+		if(song in this.songTitles){
+			return this.songTitles[song]
+		}else{
+			return song
+		}
+	}
+	get(song, difficulty, isHash){
 		if(!song){
 			return this.scores
-		}else if(song in this.scores){
+		}else{
+			var hash = isHash ? song : this.titleHash(song)
 			if(difficulty){
-				return this.scores[song][difficulty]
+				if(hash in this.scores){
+					return this.scores[hash][difficulty]
+				}
 			}else{
-				return this.scores[song]
+				return this.scores[hash]
 			}
 		}
 	}
-	add(song, difficulty, scoreObject){
-		if(!(song in this.scores)){
-			this.scores[song] = {}
+	add(song, difficulty, scoreObject, isHash, setTitle){
+		var hash = isHash ? song : this.titleHash(song)
+		if(!(hash in this.scores)){
+			this.scores[hash] = {}
 		}
-		this.scores[song][difficulty] = scoreObject
-		this.writeString(song)
+		if(setTitle){
+			this.scores[hash].title = setTitle
+		}
+		this.scores[hash][difficulty] = scoreObject
+		this.writeString(hash)
 		this.write()
 	}
 	template(){
@@ -106,28 +121,29 @@ class ScoreStorage{
 		}
 		return template
 	}
-	remove(song, difficulty){
-		if(song in this.scores){
+	remove(song, difficulty, isHash){
+		var hash = isHash ? song : this.titleHash(song)
+		if(hash in this.scores){
 			if(difficulty){
-				if(difficulty in this.scores[song]){
-					delete this.scores[song][difficulty]
+				if(difficulty in this.scores[hash]){
+					delete this.scores[hash][difficulty]
 					var noDiff = true
 					for(var i in this.difficulty){
-						if(this.scores[song][this.difficulty[i]]){
+						if(this.scores[hash][this.difficulty[i]]){
 							noDiff = false
 							break
 						}
 					}
 					if(noDiff){
-						delete this.scores[song]
-						delete this.scoreStrings[song]
+						delete this.scores[hash]
+						delete this.scoreStrings[hash]
 					}else{
-						this.writeString(song)
+						this.writeString(hash)
 					}
 				}
 			}else{
-				delete this.scores[song]
-				delete this.scoreStrings[song]
+				delete this.scores[hash]
+				delete this.scoreStrings[hash]
 			}
 			this.write()
 		}

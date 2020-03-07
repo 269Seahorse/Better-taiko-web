@@ -863,8 +863,9 @@ class Scoresheet{
 	saveScore(){
 		if(!this.controller.autoPlayEnabled && this.resultsObj.points > 0){
 			var title = this.controller.selectedSong.originalTitle
+			var hash = this.controller.selectedSong.hash
 			var difficulty = this.resultsObj.difficulty
-			var oldScore = scoreStorage.get(title, difficulty)
+			var oldScore = scoreStorage.get(hash, difficulty, true)
 			if(!oldScore || oldScore.points <= this.resultsObj.points){
 				var crown = ""
 				if(this.controller.game.rules.clearReached(this.resultsObj.gauge)){
@@ -877,7 +878,7 @@ class Scoresheet{
 				delete this.resultsObj.title
 				delete this.resultsObj.difficulty
 				delete this.resultsObj.gauge
-				scoreStorage.add(title, difficulty, this.resultsObj)
+				scoreStorage.add(hash, difficulty, this.resultsObj, true, title)
 			}
 		}
 		this.scoreSaved = true

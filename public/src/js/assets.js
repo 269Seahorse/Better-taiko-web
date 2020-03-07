@@ -1,6 +1,7 @@
 var assets = {
 	"js": [
 		"lib/fontdetect.min.js",
+		"lib/md5.min.js",
 		"loadsong.js",
 		"parseosu.js",
 		"titlescreen.js",

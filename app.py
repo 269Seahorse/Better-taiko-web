@@ -25,6 +25,7 @@ def get_db():
     db = getattr(g, '_database', None)
     if db is None:
         db = g._database = sqlite3.connect(DATABASE)
+        db.row_factory = sqlite3.Row
     return db
 
 
@@ -96,8 +97,8 @@ def route_api_preview():
     if not song_row:
         abort(400)
 
-    song_type = song_row[0][12]
-    prev_path = make_preview(song_id, song_type, song_row[0][15])
+    song_type = song_row[0]['type']
+    prev_path = make_preview(song_id, song_type, song_row[0]['preview'])
     if not prev_path:
         return redirect(get_config()['songs_baseurl'] + '%s/main.mp3' % song_id)
 
@@ -112,43 +113,44 @@ def route_api_songs():
     raw_categories = query_db('select * from categories')
     categories = {}
     for cat in raw_categories:
-        categories[cat[0]] = cat[1]
+        categories[cat['id']] = cat['title']
     
     raw_song_skins = query_db('select * from song_skins')
     song_skins = {}
     for skin in raw_song_skins:
-        song_skins[skin[0]] = {'name': skin[1], 'song': skin[2], 'stage': skin[3], 'don': skin[4]}
+        song_skins[skin[0]] = {'name': skin['name'], 'song': skin['song'], 'stage': skin['stage'], 'don': skin['don']}
     
     songs_out = []
     for song in songs:
-        song_id = song[0]
-        song_type = song[12]
-        preview = song[15]
+        song_id = song['id']
+        song_type = song['type']
+        preview = song['preview']
         
-        category_out = categories[song[11]] if song[11] in categories else ""
-        song_skin_out = song_skins[song[14]] if song[14] in song_skins else None
+        category_out = categories[song['category']] if song['category'] in categories else ''
+        song_skin_out = song_skins[song['skin_id']] if song['skin_id'] in song_skins else None
         maker = None
-        if song[17] == 0:
+        if song['maker_id'] == 0:
             maker = 0
-        elif song[17] and song[17] > 0:
-            maker = {'name': song[18], 'url': song[19], 'id': song[17]}
+        elif song['maker_id'] and song['maker_id'] > 0:
+            maker = {'name': song['name'], 'url': song['url'], 'id': song['maker_id']}
         
         songs_out.append({
             'id': song_id,
-            'title': song[1],
-            'title_lang': song[2],
-            'subtitle': song[3],
-            'subtitle_lang': song[4],
+            'title': song['title'],
+            'title_lang': song['title_lang'],
+            'subtitle': song['subtitle'],
+            'subtitle_lang': song['subtitle_lang'],
             'stars': [
-                song[5], song[6], song[7], song[8], song[9]
+                song['easy'], song['normal'], song['hard'], song['oni'], song['ura']
             ],
             'preview': preview,
             'category': category_out,
             'type': song_type,
-            'offset': song[13],
+            'offset': song['offset'],
             'song_skin': song_skin_out,
-            'volume': song[16],
-            'maker': maker
+            'volume': song['volume'],
+            'maker': maker,
+            'hash': song['hash']
         })
 
     return jsonify(songs_out)

@@ -125,7 +125,8 @@ class SongSelect{
 				music: song.music,
 				volume: song.volume,
 				maker: song.maker,
-				canJump: true
+				canJump: true,
+				hash: song.hash || song.title
 			})
 		}
 		this.songs.sort((a, b) => {
@@ -746,7 +747,8 @@ class SongSelect{
 			"type": selectedSong.type,
 			"offset": selectedSong.offset,
 			"songSkin": selectedSong.songSkin,
-			"stars": selectedSong.stars[difficulty]
+			"stars": selectedSong.stars[difficulty],
+			"hash": selectedSong.hash
 		}, autoplay, multiplayer, touch)
 	}
 	toOptions(moveBy){
@@ -1256,6 +1258,15 @@ class SongSelect{
 			this.currentSongCache.clear()
 		}
 		
+		if(selectedWidth === this.songAsset.width){
+			this.drawSongCrown({
+				ctx: ctx,
+				song: currentSong,
+				x: winW / 2 - selectedWidth / 2 + xOffset,
+				y: songTop + this.songAsset.height - selectedHeight
+			})
+		}
+		
 		this.draw.songFrame({
 			ctx: ctx,
 			x: winW / 2 - selectedWidth / 2 + xOffset,
@@ -1387,7 +1398,7 @@ class SongSelect{
 				}
 				var drawDifficulty = (ctx, i, currentUra) => {
 					if(currentSong.stars[i] || currentUra){
-						var score = scoreStorage.get(currentSong.originalTitle)
+						var score = scoreStorage.get(currentSong.hash)
 						var crownDiff = currentUra ? "ura" : this.difficultyId[i]
 						var crownType = ""
 						if(score && score[crownDiff]){
@@ -1926,35 +1937,7 @@ class SongSelect{
 	drawClosedSong(config){
 		var ctx = config.ctx
 		
-		if(!config.song.action && config.song.originalTitle){
-			var score = scoreStorage.get(config.song.originalTitle)
-			for(var i = this.difficultyId.length; i--;){
-				var diff = this.difficultyId[i]
-				if(!score){
-					break
-				}
-				if(config.song.stars[i] && score[diff] && score[diff].crown){
-					this.draw.crown({
-						ctx: ctx,
-						type: score[diff].crown,
-						x: config.x + this.songAsset.width / 2,
-						y: config.y - 13,
-						scale: 0.3,
-						ratio: this.ratio / this.pixelRatio
-					})
-					this.draw.diffIcon({
-						ctx: ctx,
-						diff: i,
-						x: config.x + this.songAsset.width / 2 + 8,
-						y: config.y - 8,
-						scale: diff === "hard" || diff === "normal" ? 0.45 : 0.5,
-						border: 6.5,
-						small: true
-					})
-					break
-				}
-			}
-		}
+		this.drawSongCrown(config)
 		config.width = this.songAsset.width
 		config.height = this.songAsset.height
 		config.border = this.songAsset.border
@@ -2001,6 +1984,39 @@ class SongSelect{
 				scale: 1,
 				side: true
 			})
+		}
+	}
+	
+	drawSongCrown(config){
+		if(!config.song.action && config.song.hash){
+			var ctx = config.ctx
+			var score = scoreStorage.get(config.song.hash)
+			for(var i = this.difficultyId.length; i--;){
+				var diff = this.difficultyId[i]
+				if(!score){
+					break
+				}
+				if(config.song.stars[i] && score[diff] && score[diff].crown){
+					this.draw.crown({
+						ctx: ctx,
+						type: score[diff].crown,
+						x: config.x + this.songAsset.width / 2,
+						y: config.y - 13,
+						scale: 0.3,
+						ratio: this.ratio / this.pixelRatio
+					})
+					this.draw.diffIcon({
+						ctx: ctx,
+						diff: i,
+						x: config.x + this.songAsset.width / 2 + 8,
+						y: config.y - 8,
+						scale: diff === "hard" || diff === "normal" ? 0.45 : 0.5,
+						border: 6.5,
+						small: true
+					})
+					break
+				}
+			}
 		}
 	}
 	
