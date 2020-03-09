@@ -149,6 +149,7 @@
 		var circles = []
 		var circleID = 0
 		var regexAZ = /[A-Z]/
+		var regexSpace = /\s/
 		var isAllDon = (note_chain, start_pos) => { 
 			for (var i = start_pos; i < note_chain.length; ++i) { 
 				var note = note_chain[i];
@@ -470,7 +471,7 @@
 									bpm: bpm,
 									scroll: scroll
 								})
-							}else{
+							}else if(!regexSpace.test(symbol)){
 								error = true
 							}
 							break

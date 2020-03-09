@@ -1304,7 +1304,7 @@
 			ctx.globalAlpha = 1 - config.shine
 		}
 		
-		ctx.strokeStyle = config.type ? "#000" : "rgba(255, 193, 0, 0.5)"
+		ctx.strokeStyle = config.type ? "#000" : "#ffc616"
 		ctx.lineWidth = 18
 		ctx.stroke(this.crownPath)
 		
@@ -1362,12 +1362,21 @@
 		ctx.fillStyle = "#000"
 		ctx.beginPath()
 		if(config.scoresheet){
-			ctx.moveTo(-4, 26)
-			ctx.lineTo(gaugeClear - 4, 26)
-			this.roundedCorner(ctx, gaugeClear - 4, 4, 13, 0)
-			this.roundedCorner(ctx, 760, 4, 13, 1)
-			ctx.lineTo(760, 56)
-			ctx.lineTo(-4, 56)
+			if(config.multiplayer){
+				ctx.moveTo(-4, -4)
+				ctx.lineTo(760, -4)
+				this.roundedCorner(ctx, 760, 48, 13, 2)
+				this.roundedCorner(ctx, gaugeClear - 4, 48, 13, 3)
+				ctx.lineTo(gaugeClear - 4, 26)
+				ctx.lineTo(-4, 26)
+			}else{
+				ctx.moveTo(-4, 26)
+				ctx.lineTo(gaugeClear - 4, 26)
+				this.roundedCorner(ctx, gaugeClear - 4, 4, 13, 0)
+				this.roundedCorner(ctx, 760, 4, 13, 1)
+				ctx.lineTo(760, 56)
+				ctx.lineTo(-4, 56)
+			}
 		}else if(config.multiplayer){
 			ctx.moveTo(gaugeClear - 7, 27)
 			ctx.lineTo(788, 27)
@@ -1381,42 +1390,44 @@
 		}
 		ctx.fill()
 		
-		if(gaugeFilled <= gaugeClear){
+		if(gaugeFilled < gaugeClear){
 			ctx.fillStyle = config.blue ? "#184d55" : "#680000"
 			var x = Math.max(0, gaugeFilled - 5)
-			ctx.fillRect(x, firstTop, gaugeClear - x + 2, 22)
+			ctx.fillRect(x, firstTop, gaugeClear - x + 2 + (gaugeClear < gaugeW ? 0 : -7), 22)
 		}
 		if(gaugeFilled > 0){
-			var w = Math.min(gaugeClear + 1, gaugeFilled - 4)
+			var w = Math.min(gaugeW - 5, gaugeClear + 1, gaugeFilled - 4)
 			ctx.fillStyle = config.blue ? "#00edff" : "#ff3408"
 			ctx.fillRect(0, firstTop + 2, w, 20)
 			ctx.fillStyle = config.blue ? "#9cffff" : "#ffa191"
 			ctx.fillRect(0, firstTop, w, 3)
 		}
-		if(gaugeFilled < gaugeW - 4){
-			ctx.fillStyle = "#684900"
-			var x = Math.max(gaugeClear + 9, gaugeFilled - gaugeClear + 9)
-			ctx.fillRect(x, secondTop, gaugeW - 4 - x, 44)
+		if(gaugeClear < gaugeW){
+			if(gaugeFilled < gaugeW - 4){
+				ctx.fillStyle = "#684900"
+				var x = Math.max(gaugeClear + 9, gaugeFilled - gaugeClear + 9)
+				ctx.fillRect(x, secondTop, gaugeW - 4 - x, 44)
+			}
+			if(gaugeFilled > gaugeClear + 14){
+				var w = Math.min(gaugeW - 4, gaugeFilled - gaugeClear - 14)
+				ctx.fillStyle = "#ff0"
+				ctx.fillRect(gaugeClear + 9, secondTop + 2, w, 42)
+				ctx.fillStyle = "#fff"
+				ctx.fillRect(gaugeClear + 9, secondTop, w, 3)
+			}
+			ctx.fillStyle = cleared ? "#ff0" : "#684900"
+			ctx.beginPath()
+			if(config.multiplayer){
+				this.roundedCorner(ctx, gaugeClear, secondTop + 44, 10, 3)
+				ctx.lineTo(gaugeClear, secondTop)
+				ctx.lineTo(gaugeClear + 10, secondTop)
+			}else{
+				ctx.moveTo(gaugeClear, secondTop + 44)
+				this.roundedCorner(ctx, gaugeClear, secondTop, 10, 0)
+				ctx.lineTo(gaugeClear + 10, secondTop + 44)
+			}
+			ctx.fill()
 		}
-		if(gaugeFilled > gaugeClear + 14){
-			var w = Math.min(gaugeW - 4, gaugeFilled - gaugeClear - 14)
-			ctx.fillStyle = "#ff0"
-			ctx.fillRect(gaugeClear + 9, secondTop + 2, w, 42)
-			ctx.fillStyle = "#fff"
-			ctx.fillRect(gaugeClear + 9, secondTop, w, 3)
-		}
-		ctx.fillStyle = cleared ? "#ff0" : "#684900"
-		ctx.beginPath()
-		if(config.multiplayer){
-			this.roundedCorner(ctx, gaugeClear, secondTop + 44, 10, 3)
-			ctx.lineTo(gaugeClear, secondTop)
-			ctx.lineTo(gaugeClear + 10, secondTop)
-		}else{
-			ctx.moveTo(gaugeClear, secondTop + 44)
-			this.roundedCorner(ctx, gaugeClear, secondTop, 10, 0)
-			ctx.lineTo(gaugeClear + 10, secondTop + 44)
-		}
-		ctx.fill()
 		if(cleared){
 			ctx.save()
 			ctx.clip()
@@ -1430,7 +1441,7 @@
 		ctx.lineWidth = 5
 		for(var i = 0; i < 49; i++){
 			var x = 14 + i * 14 - ctx.lineWidth / 2
-			if(i === 26){
+			if(i === config.clear * 50 - 1){
 				ctx.stroke()
 				ctx.beginPath()
 				ctx.lineWidth = 4
@@ -1439,18 +1450,20 @@
 			ctx.lineTo(x, x < gaugeClear ? firstTop + 22 : secondTop + 44)
 		}
 		ctx.stroke()
-		this.layeredText({
-			ctx: ctx,
-			text: strings.clear,
-			fontSize: 18,
-			fontFamily: config.font,
-			x: gaugeClear + 3,
-			y: config.multiplayer ? 22 : 11,
-			letterSpacing: -2
-		}, [
-			{scale: [1.1, 1.01], outline: "#000", letterBorder: 6},
-			{scale: [1.11, 1], fill: cleared ? "#fff" : "#737373"}
-		])
+		if(config.clear < 47 / 50){
+			this.layeredText({
+				ctx: ctx,
+				text: strings.clear,
+				fontSize: 18,
+				fontFamily: config.font,
+				x: gaugeClear + 3,
+				y: config.multiplayer ? 22 : 11,
+				letterSpacing: -2
+			}, [
+				{scale: [1.1, 1.01], outline: "#000", letterBorder: 6},
+				{scale: [1.11, 1], fill: cleared ? "#fff" : "#737373"}
+			])
+		}
 		
 		ctx.restore()
 	}

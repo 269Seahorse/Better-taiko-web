@@ -269,7 +269,7 @@
 				songObj.subtitle_lang = subtitleLangArray.join("\n")
 			}
 			if(!songObj.category){
-				songObj.category = category || this.getCategory(file)
+				songObj.category = category || this.getCategory(file, [songTitle || songObj.title, file.name.slice(0, file.name.lastIndexOf("."))])
 			}
 			if(songObj.stars.length !== 0){
 				this.songs[index] = songObj
@@ -277,7 +277,7 @@
 			var hash = md5.base64(event.target.result).slice(0, -2)
 			songObj.hash = hash
 			scoreStorage.songTitles[songObj.title] = hash
-			var score = scoreStorage.get(hash)
+			var score = scoreStorage.get(hash, false, true)
 			if(score){
 				score.title = songObj.title
 			}
@@ -307,7 +307,7 @@
 				music: this.otherFiles[dir + osu.generalInfo.AudioFilename.toLowerCase()] || "muted"
 			}
 			var filename = file.name.slice(0, file.name.lastIndexOf("."))
-			var title = osu.metadata.TitleUnicode || osu.metadata.Title
+			var title = osu.metadata.TitleUnicode || osu.metadata.Title || file.name.slice(0, file.name.lastIndexOf("."))
 			if(title){
 				var suffix = ""
 				var matches = filename.match(/\[.+?\]$/)
@@ -320,11 +320,11 @@
 				songObj.title = filename
 			}
 			this.songs[index] = songObj
-			songObj.category = category || this.getCategory(file)
+			songObj.category = category || this.getCategory(file, [osu.metadata.TitleUnicode, osu.metadata.Title, file.name.slice(0, file.name.lastIndexOf("."))])
 			var hash = md5.base64(event.target.result).slice(0, -2)
 			songObj.hash = hash
 			scoreStorage.songTitles[songObj.title] = hash
-			var score = scoreStorage.get(hash)
+			var score = scoreStorage.get(hash, false, true)
 			if(score){
 				score.title = songObj.title
 			}
@@ -394,12 +394,21 @@
 		return name.slice(0, name.lastIndexOf("."))
 	}
 	
-	getCategory(file){
+	getCategory(file, exclude){
 		var path = file.webkitRelativePath.toLowerCase().split("/")
 		for(var i = path.length - 2; i >= 0; i--){
-			for(var cat in this.categories){
-				if(path[i].indexOf(cat) !== -1){
-					return this.categories[cat]
+			var hasTitle = false
+			for(var j in exclude){
+				if(path[i].indexOf(exclude[j].toLowerCase()) !== -1){
+					hasTitle = true
+					break
+				}
+			}
+			if(!hasTitle){
+				for(var cat in this.categories){
+					if(path[i].indexOf(cat) !== -1){
+						return this.categories[cat]
+					}
 				}
 			}
 		}

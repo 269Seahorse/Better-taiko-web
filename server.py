@@ -262,7 +262,7 @@ async def connection(ws, path):
 				elif action == "songsel":
 					# Session song selection
 					if "other_user" in user and "ws" in user["other_user"]:
-						if type == "songsel":
+						if type == "songsel" or type == "catjump":
 							# Change song select position
 							if user["other_user"]["action"] == "songsel":
 								sent_msg = msgobj(type, value)
@@ -336,7 +336,26 @@ async def connection(ws, path):
 
 port = int(sys.argv[1]) if len(sys.argv) > 1 else 34802
 print('Starting server on port %d' % port)
-asyncio.get_event_loop().run_until_complete(
+loop = asyncio.get_event_loop()
+tasks = asyncio.gather(
 	websockets.serve(connection, "localhost", port)
 )
-asyncio.get_event_loop().run_forever()
+try:
+	loop.run_until_complete(tasks)
+	loop.run_forever()
+except KeyboardInterrupt:
+	print("Stopping server")
+	def shutdown_exception_handler(loop, context):
+		if "exception" not in context or not isinstance(context["exception"], asyncio.CancelledError):
+			loop.default_exception_handler(context)
+	loop.set_exception_handler(shutdown_exception_handler)
+	tasks = asyncio.gather(*asyncio.all_tasks(loop=loop), loop=loop, return_exceptions=True)
+	tasks.add_done_callback(lambda t: loop.stop())
+	tasks.cancel()
+	while not tasks.done() and not loop.is_closed():
+		loop.run_forever()
+finally:
+	if hasattr(loop, "shutdown_asyncgens"):
+		loop.run_until_complete(loop.shutdown_asyncgens())
+	loop.close()
+

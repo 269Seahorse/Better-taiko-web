@@ -17,6 +17,7 @@ class Debug{
 		this.branchSelect = this.branchSelectDiv.getElementsByTagName("select")[0]
 		this.branchResetBtn = this.branchSelectDiv.getElementsByClassName("reset")[0]
 		this.volumeDiv = this.byClass("music-volume")
+		this.restartLabel = this.byClass("change-restart-label")
 		this.restartCheckbox = this.byClass("change-restart")
 		this.autoplayLabel = this.byClass("autoplay-label")
 		this.autoplayCheckbox = this.byClass("autoplay")
@@ -24,15 +25,19 @@ class Debug{
 		this.exitBtn = this.byClass("exit-btn")
 		
 		this.moving = false
-		pageEvents.add(window, ["mousedown", "mouseup", "blur"], this.stopMove.bind(this))
+		this.windowSymbol = Symbol()
+		pageEvents.add(window, ["mousedown", "mouseup", "touchstart", "touchend", "blur", "resize"], this.stopMove.bind(this), this.windowSymbol)
 		pageEvents.mouseAdd(this, this.onMove.bind(this))
-		pageEvents.add(this.titleDiv, "mousedown", this.startMove.bind(this))
-		pageEvents.add(this.minimiseDiv, "click", this.minimise.bind(this))
-		pageEvents.add(this.restartBtn, "click", this.restartSong.bind(this))
-		pageEvents.add(this.exitBtn, "click", this.clean.bind(this))
+		pageEvents.add(window, "touchmove", this.onMove.bind(this))
+		pageEvents.add(this.titleDiv, ["mousedown", "touchstart"], this.startMove.bind(this))
+		pageEvents.add(this.minimiseDiv, ["click", "touchstart"], this.minimise.bind(this))
+		pageEvents.add(this.restartBtn, ["click", "touchstart"], this.restartSong.bind(this))
+		pageEvents.add(this.exitBtn, ["click", "touchstart"], this.clean.bind(this))
+		pageEvents.add(this.restartLabel, "touchstart", this.touchBox.bind(this))
+		pageEvents.add(this.autoplayLabel, "touchstart", this.touchBox.bind(this))
 		pageEvents.add(this.autoplayCheckbox, "change", this.toggleAutoplay.bind(this))
 		pageEvents.add(this.branchSelect, "change", this.branchChange.bind(this))
-		pageEvents.add(this.branchResetBtn, "click", this.branchReset.bind(this))
+		pageEvents.add(this.branchResetBtn, ["click", "touchstart"], this.branchReset.bind(this))
 		
 		this.offsetSlider = new InputSlider(this.offsetDiv, -60, 60, 3)
 		this.offsetSlider.onchange(this.offsetChange.bind(this))
@@ -54,24 +59,38 @@ class Debug{
 		return this.debugDiv.getElementsByClassName(name)[0]
 	}
 	startMove(event){
-		if(event.which === 1){
+		if(event.which === 1 || event.type === "touchstart"){
 			event.stopPropagation()
-			this.moving = {
-				x: event.offsetX,
-				y: event.offsetY
-			}
+			var divPos = this.debugDiv.getBoundingClientRect()
+			var click = event.type === "touchstart" ? event.changedTouches[0] : event
+			var x = click.pageX - divPos.left
+			var y = click.pageY - divPos.top
+			this.moving = {x: x, y: y}
 		}
 	}
 	onMove(event){
 		if(this.moving){
-			var x = event.clientX - this.moving.x
-			var y = event.clientY - this.moving.y
+			var click = event.type === "touchmove" ? event.changedTouches[0] : event
+			var x = click.clientX - this.moving.x
+			var y = click.clientY - this.moving.y
 			this.moveTo(x, y)
 		}
 	}
 	stopMove(event){
-		var x = event.clientX - this.moving.x
-		var y = event.clientY - this.moving.y
+		if(!event || event.type === "resize"){
+			var divPos = this.debugDiv.getBoundingClientRect()
+			var x = divPos.left
+			var y = divPos.top
+		}else{
+			var click = event.type === "touchstart" || event.type === "touchend" ? event.changedTouches[0] : event
+			if(event.type == "blur"){
+				var x = this.moving.x
+				var y = this.moving.y
+			}else{
+				var x = click.clientX - this.moving.x
+				var y = click.clientY - this.moving.y
+			}
+		}
 		var w = this.debugDiv.offsetWidth
 		var h = this.debugDiv.offsetHeight
 		if(x + w > innerWidth){
@@ -95,6 +114,7 @@ class Debug{
 	restore(){
 		debugObj.state = "open"
 		this.debugDiv.style.display = ""
+		this.stopMove()
 	}
 	minimise(){
 		debugObj.state = "minimised"
@@ -156,6 +176,7 @@ class Debug{
 			this.branchHideDiv.style.display = ""
 			this.controller = null
 		}
+		this.stopMove()
 	}
 	offsetChange(value, noRestart){
 		if(this.controller){
@@ -197,10 +218,12 @@ class Debug{
 			this.controller.restartSong()
 		}
 	}
-	toggleAutoplay(){
+	toggleAutoplay(event){
 		if(this.controller){
 			this.controller.autoPlayEnabled = this.autoplayCheckbox.checked
-			if(!this.controller.autoPlayEnabled){
+			if(this.controller.autoPlayEnabled){
+				this.controller.saveScore = false
+			}else{
 				var keyboard = debugObj.controller.keyboard
 				keyboard.setKey(false, "don_l")
 				keyboard.setKey(false, "don_r")
@@ -229,21 +252,30 @@ class Debug{
 		this.branchSelect.value = "auto"
 		this.branchChange(null, noRestart)
 	}
+	touchBox(event){
+		event.currentTarget.click()
+	}
 	clean(){
 		this.offsetSlider.clean()
 		this.measureNumSlider.clean()
+		this.volumeSlider.clean()
 		
-		pageEvents.remove(window, ["mousedown", "mouseup", "blur"])
+		pageEvents.remove(window, ["mousedown", "mouseup", "touchstart", "touchend", "blur", "resize"], this.windowSymbol)
 		pageEvents.mouseRemove(this)
-		pageEvents.remove(this.titleDiv, "mousedown")
-		pageEvents.remove(this.title, "mousedown")
-		pageEvents.remove(this.minimiseDiv, "click")
-		pageEvents.remove(this.restartBtn, "click")
-		pageEvents.remove(this.exitBtn, "click")
+		pageEvents.remove(window, "touchmove")
+		pageEvents.remove(this.titleDiv, ["mousedown", "touchstart"])
+		pageEvents.remove(this.minimiseDiv, ["click", "touchstart"])
+		pageEvents.remove(this.restartBtn, ["click", "touchstart"])
+		pageEvents.remove(this.exitBtn, ["click", "touchstart"])
+		pageEvents.remove(this.restartLabel, "touchstart")
+		pageEvents.remove(this.autoplayLabel, "touchstart")
 		pageEvents.remove(this.autoplayCheckbox, "change")
 		pageEvents.remove(this.branchSelect, "change")
-		pageEvents.remove(this.branchResetBtn, "click")
+		pageEvents.remove(this.branchResetBtn, ["click", "touchstart"])
 		
+		delete this.offsetSlider
+		delete this.measureNumSlider
+		delete this.volumeSlider
 		delete this.titleDiv
 		delete this.minimiseDiv
 		delete this.offsetDiv
@@ -259,6 +291,7 @@ class Debug{
 		delete this.restartBtn
 		delete this.exitBtn
 		delete this.controller
+		delete this.windowSymbol
 		
 		debugObj.state = "closed"
 		debugObj.debug = null
@@ -281,10 +314,22 @@ class InputSlider{
 		this.value = null
 		this.defaultValue = null
 		this.callbacks = []
+		this.touchEnd = []
+		this.windowSymbol = Symbol()
+		pageEvents.add(this.input, ["touchstart", "touchend"], event => {
+			event.stopPropagation()
+		})
+		pageEvents.add(window, ["mouseup", "touchstart", "touchend", "blur"], event => {
+			if(event.type !== "touchstart"){
+				this.touchEnd.forEach(func => func(event))
+			}else if(event.target !== this.input){
+				this.input.blur()
+			}
+		}, this.windowSymbol)
 		
-		pageEvents.add(this.plus, "click", this.add.bind(this))
-		pageEvents.add(this.minus, "click", this.subtract.bind(this))
-		pageEvents.add(this.reset, "click", this.resetValue.bind(this))
+		this.addTouchRepeat(this.plus, this.add.bind(this))
+		this.addTouchRepeat(this.minus, this.subtract.bind(this))
+		this.addTouch(this.reset, this.resetValue.bind(this))
 		pageEvents.add(this.input, "change", this.manualSet.bind(this))
 		pageEvents.add(this.input, "keydown", this.captureKeys.bind(this))
 	}
@@ -364,15 +409,49 @@ class InputSlider{
 	captureKeys(event){
 		event.stopPropagation()
 	}
+	addTouch(element, callback){
+		pageEvents.add(element, ["mousedown", "touchstart"], event => {
+			if(event.type === "touchstart"){
+				event.preventDefault()
+			}else if(event.which !== 1){
+				return
+			}
+			callback(event)
+		})
+	}
+	addTouchRepeat(element, callback){
+		this.addTouch(element, event => {
+			var active = true
+			var func = () => {
+				active = false
+				this.touchEnd.splice(this.touchEnd.indexOf(func), 1)
+			}
+			this.touchEnd.push(func)
+			var repeat = delay => {
+				if(active && this.touchEnd){
+					callback(event)
+					setTimeout(() => repeat(50), delay)
+				}
+			}
+			repeat(400)
+		})
+	}
+	removeTouch(element){
+		pageEvents.remove(element, ["mousedown", "touchstart"])
+	}
 	clean(){
-		pageEvents.remove(this.plus, "click")
-		pageEvents.remove(this.minus, "click")
-		pageEvents.remove(this.reset, "click")
-		pageEvents.remove(this.input, ["change", "keydown"])
+		this.removeTouch(this.plus)
+		this.removeTouch(this.minus)
+		this.removeTouch(this.reset)
+		pageEvents.remove(this.input, ["touchstart", "touchend"])
+		pageEvents.remove(window, ["mouseup", "touchstart", "touchend", "blur"], this.windowSymbol)
+		pageEvents.remove(this.input, ["touchstart", "change", "keydown"])
 		
 		delete this.input
 		delete this.reset
 		delete this.plus
 		delete this.minus
+		delete this.windowSymbol
+		delete this.touchEnd
 	}
 }

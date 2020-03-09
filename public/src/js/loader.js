@@ -20,6 +20,7 @@ class Loader{
 	}
 	run(){
 		this.promises = []
+		this.loaderDiv = document.querySelector("#loader")
 		this.loaderPercentage = document.querySelector("#loader .percentage")
 		this.loaderProgress = document.querySelector("#loader .progress")
 		
@@ -213,7 +214,7 @@ class Loader{
 					song.hash = song.title
 				}
 				scoreStorage.songTitles[song.title] = song.hash
-				var score = scoreStorage.get(song.hash)
+				var score = scoreStorage.get(song.hash, false, true)
 				if(score){
 					score.title = song.title
 				}
@@ -248,12 +249,38 @@ class Loader{
 		return name.slice(0, name.lastIndexOf("."))
 	}
 	errorMsg(error){
+		if(Array.isArray(error) && error[1] instanceof HTMLElement){
+			error = error[0] + ": " + error[1].outerHTML
+		}
 		console.error(error)
 		pageEvents.send("loader-error", error)
-		this.error = true
-		this.loaderPercentage.appendChild(document.createElement("br"))
-		this.loaderPercentage.appendChild(document.createTextNode("An error occurred, please refresh"))
-		this.clean()
+		if(!this.error){
+			this.error = true
+			this.loaderDiv.classList.add("loaderError")
+			if(typeof allStrings === "object"){
+				var lang = localStorage.lang
+				if(!lang){
+					var userLang = navigator.languages.slice()
+					userLang.unshift(navigator.language)
+					for(var i in userLang){
+						for(var j in allStrings){
+							if(allStrings[j].regex.test(userLang[i])){
+								lang = j
+							}
+						}
+					}
+				}
+				if(!lang){
+					lang = "en"
+				}
+				var errorOccured = allStrings[lang].errorOccured
+			}else{
+				var errorOccured = "An error occurred, please refresh"
+			}
+			this.loaderPercentage.appendChild(document.createElement("br"))
+			this.loaderPercentage.appendChild(document.createTextNode(errorOccured))
+			this.clean()
+		}
 	}
 	assetLoaded(){
 		if(!this.error){

@@ -63,7 +63,8 @@ class Scoresheet{
 		assets.sounds["v_results"].play()
 		assets.sounds["bgm_result"].playLoop(3, false, 0, 0.847, 17.689)
 		
-		if(p2.session){
+		this.session = p2.session
+		if(this.session){
 			if(p2.getMessage("songsel")){
 				this.toSongsel(true)
 			}
@@ -324,14 +325,15 @@ class Scoresheet{
 			var elapsed = 0
 		}
 		
-		var gaugePercent = Math.round(this.results.gauge / 200) / 50
-		var gaugeClear = [this.controller.game.rules.gaugeClear]
+		var rules = this.controller.game.rules
+		var gaugePercent = rules.gaugePercent(this.results.gauge)
+		var gaugeClear = [rules.gaugeClear]
 		if(players === 2){
 			gaugeClear.push(this.controller.syncWith.game.rules.gaugeClear)
 		}
 		var failedOffset = gaugePercent >= gaugeClear[0] ? 0 : -2000
 		if(players === 2){
-			var gauge2 = Math.round(p2.results.gauge / 200) / 50
+			var gauge2 = this.controller.syncWith.game.rules.gaugePercent(p2.results.gauge)
 			if(gauge2 > gaugePercent && failedOffset !== 0 && gauge2 >= gaugeClear[1]){
 				failedOffset = 0
 			}
@@ -343,7 +345,8 @@ class Scoresheet{
 				if(p === 1){
 					results = p2.results
 				}
-				var resultGauge = Math.round(results.gauge / 200) / 50
+				var playerRules = p === 0 ? rules : this.controller.syncWith.game.rules
+				var resultGauge = playerRules.gaugePercent(results.gauge)
 				var clear = resultGauge >= gaugeClear[p]
 				if(p === 1 || !this.multiplayer && clear){
 					ctx.translate(0, 290)
@@ -368,8 +371,8 @@ class Scoresheet{
 		if(elapsed >= 0){
 			if(this.state.hasPointer === 0){
 				this.state.hasPointer = 1
-				if(!this.state.pointerLocked && !p2.session){
-					this.canvas.style.cursor = "pointer"
+				if(!this.state.pointerLocked){
+					this.canvas.style.cursor = this.session ? "" : "pointer"
 				}
 			}
 			ctx.save()
@@ -578,7 +581,7 @@ class Scoresheet{
 					if(this.tetsuoHanaClass){
 						this.tetsuoHana.classList.remove(this.tetsuoHanaClass)
 					}
-					this.tetsuoHanaClass = this.controller.game.rules.clearReached(this.results.gauge) ? "dance" : "failed"
+					this.tetsuoHanaClass = rules.clearReached(this.results.gauge) ? "dance" : "failed"
 					this.tetsuoHana.classList.add(this.tetsuoHanaClass)
 				}
 			}
@@ -597,26 +600,27 @@ class Scoresheet{
 						results = p2.results
 						ctx.translate(0, p2Offset)
 					}
-					var gaugePercent = Math.round(results.gauge / 200) / 50
+					var gaugePercent = rules.gaugePercent(results.gauge)
 					var w = 712
 					this.draw.gauge({
 						ctx: ctx,
 						x: 558 + w,
-						y: 116,
+						y: p === 1 ? 124 : 116,
 						clear: gaugeClear[p],
 						percentage: gaugePercent,
 						font: this.font,
 						scale: w / 788,
 						scoresheet: true,
-						blue: p === 1
+						blue: p === 1,
+						multiplayer: p === 1
 					})
-					var rules = p === 0 ? this.controller.game.rules : this.controller.syncWith.game.rules
+					var playerRules = p === 0 ? rules : this.controller.syncWith.game.rules
 					this.draw.soul({
 						ctx: ctx,
 						x: 1215,
 						y: 144,
 						scale: 36 / 42,
-						cleared: rules.clearReached(results.gauge)
+						cleared: playerRules.clearReached(results.gauge)
 					})
 				}
 			})
@@ -634,8 +638,8 @@ class Scoresheet{
 					results = p2.results
 				}
 				var crownType = null
-				var rules = p === 0 ? this.controller.game.rules : this.controller.syncWith.game.rules
-				if(rules.clearReached(results.gauge)){
+				var playerRules = p === 0 ? rules : this.controller.syncWith.game.rules
+				if(playerRules.clearReached(results.gauge)){
 					crownType = results.bad === "0" ? "gold" : "silver"
 				}
 				if(crownType !== null){
@@ -796,9 +800,13 @@ class Scoresheet{
 			ctx.restore()
 		}
 		
-		if(p2.session && !this.state.scoreNext && this.state.screen === "scoresShown" && ms - this.state.screenMS >= 10000){
+		if(this.session && !this.state.scoreNext && this.state.screen === "scoresShown" && ms - this.state.screenMS >= 10000){
 			this.state.scoreNext = true
-			p2.send("songsel")
+			if(p2.session){
+				p2.send("songsel")
+			}else{
+				this.toSongsel(true)
+			}
 		}
 		
 		if(this.state.screen === "fadeOut"){
@@ -861,7 +869,7 @@ class Scoresheet{
 	}
 	
 	saveScore(){
-		if(!this.controller.autoPlayEnabled){
+		if(this.controller.saveScore){
 			if(this.resultsObj.points < 0){
 				this.resultsObj.points = 0
 			}
@@ -903,7 +911,7 @@ class Scoresheet{
 		if(this.multiplayer !== 2 && this.touchEnabled){
 			pageEvents.remove(document.getElementById("touch-full-btn"), "touchend")
 		}
-		if(p2.session){
+		if(this.session){
 			pageEvents.remove(p2, "message")
 		}
 		if(!this.multiplayer){
