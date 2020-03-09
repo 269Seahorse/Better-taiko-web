@@ -13,6 +13,7 @@ class GameRules{
 			case "hard":
 			case "oni":
 			case "ura":
+			default:
 				this.good = 3 / 2 * frame
 				this.ok = 9 / 2 * frame
 				this.bad = 13 / 2 * frame
@@ -29,6 +30,9 @@ class GameRules{
 			case "oni":
 			case "ura":
 				this.gaugeClear = 40 / 50
+				break
+			default:
+				this.gaugeClear = 51 / 50
 				break
 		}
 		
@@ -61,8 +65,10 @@ class GameRules{
 		}
 		return {good: good, ok: ok, bad: bad}
 	}
+	gaugePercent(gauge){
+		return Math.floor(gauge / 200) / 50
+	}
 	clearReached(gauge){
-		var gaugePercent = Math.round(gauge / 200) / 50
-		return gaugePercent >= this.gaugeClear
+		return this.gaugePercent(gauge) >= this.gaugeClear
 	}
 }

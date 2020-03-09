@@ -11,60 +11,62 @@ class PageEvents{
 		this.add(window, "blur", this.blurEvent.bind(this))
 		this.kbd = []
 	}
-	add(target, type, callback){
+	add(target, type, callback, symbol){
 		if(Array.isArray(type)){
-			type.forEach(type => this.add(target, type, callback))
+			type.forEach(type => this.add(target, type, callback, symbol))
 			return
 		}
 		this.remove(target, type)
-		var addedEvent = this.allEvents.get(target)
+		var addedEvent = this.allEvents.get(symbol || target)
 		if(!addedEvent){
 			addedEvent = new Map()
-			this.allEvents.set(target, addedEvent)
+			this.allEvents.set(symbol || target, addedEvent)
 		}
 		addedEvent.set(type, callback)
 		return target.addEventListener(type, callback)
 	}
-	remove(target, type){
+	remove(target, type, symbol){
 		if(Array.isArray(type)){
-			type.forEach(type => this.remove(target, type))
+			type.forEach(type => this.remove(target, type, symbol))
 			return
 		}
-		var addedEvent = this.allEvents.get(target)
+		var addedEvent = this.allEvents.get(symbol || target)
 		if(addedEvent){
 			var callback = addedEvent.get(type)
 			if(callback){
 				target.removeEventListener(type, callback)
 				addedEvent.delete(type)
 				if(addedEvent.size == 0){
-					return this.allEvents.delete(target)
+					return this.allEvents.delete(symbol || target)
 				}
 			}
 		}
 	}
-	once(target, type){
+	once(target, type, symbol){
 		return new Promise(resolve => {
 			this.add(target, type, event => {
 				this.remove(target, type)
 				return resolve(event)
-			})
+			}, symbol)
 		})
 	}
 	race(){
+		var symbols = []
 		var target = arguments[0]
 		return new Promise(resolve => {
 			for(var i = 1;i < arguments.length; i++){
+				symbols[i] = Symbol()
 				let type = arguments[i]
 				this.add(target, type, event => {
 					resolve({
 						type: type,
 						event: event
 					})
-				})
+				}, symbols[i])
 			}
 		}).then(response => {
 			for(var i = 1;i < arguments.length; i++){
-				this.remove(target, arguments[i])
+				this.remove(target, arguments[i], symbols[i])
 			}
 			return response
 		})

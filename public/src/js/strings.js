@@ -86,6 +86,7 @@
 	this.maxCombo = "最大コンボ数"
 	this.drumroll = "連打数"
 	
+	this.errorOccured = "エラーが発生しました。再読み込みしてください。"
 	this.tutorial = {
 		basics: [
 			"流れてくる音符がワクに重なったらバチで太鼓をたたこう！",
@@ -109,7 +110,8 @@
 			"Gitリポジトリかメールでバグを報告してください。"
 		],
 		diagnosticWarning: "以下の端末診断情報も併せて報告してください！",
-		issueTemplate: "###### 下記の問題を説明してください。 スクリーンショットと診断情報を含めてください。"
+		issueTemplate: "###### 下記の問題を説明してください。 スクリーンショットと診断情報を含めてください。",
+		issues: "課題"
 	}
 	this.session = {
 		multiplayerSession: "オンラインセッション",
@@ -281,6 +283,7 @@ function StringsEn(){
 	this.maxCombo = "MAX Combo"
 	this.drumroll = "Drumroll"
 	
+	this.errorOccured = "An error occurred, please refresh"
 	this.tutorial = {
 		basics: [
 			"When a note overlaps the frame, that is your cue to hit the drum!",
@@ -304,7 +307,8 @@ function StringsEn(){
 			"You can report bugs either via our Git repository or email."
 		],
 		diagnosticWarning: "Be sure to include the following diagnostic data!",
-		issueTemplate: "###### Describe the problem you are having below. Please include a screenshot and the diagnostic information."
+		issueTemplate: "###### Describe the problem you are having below. Please include a screenshot and the diagnostic information.",
+		issues: "Issues"
 	}
 	this.session = {
 		multiplayerSession: "Multiplayer Session",
@@ -426,10 +430,10 @@ function StringsCn(){
 	this.hard = "困难"
 	this.oni = "魔王"
 	this.songBranch = "有谱面分歧"
-	this.sessionStart = "开始在线会话!"
+	this.sessionStart = "开始在线会话！"
 	this.sessionEnd = "结束在线会话"
 	this.loading = "加载中..."
-	this.waitingForP2 = "Waiting for Another Player..."
+	this.waitingForP2 = "正在等待对方玩家..."
 	this.cancel = "取消"
 	this.note = {
 		don: "咚",
@@ -476,6 +480,7 @@ function StringsCn(){
 	this.maxCombo = "最多连段数"
 	this.drumroll = "连打数"
 	
+	this.errorOccured = "An error occurred, please refresh"
 	this.tutorial = {
 		basics: [
 			"当流动的音符将与框框重叠时就用鼓棒敲打太鼓吧",
@@ -499,11 +504,12 @@ function StringsCn(){
 			"You can report bugs either via our Git repository or email."
 		],
 		diagnosticWarning: "Be sure to include the following diagnostic data!",
-		issueTemplate: "###### Describe the problem you are having below. Please include a screenshot and the diagnostic information."
+		issueTemplate: "###### Describe the problem you are having below. Please include a screenshot and the diagnostic information.",
+		issues: "工单"
 	}
 	this.session = {
-		multiplayerSession: "Multiplayer Session",
-		linkTutorial: "Share this link with your friend to start playing together! Do not leave this screen while they join.",
+		multiplayerSession: "在线会话",
+		linkTutorial: "复制下方地址，给你的朋友即可开始一起游戏！当他们与您联系之前，请不要离开此页面。",
 		cancel: "取消"
 	}
 	this.settings = {
@@ -624,7 +630,7 @@ function StringsTw(){
 	this.sessionStart = "開始多人模式!"
 	this.sessionEnd = "結束多人模式"
 	this.loading = "讀取中..."
-	this.waitingForP2 = "Waiting for Another Player..."
+	this.waitingForP2 = "正在等待對方玩家..."
 	this.cancel = "取消"
 	this.note = {
 		don: "咚",
@@ -671,6 +677,7 @@ function StringsTw(){
 	this.maxCombo = "最多連段數"
 	this.drumroll = "連打數"
 	
+	this.errorOccured = "An error occurred, please refresh"
 	this.tutorial = {
 		basics: [
 			"當流動的音符將與框框重疊時就用鼓棒敲打太鼓吧",
@@ -694,11 +701,12 @@ function StringsTw(){
 			"You can report bugs either via our Git repository or email."
 		],
 		diagnosticWarning: "Be sure to include the following diagnostic data!",
-		issueTemplate: "###### Describe the problem you are having below. Please include a screenshot and the diagnostic information."
+		issueTemplate: "###### Describe the problem you are having below. Please include a screenshot and the diagnostic information.",
+		issues: "問題"
 	}
 	this.session = {
-		multiplayerSession: "Multiplayer Session",
-		linkTutorial: "Share this link with your friend to start playing together! Do not leave this screen while they join.",
+		multiplayerSession: "多人模式",
+		linkTutorial: "複製下方地址，給你的朋友即可開始一起遊戲！當他們與您聯繫之前，請不要離開此頁面。",
 		cancel: "取消"
 	}
 	this.settings = {
@@ -866,6 +874,7 @@ function StringsKo(){
 	this.maxCombo = "최대 콤보 수"
 	this.drumroll = "연타 횟수"
 	
+	this.errorOccured = "An error occurred, please refresh"
 	this.tutorial = {
 		basics: [
 			"이동하는 음표가 테두리와 겹쳐졌을 때 북채로 태고를 두드리자！",
@@ -889,7 +898,8 @@ function StringsKo(){
 			"You can report bugs either via our Git repository or email."
 		],
 		diagnosticWarning: "Be sure to include the following diagnostic data!",
-		issueTemplate: "###### Describe the problem you are having below. Please include a screenshot and the diagnostic information."
+		issueTemplate: "###### Describe the problem you are having below. Please include a screenshot and the diagnostic information.",
+		issues: "이슈"
 	}
 	this.session = {
 		multiplayerSession: "Multiplayer Session",

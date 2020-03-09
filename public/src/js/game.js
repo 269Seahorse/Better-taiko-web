@@ -811,7 +811,7 @@ class Game{
 			offsets.push(offset)
 			progress.hit++
 			progress.last = current
-			this.globalScore.gauge = 100 / (progress.requirement / progress.hit)
+			this.globalScore.gauge = 10000 / (progress.requirement / progress.hit)
 		}
 	}
 	calibrationReset(to, togglePause){

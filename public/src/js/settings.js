@@ -167,9 +167,29 @@ class SettingsView{
 			this.viewOuter.classList.add("touch-enabled")
 		}
 		this.touchEnd = []
-		pageEvents.add(this.viewOuter, ["mouseup", "touchend"], event => {
-			this.touchEnd.forEach(func => func(event))
-		})
+		this.windowSymbol = Symbol()
+		this.touchMove = {
+			active: false,
+			x: 0,
+			y: 0
+		}
+		pageEvents.add(window, ["mouseup", "touchstart", "touchmove", "touchend", "blur"], event => {
+			var move = this.touchMove
+			if(event.type === "touchstart"){
+				var cursor = event.changedTouches[0]
+				move.active = false
+				move.x = cursor.pageX
+				move.y = cursor.pageY
+			}else if(event.type === "touchmove"){
+				var cursor = event.changedTouches[0]
+				if (Math.abs(move.x - cursor.pageX) > 10 || Math.abs(move.y - cursor.pageY) > 10){
+					move.active = true
+				}
+			}else{
+				this.touchEnd.forEach(func => func(event))
+				move.active = false
+			}
+		}, this.windowSymbol)
 		
 		var gamepadEnabled = false
 		if("getGamepads" in navigator){
@@ -234,7 +254,7 @@ class SettingsView{
 				this.selected = this.items.length
 				settingBox.classList.add("selected")
 			}
-			this.addTouch(settingBox, event => this.setValue(i))
+			this.addTouchEnd(settingBox, event => this.setValue(i))
 			this.items.push({
 				id: i,
 				settingBox: settingBox,
@@ -365,9 +385,10 @@ class SettingsView{
 	getElement(name){
 		return loader.screen.getElementsByClassName(name)[0]
 	}
-	addTouch(element, callback){
-		pageEvents.add(element, ["mousedown", "touchstart"], event => {
-			if(event.type === "touchstart"){
+	addTouch(element, callback, end){
+		var touchEvent = end ? "touchend" : "touchstart"
+		pageEvents.add(element, ["mousedown", touchEvent], event => {
+			if(event.type === touchEvent){
 				event.preventDefault()
 				this.touched = true
 			}else if(event.which !== 1){
@@ -375,8 +396,13 @@ class SettingsView{
 			}else{
 				this.touched = false
 			}
-			callback(event)
+			if(event.type !== "touchend" || !this.touchMove.active){
+				callback(event)
+			}
 		})
+	}
+	addTouchEnd(element, callback){
+		this.addTouch(element, callback, true)
 	}
 	addTouchRepeat(element, callback){
 		this.addTouch(element, event => {
@@ -397,6 +423,9 @@ class SettingsView{
 	}
 	removeTouch(element){
 		pageEvents.remove(element, ["mousedown", "touchstart"])
+	}
+	removeTouchEnd(element){
+		pageEvents.remove(element, ["mousedown", "touchend"])
 	}
 	getValue(name, valueDiv){
 		var current = settings.items[name]
@@ -879,9 +908,9 @@ class SettingsView{
 		this.keyboard.clean()
 		this.gamepad.clean()
 		assets.sounds["bgm_settings"].stop()
-		pageEvents.remove(this.viewOuter, ["mouseup", "touchend"])
+		pageEvents.remove(window, ["mouseup", "touchstart", "touchmove", "touchend", "blur"], this.windowSymbol)
 		for(var i in this.items){
-			this.removeTouch(this.items[i].settingBox)
+			this.removeTouchEnd(this.items[i].settingBox)
 		}
 		for(var i in this.latencyItems){
 			this.removeTouch(this.latencyItems[i].settingBox)
@@ -899,6 +928,8 @@ class SettingsView{
 		this.removeTouch(this.latencySettings)
 		this.removeTouch(this.latencyDefaultButton)
 		this.removeTouch(this.latencyEndButton)
+		delete this.windowSymbol
+		delete this.touchMove
 		delete this.viewOuter
 		delete this.touchEnd
 		delete this.tutorialTitle

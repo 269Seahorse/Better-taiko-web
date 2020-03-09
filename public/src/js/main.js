@@ -102,7 +102,7 @@ pageEvents.add(versionDiv, ["click", "touchend"], event => {
 resizeRoot()
 setInterval(resizeRoot, 100)
 pageEvents.keyAdd(debugObj, "all", "down", event => {
-	if((event.keyCode === 186 || event.keyCode === 59) && event.ctrlKey && event.shiftKey && !event.altKey){
+	if((event.keyCode === 186 || event.keyCode === 59) && event.ctrlKey && (event.shiftKey || event.altKey)){
 		// Semicolon
 		if(debugObj.state === "open"){
 			debugObj.debug.minimise()

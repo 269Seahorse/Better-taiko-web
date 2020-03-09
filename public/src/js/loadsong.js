@@ -160,7 +160,7 @@ class LoadSong{
 			console.error(error)
 			pageEvents.send("load-song-error", error)
 			errorMessage(new Error(error).stack)
-			alert("An error occurred, please refresh")
+			alert(strings.errorOccured)
 		})
 	}
 	loadSongBg(){

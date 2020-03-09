@@ -348,7 +348,7 @@
 		}
 		
 		var score = this.controller.getGlobalScore()
-		var gaugePercent = Math.round(score.gauge / 200) / 50
+		var gaugePercent = this.rules.gaugePercent(score.gauge)
 		
 		if(this.multiplayer === 2){
 			var scoreImg = "bg_score_p2"

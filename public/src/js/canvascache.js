@@ -4,6 +4,7 @@ class CanvasCache{
 		if(w){
 			this.resize(w, h, scale)
 		}
+		this.index = Number.MIN_SAFE_INTEGER
 	}
 	resize(w, h, scale){
 		if(this.canvas){
@@ -33,7 +34,7 @@ class CanvasCache{
 			return
 		}
 		var saved = false
-		var time = Date.now()
+		var index = this.index++
 		if(!img){
 			var w = config.w
 			var h = config.h
@@ -44,11 +45,11 @@ class CanvasCache{
 			}
 			if(this.y + h > this.h){
 				var clear = true
-				var oldest = {time: time}
+				var oldest = {index: index}
 				this.map.forEach((oldImg, id) => {
-					if(oldImg.time < oldest.time){
+					if(oldImg.index < oldest.index){
 						oldest.id = id
-						oldest.time = oldImg.time
+						oldest.index = oldImg.index
 					}
 				})
 				var oldImg = this.map.get(oldest.id)
@@ -84,7 +85,7 @@ class CanvasCache{
 			this.map.set(config.id, img)
 			callback(this.ctx)
 		}
-		img.time = time
+		img.index = index
 		if(setOnly){
 			this.ctx.restore()
 			return

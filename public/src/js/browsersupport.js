@@ -47,6 +47,9 @@ function browserSupport(){
 			var el = document.createElement("a")
 			el.style.setProperty("--a", 1)
 			return el.style.length !== 0
+		},
+		"Font Loading API": function(){
+			return typeof FontFace === "function"
 		}
 	}
 	failedTests = []
