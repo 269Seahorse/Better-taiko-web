@@ -1,6 +1,5 @@
 var assets = {
 	"js": [
-		"lib/fontdetect.min.js",
 		"lib/md5.min.js",
 		"loadsong.js",
 		"parseosu.js",
@@ -44,7 +43,6 @@ var assets = {
 		"view.css"
 	],
 	"assetsCss": [
-		"fonts/fonts.css",
 		"img/img.css"
 	],
 	"img": [
@@ -126,10 +124,10 @@ var assets = {
 		"bgm_setsume.mp3",
 		"bgm_settings.mp3"
 	],
-	"fonts": [
-		"Kozuka",
-		"TnT"
-	],
+	"fonts": {
+		"Kozuka": "Kozuka.otf",
+		"TnT": "TnT.ttf"
+	},
 	"views": [
 		"game.html",
 		"loadsong.html",

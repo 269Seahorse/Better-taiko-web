@@ -71,12 +71,11 @@ class Loader{
 			checkStyles()
 		}))
 		
-		assets.fonts.forEach(name => {
-			var font = document.createElement("h1")
-			font.style.fontFamily = name
-			font.appendChild(document.createTextNode("I am a font"))
-			this.assetsDiv.appendChild(font)
-		})
+		for(var name in assets.fonts){
+			this.addPromise(new FontFace(name, "url('" + gameConfig.assets_baseurl + "fonts/" + assets.fonts[name] + "')").load().then(font => {
+				document.fonts.add(font)
+			}))
+		}
 		
 		assets.img.forEach(name => {
 			var id = this.getFilename(name)
@@ -106,7 +105,6 @@ class Loader{
 		
 		this.afterJSCount =
 			["blurPerformance", "P2Connection"].length +
-			assets.fonts.length +
 			assets.audioSfx.length +
 			assets.audioMusic.length +
 			assets.audioSfxLR.length +
@@ -130,12 +128,6 @@ class Loader{
 			snd.buffer.saveSettings()
 			
 			this.afterJSCount = 0
-			
-			assets.fonts.forEach(name => {
-				this.addPromise(new Promise(resolve => {
-					FontDetect.onFontLoaded(name, resolve, resolve, {msTimeout: Infinity})
-				}))
-			})
 			
 			assets.audioSfx.forEach(name => {
 				this.addPromise(this.loadSound(name, snd.sfxGain))
