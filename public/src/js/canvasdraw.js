@@ -1390,7 +1390,7 @@
 		}
 		ctx.fill()
 		
-		if(gaugeFilled < gaugeClear){
+		if(!cleared){
 			ctx.fillStyle = config.blue ? "#184d55" : "#680000"
 			var x = Math.max(0, gaugeFilled - 5)
 			ctx.fillRect(x, firstTop, gaugeClear - x + 2 + (gaugeClear < gaugeW ? 0 : -7), 22)

@@ -4,7 +4,8 @@ class Game{
 		this.selectedSong = selectedSong
 		this.songData = songData
 		this.elapsedTime = 0
-		this.currentCircle = 0
+		this.currentCircle = -1
+		this.updateCurrentCircle()
 		this.combo = 0
 		this.rules = new GameRules(this)
 		this.globalScore = {
@@ -46,7 +47,13 @@ class Game{
 	}
 	initTiming(){
 		// Date when the chrono is started (before the game begins)
-		var firstCircle = this.songData.circles[0]
+		var firstCircle
+		for(var i = 0; i < this.songData.circles.length; i++){
+			firstCircle = this.songData.circles[i]
+			if(firstCircle.type !== "event"){
+				break
+			}
+		}
 		if(this.controller.calibrationMode){
 			var offsetTime = 0
 		}else{
@@ -97,12 +104,6 @@ class Game{
 							assets.sounds["v_renda" + this.controller.snd].stop()
 							this.controller.playSound("v_renda")
 						}
-					}
-					if(!circle.beatMSCopied){
-						if(this.view.beatInterval !== circle.beatMS){
-							this.view.changeBeatInterval(circle.beatMS)
-						}
-						circle.beatMSCopied = true
 					}
 				}
 				if(circle.daiFailed && (ms >= circle.daiFailed.ms + this.rules.daiLeniency || ms > endTime)){
@@ -237,6 +238,9 @@ class Game{
 		}
 	}
 	skipNote(circle){
+		if(circle.type === "event"){
+			return
+		}
 		if(circle.section){
 			this.resetSection()
 		}
@@ -254,6 +258,9 @@ class Game{
 	checkPlays(){
 		var circles = this.songData.circles
 		var circle = circles[this.currentCircle]
+		if(circle && circle.type === "event"){
+			this.updateCurrentCircle()
+		}
 		
 		if(this.controller.autoPlayEnabled){
 			while(circle && this.controller.autoPlay(circle)){
@@ -460,16 +467,23 @@ class Game{
 		this.globalScore.points += score * (dai ? 2 : 1)
 		this.view.setDarkBg(false)
 	}
+	getLastCircle(circles){
+		for(var i = circles.length; i--;){
+			if(circles[i].type !== "event"){
+				return circles[i]
+			}
+		}
+	}
 	whenLastCirclePlayed(){
 		var ms = this.elapsedTime
 		if(!this.lastCircle){
 			var circles = this.songData.circles
-			var circle = circles[circles.length - 1]
+			var circle = this.getLastCircle(circles)
 			this.lastCircle = circle ? circle.endTime : 0
 			if(this.controller.multiplayer){
 				var syncWith = this.controller.syncWith
 				var syncCircles = syncWith.game.songData.circles
-				circle = syncCircles[syncCircles.length - 1]
+				circle = this.getLastCircle(syncCircles)
 				var syncLastCircle = circle ? circle.endTime : 0
 				if(syncLastCircle > this.lastCircle){
 					this.lastCircle = syncLastCircle
@@ -607,7 +621,7 @@ class Game{
 		var circles = this.songData.circles
 		do{
 			var circle = circles[++this.currentCircle]
-		}while(circle && circle.branch && !circle.branch.active)
+		}while(circle && (circle.branch && !circle.branch.active || circle.type === "event"))
 	}
 	getCurrentCircle(){
 		return this.currentCircle

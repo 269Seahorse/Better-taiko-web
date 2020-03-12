@@ -2,7 +2,12 @@
 	constructor(file, difficulty, stars, offset, metaOnly){
 		this.data = []
 		for(let line of file){
-			line = line.replace(/\/\/.*/, "").trim()
+			var indexComment = line.indexOf("//")
+			if(indexComment !== -1 && !line.trim().toLowerCase().startsWith("maker:")){
+				line = line.slice(0, indexComment).trim()
+			}else{
+				line = line.trim()
+			}
 			if(line !== ""){
 				this.data.push(line)
 			}
@@ -143,6 +148,8 @@
 		var branchSettings = {}
 		var branchFirstMeasure = false
 		var sectionBegin = true
+		var lastBpm = bpm
+		var lastGogo = gogo
 		
 		var currentMeasure = []
 		var firstNote = true
@@ -195,7 +202,7 @@
 			if(currentMeasure.length){
 				for(var i = 0; i < currentMeasure.length; i++){
 					var note = currentMeasure[i]
-					if(firstNote && note.type){
+					if(firstNote && note.type && note.type !== "event"){
 						firstNote = false
 						if(ms < 0){
 							this.soundOffset = ms
@@ -256,6 +263,31 @@
 			}else{
 				var msPerMeasure = 60000 * measure / bpm
 				ms += msPerMeasure
+			}
+		}
+		var insertNote = circleObj => {
+			lastBpm = bpm
+			lastGogo = gogo
+			if(circleObj){
+				currentMeasure.push(circleObj)
+			}
+		}
+		var insertBlankNote = circleObj => {
+			if(bpm !== lastBpm || gogo !== lastGogo){
+				insertNote({
+					type: "event",
+					bpm: bpm,
+					scroll: scroll,
+					gogo: gogo
+				})
+			}else if(!circleObj){
+				currentMeasure.push({
+					bpm: bpm,
+					scroll: scroll
+				})
+			}
+			if(circleObj){
+				currentMeasure.push(circleObj)
 			}
 		}
 		
@@ -382,10 +414,7 @@
 					switch(symbol){
 						
 						case "0":
-							currentMeasure.push({
-								bpm: bpm,
-								scroll: scroll
-							})
+							insertBlankNote()
 							break
 						case "1": case "2": case "3": case "4": case "A": case "B":
 							var type = this.noteTypes[symbol]
@@ -402,7 +431,7 @@
 								circleObj.endDrumroll = lastDrumroll
 								lastDrumroll = false
 							}
-							currentMeasure.push(circleObj)
+							insertNote(circleObj)
 							break
 						case "5": case "6": case "7": case "9":
 							var type = this.noteTypes[symbol]
@@ -417,7 +446,7 @@
 							sectionBegin = false
 							if(lastDrumroll){
 								if(symbol === "9"){
-									currentMeasure.push({
+									insertBlankNote({
 										endDrumroll: lastDrumroll,
 										bpm: bpm,
 										scroll: scroll,
@@ -426,10 +455,7 @@
 									sectionBegin = false
 									lastDrumroll = false
 								}else{
-									currentMeasure.push({
-										bpm: bpm,
-										scroll: scroll
-									})
+									insertBlankNote()
 								}
 								break
 							}
@@ -442,11 +468,11 @@
 								balloonID++
 							}
 							lastDrumroll = circleObj
-							currentMeasure.push(circleObj)
+							insertNote(circleObj)
 							break
 						case "8":
 							if(lastDrumroll){
-								currentMeasure.push({
+								insertBlankNote({
 									endDrumroll: lastDrumroll,
 									bpm: bpm,
 									scroll: scroll,
@@ -455,22 +481,27 @@
 								sectionBegin = false
 								lastDrumroll = false
 							}else{
-								currentMeasure.push({
+								insertBlankNote({
 									bpm: bpm,
 									scroll: scroll
 								})
 							}
 							break
 						case ",":
+							if(currentMeasure.length === 0 && (bpm !== lastBpm || gogo !== lastGogo)){
+								insertNote({
+									type: "event",
+									bpm: bpm,
+									scroll: scroll,
+									gogo: gogo
+								})
+							}
 							pushMeasure()
 							currentMeasure = []
 							break
 						default:
 							if(regexAZ.test(symbol)){
-								currentMeasure.push({
-									bpm: bpm,
-									scroll: scroll
-								})
+								insertBlankNote()
 							}else if(!regexSpace.test(symbol)){
 								error = true
 							}

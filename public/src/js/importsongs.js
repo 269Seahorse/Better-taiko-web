@@ -232,7 +232,25 @@
 					songObj.song_skin = this.getSkin(dir, meta.taikowebskin)
 				}
 				if(meta.maker){
-				    songObj.maker = {name: meta.maker, id: 1}
+					var maker = meta.maker
+					var url = null
+					var gt = maker.lastIndexOf(">")
+					if(gt === maker.length - 1){
+						var lt = maker.lastIndexOf("<")
+						if(lt !== -1 && lt !== gt - 2){
+							url = maker.slice(lt + 2, gt)
+							if(url.startsWith("http://") || url.startsWith("https://")){
+								maker = maker.slice(0, lt).trim()
+							}else{
+								url = null
+							}
+						}
+					}
+					songObj.maker = {
+						name: maker,
+						url: url,
+						id: 1
+					}
 				}
 				for(var id in allStrings){
 					var songTitle = songObj.title

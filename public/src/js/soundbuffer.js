@@ -2,7 +2,7 @@
 	constructor(){
 		var AudioContext = window.AudioContext || window.webkitAudioContext
 		this.context = new AudioContext()
-		pageEvents.add(window, ["click", "touchend"], this.pageClicked.bind(this))
+		pageEvents.add(window, ["click", "touchend", "keypress"], this.pageClicked.bind(this))
 		this.gainList = []
 	}
 	load(url, local, gain){

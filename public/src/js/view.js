@@ -1525,7 +1525,13 @@
 				// Start animation to gauge
 				circle.animate(ms)
 			}
-			if(ms >= circle.ms && !circle.gogoChecked && (!circle.branch || circle.branch.active)){
+			if(ms - this.controller.audioLatency >= circle.ms && !circle.beatMSCopied && (!circle.branch || circle.branch.active)){
+				if(this.beatInterval !== circle.beatMS){
+					this.changeBeatInterval(circle.beatMS)
+				}
+				circle.beatMSCopied = true
+			}
+			if(ms - this.controller.audioLatency >= circle.ms && !circle.gogoChecked && (!circle.branch || circle.branch.active)){
 				if(this.gogoTime != circle.gogoTime){
 					this.toggleGogoTime(circle)
 				}
@@ -1842,15 +1848,16 @@
 		}
 	}
 	toggleGogoTime(circle){
+		var startMS = circle.ms + this.controller.audioLatency
 		this.gogoTime = circle.gogoTime
 		if(circle.gogoTime || this.gogoTimeStarted !== -Infinity){
-			this.gogoTimeStarted = circle.ms
+			this.gogoTimeStarted = startMS
 		}
 		
 		if(this.gogoTime){
 			this.assets.fireworks.forEach(fireworksAsset => {
 				fireworksAsset.setAnimation("normal")
-				fireworksAsset.setAnimationStart(circle.ms)
+				fireworksAsset.setAnimationStart(startMS)
 				var length = fireworksAsset.getAnimationLength("normal")
 				fireworksAsset.setAnimationEnd(length, () => {
 					fireworksAsset.setAnimation(false)
@@ -1861,7 +1868,7 @@
 			don.setAnimation("gogostart")
 			var length = don.getAnimationLength("gogo")
 			don.setUpdateSpeed(4 / length)
-			var start = circle.ms - (circle.ms % this.beatInterval)
+			var start = startMS - (startMS % this.beatInterval)
 			don.setAnimationStart(start)
 			var length = don.getAnimationLength("gogostart")
 			don.setAnimationEnd(length, don.normalAnimation)
