@@ -35,7 +35,7 @@ class Titlescreen{
 				confirm: ["enter", "space", "don_l", "don_r"]
 			}, this.onPressed.bind(this))
 			this.gamepad = new Gamepad({
-				confirm: ["a", "b", "x", "y", "start", "ls", "rs"]
+				gamepadConfirm: ["a", "b", "x", "y", "start", "ls", "rs"]
 			}, this.onPressed.bind(this))
 			if(p2.session){
 				pageEvents.add(p2, "message", response => {
@@ -50,6 +50,9 @@ class Titlescreen{
 	
 	onPressed(pressed, name){
 		if(pressed){
+			if(name === "gamepadConfirm" && snd.buffer.context.state === "suspended"){
+				return
+			}
 			this.titleScreen.style.cursor = "auto"
 			this.clean()
 			assets.sounds["se_don"].play()
