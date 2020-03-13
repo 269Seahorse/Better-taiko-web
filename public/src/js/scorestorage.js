@@ -133,7 +133,7 @@ class ScoreStorage{
 		var obj = {}
 		obj[hash] = this.scoreStrings[hash]
 		this.sendToServer({
-			scores: obj
+			scores: this.prepareScores(obj)
 		}).catch(() => this.add.apply(this, arguments))
 	}
 	template(){
