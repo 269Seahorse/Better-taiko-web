@@ -116,7 +116,7 @@ class SongSelect{
 				originalTitle: song.title,
 				subtitle: subtitle,
 				skin: song.category in this.songSkin ? this.songSkin[song.category] : this.songSkin.default,
-				stars: song.stars,
+				courses: song.courses,
 				category: song.category,
 				preview: song.preview || 0,
 				type: song.type,
@@ -126,14 +126,19 @@ class SongSelect{
 				volume: song.volume,
 				maker: song.maker,
 				canJump: true,
-				hash: song.hash || song.title
+				hash: song.hash || song.title,
+				order: song.order
 			})
 		}
 		this.songs.sort((a, b) => {
 			var catA = a.category in this.songSkin ? this.songSkin[a.category] : this.songSkin.default
 			var catB = b.category in this.songSkin ? this.songSkin[b.category] : this.songSkin.default
 			if(catA.sort === catB.sort){
-				return a.id > b.id ? 1 : -1
+				if(a.order === b.order){
+					return a.id > b.id ? 1 : -1
+				}else{
+					return a.order > b.order ? 1 : -1
+				}
 			}else{
 				return catA.sort > catB.sort ? 1 : -1
 			}
@@ -226,6 +231,7 @@ class SongSelect{
 		this.difficultyCache = new CanvasCache(noSmoothing)
 		this.sessionCache = new CanvasCache(noSmoothing)
 		this.currentSongCache = new CanvasCache(noSmoothing)
+		this.nameplateCache = new CanvasCache(noSmoothing)
 		
 		this.difficulty = [strings.easy, strings.normal, strings.hard, strings.oni]
 		this.difficultyId = ["easy", "normal", "hard", "oni", "ura"]
@@ -450,7 +456,11 @@ class SongSelect{
 		if(this.state.screen === "song"){
 			if(20 < mouse.y && mouse.y < 90 && 410 < mouse.x && mouse.x < 880 && (mouse.x < 540 || mouse.x > 750)){
 				this.categoryJump(mouse.x < 640 ? -1 : 1)
-			}else if(mouse.x > 641 && mouse.y > 603){
+			}else if(!p2.session && 60 < mouse.x && mouse.x < 332 && 640 < mouse.y && mouse.y < 706 && gameConfig._accounts){
+				this.toAccount()
+			}else if(p2.session && 438 < mouse.x && mouse.x < 834 && mouse.y > 603){
+				this.toSession()
+			}else if(!p2.session && mouse.x > 641 && mouse.y > 603 && p2.socket.readyState === 1 && !assets.customSongs){
 				this.toSession()
 			}else{
 				var moveBy = this.songSelMouse(mouse.x, mouse.y)
@@ -501,11 +511,15 @@ class SongSelect{
 		if(this.state.screen === "song"){
 			if(20 < mouse.y && mouse.y < 90 && 410 < mouse.x && mouse.x < 880 && (mouse.x < 540 || mouse.x > 750)){
 				moveTo = mouse.x < 640 ? "categoryPrev" : "categoryNext"
-			}else if(mouse.x > 641 && mouse.y > 603 && p2.socket.readyState === 1 && !assets.customSongs){
+			}else if(!p2.session && 60 < mouse.x && mouse.x < 332 && 640 < mouse.y && mouse.y < 706 && gameConfig._accounts){
+				moveTo = "account"
+			}else if(p2.session && 438 < mouse.x && mouse.x < 834 && mouse.y > 603){
+				moveTo = "session"
+			}else if(!p2.session && mouse.x > 641 && mouse.y > 603 && p2.socket.readyState === 1 && !assets.customSongs){
 				moveTo = "session"
 			}else{
 				var moveTo = this.songSelMouse(mouse.x, mouse.y)
-				if(moveTo === null && this.state.moveHover === 0 && !this.songs[this.selectedSong].stars){
+				if(moveTo === null && this.state.moveHover === 0 && !this.songs[this.selectedSong].courses){
 					this.state.moveMS = this.getMS() - this.songSelecting.speed
 				}
 			}
@@ -544,7 +558,7 @@ class SongSelect{
 			var dir = x > 0 ? 1 : -1
 			x = Math.abs(x)
 			var selectedWidth = this.songAsset.selectedWidth
-			if(!this.songs[this.selectedSong].stars){
+			if(!this.songs[this.selectedSong].courses){
 				selectedWidth = this.songAsset.width
 			}
 			var moveBy = Math.ceil((x - selectedWidth / 2 - this.songAsset.marginLeft / 2) / (this.songAsset.width + this.songAsset.marginLeft)) * dir
@@ -565,7 +579,13 @@ class SongSelect{
 			}else if(550 < x && x < 1050 && 95 < y && y < 524){
 				var moveBy = Math.floor((x - 550) / ((1050 - 550) / 5)) + this.diffOptions.length
 				var currentSong = this.songs[this.selectedSong]
-				if(this.state.ura && moveBy === this.diffOptions.length + 3 || currentSong.stars[moveBy - this.diffOptions.length]){
+				if(
+					this.state.ura
+					&& moveBy === this.diffOptions.length + 3
+					|| currentSong.courses[
+						this.difficultyId[moveBy - this.diffOptions.length]
+					]
+				){
 					return moveBy
 				}
 			}
@@ -583,7 +603,7 @@ class SongSelect{
 				})
 			}
 		}else if(this.state.locked !== 1 || fromP2){
-			if(this.songs[this.selectedSong].stars && (this.state.locked === 0 || fromP2)){
+			if(this.songs[this.selectedSong].courses && (this.state.locked === 0 || fromP2)){
 				this.state.moveMS = ms
 			}else{
 				this.state.moveMS = ms - this.songSelecting.speed * this.songSelecting.resize
@@ -645,7 +665,7 @@ class SongSelect{
 	toSelectDifficulty(fromP2){
 		var currentSong = this.songs[this.selectedSong]
 		if(p2.session && !fromP2 && currentSong.action !== "random"){
-			if(this.songs[this.selectedSong].stars){
+			if(this.songs[this.selectedSong].courses){
 				if(!this.state.selLock){
 					this.state.selLock = true
 					p2.send("songsel", {
@@ -655,7 +675,7 @@ class SongSelect{
 				}
 			}
 		}else if(this.state.locked === 0 || fromP2){
-			if(currentSong.stars){
+			if(currentSong.courses){
 				this.state.screen = "difficulty"
 				this.state.screenMS = this.getMS()
 				this.state.locked = true
@@ -677,7 +697,7 @@ class SongSelect{
 				this.state.locked = true
 				do{
 					var i = Math.floor(Math.random() * this.songs.length)
-				}while(!this.songs[i].stars)
+				}while(!this.songs[i].courses)
 				var moveBy = i - this.selectedSong
 				setTimeout(() => {
 					this.moveToSong(moveBy)
@@ -744,17 +764,18 @@ class SongSelect{
 		}else if(p2.socket.readyState === 1 && !assets.customSongs){
 			multiplayer = ctrl
 		}
+		var diff = this.difficultyId[difficulty]
 		
 		new LoadSong({
 			"title": selectedSong.title,
 			"originalTitle": selectedSong.originalTitle,
 			"folder": selectedSong.id,
-			"difficulty": this.difficultyId[difficulty],
+			"difficulty": diff,
 			"category": selectedSong.category,
 			"type": selectedSong.type,
 			"offset": selectedSong.offset,
 			"songSkin": selectedSong.songSkin,
-			"stars": selectedSong.stars[difficulty],
+			"stars": selectedSong.courses[diff].stars,
 			"hash": selectedSong.hash
 		}, autoplay, multiplayer, touch)
 	}
@@ -795,6 +816,13 @@ class SongSelect{
 		this.clean()
 		setTimeout(() => {
 			new SettingsView(this.touchEnabled)
+		}, 500)
+	}
+	toAccount(){
+		this.playSound("se_don")
+		this.clean()
+		setTimeout(() => {
+			new Account(this.touchEnabled)
 		}, 500)
 	}
 	toSession(){
@@ -893,6 +921,8 @@ class SongSelect{
 			var textW = strings.id === "en" ? 350 : 280
 			this.selectTextCache.resize((textW + 53 + 60 + 1) * 2, this.songAsset.marginTop + 15, ratio + 0.5)
 			
+			this.nameplateCache.resize(274, 134, ratio + 0.2)
+			
 			var categories = 0
 			var lastCategory
 			this.songs.forEach(song => {
@@ -921,7 +951,7 @@ class SongSelect{
 						fontFamily: this.font,
 						x: w / 2,
 						y: 38 / 2,
-						width: w - 30,
+						width: id === "sessionend" ? 385 : w - 30,
 						align: "center",
 						baseline: "middle"
 					}, [
@@ -969,7 +999,7 @@ class SongSelect{
 		}
 		
 		if(screen === "song"){
-			if(this.songs[this.selectedSong].stars){
+			if(this.songs[this.selectedSong].courses){
 				selectedWidth = this.songAsset.selectedWidth
 			}
 			
@@ -1054,7 +1084,7 @@ class SongSelect{
 				if(elapsed < resize){
 					selectedWidth = this.songAsset.width + (((resize - elapsed) / resize) * (selectedWidth - this.songAsset.width))
 				}else if(elapsed > resize2){
-					this.playBgm(!this.songs[this.selectedSong].stars)
+					this.playBgm(!this.songs[this.selectedSong].courses)
 					this.state.locked = 1
 					selectedWidth = this.songAsset.width + ((elapsed - resize2) / resize * (selectedWidth - this.songAsset.width))
 				}else{
@@ -1062,7 +1092,7 @@ class SongSelect{
 					selectedWidth = this.songAsset.width
 				}
 			}else{
-				this.playBgm(!this.songs[this.selectedSong].stars)
+				this.playBgm(!this.songs[this.selectedSong].courses)
 				this.state.locked = 0
 			}
 		}else if(screen === "difficulty"){
@@ -1071,7 +1101,7 @@ class SongSelect{
 				this.state.locked = 0
 			}
 			if(this.state.move){
-				var hasUra = currentSong.stars[4]
+				var hasUra = currentSong.courses.ura
 				var previousSelection = this.selectedDiff
 				do{
 					if(hasUra && this.state.move > 0){
@@ -1089,12 +1119,12 @@ class SongSelect{
 						this.selectedDiff = this.mod(this.diffOptions.length + 5, this.selectedDiff + this.state.move)
 					}
 				}while(
-					this.selectedDiff >= this.diffOptions.length && !currentSong.stars[this.selectedDiff - this.diffOptions.length]
+					this.selectedDiff >= this.diffOptions.length && !currentSong.courses[this.difficultyId[this.selectedDiff - this.diffOptions.length]]
 					|| this.selectedDiff === this.diffOptions.length + 3 && this.state.ura
 					|| this.selectedDiff === this.diffOptions.length + 4 && !this.state.ura
 				)
 				this.state.move = 0
-			}else if(this.selectedDiff < 0 || this.selectedDiff >= this.diffOptions.length && !currentSong.stars[this.selectedDiff - this.diffOptions.length]){
+			}else if(this.selectedDiff < 0 || this.selectedDiff >= this.diffOptions.length && !currentSong.courses[this.difficultyId[this.selectedDiff - this.diffOptions.length]]){
 				this.selectedDiff = 0
 			}
 		}
@@ -1164,7 +1194,7 @@ class SongSelect{
 		
 		var currentSong = this.songs[this.selectedSong]
 		var highlight = 0
-		if(!currentSong.stars){
+		if(!currentSong.courses){
 			highlight = 2
 		}
 		if(this.state.moveHover === 0){
@@ -1418,7 +1448,7 @@ class SongSelect{
 					}
 				}
 				var drawDifficulty = (ctx, i, currentUra) => {
-					if(currentSong.stars[i] || currentUra){
+					if(currentSong.courses[this.difficultyId[i]] || currentUra){
 						var score = scoreStorage.get(currentSong.hash, false, true)
 						var crownDiff = currentUra ? "ura" : this.difficultyId[i]
 						var crownType = ""
@@ -1502,9 +1532,9 @@ class SongSelect{
 								outlineSize: currentUra ? this.songAsset.letterBorder : 0
 							})
 						})
-						var songStarsArray = (currentUra ? currentSong.stars[4] : currentSong.stars[i]).toString().split(" ")
-						var songStars = songStarsArray[0]
-						var songBranch = songStarsArray[1] === "B"
+						var songStarsObj = (currentUra ? currentSong.courses.ura : currentSong.courses[this.difficultyId[i]])
+						var songStars = songStarsObj.stars
+						var songBranch = songStarsObj.branch
 						var elapsedMS = this.state.screenMS > this.state.moveMS || !songSel ? this.state.screenMS : this.state.moveMS
 						var fade = ((ms - elapsedMS) % 2000) / 2000
 						if(songBranch && fade > 0.25 && fade < 0.75){
@@ -1591,8 +1621,8 @@ class SongSelect{
 						}
 					}
 				}
-				for(var i = 0; currentSong.stars && i < 4; i++){
-					var currentUra = i === 3 && (this.state.ura && !songSel || currentSong.stars[4] && songSel)
+				for(var i = 0; currentSong.courses && i < 4; i++){
+					var currentUra = i === 3 && (this.state.ura && !songSel || currentSong.courses.ura && songSel)
 					if(songSel && currentUra){
 						drawDifficulty(ctx, i, false)
 						var elapsedMS = this.state.screenMS > this.state.moveMS ? this.state.screenMS : this.state.moveMS
@@ -1753,7 +1783,7 @@ class SongSelect{
 					}
 				}
 				
-				if(!songSel && currentSong.stars[4]){
+				if(!songSel && currentSong.courses.ura){
 					var fade = ((ms - this.state.screenMS) % 1200) / 1200
 					var _x = x + 402 + 4 * 100 + fade * 25
 					var _y = y + 258
@@ -1842,7 +1872,7 @@ class SongSelect{
 		ctx.fillRect(0, frameTop + 595, 1280 + frameLeft * 2, 125 + frameTop)
 		var x = 0
 		var y = frameTop + 603
-		var w = frameLeft + 638
+		var w = p2.session ? frameLeft + 638 - 200 : frameLeft + 638
 		var h = 117 + frameTop
 		this.draw.pattern({
 			ctx: ctx,
@@ -1869,7 +1899,81 @@ class SongSelect{
 		ctx.lineTo(x + w - 4, y + h)
 		ctx.lineTo(x + w - 4, y + 4)
 		ctx.fill()
-		x = frameLeft + 642
+		
+		this.nameplateCache.get({
+			ctx: ctx,
+			x: frameLeft + 60,
+			y: frameTop + 640,
+			w: 273,
+			h: 66,
+			id: "1p",
+		}, ctx => {
+			this.draw.nameplate({
+				ctx: ctx,
+				x: 3,
+				y: 3,
+				name: account.loggedIn ? account.displayName : strings.defaultName,
+				rank: account.loggedIn || !gameConfig._accounts || p2.session ? false : strings.notLoggedIn,
+				font: this.font
+			})
+		})
+		if(this.state.moveHover === "account"){
+			this.draw.highlight({
+				ctx: ctx,
+				x: frameLeft + 59.5,
+				y: frameTop + 639.5,
+				w: 271,
+				h: 64,
+				radius: 28.5,
+				opacity: 0.8,
+				size: 10
+			})
+		}
+		
+		if(p2.session){
+			x = x + w + 4
+			w = 396
+			this.draw.pattern({
+				ctx: ctx,
+				img: assets.image["bg_settings"],
+				x: x,
+				y: y,
+				w: w,
+				h: h,
+				dx: frameLeft + 11,
+				dy: frameTop + 45,
+				scale: 3.1
+			})
+			ctx.fillStyle = "rgba(255, 255, 255, 0.5)"
+			ctx.beginPath()
+			ctx.moveTo(x, y + h)
+			ctx.lineTo(x, y)
+			ctx.lineTo(x + w, y)
+			ctx.lineTo(x + w, y + 4)
+			ctx.lineTo(x + 4, y + 4)
+			ctx.lineTo(x + 4, y + h)
+			ctx.fill()
+			ctx.fillStyle = "rgba(0, 0, 0, 0.25)"
+			ctx.beginPath()
+			ctx.moveTo(x + w, y)
+			ctx.lineTo(x + w, y + h)
+			ctx.lineTo(x + w - 4, y + h)
+			ctx.lineTo(x + w - 4, y + 4)
+			ctx.fill()
+			if(this.state.moveHover === "session"){
+				this.draw.highlight({
+					ctx: ctx,
+					x: x,
+					y: y,
+					w: w,
+					h: h,
+					opacity: 0.8
+				})
+			}
+		}
+		
+		x = p2.session ? frameLeft + 642 + 200 : frameLeft + 642
+		w = p2.session ? frameLeft + 638 - 200 : frameLeft + 638
 		if(p2.session){
 			this.draw.pattern({
 				ctx: ctx,
@@ -1925,7 +2029,7 @@ class SongSelect{
 				}
 				this.sessionCache.get({
 					ctx: ctx,
-					x: winW / 2,
+					x: p2.session ? winW / 4 : winW / 2,
 					y: y + (h - 32) / 2,
 					w: winW / 2,
 					h: 38,
@@ -1933,7 +2037,7 @@ class SongSelect{
 				})
 				ctx.globalAlpha = 1
 			}
-			if(this.state.moveHover === "session"){
+			if(!p2.session && this.state.moveHover === "session"){
 				this.draw.highlight({
 					ctx: ctx,
 					x: x,
@@ -1943,6 +2047,25 @@ class SongSelect{
 					opacity: 0.8
 				})
 			}
+		}
+		if(p2.session){
+			this.nameplateCache.get({
+				ctx: ctx,
+				x: frameLeft + 949,
+				y: frameTop + 640,
+				w: 273,
+				h: 66,
+				id: "2p",
+			}, ctx => {
+				this.draw.nameplate({
+					ctx: ctx,
+					x: 3,
+					y: 3,
+					name: p2.name,
+					font: this.font,
+					blue: true
+				})
+			})
 		}
 		
 		if(screen === "titleFadeIn"){
@@ -2019,7 +2142,7 @@ class SongSelect{
 				if(!score){
 					break
 				}
-				if(config.song.stars[i] && score[diff] && score[diff].crown){
+				if(config.song.courses[this.difficultyId[i]] && score[diff] && score[diff].crown){
 					this.draw.crown({
 						ctx: ctx,
 						type: score[diff].crown,
@@ -2148,7 +2271,7 @@ class SongSelect{
 					})
 					if(currentSong){
 						currentSong.p2Cursor = diffId
-						if(p2.session && currentSong.stars){
+						if(p2.session && currentSong.courses){
 							this.selectedSong = index
 							this.state.move = 0
 							if(this.state.screen !== "difficulty"){
@@ -2192,7 +2315,7 @@ class SongSelect{
 							}
 							this.moveToSong(moveBy, true)
 						}
-					}else if(this.songs[song].stars){
+					}else if(this.songs[song].courses){
 						this.selectedSong = song
 						this.state.move = 0
 						if(this.state.screen !== "difficulty"){
@@ -2238,16 +2361,11 @@ class SongSelect{
 	
 	getLocalTitle(title, titleLang){
 		if(titleLang){
-			titleLang = titleLang.split("\n")
-			titleLang.forEach(line => {
-				var space = line.indexOf(" ")
-				var id = line.slice(0, space)
-				if(id === strings.id){
-					title = line.slice(space + 1)
-				}else if(titleLang.length === 1 && strings.id === "en" && !(id in allStrings)){
-					title = line
+			for(var id in titleLang){
+				if(id === strings.id && titleLang[id]){
+					return titleLang[id]
 				}
-			})
+			}
 		}
 		return title
 	}

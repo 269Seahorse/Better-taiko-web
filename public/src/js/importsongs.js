@@ -202,12 +202,16 @@
 			var tja = new ParseTja(data, "oni", 0, 0, true)
 			var songObj = {
 				id: index + 1,
+				order: index + 1,
 				type: "tja",
 				chart: file,
-				stars: [],
+				stars: {},
 				music: "muted"
 			}
+			var coursesAdded = false
 			var titleLang = {}
+			var titleLangAdded = false
+			var subtitleLangAdded = false
 			var subtitleLang = {}
 			var dir = file.webkitRelativePath.toLowerCase()
 			dir = dir.slice(0, dir.lastIndexOf("/") + 1)
@@ -221,7 +225,11 @@
 				}
 				songObj.subtitle = subtitle
 				songObj.preview = meta.demostart || 0
-				songObj.stars[this.courseTypes[diff]] = (meta.level || "0") + (meta.branch ? " B" : "")
+				songObj.courses[diff] = {
+					stars: meta.level || 0,
+					branch: !!meta.branch
+				}
+				coursesAdded = true
 				if(meta.wave){
 					songObj.music = this.otherFiles[dir + meta.wave.toLowerCase()] || songObj.music
 				}
@@ -264,32 +272,27 @@
 					}
 					if(meta["title" + id]){
 						titleLang[id] = meta["title" + id]
+						titleLangAdded = true
 					}else if(songTitle in this.songTitle && this.songTitle[songTitle][id]){
 						titleLang[id] = this.songTitle[songTitle][id] + ura
+						titleLangAdded = true
 					}
 					if(meta["subtitle" + id]){
 						subtitleLang[id] = meta["subtitle" + id]
+						subtitleLangAdded = true
 					}
 				}
 			}
-			var titleLangArray = []
-			for(var id in titleLang){
-				titleLangArray.push(id + " " + titleLang[id])
+			if(titleLangAdded){
+				songObj.title_lang = titleLang
 			}
-			if(titleLangArray.length !== 0){
-				songObj.title_lang = titleLangArray.join("\n")
-			}
-			var subtitleLangArray = []
-			for(var id in subtitleLang){
-				subtitleLangArray.push(id + " " + subtitleLang[id])
-			}
-			if(subtitleLangArray.length !== 0){
-				songObj.subtitle_lang = subtitleLangArray.join("\n")
+			if(subtitleLangAdded){
+				songObj.subtitle_lang = subtitleLang
 			}
 			if(!songObj.category){
 				songObj.category = category || this.getCategory(file, [songTitle || songObj.title, file.name.slice(0, file.name.lastIndexOf("."))])
 			}
-			if(songObj.stars.length !== 0){
+			if(coursesAdded){
 				this.songs[index] = songObj
 			}
 			var hash = md5.base64(event.target.result).slice(0, -2)
@@ -316,12 +319,20 @@
 			dir = dir.slice(0, dir.lastIndexOf("/") + 1)
 			var songObj = {
 				id: index + 1,
+				order: index + 1,
 				type: "osu",
 				chart: file,
 				subtitle: osu.metadata.ArtistUnicode || osu.metadata.Artist,
-				subtitle_lang: osu.metadata.Artist || osu.metadata.ArtistUnicode,
+				subtitle_lang: {
+					en: osu.metadata.Artist || osu.metadata.ArtistUnicode
+				},
 				preview: osu.generalInfo.PreviewTime / 1000,
-				stars: [null, null, null, parseInt(osu.difficulty.overallDifficulty) || 1],
+				courses: {
+					oni:{
+						stars: parseInt(osu.difficulty.overallDifficulty) || 0,
+						branch: false
+					}
+				},
 				music: this.otherFiles[dir + osu.generalInfo.AudioFilename.toLowerCase()] || "muted"
 			}
 			var filename = file.name.slice(0, file.name.lastIndexOf("."))
@@ -333,7 +344,9 @@
 					suffix = " " + matches[0]
 				}
 				songObj.title = title + suffix
-				songObj.title_lang = (osu.metadata.Title || osu.metadata.TitleUnicode) + suffix
+				songObj.title_lang = {
+					en: (osu.metadata.Title || osu.metadata.TitleUnicode) + suffix
+				}
 			}else{
 				songObj.title = filename
 			}

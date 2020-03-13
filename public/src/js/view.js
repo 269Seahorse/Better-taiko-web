@@ -126,6 +126,7 @@
 		this.comboCache = new CanvasCache(noSmoothing)
 		this.pauseCache = new CanvasCache(noSmoothing)
 		this.branchCache = new CanvasCache(noSmoothing)
+		this.nameplateCache = new CanvasCache(noSmoothing)
 		
 		this.multiplayer = this.controller.multiplayer
 		
@@ -234,6 +235,11 @@
 			}
 			if(!this.multiplayer){
 				this.pauseCache.resize(81 * this.pauseOptions.length * 2, 464, ratio)
+			}
+			if(this.portrait){
+				this.nameplateCache.resize(220, 54, ratio + 0.2)
+			}else{
+				this.nameplateCache.resize(274, 67, ratio + 0.2)
 			}
 			this.fillComboCache()
 			this.setDonBgHeight()
@@ -386,6 +392,32 @@
 				y: frameTop + (this.multiplayer === 2 ? 464 : 184),
 				w: 111,
 				h: 130
+			}
+			
+			if(this.multiplayer !== 2){
+				this.nameplateCache.get({
+					ctx: ctx,
+					x: 167,
+					y: 160,
+					w: 219,
+					h: 53,
+					id: "1p",
+				}, ctx => {
+					if(this.multiplayer === 2){
+						var name = p2.name || strings.defaultName
+					}else{
+						var name = account.loggedIn ? account.displayName : strings.defaultName
+					}
+					this.draw.nameplate({
+						ctx: ctx,
+						x: 3,
+						y: 3,
+						scale: 0.8,
+						name: name,
+						font: this.font,
+						blue: this.multiplayer === 2
+					})
+				})
 			}
 			
 			ctx.fillStyle = "#000"
@@ -546,6 +578,29 @@
 				y2: frameTop + (this.multiplayer === 2 ? 378 : 165)
 			}
 			var taikoPos = {x: 179, y: frameTop + 190, w: 138, h: 162}
+			
+			this.nameplateCache.get({
+				ctx: ctx,
+				x: 320,
+				y: this.multiplayer === 2 ? frameTop + 305 : frameTop + 20,
+				w: 273,
+				h: 66,
+				id: "1p",
+			}, ctx => {
+				if(this.multiplayer === 2){
+					var name = p2.name || strings.defaultName
+				}else{
+					var name = account.loggedIn ? account.displayName : strings.defaultName
+				}
+				this.draw.nameplate({
+					ctx: ctx,
+					x: 3,
+					y: 3,
+					name: name,
+					font: this.font,
+					blue: this.multiplayer === 2
+				})
+			})
 			
 			ctx.fillStyle = "#000"
 			ctx.fillRect(

@@ -5,17 +5,22 @@ class ScoreStorage{
 		this.difficulty = ["oni", "ura", "hard", "normal", "easy"]
 		this.scoreKeys = ["points", "good", "ok", "bad", "maxCombo", "drumroll"]
 		this.crownValue = ["", "silver", "gold"]
-		this.load()
 	}
-	load(){
+	load(strings){
 		this.scores = {}
-		this.scoreStrings = {}
-		try{
-			var localScores = localStorage.getItem("scoreStorage")
-			if(localScores){
-				this.scoreStrings = JSON.parse(localScores)
-			}
-		}catch(e){}
+		if(strings){
+			this.scoreStrings = strings
+		}else if(account.loggedIn){
+			return
+		}else{
+			this.scoreStrings = {}
+			try{
+				var localScores = localStorage.getItem("scoreStorage")
+				if(localScores){
+					this.scoreStrings = JSON.parse(localScores)
+				}
+			}catch(e){}
+		}
 		for(var hash in this.scoreStrings){
 			var scoreString = this.scoreStrings[hash]
 			var songAdded = false
@@ -46,16 +51,22 @@ class ScoreStorage{
 			}
 		}
 	}
-	save(){
+	save(localOnly){
 		for(var hash in this.scores){
 			this.writeString(hash)
 		}
 		this.write()
+		return this.sendToServer({
+			scores: this.scoreStrings,
+			is_import: true
+		})
 	}
 	write(){
-		try{
-			localStorage.setItem("scoreStorage", JSON.stringify(this.scoreStrings))
-		}catch(e){}
+		if(!account.loggedIn){
+			try{
+				localStorage.setItem("scoreStorage", JSON.stringify(this.scoreStrings))
+			}catch(e){}
+		}
 	}
 	writeString(hash){
 		var score = this.scores[hash]
@@ -112,6 +123,11 @@ class ScoreStorage{
 		this.scores[hash][difficulty] = scoreObject
 		this.writeString(hash)
 		this.write()
+		var obj = {}
+		obj[hash] = this.scoreStrings[hash]
+		this.sendToServer({
+			scores: obj
+		}).catch(() => this.add.apply(this, arguments))
 	}
 	template(){
 		var template = {crown: ""}
@@ -146,6 +162,42 @@ class ScoreStorage{
 				delete this.scoreStrings[hash]
 			}
 			this.write()
+			this.sendToServer({
+				scores: this.scoreStrings,
+				is_import: true
+			})
+		}
+	}
+	sendToServer(obj, retry){
+		if(account.loggedIn){
+			var request = new XMLHttpRequest()
+			request.open("POST", "api/scores/save")
+			var promise = pageEvents.load(request).then(response => {
+				if(request.status !== 200){
+					return Promise.reject()
+				}
+			}).catch(() => {
+				if(retry){
+					account.loggedIn = false
+					delete account.username
+					delete account.displayName
+					Cookies.remove("token")
+					this.load()
+					pageEvents.send("logout")
+					return Promise.reject()
+				}else{
+					return new Promise(resolve => {
+						setTimeout(() => {
+							resolve()
+						}, 3000)
+					}).then(() => this.sendToServer(obj, true))
+				}
+			})
+			request.setRequestHeader("Content-Type", "application/json;charset=UTF-8")
+			request.send(JSON.stringify(obj))
+			return promise
+		}else{
+			return Promise.resolve()
 		}
 	}
 }

@@ -86,6 +86,9 @@ class PageEvents{
 		})
 	}
 	keyEvent(event){
+		if(!("key" in event)){
+			return
+		}
 		if(this.kbd.indexOf(event.key.toLowerCase()) !== -1){
 			this.lastKeyEvent = Date.now()
 			event.preventDefault()

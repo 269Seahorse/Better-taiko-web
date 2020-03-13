@@ -104,11 +104,12 @@ class Loader{
 		}))
 		
 		this.afterJSCount =
-			["blurPerformance", "P2Connection"].length +
+			["blurPerformance"].length +
 			assets.audioSfx.length +
 			assets.audioMusic.length +
 			assets.audioSfxLR.length +
-			assets.audioSfxLoud.length
+			assets.audioSfxLoud.length +
+			(gameConfig._accounts ? 1 : 0)
 		
 		Promise.all(this.promises).then(() => {
 			
@@ -155,65 +156,92 @@ class Loader{
 				}
 			}))
 			
-			var readyEvent = "normal"
-			var songId
-			var hashLower = location.hash.toLowerCase()
-			p2 = new P2Connection()
-			if(hashLower.startsWith("#song=")){
-				var number = parseInt(location.hash.slice(6))
-				if(number > 0){
-					songId = number
-					readyEvent = "song-id"
+			if(gameConfig._accounts){
+				var token = Cookies.get("token")
+				if(token){
+					this.addPromise(this.ajax("/api/scores/get").then(response => {
+						response = JSON.parse(response)
+						if(response.status === "ok"){
+							account.loggedIn = true
+							account.username = response.username
+							account.displayName = response.display_name
+							scoreStorage.load(response.scores)
+							pageEvents.send("login", account.username)
+						}
+					}))
+				}else{
+					this.assetLoaded()
 				}
-			}else if(location.hash.length === 6){
-				p2.hashLock = true
-				this.addPromise(new Promise(resolve => {
-					p2.open()
-					pageEvents.add(p2, "message", response => {
-						if(response.type === "session"){
-							pageEvents.send("session-start", "invited")
-							readyEvent = "session-start"
-							resolve()
-						}else if(response.type === "gameend"){
-							p2.hash("")
-							p2.hashLock = false
-							readyEvent = "session-expired"
-							resolve()
-						}
-					})
-					p2.send("invite", location.hash.slice(1).toLowerCase())
-					setTimeout(() => {
-						if(p2.socket.readyState !== 1){
-							p2.hash("")
-							p2.hashLock = false
-							resolve()
-						}
-					}, 10000)
-				}).then(() => {
-					pageEvents.remove(p2, "message")
-				}))
-			}else{
-				p2.hash("")
 			}
 			
 			settings = new Settings()
 			pageEvents.setKbd()
-			
 			scoreStorage = new ScoreStorage()
-			for(var i in assets.songsDefault){
-				var song = assets.songsDefault[i]
-				if(!song.hash){
-					song.hash = song.title
-				}
-				scoreStorage.songTitles[song.title] = song.hash
-				var score = scoreStorage.get(song.hash, false, true)
-				if(score){
-					score.title = song.title
-				}
-			}
 			
 			Promise.all(this.promises).then(() => {
-				this.canvasTest.drawAllImages().then(result => {
+				if(!account.loggedIn){
+					scoreStorage.load()
+				}
+				for(var i in assets.songsDefault){
+					var song = assets.songsDefault[i]
+					if(!song.hash){
+						song.hash = song.title
+					}
+					scoreStorage.songTitles[song.title] = song.hash
+					var score = scoreStorage.get(song.hash, false, true)
+					if(score){
+						score.title = song.title
+					}
+				}
+				var promises = []
+				
+				var readyEvent = "normal"
+				var songId
+				var hashLower = location.hash.toLowerCase()
+				p2 = new P2Connection()
+				if(hashLower.startsWith("#song=")){
+					var number = parseInt(location.hash.slice(6))
+					if(number > 0){
+						songId = number
+						readyEvent = "song-id"
+					}
+				}else if(location.hash.length === 6){
+					p2.hashLock = true
+					promises.push(new Promise(resolve => {
+						p2.open()
+						pageEvents.add(p2, "message", response => {
+							if(response.type === "session"){
+								pageEvents.send("session-start", "invited")
+								readyEvent = "session-start"
+								resolve()
+							}else if(response.type === "gameend"){
+								p2.hash("")
+								p2.hashLock = false
+								readyEvent = "session-expired"
+								resolve()
+							}
+						})
+						p2.send("invite", {
+							id: location.hash.slice(1).toLowerCase(),
+							name: account.loggedIn ? account.displayName : null
+						})
+						setTimeout(() => {
+							if(p2.socket.readyState !== 1){
+								p2.hash("")
+								p2.hashLock = false
+								resolve()
+							}
+						}, 10000)
+					}).then(() => {
+						pageEvents.remove(p2, "message")
+					}))
+				}else{
+					p2.hash("")
+				}
+				
+				promises.push(this.canvasTest.drawAllImages())
+				
+				Promise.all(promises).then(result => {
 					perf.allImg = result
 					perf.load = Date.now() - this.startTime
 					this.canvasTest.clean()

@@ -505,7 +505,9 @@ class Game{
 			var musicDuration = duration * 1000 - this.controller.offset
 			if(this.musicFadeOut === 0){
 				if(this.controller.multiplayer === 1){
-					p2.send("gameresults", this.getGlobalScore())
+					var obj = this.getGlobalScore()
+					obj.name = account.loggedIn ? account.displayName : strings.defaultName
+					p2.send("gameresults", obj)
 				}
 				this.musicFadeOut++
 			}else if(this.musicFadeOut === 1 && ms >= started + 1600){

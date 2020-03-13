@@ -297,7 +297,8 @@ class LoadSong{
 			})
 			p2.send("join", {
 				id: song.folder,
-				diff: song.difficulty
+				diff: song.difficulty,
+				name: account.loggedIn ? account.displayName : null
 			})
 		}else{
 			this.clean()

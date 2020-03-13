@@ -36,6 +36,8 @@
 	this.hard = "むずかしい"
 	this.oni = "おに"
 	this.songBranch = "譜面分岐あり"
+	this.defaultName = "どんちゃん"
+	this.notLoggedIn = "ログインしていない"
 	this.sessionStart = "オンラインセッションを開始する！"
 	this.sessionEnd = "オンラインセッションを終了する"
 	this.loading = "ロード中..."
@@ -184,6 +186,24 @@
 			content: "Audio latency: %s\nVideo latency: %s\n\nYou can configure these latency values in the settings."
 		}
 	}
+	this.account = {
+		username: "ユーザー名",
+		enterUsername: "ユーザー名を入力",
+		password: "パスワード",
+		enterPassword: "パスワードを入力",
+		repeatPassword: "パスワードを再入力",
+		remember: "ログイン状態を保持する",
+		login: "ログイン",
+		register: "登録",
+		registerAccount: "アカウントを登録",
+		passwordsDoNotMatch: "パスワードが一致しません",
+		cannotBeEmpty: "%sは空にできません",
+		error: "リクエストの処理中にエラーが発生しました",
+		logout: "ログアウト",
+		back: "もどる",
+		cancel: "Cancel",
+		save: "Save"
+	}
 	this.browserSupport = {
 		browserWarning: "サポートされていないブラウザを実行しています (%s)",
 		details: "詳しく",
@@ -233,6 +253,8 @@ function StringsEn(){
 	this.hard = "Hard"
 	this.oni = "Extreme"
 	this.songBranch = "Diverge Notes"
+	this.defaultName = "Don-chan"
+	this.notLoggedIn = "Not logged in"
 	this.sessionStart = "Begin an Online Session!"
 	this.sessionEnd = "End Online Session"
 	this.loading = "Loading..."
@@ -381,6 +403,33 @@ function StringsEn(){
 			content: "Audio latency: %s\nVideo latency: %s\n\nYou can configure these latency values in the settings."
 		}
 	}
+	this.account = {
+		username: "Username",
+		enterUsername: "Enter Username",
+		password: "Password",
+		enterPassword: "Enter Password",
+		repeatPassword: "Repeat Password",
+		remember: "Remember me",
+		login: "Log In",
+		register: "Register",
+		registerAccount: "Register account",
+		passwordsDoNotMatch: "Passwords do not match",
+		cannotBeEmpty: "%s cannot be empty",
+		error: "An error occurred while processing your request",
+		logout: "Log Out",
+		back: "Back",
+		cancel: "Cancel",
+		save: "Save",
+		displayName: "Displayed Name",
+		changePassword: "Change Password",
+		currentNewRepeat: [
+			"Current Password",
+			"New Password",
+			"Repeat New Password"
+		],
+		deleteAccount: "Delete Account",
+		verifyPassword: "Verify password to delete this account"
+	}
 	this.browserSupport = {
 		browserWarning: "You are running an unsupported browser (%s)",
 		details: "Details...",
@@ -430,6 +479,8 @@ function StringsCn(){
 	this.hard = "困难"
 	this.oni = "魔王"
 	this.songBranch = "有谱面分歧"
+	this.defaultName = "小咚"
+	this.notLoggedIn = "未登录"
 	this.sessionStart = "开始在线会话！"
 	this.sessionEnd = "结束在线会话"
 	this.loading = "加载中..."
@@ -578,6 +629,24 @@ function StringsCn(){
 			content: "Audio latency: %s\nVideo latency: %s\n\nYou can configure these latency values in the settings."
 		}
 	}
+	this.account = {
+		username: "登录名",
+		enterUsername: "输入用户名",
+		password: "密码",
+		enterPassword: "输入密码",
+		repeatPassword: "重新输入密码",
+		remember: "记住登录",
+		login: "登录",
+		register: "注册",
+		registerAccount: "注册帐号",
+		passwordsDoNotMatch: "密码不匹配",
+		cannotBeEmpty: "%s不能为空",
+		error: "处理您的请求时发生错误",
+		logout: "登出",
+		back: "返回",
+		cancel: "Cancel",
+		save: "Save"
+	}
 	this.browserSupport = {
 		browserWarning: "You are running an unsupported browser (%s)",
 		details: "Details...",
@@ -627,6 +696,8 @@ function StringsTw(){
 	this.hard = "困難"
 	this.oni = "魔王"
 	this.songBranch = "有譜面分歧"
+	this.defaultName = "小咚"
+	this.notLoggedIn = "未登錄"
 	this.sessionStart = "開始多人模式!"
 	this.sessionEnd = "結束多人模式"
 	this.loading = "讀取中..."
@@ -775,6 +846,24 @@ function StringsTw(){
 			content: "Audio latency: %s\nVideo latency: %s\n\nYou can configure these latency values in the settings."
 		}
 	}
+	this.account = {
+		username: "使用者名稱",
+		enterUsername: "輸入用戶名",
+		password: "密碼",
+		enterPassword: "輸入密碼",
+		repeatPassword: "再次輸入密碼",
+		remember: "記住登錄",
+		login: "登入",
+		register: "註冊",
+		registerAccount: "註冊帳號",
+		passwordsDoNotMatch: "密碼不匹配",
+		cannotBeEmpty: "%s不能為空",
+		error: "處理您的請求時發生錯誤",
+		logout: "登出",
+		back: "返回",
+		cancel: "Cancel",
+		save: "Save"
+	}
 	this.browserSupport = {
 		browserWarning: "You are running an unsupported browser (%s)",
 		details: "Details...",
@@ -824,6 +913,8 @@ function StringsKo(){
 	this.hard = "어려움"
 	this.oni = "귀신"
 	this.songBranch = "악보 분기 있습니다"
+	this.defaultName = "동이"
+	this.notLoggedIn = "로그인하지 않았습니다"
 	this.sessionStart = "온라인 세션 시작!"
 	this.sessionEnd = "온라인 세션 끝내기"
 	this.loading = "로딩 중..."
@@ -971,6 +1062,24 @@ function StringsKo(){
 			title: "Latency Calibration Results",
 			content: "Audio latency: %s\nVideo latency: %s\n\nYou can configure these latency values in the settings."
 		}
+	}
+	this.account = {
+		username: "사용자 이름",
+		enterUsername: "사용자 이름을 입력하십시오",
+		password: "비밀번호",
+		enterPassword: "비밀번호 입력",
+		repeatPassword: "비밀번호 재입력",
+		remember: "자동 로그인",
+		login: "로그인",
+		register: "가입하기",
+		registerAccount: "계정 등록",
+		passwordsDoNotMatch: "비밀번호가 일치하지 않습니다",
+		cannotBeEmpty: "%s 비어 있을 수 없습니다",
+		error: "요청을 처리하는 동안 오류가 발생했습니다",
+		logout: "로그 아웃",
+		back: "돌아간다",
+		cancel: "Cancel",
+		save: "Save"
 	}
 	this.browserSupport = {
 		browserWarning: "You are running an unsupported browser (%s)",

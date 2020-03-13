@@ -39,6 +39,7 @@ class Scoresheet{
 		
 		this.draw = new CanvasDraw(noSmoothing)
 		this.canvasCache = new CanvasCache(noSmoothing)
+		this.nameplateCache = new CanvasCache(noSmoothing)
 		
 		this.keyboard = new Keyboard({
 			confirm: ["enter", "space", "esc", "don_l", "don_r"]
@@ -208,6 +209,7 @@ class Scoresheet{
 				this.canvas.style.height = (winH / this.pixelRatio) + "px"
 				
 				this.canvasCache.resize(winW / ratio, 80 + 1, ratio)
+				this.nameplateCache.resize(274, 134, ratio + 0.2)
 				
 				if(!this.multiplayer){
 					this.tetsuoHana.style.setProperty("--scale", ratio / this.pixelRatio)
@@ -232,6 +234,9 @@ class Scoresheet{
 			ctx.scale(ratio, ratio)
 			if(!this.canvasCache.canvas){
 				this.canvasCache.resize(winW / ratio, 80 + 1, ratio)
+			}
+			if(!this.nameplateCache.canvas){
+				this.nameplateCache.resize(274, 67, ratio + 0.2)
 			}
 		}
 		this.winW = winW
@@ -449,6 +454,29 @@ class Scoresheet{
 					ctx.strokeText(text, 395, 308)
 					ctx.fillText(text, 395, 308)
 					ctx.miterLimit = 10
+					
+					if(p === 0){
+						var name = account.loggedIn ? account.displayName : strings.defaultName
+					}else{
+						var name = results.name
+					}
+					this.nameplateCache.get({
+						ctx: ctx,
+						x: 259,
+						y: 92,
+						w: 273,
+						h: 66,
+						id: p.toString() + "p",
+					}, ctx => {
+						this.draw.nameplate({
+							ctx: ctx,
+							x: 3,
+							y: 3,
+							name: name,
+							font: this.font,
+							blue: p === 1
+						})
+					})
 					
 					if(this.controller.autoPlayEnabled){
 						ctx.drawImage(assets.image["badge_auto"],
