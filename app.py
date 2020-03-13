@@ -205,7 +205,7 @@ def route_api_register():
         return api_error('username_in_use')
 
     password = data.get('password', '').encode('utf-8')
-    if not 8 <= len(password) <= 5000:
+    if not 6 <= len(password) <= 5000:
         return api_error('invalid_password')
 
     salt = bcrypt.gensalt()

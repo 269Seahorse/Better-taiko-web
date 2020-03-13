@@ -9,7 +9,7 @@ class ScoreStorage{
 	load(strings){
 		this.scores = {}
 		if(strings){
-			this.scoreStrings = strings
+			this.scoreStrings = this.prepareStrings(strings)
 		}else if(account.loggedIn){
 			return
 		}else{
@@ -55,6 +55,13 @@ class ScoreStorage{
 		var output = []
 		for (var k in scores) {
 			output.push({'hash': k, 'score': scores[k]})
+		}
+		return output
+	}
+	prepareStrings(scores){
+		var output = {}
+		for(var k in scores){
+			output[scores[k].hash] = scores[k].score
 		}
 		return output
 	}

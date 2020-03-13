@@ -394,31 +394,29 @@
 				h: 130
 			}
 			
-			if(this.multiplayer !== 2){
-				this.nameplateCache.get({
+			this.nameplateCache.get({
+				ctx: ctx,
+				x: 167,
+				y: this.multiplayer === 2 ? 565 : 160,
+				w: 219,
+				h: 53,
+				id: "1p",
+			}, ctx => {
+				if(this.multiplayer === 2){
+					var name = p2.name || strings.defaultName
+				}else{
+					var name = account.loggedIn ? account.displayName : strings.defaultName
+				}
+				this.draw.nameplate({
 					ctx: ctx,
-					x: 167,
-					y: 160,
-					w: 219,
-					h: 53,
-					id: "1p",
-				}, ctx => {
-					if(this.multiplayer === 2){
-						var name = p2.name || strings.defaultName
-					}else{
-						var name = account.loggedIn ? account.displayName : strings.defaultName
-					}
-					this.draw.nameplate({
-						ctx: ctx,
-						x: 3,
-						y: 3,
-						scale: 0.8,
-						name: name,
-						font: this.font,
-						blue: this.multiplayer === 2
-					})
+					x: 3,
+					y: 3,
+					scale: 0.8,
+					name: name,
+					font: this.font,
+					blue: this.multiplayer === 2
 				})
-			}
+			})
 			
 			ctx.fillStyle = "#000"
 			ctx.fillRect(
@@ -582,7 +580,7 @@
 			this.nameplateCache.get({
 				ctx: ctx,
 				x: 320,
-				y: this.multiplayer === 2 ? frameTop + 305 : frameTop + 20,
+				y: this.multiplayer === 2 ? 460 : 20,
 				w: 273,
 				h: 66,
 				id: "1p",

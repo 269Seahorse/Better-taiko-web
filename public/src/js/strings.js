@@ -202,7 +202,16 @@
 		logout: "ログアウト",
 		back: "もどる",
 		cancel: "Cancel",
-		save: "Save"
+		save: "Save",
+		displayName: "Displayed Name",
+		changePassword: "Change Password",
+		currentNewRepeat: [
+			"Current Password",
+			"New Password",
+			"Repeat New Password"
+		],
+		deleteAccount: "Delete Account",
+		verifyPassword: "Verify password to delete this account"
 	}
 	this.browserSupport = {
 		browserWarning: "サポートされていないブラウザを実行しています (%s)",
@@ -645,7 +654,16 @@ function StringsCn(){
 		logout: "登出",
 		back: "返回",
 		cancel: "Cancel",
-		save: "Save"
+		save: "Save",
+		displayName: "Displayed Name",
+		changePassword: "Change Password",
+		currentNewRepeat: [
+			"Current Password",
+			"New Password",
+			"Repeat New Password"
+		],
+		deleteAccount: "Delete Account",
+		verifyPassword: "Verify password to delete this account"
 	}
 	this.browserSupport = {
 		browserWarning: "You are running an unsupported browser (%s)",
@@ -862,7 +880,16 @@ function StringsTw(){
 		logout: "登出",
 		back: "返回",
 		cancel: "Cancel",
-		save: "Save"
+		save: "Save",
+		displayName: "Displayed Name",
+		changePassword: "Change Password",
+		currentNewRepeat: [
+			"Current Password",
+			"New Password",
+			"Repeat New Password"
+		],
+		deleteAccount: "Delete Account",
+		verifyPassword: "Verify password to delete this account"
 	}
 	this.browserSupport = {
 		browserWarning: "You are running an unsupported browser (%s)",
@@ -1079,7 +1106,16 @@ function StringsKo(){
 		logout: "로그 아웃",
 		back: "돌아간다",
 		cancel: "Cancel",
-		save: "Save"
+		save: "Save",
+		displayName: "Displayed Name",
+		changePassword: "Change Password",
+		currentNewRepeat: [
+			"Current Password",
+			"New Password",
+			"Repeat New Password"
+		],
+		deleteAccount: "Delete Account",
+		verifyPassword: "Verify password to delete this account"
 	}
 	this.browserSupport = {
 		browserWarning: "You are running an unsupported browser (%s)",

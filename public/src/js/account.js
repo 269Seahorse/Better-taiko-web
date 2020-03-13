@@ -256,7 +256,7 @@ class Account{
 			account.displayName = response.display_name
 			var loadScores = scores => {
 				scoreStorage.load(scores)
-				this.onEnd(false, true)
+				this.onEnd(false, true, true)
 				pageEvents.send("login", account.username)
 			}
 			if(this.mode === "login"){
@@ -267,7 +267,7 @@ class Account{
 				})
 			}else{
 				scoreStorage.save().catch(() => {}).finally(() => {
-					this.onEnd(false, true)
+					this.onEnd(false, true, true)
 					pageEvents.send("login", account.username)
 				})
 			}
@@ -294,7 +294,7 @@ class Account{
 		delete account.username
 		delete account.displayName
 		var loadScores = scores => {
-			Cookies.remove("token")
+			Cookies.remove("session")
 			scoreStorage.load()
 			this.onEnd(false, true)
 			pageEvents.send("logout")
@@ -341,7 +341,7 @@ class Account{
 				account.loggedIn = false
 				delete account.username
 				delete account.displayName
-				Cookies.remove("token")
+				Cookies.remove("session")
 				scoreStorage.load()
 				pageEvents.send("logout")
 				return Promise.resolve
@@ -351,6 +351,8 @@ class Account{
 		if(!noNameChange && newName !== account.displayName){
 			promises.push(this.request("account/display_name", {
 				display_name: newName
+			}).then(() => {
+				account.displayName = newName
 			}))
 		}
 		var error = false
@@ -368,7 +370,7 @@ class Account{
 			this.onEnd(false, true)
 		}, errorFunc).catch(errorFunc)
 	}
-	onEnd(event, noSound){
+	onEnd(event, noSound, noReset){
 		var touched = false
 		if(event){
 			if(event.type === "touchstart"){
@@ -381,7 +383,7 @@ class Account{
 		if(this.locked){
 			return
 		}
-		this.clean()
+		this.clean(false, noReset)
 		assets.sounds["se_don"].play()
 		setTimeout(() => {
 			new SongSelect(false, false, touched)
@@ -391,7 +393,7 @@ class Account{
 		this.lock(true)
 		return new Promise((resolve, reject) => {
 			var request = new XMLHttpRequest()
-			request.open(obj ? "POST" : "GET", "api/" + url)
+			request.open("POST", "api/" + url)
 			pageEvents.load(request).then(() => {
 				this.lock(false)
 				if(request.status !== 200){
@@ -433,7 +435,7 @@ class Account{
 			}
 		}
 	}
-	clean(eventsOnly){
+	clean(eventsOnly, noReset){
 		if(!eventsOnly){
 			cancelTouch = true
 			this.keyboard.clean()
@@ -447,8 +449,10 @@ class Account{
 			for(var i = 0; i < this.inputForms.length; i++){
 				pageEvents.remove(this.inputForms[i], ["keydown", "keyup", "keypress"])
 			}
-			this.accountPass.reset()
-			this.accountDel.reset()
+			if(!noReset){
+				this.accountPass.reset()
+				this.accountDel.reset()
+			}
 			delete this.displayname
 			delete this.accountPassButton
 			delete this.accountPass
@@ -460,7 +464,7 @@ class Account{
 			delete this.saveButton
 			delete this.inputForms
 		}else if(this.mode === "login" || this.mode === "register"){
-			if(!eventsOnly){
+			if(!eventsOnly && !noReset){
 				this.form.reset()
 			}
 			pageEvents.remove(this.form, "submit")
