@@ -1,4 +1,6 @@
 {
     "songs_baseurl": "",
-    "assets_baseurl": ""
+    "assets_baseurl": "",
+    "email": "",
+    "_accounts": true
 }

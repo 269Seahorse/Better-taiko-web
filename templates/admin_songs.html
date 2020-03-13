@@ -1,0 +1,11 @@
+{% extends 'admin.html' %}
+{% block content %}
+<h1>Songs</h1>
+{% for song in songs %}
+    <a href="/admin/songs/{{ song.id }}" class="song-link">
+        <div class="song">
+            <p>{{ song.title }}</p>
+        </div>
+    </a>
+{% endfor %}
+{% endblock %}
