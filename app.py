@@ -339,7 +339,7 @@ def route_api_scores_save():
             'score': score['score']
         }}, upsert=True)
 
-    return jsonify({'success': True})
+    return jsonify({'status': 'ok'})
 
 
 @app.route('/api/scores/get')

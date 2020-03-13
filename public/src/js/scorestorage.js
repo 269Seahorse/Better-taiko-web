@@ -54,7 +54,7 @@ class ScoreStorage{
 	prepareScores(scores){
 		var output = []
 		for (var k in scores) {
-			songs.push({'hash': k, 'score': scores[k]})
+			output.push({'hash': k, 'score': scores[k]})
 		}
 		return output
 	}
