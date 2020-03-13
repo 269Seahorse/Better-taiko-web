@@ -706,12 +706,12 @@
 				})
 			}else if(r.smallHiragana.test(symbol)){
 				// Small hiragana, small katakana
-				drawn.push({text: symbol, x: 0, y: 0, w: 30})
+				drawn.push({text: symbol, kana: true, x: 0, y: 0, w: 30})
 			}else if(r.hiragana.test(symbol)){
 				// Hiragana, katakana
-				drawn.push({text: symbol, x: 0, y: 0, w: 35})
+				drawn.push({text: symbol, kana: true, x: 0, y: 0, w: 35})
 			}else{
-				drawn.push({text: symbol, x: 0, y: 0, w: 39})
+				drawn.push({text: symbol, kana: true, x: 0, y: 0, w: 39})
 			}
 		}
 		
@@ -719,6 +719,9 @@
 		for(let symbol of drawn){
 			if(config.letterSpacing){
 				symbol.w += config.letterSpacing
+			}
+			if(config.kanaSpacing && symbol.kana){
+				symbol.w += config.kanaSpacing
 			}
 			drawnWidth += symbol.w * mul
 		}
@@ -1390,7 +1393,7 @@
 		}
 		ctx.fill()
 		
-		if(gaugeFilled < gaugeClear){
+		if(!cleared){
 			ctx.fillStyle = config.blue ? "#184d55" : "#680000"
 			var x = Math.max(0, gaugeFilled - 5)
 			ctx.fillRect(x, firstTop, gaugeClear - x + 2 + (gaugeClear < gaugeW ? 0 : -7), 22)
@@ -1545,6 +1548,99 @@
 				size: 8
 			})
 		}
+		
+		ctx.restore()
+	}
+	
+	nameplate(config){
+		var ctx = config.ctx
+		var w = 264
+		var h = 57
+		var r = h / 2
+		var pi = Math.PI
+		
+		ctx.save()
+		
+		ctx.translate(config.x, config.y)
+		if(config.scale){
+			ctx.scale(config.scale, config.scale)
+		}
+		
+		ctx.fillStyle="rgba(0, 0, 0, 0.25)"
+		ctx.beginPath()
+		ctx.arc(r + 4, r + 5, r, pi / 2, pi / -2)
+		ctx.arc(w - r + 4, r + 5, r, pi / -2, pi / 2)
+		ctx.fill()
+		ctx.beginPath()
+		ctx.moveTo(r, 0)
+		this.roundedCorner(ctx, w, 0, r, 1)
+		ctx.lineTo(r, r)
+		ctx.fillStyle = config.blue ? "#67cecb" : "#ff421d"
+		ctx.fill()
+		ctx.beginPath()
+		ctx.moveTo(r, r)
+		this.roundedCorner(ctx, w, h, r, 2)
+		ctx.lineTo(r, h)
+		ctx.fillStyle = "rgba(255, 255, 255, 0.8)"
+		ctx.fill()
+		ctx.strokeStyle = "#000"
+		ctx.lineWidth = 4
+		ctx.beginPath()
+		ctx.moveTo(r, 0)
+		ctx.arc(w - r, r, r, pi / -2, pi / 2)
+		ctx.lineTo(r, h)
+		ctx.stroke()
+		ctx.beginPath()
+		ctx.moveTo(r, r - 1)
+		ctx.lineTo(w, r - 1)
+		ctx.lineWidth = 2
+		ctx.stroke()
+		ctx.beginPath()
+		ctx.arc(r, r, r, 0, pi * 2)
+		ctx.fillStyle = config.blue ? "#67cecb" : "#ff421d"
+		ctx.fill()
+		ctx.lineWidth = 4
+		ctx.stroke()
+		ctx.font = this.bold(config.font) + "28px " + config.font
+		ctx.textAlign = "center"
+		ctx.textBaseline = "middle"
+		ctx.lineWidth = 5
+		ctx.miterLimit = 1
+		ctx.strokeStyle = "#fff"
+		ctx.fillStyle = "#000"
+		var text = config.blue ? "2P" : "1P"
+		ctx.strokeText(text, r + 2, r + 1)
+		ctx.fillText(text, r + 2, r + 1)
+		if(config.rank){
+			this.layeredText({
+				ctx: ctx,
+				text: config.rank,
+				fontSize: 20,
+				fontFamily: config.font,
+				x: w / 2 + r * 0.7,
+				y: r * 0.5,
+				width: 180,
+				align: "center",
+				baseline: "middle"
+			}, [
+				{fill: "#000"}
+			])
+		}
+		this.layeredText({
+			ctx: ctx,
+			text: config.name || "",
+			fontSize: 21,
+			fontFamily: config.font,
+			x: w / 2 + r * 0.7,
+			y: r * 1.5 - 0.5,
+			width: 180,
+			kanaSpacing: 10,
+			align: "center",
+			baseline: "middle"
+		}, [
+			{outline: "#000", letterBorder: 6},
+			{fill: "#fff"}
+		])
 		
 		ctx.restore()
 	}

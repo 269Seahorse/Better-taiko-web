@@ -1,6 +1,7 @@
 var assets = {
 	"js": [
 		"lib/md5.min.js",
+		"lib/js.cookie.min.js",
 		"loadsong.js",
 		"parseosu.js",
 		"titlescreen.js",
@@ -31,7 +32,8 @@ var assets = {
 		"importsongs.js",
 		"logo.js",
 		"settings.js",
-		"scorestorage.js"
+		"scorestorage.js",
+		"account.js"
 	],
 	"css": [
 		"main.css",
@@ -137,7 +139,9 @@ var assets = {
 		"about.html",
 		"debug.html",
 		"session.html",
-		"settings.html"
+		"settings.html",
+		"account.html",
+		"login.html"
 	],
 	
 	"songs": [],

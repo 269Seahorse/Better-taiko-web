@@ -132,12 +132,12 @@ class Debug{
 			
 			var selectedSong = this.controller.selectedSong
 			this.defaultOffset = selectedSong.offset || 0
-			if(this.songFolder === selectedSong.folder){
+			if(this.songHash === selectedSong.hash){
 				this.offsetChange(this.offsetSlider.get(), true)
 				this.branchChange(null, true)
 				this.volumeChange(this.volumeSlider.get(), true)
 			}else{
-				this.songFolder = selectedSong.folder
+				this.songHash = selectedSong.hash
 				this.offsetSlider.set(this.defaultOffset)
 				this.branchReset(null, true)
 				this.volumeSlider.set(this.controller.volume)

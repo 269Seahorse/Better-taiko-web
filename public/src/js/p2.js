@@ -3,6 +3,7 @@ class P2Connection{
 		this.closed = true
 		this.lastMessages = {}
 		this.otherConnected = false
+		this.name = null
 		this.allEvents = new Map()
 		this.addEventListener("message", this.message.bind(this))
 		this.currentHash = ""
@@ -123,6 +124,7 @@ class P2Connection{
 					this.hash("")
 					this.hashLock = false
 				}
+				this.name = null
 				break
 			case "gameresults":
 				this.results = {}
@@ -150,6 +152,9 @@ class P2Connection{
 				this.clearMessage("users")
 				this.otherConnected = true
 				this.session = true
+				break
+			case "name":
+				this.name = (response.value || "").toString() || null
 				break
 		}
 	}

@@ -44,7 +44,7 @@ class GameRules{
 			case "easy":
 				good = Math.floor(10000 / combo * 1.575)
 				ok = Math.floor(good * 0.75)
-				bad = Math.ceil(good * -2)
+				bad = Math.ceil(good / -2)
 				break
 			case "normal":
 				good = Math.floor(10000 / combo / 0.7)

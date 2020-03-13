@@ -42,7 +42,8 @@ async def connection(ws, path):
 	user = {
 		"ws": ws,
 		"action": "ready",
-		"session": False
+		"session": False,
+		"name": None
 	}
 	server_status["users"].append(user)
 	try:
@@ -79,6 +80,7 @@ async def connection(ws, path):
 						waiting = server_status["waiting"]
 						id = value["id"] if "id" in value else None
 						diff = value["diff"] if "diff" in value else None
+						user["name"] = value["name"] if "name" in value else None
 						if not id or not diff:
 							continue
 						if id not in waiting:
@@ -92,6 +94,7 @@ async def connection(ws, path):
 							await ws.send(msgobj("waiting"))
 						else:
 							# Join the other user and start game
+							user["name"] = value["name"] if "name" in value else None
 							user["other_user"] = waiting[id]["user"]
 							waiting_diff = waiting[id]["diff"]
 							del waiting[id]
@@ -101,7 +104,9 @@ async def connection(ws, path):
 								user["other_user"]["other_user"] = user
 								await asyncio.wait([
 									ws.send(msgobj("gameload", waiting_diff)),
-									user["other_user"]["ws"].send(msgobj("gameload", diff))
+									user["other_user"]["ws"].send(msgobj("gameload", diff)),
+									ws.send(msgobj("name", user["other_user"]["name"])),
+									user["other_user"]["ws"].send(msgobj("name", user["name"]))
 								])
 							else:
 								# Wait for another user
@@ -116,27 +121,31 @@ async def connection(ws, path):
 						# Update others on waiting players
 						await notify_status()
 					elif type == "invite":
-						if value == None:
+						if value and "id" in value and value["id"] == None:
 							# Session invite link requested
 							invite = get_invite()
 							server_status["invites"][invite] = user
 							user["action"] = "invite"
 							user["session"] = invite
+							user["name"] = value["name"] if "name" in value else None
 							await ws.send(msgobj("invite", invite))
-						elif value in server_status["invites"]:
+						elif value and "id" in value and value["id"] in server_status["invites"]:
 							# Join a session with the other user
-							user["other_user"] = server_status["invites"][value]
-							del server_status["invites"][value]
+							user["name"] = value["name"] if "name" in value else None
+							user["other_user"] = server_status["invites"][value["id"]]
+							del server_status["invites"][value["id"]]
 							if "ws" in user["other_user"]:
 								user["other_user"]["other_user"] = user
 								user["action"] = "invite"
-								user["session"] = value
+								user["session"] = value["id"]
 								sent_msg = msgobj("session")
 								await asyncio.wait([
 									ws.send(sent_msg),
-									user["other_user"]["ws"].send(sent_msg)
+									user["other_user"]["ws"].send(sent_msg),
+									ws.send(msgobj("invite")),
+									ws.send(msgobj("name", user["other_user"]["name"])),
+									user["other_user"]["ws"].send(msgobj("name", user["name"]))
 								])
-								await ws.send(msgobj("invite"))
 							else:
 								del user["other_user"]
 								await ws.send(msgobj("gameend"))

@@ -544,7 +544,7 @@ class SettingsView{
 				}while(this.items[this.selected].id === "default" && name !== "left")
 				selected = this.items[this.selected]
 				selected.settingBox.classList.add("selected")
-				selected.settingBox.scrollIntoView()
+				this.scrollTo(selected.settingBox)
 				this.playSound("se_ka")
 			}else if(name === "back"){
 				this.onEnd()
@@ -603,6 +603,21 @@ class SettingsView{
 				this.playSound(name === "confirm" ? "se_don" : "se_cancel")
 			}else if(name === "up" || name === "right" || name === "down" || name === "left"){
 				this.latencySetAdjust(latencySelected, (name === "up" || name === "right") ? 1 : -1)
+			}
+		}
+	}
+	scrollTo(element){
+		var parentNode = element.parentNode
+		var selected = element.getBoundingClientRect()
+		var parent = parentNode.getBoundingClientRect()
+		var scrollY = parentNode.scrollTop
+		var selectedPosTop = selected.top - selected.height / 2
+		if(Math.floor(selectedPosTop) < Math.floor(parent.top)){
+			parentNode.scrollTop += selectedPosTop - parent.top
+		}else{
+			var selectedPosBottom = selected.top + selected.height * 1.5 - parent.top
+			if(Math.floor(selectedPosBottom) > Math.floor(parent.height)){
+				parentNode.scrollTop += selectedPosBottom - parent.height
 			}
 		}
 	}
