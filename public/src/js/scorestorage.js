@@ -51,13 +51,20 @@ class ScoreStorage{
 			}
 		}
 	}
+	prepareScores(scores){
+		var output = []
+		for (var k in scores) {
+			songs.push({'hash': k, 'score': scores[k]})
+		}
+		return output
+	}
 	save(localOnly){
 		for(var hash in this.scores){
 			this.writeString(hash)
 		}
 		this.write()
 		return this.sendToServer({
-			scores: this.scoreStrings,
+			scores: this.prepareScores(this.scoreStrings),
 			is_import: true
 		})
 	}
@@ -163,7 +170,7 @@ class ScoreStorage{
 			}
 			this.write()
 			this.sendToServer({
-				scores: this.scoreStrings,
+				scores: this.prepareScores(this.scoreStrings),
 				is_import: true
 			})
 		}
@@ -181,7 +188,7 @@ class ScoreStorage{
 					account.loggedIn = false
 					delete account.username
 					delete account.displayName
-					Cookies.remove("token")
+					Cookies.remove("session")
 					this.load()
 					pageEvents.send("logout")
 					return Promise.reject()

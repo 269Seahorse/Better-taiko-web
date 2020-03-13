@@ -157,7 +157,7 @@ class Loader{
 			}))
 			
 			if(gameConfig._accounts){
-				var token = Cookies.get("token")
+				var token = Cookies.get("session")
 				if(token){
 					this.addPromise(this.ajax("/api/scores/get").then(response => {
 						response = JSON.parse(response)

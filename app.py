@@ -25,6 +25,7 @@ except FileNotFoundError:
         fp.close()
 
 app.config['SESSION_TYPE'] = 'redis'
+app.config['SESSION_COOKIE_HTTPONLY'] = False
 app.cache = Cache(app, config={'CACHE_TYPE': 'redis'})
 sess = Session()
 sess.init_app(app)
@@ -354,7 +355,7 @@ def route_api_scores_get():
         })
 
     user = db.users.find_one({'username': username})
-    return jsonify({'scores': scores, 'username': user['username'], 'display_name': user['display_name']})
+    return jsonify({'status': 'ok', 'scores': scores, 'username': user['username'], 'display_name': user['display_name']})
 
 
 def make_preview(song_id, song_type, preview):
