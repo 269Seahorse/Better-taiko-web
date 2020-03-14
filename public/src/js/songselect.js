@@ -2279,7 +2279,7 @@ class SongSelect{
 			})
 		}
 		this.draw.songFrame(config)
-		if(config.song.p2Cursor !== null && p2.socket.readyState === 1){
+		if("p2Cursor" in config.song && config.song.p2Cursor !== null && p2.socket.readyState === 1){
 			this.draw.diffCursor({
 				ctx: ctx,
 				font: this.font,

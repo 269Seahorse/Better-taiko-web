@@ -205,7 +205,7 @@
 				order: index + 1,
 				type: "tja",
 				chart: file,
-				stars: {},
+				courses: {},
 				music: "muted"
 			}
 			var coursesAdded = false
