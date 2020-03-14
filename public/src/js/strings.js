@@ -37,6 +37,7 @@
 	this.oni = "おに"
 	this.songBranch = "譜面分岐あり"
 	this.defaultName = "どんちゃん"
+	this.default2PName = "かっちゃん"
 	this.notLoggedIn = "ログインしていない"
 	this.sessionStart = "オンラインセッションを開始する！"
 	this.sessionEnd = "オンラインセッションを終了する"
@@ -197,6 +198,7 @@
 		register: "登録",
 		registerAccount: "アカウントを登録",
 		passwordsDoNotMatch: "パスワードが一致しません",
+		newPasswordsDoNotMatch: "New passwords do not match",
 		cannotBeEmpty: "%sは空にできません",
 		error: "リクエストの処理中にエラーが発生しました",
 		logout: "ログアウト",
@@ -212,6 +214,17 @@
 		],
 		deleteAccount: "Delete Account",
 		verifyPassword: "Verify password to delete this account"
+	}
+	this.serverError = {
+		not_logged_in: "Not logged in",
+		invalid_username: "Invalid username, a username can only contain letters, numbers, and underscores, and must be between 3 and 20 characters long",
+		username_in_use: "A user already exists with that username",
+		invalid_password: "Cannot use this password, please check that your password is at least 6 characters long",
+		invalid_username_password: "Invalid Username or Password",
+		invalid_display_name: "Cannot use this name, please check that your new name is at most 25 characters long",
+		current_password_invalid: "Current password does not match",
+		invalid_new_password: "Cannot use this password, please check that your new password is at least 6 characters long",
+		verify_password_invalid: "Verification password does not match"
 	}
 	this.browserSupport = {
 		browserWarning: "サポートされていないブラウザを実行しています (%s)",
@@ -263,9 +276,11 @@ function StringsEn(){
 	this.oni = "Extreme"
 	this.songBranch = "Diverge Notes"
 	this.defaultName = "Don-chan"
+	this.default2PName = "Katsu-chan"
 	this.notLoggedIn = "Not logged in"
 	this.sessionStart = "Begin an Online Session!"
 	this.sessionEnd = "End Online Session"
+	this.scoreSaveFailed = "Could not connect to the server, your score has not been saved.\n\nPlease log in or refresh the page to try saving the score again."
 	this.loading = "Loading..."
 	this.waitingForP2 = "Waiting for Another Player..."
 	this.cancel = "Cancel"
@@ -423,6 +438,7 @@ function StringsEn(){
 		register: "Register",
 		registerAccount: "Register account",
 		passwordsDoNotMatch: "Passwords do not match",
+		newPasswordsDoNotMatch: "New passwords do not match",
 		cannotBeEmpty: "%s cannot be empty",
 		error: "An error occurred while processing your request",
 		logout: "Log Out",
@@ -438,6 +454,17 @@ function StringsEn(){
 		],
 		deleteAccount: "Delete Account",
 		verifyPassword: "Verify password to delete this account"
+	}
+	this.serverError = {
+		not_logged_in: "Not logged in",
+		invalid_username: "Invalid username, a username can only contain letters, numbers, and underscores, and must be between 3 and 20 characters long",
+		username_in_use: "A user already exists with that username",
+		invalid_password: "Cannot use this password, please check that your password is at least 6 characters long",
+		invalid_username_password: "Invalid Username or Password",
+		invalid_display_name: "Cannot use this name, please check that your new name is at most 25 characters long",
+		current_password_invalid: "Current password does not match",
+		invalid_new_password: "Cannot use this password, please check that your new password is at least 6 characters long",
+		verify_password_invalid: "Verification password does not match"
 	}
 	this.browserSupport = {
 		browserWarning: "You are running an unsupported browser (%s)",
@@ -489,6 +516,7 @@ function StringsCn(){
 	this.oni = "魔王"
 	this.songBranch = "有谱面分歧"
 	this.defaultName = "小咚"
+	this.default2PName = "小咔"
 	this.notLoggedIn = "未登录"
 	this.sessionStart = "开始在线会话！"
 	this.sessionEnd = "结束在线会话"
@@ -649,6 +677,7 @@ function StringsCn(){
 		register: "注册",
 		registerAccount: "注册帐号",
 		passwordsDoNotMatch: "密码不匹配",
+		newPasswordsDoNotMatch: "New passwords do not match",
 		cannotBeEmpty: "%s不能为空",
 		error: "处理您的请求时发生错误",
 		logout: "登出",
@@ -664,6 +693,17 @@ function StringsCn(){
 		],
 		deleteAccount: "Delete Account",
 		verifyPassword: "Verify password to delete this account"
+	}
+	this.serverError = {
+		not_logged_in: "Not logged in",
+		invalid_username: "Invalid username, a username can only contain letters, numbers, and underscores, and must be between 3 and 20 characters long",
+		username_in_use: "A user already exists with that username",
+		invalid_password: "Cannot use this password, please check that your password is at least 6 characters long",
+		invalid_username_password: "Invalid Username or Password",
+		invalid_display_name: "Cannot use this name, please check that your new name is at most 25 characters long",
+		current_password_invalid: "Current password does not match",
+		invalid_new_password: "Cannot use this password, please check that your new password is at least 6 characters long",
+		verify_password_invalid: "Verification password does not match"
 	}
 	this.browserSupport = {
 		browserWarning: "You are running an unsupported browser (%s)",
@@ -715,6 +755,7 @@ function StringsTw(){
 	this.oni = "魔王"
 	this.songBranch = "有譜面分歧"
 	this.defaultName = "小咚"
+	this.default2PName = "小咔"
 	this.notLoggedIn = "未登錄"
 	this.sessionStart = "開始多人模式!"
 	this.sessionEnd = "結束多人模式"
@@ -875,6 +916,7 @@ function StringsTw(){
 		register: "註冊",
 		registerAccount: "註冊帳號",
 		passwordsDoNotMatch: "密碼不匹配",
+		newPasswordsDoNotMatch: "New passwords do not match",
 		cannotBeEmpty: "%s不能為空",
 		error: "處理您的請求時發生錯誤",
 		logout: "登出",
@@ -890,6 +932,17 @@ function StringsTw(){
 		],
 		deleteAccount: "Delete Account",
 		verifyPassword: "Verify password to delete this account"
+	}
+	this.serverError = {
+		not_logged_in: "Not logged in",
+		invalid_username: "Invalid username, a username can only contain letters, numbers, and underscores, and must be between 3 and 20 characters long",
+		username_in_use: "A user already exists with that username",
+		invalid_password: "Cannot use this password, please check that your password is at least 6 characters long",
+		invalid_username_password: "Invalid Username or Password",
+		invalid_display_name: "Cannot use this name, please check that your new name is at most 25 characters long",
+		current_password_invalid: "Current password does not match",
+		invalid_new_password: "Cannot use this password, please check that your new password is at least 6 characters long",
+		verify_password_invalid: "Verification password does not match"
 	}
 	this.browserSupport = {
 		browserWarning: "You are running an unsupported browser (%s)",
@@ -941,6 +994,7 @@ function StringsKo(){
 	this.oni = "귀신"
 	this.songBranch = "악보 분기 있습니다"
 	this.defaultName = "동이"
+	this.default2PName = "딱이"
 	this.notLoggedIn = "로그인하지 않았습니다"
 	this.sessionStart = "온라인 세션 시작!"
 	this.sessionEnd = "온라인 세션 끝내기"
@@ -1101,6 +1155,7 @@ function StringsKo(){
 		register: "가입하기",
 		registerAccount: "계정 등록",
 		passwordsDoNotMatch: "비밀번호가 일치하지 않습니다",
+		newPasswordsDoNotMatch: "New passwords do not match",
 		cannotBeEmpty: "%s 비어 있을 수 없습니다",
 		error: "요청을 처리하는 동안 오류가 발생했습니다",
 		logout: "로그 아웃",
@@ -1116,6 +1171,17 @@ function StringsKo(){
 		],
 		deleteAccount: "Delete Account",
 		verifyPassword: "Verify password to delete this account"
+	}
+	this.serverError = {
+		not_logged_in: "Not logged in",
+		invalid_username: "Invalid username, a username can only contain letters, numbers, and underscores, and must be between 3 and 20 characters long",
+		username_in_use: "A user already exists with that username",
+		invalid_password: "Cannot use this password, please check that your password is at least 6 characters long",
+		invalid_username_password: "Invalid Username or Password",
+		invalid_display_name: "Cannot use this name, please check that your new name is at most 25 characters long",
+		current_password_invalid: "Current password does not match",
+		invalid_new_password: "Cannot use this password, please check that your new password is at least 6 characters long",
+		verify_password_invalid: "Verification password does not match"
 	}
 	this.browserSupport = {
 		browserWarning: "You are running an unsupported browser (%s)",

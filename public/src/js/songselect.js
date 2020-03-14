@@ -1,5 +1,5 @@
 class SongSelect{
-	constructor(fromTutorial, fadeIn, touchEnabled, songId){
+	constructor(fromTutorial, fadeIn, touchEnabled, songId, scoreSaveFailed){
 		this.touchEnabled = touchEnabled
 		
 		loader.changePage("songselect", false)
@@ -166,6 +166,9 @@ class SongSelect{
 				action: "tutorial",
 				category: strings.random
 			})
+		}
+		if(scoreSaveFailed){
+			scoreStorage.scoreSaveFailed = true
 		}
 		this.songs.push({
 			title: strings.aboutSimulator,
@@ -379,7 +382,12 @@ class SongSelect{
 			return
 		}
 		var shift = event ? event.shiftKey : this.pressedKeys["shift"]
-		if(this.state.screen === "song"){
+		if(this.state.scoreSaveFailed){
+			if(name === "confirm"){
+				this.playSound("se_don")
+				this.state.scoreSaveFailed = false
+			}
+		}else if(this.state.screen === "song"){
 			if(name === "confirm"){
 				this.toSelectDifficulty()
 			}else if(name === "back"){
@@ -453,10 +461,15 @@ class SongSelect{
 			var ctrl = false
 			var touch = true
 		}
-		if(this.state.screen === "song"){
+		if(this.state.scoreSaveFailed){
+			if(408 < mouse.x && mouse.x < 872 && 470 < mouse.y && mouse.y < 550){
+				this.playSound("se_don")
+				this.state.scoreSaveFailed = false
+			}
+		}else if(this.state.screen === "song"){
 			if(20 < mouse.y && mouse.y < 90 && 410 < mouse.x && mouse.x < 880 && (mouse.x < 540 || mouse.x > 750)){
 				this.categoryJump(mouse.x < 640 ? -1 : 1)
-			}else if(!p2.session && 60 < mouse.x && mouse.x < 332 && 640 < mouse.y && mouse.y < 706 && gameConfig._accounts){
+			}else if(!p2.session && 60 < mouse.x && mouse.x < 332 && 640 < mouse.y && mouse.y < 706 && gameConfig.accounts){
 				this.toAccount()
 			}else if(p2.session && 438 < mouse.x && mouse.x < 834 && mouse.y > 603){
 				this.toSession()
@@ -508,10 +521,14 @@ class SongSelect{
 	mouseMove(event){
 		var mouse = this.mouseOffset(event.offsetX, event.offsetY)
 		var moveTo = null
-		if(this.state.screen === "song"){
+		if(this.state.scoreSaveFailed){
+			if(408 < mouse.x && mouse.x < 872 && 470 < mouse.y && mouse.y < 550){
+				moveTo = "scoreSaveFailed"
+			}
+		}else if(this.state.screen === "song"){
 			if(20 < mouse.y && mouse.y < 90 && 410 < mouse.x && mouse.x < 880 && (mouse.x < 540 || mouse.x > 750)){
 				moveTo = mouse.x < 640 ? "categoryPrev" : "categoryNext"
-			}else if(!p2.session && 60 < mouse.x && mouse.x < 332 && 640 < mouse.y && mouse.y < 706 && gameConfig._accounts){
+			}else if(!p2.session && 60 < mouse.x && mouse.x < 332 && 640 < mouse.y && mouse.y < 706 && gameConfig.accounts){
 				moveTo = "account"
 			}else if(p2.session && 438 < mouse.x && mouse.x < 834 && mouse.y > 603){
 				moveTo = "session"
@@ -831,6 +848,7 @@ class SongSelect{
 		}
 		if(p2.session){
 			p2.send("gameend")
+			this.state.moveHover = null
 		}else{
 			localStorage["selectedSong"] = this.selectedSong
 
@@ -992,10 +1010,20 @@ class SongSelect{
 			}else{
 				this.state.moveMS = ms - this.songSelecting.speed * this.songSelecting.resize + (ms - this.state.screenMS - 1000)
 			}
-			if(ms > this.state.screenMS + 500){
+			if(screen === "titleFadeIn" && ms > this.state.screenMS + 500){
 				this.state.screen = "title"
 				screen = "title"
 			}
+		}
+		
+		if(screen === "song" && scoreStorage.scoreSaveFailed && !p2.session){
+			if(this.bgmEnabled){
+				this.playBgm(false)
+			}
+			scoreStorage.scoreSaveFailed = false
+			this.state.scoreSaveFailed = true
+			this.state.locked = true
+			this.playSound("se_pause")
 		}
 		
 		if(screen === "song"){
@@ -1441,7 +1469,8 @@ class SongSelect{
 									ctx: ctx,
 									font: this.font,
 									x: _x,
-									y: _y - 45
+									y: _y - 45,
+									two: p2.session && p2.player === 2
 								})
 							}
 						}
@@ -1579,15 +1608,15 @@ class SongSelect{
 						if(this.selectedDiff === 4 + this.diffOptions.length){
 							currentDiff = 3
 						}
-						if(i === currentSong.p2Cursor && p2.socket.readyState === 1){
+						if(songSel && i === currentSong.p2Cursor && p2.socket.readyState === 1){
 							this.draw.diffCursor({
 								ctx: ctx,
 								font: this.font,
 								x: _x,
-								y: _y - (songSel ? 45 : 65),
-								two: true,
-								side: songSel ? false : (currentSong.p2Cursor === currentDiff),
-								scale: songSel ? 0.7 : 1
+								y: _y - 45,
+								two: !p2.session || p2.player === 1,
+								side: false,
+								scale: 0.7
 							})
 						}
 						if(!songSel){
@@ -1603,7 +1632,8 @@ class SongSelect{
 									font: this.font,
 									x: _x,
 									y: _y - 65,
-									side: currentSong.p2Cursor === currentDiff && p2.socket.readyState === 1
+									side: currentSong.p2Cursor === currentDiff && p2.socket.readyState === 1,
+									two: p2.session && p2.player === 2
 								})
 							}
 							if(highlight){
@@ -1642,6 +1672,22 @@ class SongSelect{
 						}, winW, winH)
 					}else{
 						drawDifficulty(ctx, i, currentUra)
+					}
+				}
+				for(var i = 0; currentSong.courses && i < 4; i++){
+					if(!songSel && i === currentSong.p2Cursor && p2.socket.readyState === 1){
+						var _x = x + 402 + i * 100
+						var _y = y + 87
+						var currentDiff = this.selectedDiff - this.diffOptions.length
+						this.draw.diffCursor({
+							ctx: ctx,
+							font: this.font,
+							x: _x,
+							y: _y - 65,
+							two: !p2.session || p2.player === 1,
+							side: currentSong.p2Cursor === currentDiff,
+							scale: 1
+						})
 					}
 				}
 				
@@ -1900,20 +1946,27 @@ class SongSelect{
 		ctx.lineTo(x + w - 4, y + 4)
 		ctx.fill()
 		
+		if(!p2.session || p2.player === 1){
+			var name = account.loggedIn ? account.displayName : strings.defaultName
+			var rank = account.loggedIn || !gameConfig.accounts || p2.session ? false : strings.notLoggedIn
+		}else{
+			var name = p2.name || strings.defaultName
+			var rank = false
+		}
 		this.nameplateCache.get({
 			ctx: ctx,
 			x: frameLeft + 60,
 			y: frameTop + 640,
 			w: 273,
 			h: 66,
-			id: "1p",
+			id: "1p" + name + "\n" + rank,
 		}, ctx => {
 			this.draw.nameplate({
 				ctx: ctx,
 				x: 3,
 				y: 3,
-				name: account.loggedIn ? account.displayName : strings.defaultName,
-				rank: account.loggedIn || !gameConfig._accounts || p2.session ? false : strings.notLoggedIn,
+				name: name,
+				rank: rank,
 				font: this.font
 			})
 		})
@@ -2049,23 +2102,129 @@ class SongSelect{
 			}
 		}
 		if(p2.session){
+			if(p2.player === 1){
+				var name = p2.name || strings.default2PName
+			}else{
+				var name = account.loggedIn ? account.displayName : strings.default2PName
+			}
 			this.nameplateCache.get({
 				ctx: ctx,
 				x: frameLeft + 949,
 				y: frameTop + 640,
 				w: 273,
 				h: 66,
-				id: "2p",
+				id: "2p" + name,
 			}, ctx => {
 				this.draw.nameplate({
 					ctx: ctx,
 					x: 3,
 					y: 3,
-					name: p2.name,
+					name: name,
 					font: this.font,
 					blue: true
 				})
 			})
+		}
+		
+		if(this.state.scoreSaveFailed){
+			if(this.preview){
+				this.endPreview()
+			}
+			ctx.fillStyle = "rgba(0, 0, 0, 0.5)"
+			ctx.fillRect(0, 0, winW, winH)
+			
+			ctx.save()
+			ctx.translate(frameLeft, frameTop)
+			
+			var pauseRect = (ctx, mul) => {
+				this.draw.roundedRect({
+					ctx: ctx,
+					x: 269 * mul,
+					y: 93 * mul,
+					w: 742 * mul,
+					h: 494 * mul,
+					radius: 17 * mul
+				})
+			}
+			pauseRect(ctx, 1)
+			ctx.strokeStyle = "#fff"
+			ctx.lineWidth = 24
+			ctx.stroke()
+			ctx.strokeStyle = "#000"
+			ctx.lineWidth = 12
+			ctx.stroke()
+			this.draw.pattern({
+				ctx: ctx,
+				img: assets.image["bg_pause"],
+				shape: pauseRect,
+				dx: 68,
+				dy: 11
+			})
+			this.draw.wrappingText({
+				ctx: ctx,
+				text: strings.scoreSaveFailed,
+				fontSize: 30,
+				fontFamily: this.font,
+				x: 300,
+				y: 130,
+				width: 680,
+				height: 300,
+				lineHeight: 35,
+				fill: "#000",
+				verticalAlign: "middle",
+				textAlign: "center",
+			})
+			
+			var _x = 640
+			var _y = 470
+			var _w = 464
+			var _h = 80
+			ctx.fillStyle = "#ffb447"
+			this.draw.roundedRect({
+				ctx: ctx,
+				x: _x - _w / 2,
+				y: _y,
+				w: _w,
+				h: _h,
+				radius: 30
+			})
+			ctx.fill()
+			var layers = [
+				{outline: "#000", letterBorder: 10},
+				{fill: "#fff"}
+			]
+			this.draw.layeredText({
+				ctx: ctx,
+				text: strings.ok,
+				x: _x,
+				y: _y + 18,
+				width: _w,
+				height: _h - 54,
+				fontSize: 40,
+				fontFamily: this.font,
+				letterSpacing: -1,
+				align: "center"
+			}, layers)
+			
+			var highlight = 1
+			if(this.state.moveHover === "scoreSaveFailed"){
+				highlight = 2
+			}
+			if(highlight){
+				this.draw.highlight({
+					ctx: ctx,
+					x: _x - _w / 2 - 3.5,
+					y: _y - 3.5,
+					w: _w + 7,
+					h: _h + 7,
+					animate: highlight === 1,
+					animateMS: this.state.moveMS,
+					opacity: highlight === 2 ? 0.8 : 1,
+					radius: 30
+				})
+			}
+			
+			ctx.restore()
 		}
 		
 		if(screen === "titleFadeIn"){
@@ -2120,7 +2279,7 @@ class SongSelect{
 			})
 		}
 		this.draw.songFrame(config)
-		if(config.song.p2Cursor && p2.socket.readyState === 1){
+		if(config.song.p2Cursor !== null && p2.socket.readyState === 1){
 			this.draw.diffCursor({
 				ctx: ctx,
 				font: this.font,
@@ -2167,6 +2326,9 @@ class SongSelect{
 	}
 	
 	startPreview(loadOnly){
+		if(!loadOnly && this.state && this.state.scoreSaveFailed){
+			return
+		}
 		var currentSong = this.songs[this.selectedSong]
 		var id = currentSong.id
 		var prvTime = currentSong.preview
@@ -2242,6 +2404,9 @@ class SongSelect{
 		}
 	}
 	playBgm(enabled){
+		if(enabled && this.state && this.state.scoreSaveFailed){
+			return
+		}
 		if(enabled && !this.bgmEnabled){
 			this.bgmEnabled = true
 			snd.musicGain.fadeIn(0.4)

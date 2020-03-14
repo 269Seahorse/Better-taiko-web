@@ -264,14 +264,14 @@ class LoadSong{
 				if(event.type === "gameload"){
 					this.cancelButton.style.display = ""
 					
-					if(event.value === song.difficulty){
+					if(event.value.diff === song.difficulty){
 						this.startMultiplayer()
 					}else{
 						this.selectedSong2 = {}
 						for(var i in this.selectedSong){
 							this.selectedSong2[i] = this.selectedSong[i]
 						}
-						this.selectedSong2.difficulty = event.value
+						this.selectedSong2.difficulty = event.value.diff
 						if(song.type === "tja"){
 							this.startMultiplayer()
 						}else{

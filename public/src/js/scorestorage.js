@@ -6,23 +6,30 @@ class ScoreStorage{
 		this.scoreKeys = ["points", "good", "ok", "bad", "maxCombo", "drumroll"]
 		this.crownValue = ["", "silver", "gold"]
 	}
-	load(strings){
-		this.scores = {}
-		if(strings){
-			this.scoreStrings = this.prepareStrings(strings)
+	load(strings, loadFailed){
+		var scores = {}
+		var scoreStrings = {}
+		if(loadFailed){
+			try{
+				var localScores = localStorage.getItem("saveFailed")
+				if(localScores){
+					scoreStrings = JSON.parse(localScores)
+				}
+			}catch(e){}
+		}else if(strings){
+			scoreStrings = this.prepareStrings(strings)
 		}else if(account.loggedIn){
 			return
 		}else{
-			this.scoreStrings = {}
 			try{
 				var localScores = localStorage.getItem("scoreStorage")
 				if(localScores){
-					this.scoreStrings = JSON.parse(localScores)
+					scoreStrings = JSON.parse(localScores)
 				}
 			}catch(e){}
 		}
-		for(var hash in this.scoreStrings){
-			var scoreString = this.scoreStrings[hash]
+		for(var hash in scoreStrings){
+			var scoreString = scoreStrings[hash]
 			var songAdded = false
 			if(typeof scoreString === "string" && scoreString){
 				var diffArray = scoreString.split(";")
@@ -42,13 +49,31 @@ class ScoreStorage{
 							score[name] = value
 						}
 						if(!songAdded){
-							this.scores[hash] = {title: null}
+							scores[hash] = {title: null}
 							songAdded = true
 						}
-						this.scores[hash][this.difficulty[i]] = score
+						scores[hash][this.difficulty[i]] = score
 					}
 				}
 			}
+		}
+		if(loadFailed){
+			for(var hash in scores){
+				for(var i in this.difficulty){
+					var diff = this.difficulty[i]
+					if(scores[hash][diff]){
+						this.add(hash, diff, scores[hash][diff], true, this.songTitles[hash] || null).then(() => {
+							localStorage.removeItem("saveFailed")
+						}, () => {})
+					}
+				}
+			}
+		}else{
+			this.scores = scores
+			this.scoreStrings = scoreStrings
+		}
+		if(strings){
+			this.load(false, true)
 		}
 	}
 	prepareScores(scores){
@@ -126,7 +151,7 @@ class ScoreStorage{
 			}
 		}
 	}
-	add(song, difficulty, scoreObject, isHash, setTitle){
+	add(song, difficulty, scoreObject, isHash, setTitle, saveFailed){
 		var hash = isHash ? song : this.titleHash(song)
 		if(!(hash in this.scores)){
 			this.scores[hash] = {}
@@ -137,11 +162,29 @@ class ScoreStorage{
 		this.scores[hash][difficulty] = scoreObject
 		this.writeString(hash)
 		this.write()
-		var obj = {}
-		obj[hash] = this.scoreStrings[hash]
-		this.sendToServer({
-			scores: this.prepareScores(obj)
-		}).catch(() => this.add.apply(this, arguments))
+		if(saveFailed){
+			var failedScores = {}
+			try{
+				var localScores = localStorage.getItem("saveFailed")
+				if(localScores){
+					failedScores = JSON.parse(localScores)
+				}
+			}catch(e){}
+			if(!(hash in failedScores)){
+				failedScores[hash] = {}
+			}
+			failedScores[hash] = this.scoreStrings[hash]
+			try{
+				localStorage.setItem("saveFailed", JSON.stringify(failedScores))
+			}catch(e){}
+			return Promise.reject()
+		}else{
+			var obj = {}
+			obj[hash] = this.scoreStrings[hash]
+			return this.sendToServer({
+				scores: this.prepareScores(obj)
+			}).catch(() => this.add(song, difficulty, scoreObject, isHash, setTitle, true))
+		}
 	}
 	template(){
 		var template = {crown: ""}
@@ -192,10 +235,10 @@ class ScoreStorage{
 				}
 			}).catch(() => {
 				if(retry){
+					this.scoreSaveFailed = true
 					account.loggedIn = false
 					delete account.username
 					delete account.displayName
-					Cookies.remove("session")
 					this.load()
 					pageEvents.send("logout")
 					return Promise.reject()

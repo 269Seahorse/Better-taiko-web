@@ -35,6 +35,7 @@ class Account{
 		this.inputForms = []
 		this.shownDiv = ""
 		
+		this.errorDiv = this.getElement("error-div")
 		this.getElement("displayname-hint").innerText = strings.account.displayName
 		this.displayname = this.getElement("displayname")
 		this.displayname.placeholder = strings.account.displayName
@@ -116,6 +117,8 @@ class Account{
 		this.mode = register ? "register" : "login"
 		
 		this.setAltText(this.getElement("view-title"), strings.account[this.mode])
+		
+		this.errorDiv = this.getElement("error-div")
 		this.items = []
 		this.form = this.getElement("login-form")
 		this.getElement("username-hint").innerText = strings.account.username
@@ -239,14 +242,14 @@ class Account{
 			password: this.form.password.value
 		}
 		if(!obj.username || !obj.password){
-			alert(strings.account.cannotBeEmpty.replace("%s", strings.account[!obj.username ? "username" : "password"]))
+			this.error(strings.account.cannotBeEmpty.replace("%s", strings.account[!obj.username ? "username" : "password"]))
 			return
 		}
 		if(this.mode === "login"){
 			obj.remember = this.form.remember.checked
 		}else{
 			if(obj.password !== this.form.password2.value){
-				alert(strings.account.passwordsDoNotMatch)
+				this.error(strings.account.passwordsDoNotMatch)
 				return
 			}
 		}
@@ -260,7 +263,7 @@ class Account{
 				pageEvents.send("login", account.username)
 			}
 			if(this.mode === "login"){
-				this.request("scores/get").then(response => {
+				this.request("scores/get", false, true).then(response => {
 					loadScores(response.scores)
 				}, () => {
 					loadScores({})
@@ -273,9 +276,13 @@ class Account{
 			}
 		}, response => {
 			if(response && response.status === "error" && response.message){
-				alert(response.message)
+				if(response.message in strings.serverError){
+					this.error(strings.serverError[response.message])
+				}else{
+					this.error(response.message)
+				}
 			}else{
-				alert(strings.account.error)
+				this.error(strings.account.error)
 			}
 		})
 	}
@@ -293,17 +300,12 @@ class Account{
 		account.loggedIn = false
 		delete account.username
 		delete account.displayName
-		var loadScores = scores => {
-			Cookies.remove("session")
+		var loadScores = () => {
 			scoreStorage.load()
 			this.onEnd(false, true)
 			pageEvents.send("logout")
 		}
-		this.request("logout").then(response => {
-			loadScores()
-		}, () => {
-			loadScores()
-		})
+		this.request("logout").then(loadScores, loadScores)
 	}
 	onSave(event){
 		if(event){
@@ -316,6 +318,7 @@ class Account{
 		if(this.locked){
 			return
 		}
+		this.clearError()
 		var promises = []
 		var noNameChange = false
 		if(this.shownDiv === "pass"){
@@ -329,7 +332,7 @@ class Account{
 					new_password: passwords[1]
 				}))
 			}else{
-				alert(strings.account.passwordsDoNotMatch)
+				this.error(strings.account.newPasswordsDoNotMatch)
 				return
 			}
 		}
@@ -341,7 +344,6 @@ class Account{
 				account.loggedIn = false
 				delete account.username
 				delete account.displayName
-				Cookies.remove("session")
 				scoreStorage.load()
 				pageEvents.send("logout")
 				return Promise.resolve
@@ -351,8 +353,8 @@ class Account{
 		if(!noNameChange && newName !== account.displayName){
 			promises.push(this.request("account/display_name", {
 				display_name: newName
-			}).then(() => {
-				account.displayName = newName
+			}).then(response => {
+				account.displayName = response.display_name
 			}))
 		}
 		var error = false
@@ -361,9 +363,13 @@ class Account{
 				return
 			}
 			if(response && response.message){
-				alert(response.message)
+				if(response.message in strings.serverError){
+					this.error(strings.serverError[response.message])
+				}else{
+					this.error(response.message)
+				}
 			}else{
-				alert(strings.account.error)
+				this.error(strings.account.error)
 			}
 		}
 		Promise.all(promises).then(() => {
@@ -389,11 +395,11 @@ class Account{
 			new SongSelect(false, false, touched)
 		}, 500)
 	}
-	request(url, obj){
+	request(url, obj, get){
 		this.lock(true)
 		return new Promise((resolve, reject) => {
 			var request = new XMLHttpRequest()
-			request.open("POST", "api/" + url)
+			request.open(get ? "GET" : "POST", "api/" + url)
 			pageEvents.load(request).then(() => {
 				this.lock(false)
 				if(request.status !== 200){
@@ -435,6 +441,14 @@ class Account{
 			}
 		}
 	}
+	error(text){
+		this.errorDiv.innerText = text
+		this.errorDiv.style.display = "block"
+	}
+	clearError(){
+		this.errorDiv.innerText = ""
+		this.errorDiv.style.display = ""
+	}
 	clean(eventsOnly, noReset){
 		if(!eventsOnly){
 			cancelTouch = true
@@ -442,6 +456,10 @@ class Account{
 			this.gamepad.clean()
 		}
 		if(this.mode === "account"){
+			if(!noReset){
+				this.accountPass.reset()
+				this.accountDel.reset()
+			}
 			pageEvents.remove(this.accounPassButton, ["click", "touchstart"])
 			pageEvents.remove(this.accountDelButton, ["click", "touchstart"])
 			pageEvents.remove(this.logoutButton, ["mousedown", "touchstart"])
@@ -449,10 +467,7 @@ class Account{
 			for(var i = 0; i < this.inputForms.length; i++){
 				pageEvents.remove(this.inputForms[i], ["keydown", "keyup", "keypress"])
 			}
-			if(!noReset){
-				this.accountPass.reset()
-				this.accountDel.reset()
-			}
+			delete this.errorDiv
 			delete this.displayname
 			delete this.accountPassButton
 			delete this.accountPass
@@ -473,6 +488,7 @@ class Account{
 			for(var i = 0; i < this.form.length; i++){
 				pageEvents.remove(this.registerButton, ["keydown", "keyup", "keypress"])
 			}
+			delete this.errorDiv
 			delete this.form
 			delete this.password2
 			delete this.remember

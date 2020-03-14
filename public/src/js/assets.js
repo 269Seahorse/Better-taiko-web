@@ -1,7 +1,6 @@
 var assets = {
 	"js": [
 		"lib/md5.min.js",
-		"lib/js.cookie.min.js",
 		"loadsong.js",
 		"parseosu.js",
 		"titlescreen.js",

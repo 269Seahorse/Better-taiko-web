@@ -155,9 +155,15 @@ class Controller{
 		if(this.mainLoopRunning){
 			if(this.multiplayer !== 2){
 				requestAnimationFrame(() => {
-					this.viewLoop()
+					var player = this.multiplayer ? p2.player : 1
+					if(player === 1){
+						this.viewLoop()
+					}
 					if(this.multiplayer === 1){
 						this.syncWith.viewLoop()
+					}
+					if(player === 2){
+						this.viewLoop()
 					}
 					if(this.scoresheet){
 						if(this.view.ctx){
@@ -197,14 +203,14 @@ class Controller{
 	displayScore(score, notPlayed, bigNote){
 		this.view.displayScore(score, notPlayed, bigNote)
 	}
-	songSelection(fadeIn){
+	songSelection(fadeIn, scoreSaveFailed){
 		if(!fadeIn){
 			this.clean()
 		}
 		if(this.calibrationMode){
 			new SettingsView(this.touchEnabled, false, null, "latency")
 		}else{
-			new SongSelect(false, fadeIn, this.touchEnabled)
+			new SongSelect(false, fadeIn, this.touchEnabled, null, scoreSaveFailed)
 		}
 	}
 	restartSong(){

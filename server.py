@@ -103,8 +103,8 @@ async def connection(ws, path):
 								user["other_user"]["action"] = "loading"
 								user["other_user"]["other_user"] = user
 								await asyncio.wait([
-									ws.send(msgobj("gameload", waiting_diff)),
-									user["other_user"]["ws"].send(msgobj("gameload", diff)),
+									ws.send(msgobj("gameload", {"diff": waiting_diff, "player": 2})),
+									user["other_user"]["ws"].send(msgobj("gameload", {"diff": diff, "player": 1})),
 									ws.send(msgobj("name", user["other_user"]["name"])),
 									user["other_user"]["ws"].send(msgobj("name", user["name"]))
 								])
@@ -138,10 +138,9 @@ async def connection(ws, path):
 								user["other_user"]["other_user"] = user
 								user["action"] = "invite"
 								user["session"] = value["id"]
-								sent_msg = msgobj("session")
 								await asyncio.wait([
-									ws.send(sent_msg),
-									user["other_user"]["ws"].send(sent_msg),
+									ws.send(msgobj("session", {"player": 2})),
+									user["other_user"]["ws"].send(msgobj("session", {"player": 1})),
 									ws.send(msgobj("invite")),
 									ws.send(msgobj("name", user["other_user"]["name"])),
 									user["other_user"]["ws"].send(msgobj("name", user["name"]))
@@ -291,8 +290,8 @@ async def connection(ws, path):
 								user["action"] = "loading"
 								user["other_user"]["action"] = "loading"
 								await asyncio.wait([
-									ws.send(msgobj("gameload", user["other_user"]["gamediff"])),
-									user["other_user"]["ws"].send(msgobj("gameload", diff))
+									ws.send(msgobj("gameload", {"diff": user["other_user"]["gamediff"]})),
+									user["other_user"]["ws"].send(msgobj("gameload", {"diff": diff}))
 								])
 							else:
 								user["action"] = "waiting"

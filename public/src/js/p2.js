@@ -4,6 +4,7 @@ class P2Connection{
 		this.lastMessages = {}
 		this.otherConnected = false
 		this.name = null
+		this.player = 1
 		this.allEvents = new Map()
 		this.addEventListener("message", this.message.bind(this))
 		this.currentHash = ""
@@ -103,6 +104,10 @@ class P2Connection{
 	}
 	message(response){
 		switch(response.type){
+			case "gameload":
+				if("player" in response.value){
+					this.player = response.value.player === 2 ? 2 : 1
+				}
 			case "gamestart":
 				this.otherConnected = true
 				this.notes = []
@@ -129,7 +134,7 @@ class P2Connection{
 			case "gameresults":
 				this.results = {}
 				for(var i in response.value){
-					this.results[i] = response.value[i].toString()
+					this.results[i] = response.value[i] === null ? null : response.value[i].toString()
 				}
 				break
 			case "note":
@@ -152,9 +157,12 @@ class P2Connection{
 				this.clearMessage("users")
 				this.otherConnected = true
 				this.session = true
+				if("player" in response.value){
+					this.player = response.value.player === 2 ? 2 : 1
+				}
 				break
 			case "name":
-				this.name = (response.value || "").toString() || null
+				this.name = response.value ? response.value.toString() : response.value
 				break
 		}
 	}

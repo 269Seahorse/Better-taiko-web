@@ -190,15 +190,15 @@ def route_api_config():
 
 @app.route('/api/register', methods=['POST'])
 def route_api_register():
-    if session.get('username'):
-        return api_error('already_logged_in')
-
     data = request.get_json()
     if not schema.validate(data, schema.register):
         return abort(400)
 
+    if session.get('username'):
+        session.clear()
+
     username = data.get('username', '')
-    if len(username) > 20 or not re.match('^[a-zA-Z0-9_]{1,20}$', username):
+    if len(username) < 3 or len(username) > 20 or not re.match('^[a-zA-Z0-9_]{3,20}$', username):
         return api_error('invalid_username')
 
     if db.users.find_one({'username_lower': username.lower()}):
@@ -226,12 +226,12 @@ def route_api_register():
 
 @app.route('/api/login', methods=['POST'])
 def route_api_login():
-    if session.get('username'):
-        return api_error('already_logged_in')
-
     data = request.get_json()
     if not schema.validate(data, schema.login):
         return abort(400)
+
+    if session.get('username'):
+        session.clear()
 
     username = data.get('username', '')
     result = db.users.find_one({'username_lower': username.lower()})
@@ -263,15 +263,17 @@ def route_api_account_display_name():
     if not schema.validate(data, schema.update_display_name):
         return abort(400)
 
-    display_name = data.get('display_name', '')
-    if not display_name or len(display_name) > 20:
+    display_name = data.get('display_name', '').strip()
+    if not display_name:
+        display_name = session.get('username')
+    elif len(display_name) > 25:
         return api_error('invalid_display_name')
     
     db.users.update_one({'username': session.get('username')}, {
         '$set': {'display_name': display_name}
     })
 
-    return jsonify({'status': 'ok'})
+    return jsonify({'status': 'ok', 'display_name': display_name})
 
 
 @app.route('/api/account/password', methods=['POST'])
@@ -287,8 +289,8 @@ def route_api_account_password():
         return api_error('current_password_invalid')
     
     new_password = data.get('new_password', '').encode('utf-8')
-    if not 8 <= len(new_password) <= 5000:
-        return api_error('invalid_password')
+    if not 6 <= len(new_password) <= 5000:
+        return api_error('invalid_new_password')
     
     salt = bcrypt.gensalt()
     hashed = bcrypt.hashpw(new_password, salt)
@@ -310,7 +312,7 @@ def route_api_account_remove():
     user = db.users.find_one({'username': session.get('username')})
     password = data.get('password', '').encode('utf-8')
     if not bcrypt.checkpw(password, user['password']):
-        return api_error('current_password_invalid')
+        return api_error('verify_password_invalid')
 
     db.scores.delete_many({'username': session.get('username')})
     db.users.delete_one({'username': session.get('username')})

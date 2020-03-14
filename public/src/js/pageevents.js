@@ -86,7 +86,7 @@ class PageEvents{
 		})
 	}
 	keyEvent(event){
-		if(!("key" in event)){
+		if(!("key" in event) || event.ctrlKey && (event.key === "c" || event.key === "x" || event.key === "v")){
 			return
 		}
 		if(this.kbd.indexOf(event.key.toLowerCase()) !== -1){

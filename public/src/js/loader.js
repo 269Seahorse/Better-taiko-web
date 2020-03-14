@@ -109,7 +109,7 @@ class Loader{
 			assets.audioMusic.length +
 			assets.audioSfxLR.length +
 			assets.audioSfxLoud.length +
-			(gameConfig._accounts ? 1 : 0)
+			(gameConfig.accounts ? 1 : 0)
 		
 		Promise.all(this.promises).then(() => {
 			
@@ -156,22 +156,17 @@ class Loader{
 				}
 			}))
 			
-			if(gameConfig._accounts){
-				var token = Cookies.get("session")
-				if(token){
-					this.addPromise(this.ajax("/api/scores/get").then(response => {
-						response = JSON.parse(response)
-						if(response.status === "ok"){
-							account.loggedIn = true
-							account.username = response.username
-							account.displayName = response.display_name
-							scoreStorage.load(response.scores)
-							pageEvents.send("login", account.username)
-						}
-					}))
-				}else{
-					this.assetLoaded()
-				}
+			if(gameConfig.accounts){
+				this.addPromise(this.ajax("/api/scores/get").then(response => {
+					response = JSON.parse(response)
+					if(response.status === "ok"){
+						account.loggedIn = true
+						account.username = response.username
+						account.displayName = response.display_name
+						scoreStorage.load(response.scores)
+						pageEvents.send("login", account.username)
+					}
+				}))
 			}
 			
 			settings = new Settings()

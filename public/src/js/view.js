@@ -129,6 +129,11 @@
 		this.nameplateCache = new CanvasCache(noSmoothing)
 		
 		this.multiplayer = this.controller.multiplayer
+		if(this.multiplayer === 2){
+			this.player = p2.player === 2 ? 1 : 2
+		}else{
+			this.player = this.controller.multiplayer ? p2.player : 1
+		}
 		
 		this.touchEnabled = this.controller.touchEnabled
 		this.touch = -Infinity
@@ -224,13 +229,12 @@
 			this.winH = winH
 			this.ratio = ratio
 			
-			if(this.multiplayer !== 2){
+			if(this.player !== 2){
 				this.canvas.width = winW
 				this.canvas.height = winH
 				ctx.scale(ratio, ratio)
 				this.canvas.style.width = (winW / this.pixelRatio) + "px"
 				this.canvas.style.height = (winH / this.pixelRatio) + "px"
-				
 				this.titleCache.resize(640, 90, ratio)
 			}
 			if(!this.multiplayer){
@@ -246,7 +250,7 @@
 			resized = true
 		}else if(this.controller.game.paused && !document.hasFocus()){
 			return
-		}else if(this.multiplayer !== 2){
+		}else if(this.player !== 2){
 			ctx.clearRect(0, 0, winW / ratio, winH / ratio)
 		}
 		winW /= ratio
@@ -263,8 +267,8 @@
 			var frameTop = winH / 2 - 720 / 2
 			var frameLeft = winW / 2 - 1280 / 2
 		}
-		if(this.multiplayer === 2){
-			frameTop += this.multiplayer === 2 ? 165 : 176
+		if(this.player === 2){
+			frameTop += 165
 		}
 		if(touchMultiplayer){
 			if(!this.touchp2Class){
@@ -284,11 +288,11 @@
 		
 		this.drawGogoTime()
 		
-		if(!touchMultiplayer || this.multiplayer === 1 && frameTop >= 0){
+		if(!touchMultiplayer || this.player === 1 && frameTop >= 0){
 			this.assets.drawAssets("background")
 		}
 		
-		if(this.multiplayer !== 2){
+		if(this.player !== 2){
 			this.titleCache.get({
 				ctx: ctx,
 				x: winW - (touchMultiplayer && fullScreenSupported ? 750 : 650),
@@ -356,7 +360,7 @@
 		var score = this.controller.getGlobalScore()
 		var gaugePercent = this.rules.gaugePercent(score.gauge)
 		
-		if(this.multiplayer === 2){
+		if(this.player === 2){
 			var scoreImg = "bg_score_p2"
 			var scoreFill = "#6bbec0"
 		}else{
@@ -379,17 +383,17 @@
 				size: 100,
 				paddingLeft: 0
 			}
-			this.scorePos = {x: 363, y: frameTop + (this.multiplayer === 2 ? 520 : 227)}
+			this.scorePos = {x: 363, y: frameTop + (this.player === 2 ? 520 : 227)}
 			
 			var animPos = {
 				x1: this.slotPos.x + 13,
-				y1: this.slotPos.y + (this.multiplayer === 2 ? 27 : -27),
+				y1: this.slotPos.y + (this.player === 2 ? 27 : -27),
 				x2: winW - 38,
-				y2: frameTop + (this.multiplayer === 2 ? 484 : 293)
+				y2: frameTop + (this.player === 2 ? 484 : 293)
 			}
 			var taikoPos = {
 				x: 19,
-				y: frameTop + (this.multiplayer === 2 ? 464 : 184),
+				y: frameTop + (this.player === 2 ? 464 : 184),
 				w: 111,
 				h: 130
 			}
@@ -397,15 +401,16 @@
 			this.nameplateCache.get({
 				ctx: ctx,
 				x: 167,
-				y: this.multiplayer === 2 ? 565 : 160,
+				y: this.player === 2 ? 565 : 160,
 				w: 219,
 				h: 53,
 				id: "1p",
 			}, ctx => {
+				var defaultName = this.player === 1 ? strings.defaultName : strings.default2PName
 				if(this.multiplayer === 2){
-					var name = p2.name || strings.defaultName
+					var name = p2.name || defaultName
 				}else{
-					var name = account.loggedIn ? account.displayName : strings.defaultName
+					var name = account.loggedIn ? account.displayName : defaultName
 				}
 				this.draw.nameplate({
 					ctx: ctx,
@@ -414,19 +419,19 @@
 					scale: 0.8,
 					name: name,
 					font: this.font,
-					blue: this.multiplayer === 2
+					blue: this.player === 2
 				})
 			})
 			
 			ctx.fillStyle = "#000"
 			ctx.fillRect(
 				0,
-				this.multiplayer === 2 ? 306 : 288,
+				this.player === 2 ? 306 : 288,
 				winW,
-				this.multiplayer === 1 ? 184 : 183
+				this.player === 1 ? 184 : 183
 			)
 			ctx.beginPath()
-			if(this.multiplayer === 2){
+			if(this.player === 2){
 				ctx.moveTo(0, 467)
 				ctx.lineTo(384, 467)
 				ctx.lineTo(384, 512)
@@ -445,7 +450,7 @@
 			ctx.fillStyle = scoreFill
 			var leftSide = (ctx, mul) => {
 				ctx.beginPath()
-				if(this.multiplayer === 2){
+				if(this.player === 2){
 					ctx.moveTo(0, 468 * mul)
 					ctx.lineTo(380 * mul, 468 * mul)
 					ctx.lineTo(380 * mul, 512 * mul)
@@ -475,7 +480,7 @@
 			// Score background
 			ctx.fillStyle = "#000"
 			ctx.beginPath()
-			if(this.multiplayer === 2){
+			if(this.player === 2){
 				this.draw.roundedCorner(ctx, 184, 512, 20, 0)
 				ctx.lineTo(384, 512)
 				this.draw.roundedCorner(ctx, 384, 560, 12, 2)
@@ -493,16 +498,16 @@
 				ctx.drawImage(assets.image["difficulty"],
 					0, 144 * this.difficulty[this.controller.selectedSong.difficulty],
 					168, 143,
-					126, this.multiplayer === 2 ? 497 : 228,
+					126, this.player === 2 ? 497 : 228,
 					62, 53
 				)
 			}
 			
 			// Badges
-			if(this.controller.autoPlayEnabled && !this.controller.multiplayer){
+			if(this.controller.autoPlayEnabled && !this.multiplayer){
 				this.ctx.drawImage(assets.image["badge_auto"],
 					183,
-					this.multiplayer === 2 ? 490 : 265,
+					this.player === 2 ? 490 : 265,
 					23,
 					23
 				)
@@ -512,7 +517,7 @@
 			ctx.fillStyle = "#000"
 			ctx.beginPath()
 			var gaugeX = winW - 788 * 0.7 - 32
-			if(this.multiplayer === 2){
+			if(this.player === 2){
 				ctx.moveTo(gaugeX, 464)
 				ctx.lineTo(winW, 464)
 				ctx.lineTo(winW, 489)
@@ -527,18 +532,18 @@
 			this.draw.gauge({
 				ctx: ctx,
 				x: winW,
-				y: this.multiplayer === 2 ? 468 : 273,
+				y: this.player === 2 ? 468 : 273,
 				clear: this.rules.gaugeClear,
 				percentage: gaugePercent,
 				font: this.font,
 				scale: 0.7,
-				multiplayer: this.multiplayer === 2,
-				blue: this.multiplayer === 2
+				multiplayer: this.player === 2,
+				blue: this.player === 2
 			})
 			this.draw.soul({
 				ctx: ctx,
 				x: winW - 40,
-				y: this.multiplayer === 2 ? 484 : 293,
+				y: this.player === 2 ? 484 : 293,
 				scale: 0.75,
 				cleared: this.rules.clearReached(score.gauge)
 			})
@@ -566,29 +571,30 @@
 			}
 			this.scorePos = {
 				x: 155,
-				y: frameTop + (this.multiplayer === 2 ? 318 : 193)
+				y: frameTop + (this.player === 2 ? 318 : 193)
 			}
 			
 			var animPos = {
 				x1: this.slotPos.x + 14,
-				y1: this.slotPos.y + (this.multiplayer === 2 ? 29 : -29),
+				y1: this.slotPos.y + (this.player === 2 ? 29 : -29),
 				x2: winW - 55,
-				y2: frameTop + (this.multiplayer === 2 ? 378 : 165)
+				y2: frameTop + (this.player === 2 ? 378 : 165)
 			}
 			var taikoPos = {x: 179, y: frameTop + 190, w: 138, h: 162}
 			
 			this.nameplateCache.get({
 				ctx: ctx,
 				x: 320,
-				y: this.multiplayer === 2 ? 460 : 20,
+				y: this.player === 2 ? 460 : 20,
 				w: 273,
 				h: 66,
 				id: "1p",
 			}, ctx => {
+				var defaultName = this.player === 1 ? strings.defaultName : strings.default2PName
 				if(this.multiplayer === 2){
-					var name = p2.name || strings.defaultName
+					var name = p2.name || defaultName
 				}else{
-					var name = account.loggedIn ? account.displayName : strings.defaultName
+					var name = account.loggedIn ? account.displayName : defaultName
 				}
 				this.draw.nameplate({
 					ctx: ctx,
@@ -596,7 +602,7 @@
 					y: 3,
 					name: name,
 					font: this.font,
-					blue: this.multiplayer === 2
+					blue: this.player === 2
 				})
 			})
 			
@@ -605,10 +611,10 @@
 				0,
 				184,
 				winW,
-				this.multiplayer === 1 ? 177 : 176
+				this.multiplayer && this.player === 1 ? 177 : 176
 			)
 			ctx.beginPath()
-			if(this.multiplayer === 2){
+			if(this.player === 2){
 				ctx.moveTo(328, 351)
 				ctx.lineTo(winW, 351)
 				ctx.lineTo(winW, 385)
@@ -625,17 +631,17 @@
 			this.draw.gauge({
 				ctx: ctx,
 				x: winW,
-				y: this.multiplayer === 2 ? 357 : 135,
+				y: this.player === 2 ? 357 : 135,
 				clear: this.rules.gaugeClear,
 				percentage: gaugePercent,
 				font: this.font,
-				multiplayer: this.multiplayer === 2,
-				blue: this.multiplayer === 2
+				multiplayer: this.player === 2,
+				blue: this.player === 2
 			})
 			this.draw.soul({
 				ctx: ctx,
 				x: winW - 57,
-				y: this.multiplayer === 2 ? 378 : 165,
+				y: this.player === 2 ? 378 : 165,
 				cleared: this.rules.clearReached(score.gauge)
 			})
 			
@@ -667,7 +673,7 @@
 				ctx.drawImage(assets.image["difficulty"],
 					0, 144 * this.difficulty[this.controller.selectedSong.difficulty],
 					168, 143,
-					16, this.multiplayer === 2 ? 194 : 232,
+					16, this.player === 2 ? 194 : 232,
 					141, 120
 				)
 				var diff = this.controller.selectedSong.difficulty
@@ -679,13 +685,13 @@
 				ctx.fillStyle = "#fff"
 				ctx.lineWidth = 7
 				ctx.miterLimit = 1
-				ctx.strokeText(text, 87, this.multiplayer === 2 ? 310 : 348)
-				ctx.fillText(text, 87, this.multiplayer === 2 ? 310 : 348)
+				ctx.strokeText(text, 87, this.player === 2 ? 310 : 348)
+				ctx.fillText(text, 87, this.player === 2 ? 310 : 348)
 				ctx.miterLimit = 10
 			}
 			
 			// Badges
-			if(this.controller.autoPlayEnabled && !this.controller.multiplayer){
+			if(this.controller.autoPlayEnabled && !this.multiplayer){
 				this.ctx.drawImage(assets.image["badge_auto"],
 					125, 235, 34, 34
 				)
@@ -694,7 +700,7 @@
 			// Score background
 			ctx.fillStyle = "#000"
 			ctx.beginPath()
-			if(this.multiplayer === 2){
+			if(this.player === 2){
 				ctx.moveTo(0, 312)
 				this.draw.roundedCorner(ctx, 176, 312, 20, 1)
 				ctx.lineTo(176, 353)
@@ -719,11 +725,11 @@
 		}, {
 			// 560, 10
 			x: animPos.x1 + animPos.w / 6,
-			y: animPos.y1 - animPos.h * (this.multiplayer === 2 ? 2.5 : 3.5)
+			y: animPos.y1 - animPos.h * (this.player === 2 ? 2.5 : 3.5)
 		}, {
 			// 940, -150
 			x: animPos.x2 - animPos.w / 3,
-			y: animPos.y2 - animPos.h * (this.multiplayer === 2 ? 3.5 : 5)
+			y: animPos.y2 - animPos.h * (this.player === 2 ? 3.5 : 5)
 		}, {
 			// 1225, 165
 			x: animPos.x2,
@@ -1443,12 +1449,12 @@
 		var selectedSong = this.controller.selectedSong
 		var songSkinName = selectedSong.songSkin.name
 		var donLayers = []
-		var filename = !selectedSong.songSkin.don && this.multiplayer === 2 ? "bg_don2_" : "bg_don_"
+		var filename = !selectedSong.songSkin.don && this.player === 2 ? "bg_don2_" : "bg_don_"
 		var prefix = ""
 		
 		this.donBg = document.createElement("div")
 		this.donBg.classList.add("donbg")
-		if(this.multiplayer === 2){
+		if(this.player === 2){
 			this.donBg.classList.add("donbg-bottom")
 		}
 		for(var layer = 1; layer <= 3; layer++){

@@ -368,3 +368,11 @@ kbd{
 .accountdel-form{
 	margin: 0.3em auto;
 }
+.view-content .error-div{
+	display: none;
+	width: 80%;
+	margin: 0 auto;
+	padding: 0.5em;
+	font-size: 1.1em;
+	color: #d00;
+}
