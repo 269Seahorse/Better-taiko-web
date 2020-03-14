@@ -56,11 +56,18 @@ def admin_required(f):
             return abort(403)
 
         user = db.users.find_one({'username': session.get('username')})
-        if user['user_level'] < 100:
+        if user['user_level'] < 50:
             return abort(403)
 
         return f(*args, **kwargs)
     return decorated_function
+
+
+@app.before_request
+def before_request_func():
+    if session.get('session_id'):
+        if not db.users.find_one({'session_id': session.get('session_id')}):
+            session.clear()
 
 
 def get_config():
@@ -211,14 +218,17 @@ def route_api_register():
     salt = bcrypt.gensalt()
     hashed = bcrypt.hashpw(password, salt)
 
+    session_id = os.urandom(24).hex()
     db.users.insert_one({
         'username': username,
         'username_lower': username.lower(),
         'password': hashed,
         'display_name':  username,
-        'user_level': 1
+        'user_level': 1,
+        'session_id': session_id
     })
 
+    session['session_id'] = session_id
     session['username'] = username
     session.permanent = True
     return jsonify({'status': 'ok', 'username': username, 'display_name': username})
@@ -242,6 +252,7 @@ def route_api_login():
     if not bcrypt.checkpw(password, result['password']):
         return api_error('invalid_username_password')
 
+    session['session_id'] = result['session_id']
     session['username'] = result['username']
     if data.get('remember'):
         session.permanent = True
@@ -294,11 +305,13 @@ def route_api_account_password():
     
     salt = bcrypt.gensalt()
     hashed = bcrypt.hashpw(new_password, salt)
+    session_id = os.urandom(24).hex()
 
     db.users.update_one({'username': session.get('username')}, {
-        '$set': {'password': hashed}
+        '$set': {'password': hashed, 'session_id': session_id}
     })
 
+    session['session_id'] = session_id
     return jsonify({'status': 'ok'})
 
 
