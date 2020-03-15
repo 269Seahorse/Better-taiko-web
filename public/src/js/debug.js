@@ -147,8 +147,8 @@ class Debug{
 				return i === 0 || Math.abs(measure.ms - array[i - 1].ms) > 0.01
 			})
 			this.measureNumSlider.setMinMax(0, measures.length - 1)
-			if(this.measureNum && measures.length > this.measureNum){
-				var measureMS = measures[this.measureNum].ms
+			if(this.measureNum > 0 && measures.length >= this.measureNum){
+				var measureMS = measures[this.measureNum - 1].ms
 				var game = this.controller.game
 				game.started = true
 				var timestamp = Date.now()

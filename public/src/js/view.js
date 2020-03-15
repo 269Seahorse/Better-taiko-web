@@ -1584,17 +1584,21 @@
 				// Start animation to gauge
 				circle.animate(ms)
 			}
-			if(ms - this.controller.audioLatency >= circle.ms && !circle.beatMSCopied && (!circle.branch || circle.branch.active)){
-				if(this.beatInterval !== circle.beatMS){
-					this.changeBeatInterval(circle.beatMS)
+		}
+		var game = this.controller.game
+		for(var i = 0; i < game.songData.events.length; i++){
+			var event = game.songData.events[i]
+			if(ms - this.controller.audioLatency >= event.ms && !event.beatMSCopied && (!event.branch || event.branch.active)){
+				if(this.beatInterval !== event.beatMS){
+					this.changeBeatInterval(event.beatMS)
 				}
-				circle.beatMSCopied = true
+				event.beatMSCopied = true
 			}
-			if(ms - this.controller.audioLatency >= circle.ms && !circle.gogoChecked && (!circle.branch || circle.branch.active)){
-				if(this.gogoTime != circle.gogoTime){
-					this.toggleGogoTime(circle)
+			if(ms - this.controller.audioLatency >= event.ms && !event.gogoChecked && (!event.branch || event.branch.active)){
+				if(this.gogoTime != event.gogoTime){
+					this.toggleGogoTime(event)
 				}
-				circle.gogoChecked = true
+				event.gogoChecked = true
 			}
 		}
 	}

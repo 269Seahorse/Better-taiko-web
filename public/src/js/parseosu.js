@@ -48,6 +48,7 @@ class ParseOsu{
 			lastBeatInterval: 0,
 			bpm: 0
 		}
+		this.events = []
 		this.generalInfo = this.parseGeneralInfo()
 		this.metadata = this.parseMetadata()
 		this.editor = this.parseEditor()
@@ -244,6 +245,18 @@ class ParseOsu{
 		var circles = []
 		var circleID = 0
 		var indexes = this.getStartEndIndexes("HitObjects")
+		var lastBeatMS = this.beatInfo.beatInterval
+		var lastGogo = false
+		
+		var pushCircle = circle => {
+			circles.push(circle)
+			if(lastBeatMS !== circle.beatMS || lastGogo !== circle.gogoTime){
+				lastBeatMS = circle.beatMS
+				lastGogo = circle.gogoTime
+				this.events.push(circle)
+			}
+		}
+		
 		for(var i = indexes.start; i <= indexes.end; i++){
 			circleID++
 			var values = this.data[i].split(",")
@@ -277,7 +290,7 @@ class ParseOsu{
 				var endTime = parseInt(values[this.osu.ENDTIME])
 				var hitMultiplier = this.difficultyRange(this.difficulty.overallDifficulty, 3, 5, 7.5) * 1.65
 				var requiredHits = Math.floor(Math.max(1, (endTime - start) / 1000 * hitMultiplier))
-				circles.push(new Circle({
+				pushCircle(new Circle({
 					id: circleID,
 					start: start + this.offset,
 					type: "balloon",
@@ -304,7 +317,7 @@ class ParseOsu{
 					type = "drumroll"
 					txt = strings.note.drumroll
 				}
-				circles.push(new Circle({
+				pushCircle(new Circle({
 					id: circleID,
 					start: start + this.offset,
 					type: type,
@@ -339,7 +352,7 @@ class ParseOsu{
 					emptyValue = true
 				}
 				if(!emptyValue){
-					circles.push(new Circle({
+					pushCircle(new Circle({
 						id: circleID,
 						start: start + this.offset,
 						type: type,

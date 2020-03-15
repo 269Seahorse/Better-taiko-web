@@ -43,6 +43,7 @@
 		this.metadata = this.parseMetadata()
 		this.measures = []
 		this.beatInfo = {}
+		this.events = []
 		if(!metaOnly){
 			this.circles = this.parseCircles()
 		}
@@ -248,7 +249,12 @@
 							lastDrumroll = circleObj
 						}
 						
-						circles.push(circleObj)
+						if(note.event){
+							this.events.push(circleObj)
+						}
+						if(note.type !== "event"){
+							circles.push(circleObj)
+						}
 					} else if (!(currentMeasure.length >= 24 && (!currentMeasure[i + 1] || currentMeasure[i + 1].type))
 						&& !(currentMeasure.length >= 48 && (!currentMeasure[i + 2] || currentMeasure[i + 2].type || !currentMeasure[i + 3] || currentMeasure[i + 3].type))) { 
 						if (note_chain.length > 1 && currentMeasure.length >= 8) { 
@@ -266,9 +272,12 @@
 			}
 		}
 		var insertNote = circleObj => {
-			lastBpm = bpm
-			lastGogo = gogo
 			if(circleObj){
+				if(bpm !== lastBpm || gogo !== lastGogo){
+					circleObj.event = true
+					lastBpm = bpm
+					lastGogo = gogo
+				}
 				currentMeasure.push(circleObj)
 			}
 		}
