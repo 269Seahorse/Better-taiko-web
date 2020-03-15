@@ -1085,7 +1085,9 @@ var allStrings = {}
 function separateStrings(){
 	for(var j in languageList){
 		var lang = languageList[j]
-		allStrings[lang] = {}
+		allStrings[lang] = {
+			id: lang
+		}
 		var str = allStrings[lang]
 		var translateObj = function(obj, name, str){
 			if("en" in obj){
