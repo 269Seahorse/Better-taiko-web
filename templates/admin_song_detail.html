@@ -65,6 +65,7 @@
         <div class="form-field">
             <p><label for="category_id">Category</label></p>
             <select name="category_id" id="category_id">
+                <option value="0">(none)</option>
                 {% for category in categories %}
                     <option value="{{ category.id }}"{% if song.category_id == category.id %} selected{% endif %}>{{ category.title }}</option>
                 {% endfor %}

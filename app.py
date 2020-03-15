@@ -169,7 +169,7 @@ def route_admin_songs_id_post(id):
         else:
             output['courses'][course] = None
     
-    output['category_id'] = int(request.form.get('category_id'))
+    output['category_id'] = int(request.form.get('category_id')) or None
     output['type'] = request.form.get('type')
     output['offset'] = float(request.form.get('offset')) or None
     output['skin_id'] = int(request.form.get('skin_id')) or None
