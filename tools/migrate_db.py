@@ -5,7 +5,7 @@ import sqlite3
 from pymongo import MongoClient
 
 client = MongoClient()
-#client.drop_database('taiko')
+client.drop_database('taiko')
 db = client.taiko
 sqdb = sqlite3.connect('taiko.db')
 sqdb.row_factory = sqlite3.Row
@@ -26,10 +26,10 @@ def migrate_songs():
             'enabled': True if row['enabled'] else False,
             'category_id': row['category'],
             'type': row['type'],
-            'offset': row['offset'],
+            'offset': row['offset'] or 0,
             'skin_id': row['skin_id'],
-            'preview': row['preview'],
-            'volume':  row['volume'],
+            'preview': row['preview'] or 0,
+            'volume':  row['volume'] or 1.0,
             'maker_id': row['maker_id'],
             'hash': row['hash'],
             'order': row['id']

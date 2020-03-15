@@ -7,7 +7,7 @@ import schema
 import os
 
 from functools import wraps
-from flask import Flask, g, jsonify, render_template, request, abort, redirect, session
+from flask import Flask, g, jsonify, render_template, request, abort, redirect, session, flash
 from flask_caching import Cache
 from flask_session import Session
 from ffmpy import FFmpeg
@@ -135,9 +135,52 @@ def route_admin_songs_id(id):
 
     categories = list(db.categories.find({}))
     song_skins = list(db.song_skins.find({}))
+    makers = list(db.makers.find({}))
+    user = db.users.find_one({'username': session['username']})
 
     return render_template('admin_song_detail.html',
-        song=song, categories=categories, song_skins=song_skins)
+        song=song, categories=categories, song_skins=song_skins, makers=makers, admin=user)
+
+
+@app.route('/admin/songs/<int:id>', methods=['POST'])
+@admin_required
+def route_admin_songs_id_post(id):
+    song = db.songs.find_one({'id': id})
+    if not song:
+        return abort(404)
+
+    user = db.users.find_one({'username': session['username']})
+    user_level = user['user_level']
+
+    output = {'title_lang': {}, 'subtitle_lang': {}, 'courses': {}}
+    if user_level >= 100:
+        output['enabled'] = True if request.form.get('enabled') else False
+
+    output['title'] = request.form.get('title') or None
+    output['subtitle'] = request.form.get('subtitle') or None
+    for lang in ['ja', 'en', 'cn', 'tw', 'ko']:
+        output['title_lang'][lang] = request.form.get('title_%s' % lang) or None
+        output['subtitle_lang'][lang] = request.form.get('subtitle_%s' % lang) or None
+
+    for course in ['easy', 'normal', 'hard', 'oni', 'ura']:
+        if request.form.get('course_%s' % course):
+            output['courses'][course] = {'stars': int(request.form.get('course_%s' % course)),
+                                         'branch': True if request.form.get('branch_%s' % course) else False}
+        else:
+            output['courses'][course] = None
+    
+    output['category_id'] = int(request.form.get('category_id'))
+    output['type'] = request.form.get('type')
+    output['offset'] = float(request.form.get('offset')) or None
+    output['skin_id'] = int(request.form.get('skin_id')) or None
+    output['preview'] = float(request.form.get('preview')) or None
+    output['volume'] = float(request.form.get('volume')) or None
+    output['maker_id'] = int(request.form.get('maker_id')) or None
+
+    db.songs.update_one({'id': id}, {'$set': output})
+    flash('Changes saved.')
+
+    return redirect('/admin/songs/%s' % id)
 
 
 @app.route('/api/preview')

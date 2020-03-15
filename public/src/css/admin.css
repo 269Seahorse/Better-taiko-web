@@ -123,3 +123,10 @@ h1 small {
     margin-right: 3px;
     margin-left: 5px;
 }
+
+.message {
+    background: #2c862f;
+    padding: 15px;
+    margin-bottom: 10px;
+    color: white;
+}
