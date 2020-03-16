@@ -278,7 +278,9 @@ class SongSelect{
 			}else if((!p2.session || fadeIn) && "selectedSong" in localStorage){
 				this.selectedSong = Math.min(Math.max(0, localStorage["selectedSong"] |0), this.songs.length - 1)
 			}
-			this.playSound(songIdIndex !== -1 ? "v_diffsel" : "v_songsel")
+			if(!this.showWarning){
+				this.playSound(songIdIndex !== -1 ? "v_diffsel" : "v_songsel")
+			}
 			snd.musicGain.fadeOut()
 			this.playBgm(false)
 		}

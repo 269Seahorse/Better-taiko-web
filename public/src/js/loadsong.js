@@ -177,13 +177,16 @@ class LoadSong{
 			if(title !== this.selectedSong.originalTitle){
 				title += " (" + this.selectedSong.originalTitle + ")"
 			}
-			this.clean()
-			new SongSelect(false, false, this.touchEnabled, null, {
-				name: "loadSongError",
-				title: title,
-				id: this.selectedSong.folder,
-				error: error
-			})
+			assets.sounds["v_start"].stop()
+			setTimeout(() => {
+				this.clean()
+				new SongSelect(false, false, this.touchEnabled, null, {
+					name: "loadSongError",
+					title: title,
+					id: this.selectedSong.folder,
+					error: error
+				})
+			}, 500)
 		}
 		this.error = true
 	}
