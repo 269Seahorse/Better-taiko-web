@@ -1379,8 +1379,8 @@ class SongSelect{
 					var textW = strings.id === "en" ? 350 : 280
 					this.selectTextCache.get({
 						ctx: ctx,
-						x: x - 144 - 53,
-						y: y - 24 - 30,
+						x: frameLeft,
+						y: frameTop,
 						w: textW + 53 + 60,
 						h: this.songAsset.marginTop + 15,
 						id: "difficulty"
