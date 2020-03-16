@@ -201,7 +201,7 @@ class SongSelect{
 		})
 		
 		this.songAsset = {
-			marginTop: 90,
+			marginTop: 104,
 			marginLeft: 18,
 			width: 82,
 			selectedWidth: 382,
@@ -1042,6 +1042,86 @@ class SongSelect{
 			this.playSound("se_pause")
 		}
 		
+		if(screen === "title" || screen === "titleFadeIn" || screen === "song"){
+			var textW = strings.id === "en" ? 350 : 280
+			this.selectTextCache.get({
+				ctx: ctx,
+				x: frameLeft,
+				y: frameTop,
+				w: textW + 53 + 60,
+				h: this.songAsset.marginTop + 15,
+				id: "song"
+			}, ctx => {
+				this.draw.layeredText({
+					ctx: ctx,
+					text: strings.selectSong,
+					fontSize: 48,
+					fontFamily: this.font,
+					x: 53,
+					y: 30,
+					width: textW,
+					letterSpacing: strings.id === "en" ? 0 : 2,
+					forceShadow: true
+				}, [
+					{x: -2, y: -2, outline: "#000", letterBorder: 22},
+					{},
+					{x: 2, y: 2, shadow: [3, 3, 3]},
+					{x: 2, y: 2, outline: "#ad1516", letterBorder: 10},
+					{x: -2, y: -2, outline: "#ff797b"},
+					{outline: "#f70808"},
+					{fill: "#fff", shadow: [-1, 1, 3, 1.5]}
+				])
+			})
+			
+			var category = this.songs[this.selectedSong].category
+			var selectedSong = this.songs[this.selectedSong]
+			this.draw.category({
+				ctx: ctx,
+				x: winW / 2 - 280 / 2 - 30,
+				y: frameTop + 60,
+				fill: selectedSong.skin.background,
+				highlight: this.state.moveHover === "categoryPrev"
+			})
+			this.draw.category({
+				ctx: ctx,
+				x: winW / 2 + 280 / 2 + 30,
+				y: frameTop + 60,
+				right: true,
+				fill: selectedSong.skin.background,
+				highlight: this.state.moveHover === "categoryNext"
+			})
+			this.categoryCache.get({
+				ctx: ctx,
+				x: winW / 2 - 280 / 2,
+				y: frameTop,
+				w: 280,
+				h: this.songAsset.marginTop,
+				id: category + selectedSong.skin.outline
+			}, ctx => {
+				if(category){
+					if(category in strings.categories){
+						var categoryName = strings.categories[category]
+					}else{
+						var categoryName = category
+					}
+					this.draw.layeredText({
+						ctx: ctx,
+						text: categoryName,
+						fontSize: 40,
+						fontFamily: this.font,
+						x: 280 / 2,
+						y: 38,
+						width: 255,
+						align: "center",
+						forceShadow: true
+					}, [
+						{outline: selectedSong.skin.outline, letterBorder: 12, shadow: [3, 3, 3]},
+						{fill: "#fff"}
+					])
+				}
+			})
+		}
+		
 		if(screen === "song"){
 			if(this.songs[this.selectedSong].courses){
 				selectedWidth = this.songAsset.selectedWidth
@@ -1265,96 +1345,7 @@ class SongSelect{
 			this.currentSongCache.clear()
 		}
 		
-		if(ms > this.state.screenMS + 2000 && selectedWidth === this.songAsset.width){
-			this.drawSongCrown({
-				ctx: ctx,
-				song: currentSong,
-				x: winW / 2 - selectedWidth / 2 + xOffset,
-				y: songTop + this.songAsset.height - selectedHeight
-			})
-		}
-		
-		if(screen === "title" || screen === "titleFadeIn" || screen === "song"){
-			var textW = strings.id === "en" ? 350 : 280
-			this.selectTextCache.get({
-				ctx: ctx,
-				x: frameLeft,
-				y: frameTop,
-				w: textW + 53 + 60,
-				h: this.songAsset.marginTop + 15,
-				id: "song"
-			}, ctx => {
-				this.draw.layeredText({
-					ctx: ctx,
-					text: strings.selectSong,
-					fontSize: 48,
-					fontFamily: this.font,
-					x: 53,
-					y: 30,
-					width: textW,
-					letterSpacing: strings.id === "en" ? 0 : 2,
-					forceShadow: true
-				}, [
-					{x: -2, y: -2, outline: "#000", letterBorder: 22},
-					{},
-					{x: 2, y: 2, shadow: [3, 3, 3]},
-					{x: 2, y: 2, outline: "#ad1516", letterBorder: 10},
-					{x: -2, y: -2, outline: "#ff797b"},
-					{outline: "#f70808"},
-					{fill: "#fff", shadow: [-1, 1, 3, 1.5]}
-				])
-			})
-			
-			var category = this.songs[this.selectedSong].category
-			var selectedSong = this.songs[this.selectedSong]
-			this.draw.category({
-				ctx: ctx,
-				x: winW / 2 - 280 / 2 - 30,
-				y: frameTop + 60,
-				fill: selectedSong.skin.background,
-				highlight: this.state.moveHover === "categoryPrev"
-			})
-			this.draw.category({
-				ctx: ctx,
-				x: winW / 2 + 280 / 2 + 30,
-				y: frameTop + 60,
-				right: true,
-				fill: selectedSong.skin.background,
-				highlight: this.state.moveHover === "categoryNext"
-			})
-			this.categoryCache.get({
-				ctx: ctx,
-				x: winW / 2 - 280 / 2,
-				y: frameTop,
-				w: 280,
-				h: this.songAsset.marginTop,
-				id: category + selectedSong.skin.outline
-			}, ctx => {
-				if(category){
-					if(category in strings.categories){
-						var categoryName = strings.categories[category]
-					}else{
-						var categoryName = category
-					}
-					this.draw.layeredText({
-						ctx: ctx,
-						text: categoryName,
-						fontSize: 40,
-						fontFamily: this.font,
-						x: 280 / 2,
-						y: 38,
-						width: 255,
-						align: "center",
-						forceShadow: true
-					}, [
-						{outline: selectedSong.skin.outline, letterBorder: 12, shadow: [3, 3, 3]},
-						{fill: "#fff"}
-					])
-				}
-			})
-		}
-		
-		if(ms <= this.state.screenMS + 2000 && selectedWidth === this.songAsset.width){
+		if(selectedWidth === this.songAsset.width){
 			this.drawSongCrown({
 				ctx: ctx,
 				song: currentSong,
