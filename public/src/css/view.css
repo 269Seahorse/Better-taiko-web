@@ -108,8 +108,8 @@ kbd{
 .left-buttons .taibtn{
 	margin-right: 0.4em;
 }
-#diag-txt textarea,
-#diag-txt iframe{
+.diag-txt textarea,
+.diag-txt iframe{
 	width: 100%;
 	height: 5em;
 	font-size: inherit;

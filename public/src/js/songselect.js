@@ -246,6 +246,7 @@ class SongSelect{
 		
 		this.selectedSong = 0
 		this.selectedDiff = 0
+		this.lastCurrentSong = {}
 		assets.sounds["bgm_songsel"].playLoop(0.1, false, 0, 1.442, 3.506)
 		
 		if(!assets.customSongs && !fromTutorial && !("selectedSong" in localStorage) && !songId){
@@ -1243,8 +1244,9 @@ class SongSelect{
 			highlight = 0
 		}
 		
-		if(this.currentSongTitle !== currentSong.title){
-			this.currentSongTitle = currentSong.title
+		if(this.lastCurrentSong.title !== currentSong.title || this.lastCurrentSong.subtitle !== currentSong.subtitle){
+			this.lastCurrentSong.title = currentSong.title
+			this.lastCurrentSong.subtitle = currentSong.subtitle
 			this.currentSongCache.clear()
 		}
 		

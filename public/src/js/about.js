@@ -5,7 +5,7 @@
 		cancelTouch = false
 		
 		this.endButton = this.getElement("view-end-button")
-		this.diagTxt = document.getElementById("diag-txt")
+		this.diagTxt = this.getElement("diag-txt")
 		this.version = document.getElementById("version-link").href
 		this.tutorialOuter = this.getElement("view-outer")
 		if(touchEnabled){

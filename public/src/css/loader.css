@@ -117,3 +117,20 @@ body{
 	color: #777;
 	text-shadow: 0.05em 0.05em #fff;
 }
+.view-outer.loader-error-div,
+.loader-error-div .diag-txt{
+	display: none
+}
+.loader-error-div{
+	font-family: sans-serif;
+}
+.loader-error-div .debug-link{
+	color: #00f;
+	text-decoration: underline;
+	cursor: pointer;
+	float: right;
+}
+.loader-error-div .diag-txt textarea,
+.loader-error-div .diag-txt iframe{
+	height: 10em;
+}

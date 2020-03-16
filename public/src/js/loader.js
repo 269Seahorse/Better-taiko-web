@@ -5,6 +5,7 @@ class Loader{
 		this.assetsDiv = document.getElementById("assets")
 		this.screen = document.getElementById("screen")
 		this.startTime = Date.now()
+		this.errorMessages = []
 		
 		var promises = []
 		
@@ -28,17 +29,24 @@ class Loader{
 		
 		if(gameConfig.custom_js){
 			var script = document.createElement("script")
-			this.addPromise(pageEvents.load(script))
-			script.src = gameConfig.custom_js + queryString
+			var url = gameConfig.custom_js + queryString
+			this.addPromise(pageEvents.load(script), url)
+			script.src = url
 			document.head.appendChild(script)
 		}
 		assets.js.forEach(name => {
 			var script = document.createElement("script")
-			this.addPromise(pageEvents.load(script))
-			script.src = "/src/js/" + name + queryString
+			var url = "/src/js/" + name + queryString
+			this.addPromise(pageEvents.load(script), url)
+			script.src = url
 			document.head.appendChild(script)
 		})
 		
+		var pageVersion = versionLink.href
+		var index = pageVersion.lastIndexOf("/")
+		if(index !== -1){
+			pageVersion = pageVersion.slice(index + 1)
+		}
 		this.addPromise(new Promise((resolve, reject) => {
 			if(
 				versionLink.href !== gameConfig._version.url &&
@@ -69,39 +77,43 @@ class Loader{
 			}
 			var interval = setInterval(checkStyles, 100)
 			checkStyles()
-		}))
+		}), "Version on the page and config does not match\n(page:  " + pageVersion + ",\nconfig: "+ gameConfig._version.commit + ")")
 		
 		for(var name in assets.fonts){
-			this.addPromise(new FontFace(name, "url('" + gameConfig.assets_baseurl + "fonts/" + assets.fonts[name] + "')").load().then(font => {
+			var url = gameConfig.assets_baseurl + "fonts/" + assets.fonts[name]
+			this.addPromise(new FontFace(name, "url('" + url + "')").load().then(font => {
 				document.fonts.add(font)
-			}))
+			}), url)
 		}
 		
 		assets.img.forEach(name => {
 			var id = this.getFilename(name)
 			var image = document.createElement("img")
-			this.addPromise(pageEvents.load(image))
+			var url = gameConfig.assets_baseurl + "img/" + name
+			this.addPromise(pageEvents.load(image), url)
 			image.id = name
-			image.src = gameConfig.assets_baseurl + "img/" + name
+			image.src = url
 			this.assetsDiv.appendChild(image)
 			assets.image[id] = image
 		})
 		
 		assets.views.forEach(name => {
 			var id = this.getFilename(name)
-			this.addPromise(this.ajax("/src/views/" + name + queryString).then(page => {
+			var url = "/src/views/" + name + queryString
+			this.addPromise(this.ajax(url).then(page => {
 				assets.pages[id] = page
-			}))
+			}), url)
 		})
 		
 		this.addPromise(this.ajax("/api/songs").then(songs => {
 			assets.songsDefault = JSON.parse(songs)
 			assets.songs = assets.songsDefault
-		}))
+		}), "/api/songs")
 		
-		this.addPromise(this.ajax(gameConfig.assets_baseurl + "img/vectors.json" + queryString).then(response => {
+		var url = gameConfig.assets_baseurl + "img/vectors.json" + queryString
+		this.addPromise(this.ajax(url).then(response => {
 			vectors = JSON.parse(response)
-		}))
+		}), url)
 		
 		this.afterJSCount =
 			["blurPerformance"].length +
@@ -112,6 +124,9 @@ class Loader{
 			(gameConfig.accounts ? 1 : 0)
 		
 		Promise.all(this.promises).then(() => {
+			if(this.error){
+				return
+			}
 			
 			snd.buffer = new SoundBuffer()
 			snd.musicGain = snd.buffer.createGain()
@@ -131,20 +146,20 @@ class Loader{
 			this.afterJSCount = 0
 			
 			assets.audioSfx.forEach(name => {
-				this.addPromise(this.loadSound(name, snd.sfxGain))
+				this.addPromise(this.loadSound(name, snd.sfxGain), this.soundUrl(name))
 			})
 			assets.audioMusic.forEach(name => {
-				this.addPromise(this.loadSound(name, snd.musicGain))
+				this.addPromise(this.loadSound(name, snd.musicGain), this.soundUrl(name))
 			})
 			assets.audioSfxLR.forEach(name => {
 				this.addPromise(this.loadSound(name, snd.sfxGain).then(sound => {
 					var id = this.getFilename(name)
 					assets.sounds[id + "_p1"] = assets.sounds[id].copy(snd.sfxGainL)
 					assets.sounds[id + "_p2"] = assets.sounds[id].copy(snd.sfxGainR)
-				}))
+				}), this.soundUrl(name))
 			})
 			assets.audioSfxLoud.forEach(name => {
-				this.addPromise(this.loadSound(name, snd.sfxLoudGain))
+				this.addPromise(this.loadSound(name, snd.sfxLoudGain), this.soundUrl(name))
 			})
 			
 			this.canvasTest = new CanvasTest()
@@ -154,7 +169,7 @@ class Loader{
 					// Less than 50 fps with blur enabled
 					disableBlur = true
 				}
-			}))
+			}), "blurPerformance")
 			
 			if(gameConfig.accounts){
 				this.addPromise(this.ajax("/api/scores/get").then(response => {
@@ -166,7 +181,7 @@ class Loader{
 						scoreStorage.load(response.scores)
 						pageEvents.send("login", account.username)
 					}
-				}))
+				}), "/api/scores/get")
 			}
 			
 			settings = new Settings()
@@ -174,6 +189,9 @@ class Loader{
 			scoreStorage = new ScoreStorage()
 			
 			Promise.all(this.promises).then(() => {
+				if(this.error){
+					return
+				}
 				if(!account.loggedIn){
 					scoreStorage.load()
 				}
@@ -250,27 +268,36 @@ class Loader{
 		})
 	
 	}
-	addPromise(promise){
+	addPromise(promise, url){
 		this.promises.push(promise)
-		promise.then(this.assetLoaded.bind(this), this.errorMsg.bind(this))
+		promise.then(this.assetLoaded.bind(this), response => {
+			this.errorMsg(response, url)
+			return Promise.resolve()
+		})
+	}
+	soundUrl(name){
+		return gameConfig.assets_baseurl + "audio/" + name
 	}
 	loadSound(name, gain){
 		var id = this.getFilename(name)
-		return gain.load(gameConfig.assets_baseurl + "audio/" + name).then(sound => {
+		return gain.load(this.soundUrl(name)).then(sound => {
 			assets.sounds[id] = sound
 		})
 	}
 	getFilename(name){
 		return name.slice(0, name.lastIndexOf("."))
 	}
-	errorMsg(error){
-		if(Array.isArray(error) && error[1] instanceof HTMLElement){
-			error = error[0] + ": " + error[1].outerHTML
+	errorMsg(error, url){
+		if(url || error){
+			if(url){
+				error = (Array.isArray(error) ? error[0] + ": " : (error ? error + ": " : "")) + url
+			}
+			this.errorMessages.push(error)
+			pageEvents.send("loader-error", url || error)
 		}
-		console.error(error)
-		pageEvents.send("loader-error", error)
 		if(!this.error){
 			this.error = true
+			cancelTouch = false
 			this.loaderDiv.classList.add("loaderError")
 			if(typeof allStrings === "object"){
 				var lang = localStorage.lang
@@ -288,14 +315,57 @@ class Loader{
 				if(!lang){
 					lang = "en"
 				}
-				var errorOccured = allStrings[lang].errorOccured
-			}else{
-				var errorOccured = "An error occurred, please refresh"
+				loader.screen.getElementsByClassName("view-content")[0].innerText = allStrings[lang].errorOccured
 			}
-			this.loaderPercentage.appendChild(document.createElement("br"))
-			this.loaderPercentage.appendChild(document.createTextNode(errorOccured))
-			this.clean()
+			var loaderError = loader.screen.getElementsByClassName("loader-error-div")[0]
+			loaderError.style.display = "flex"
+			var diagTxt = loader.screen.getElementsByClassName("diag-txt")[0]
+			var debugLink = loader.screen.getElementsByClassName("debug-link")[0]
+			if(navigator.userAgent.indexOf("Android") >= 0){
+				var iframe = document.createElement("iframe")
+				diagTxt.appendChild(iframe)
+				var body = iframe.contentWindow.document.body
+				body.setAttribute("style", `
+					font-family: monospace;
+					margin: 2px 0 0 2px;
+					white-space: pre-wrap;
+					word-break: break-all;
+					cursor: text;
+				`)
+				body.setAttribute("onblur", `
+					getSelection().removeAllRanges()
+				`)
+				this.errorTxt = {
+					element: body,
+					method: "innerText"
+				}
+			}else{
+				var textarea = document.createElement("textarea")
+				textarea.readOnly = true
+				diagTxt.appendChild(textarea)
+				if(!this.touchEnabled){
+					textarea.addEventListener("focus", () => {
+						textarea.select()
+					})
+					textarea.addEventListener("blur", () => {
+						getSelection().removeAllRanges()
+					})
+				}
+				this.errorTxt = {
+					element: textarea,
+					method: "value"
+				}
+			}
+			var show = () => {
+				diagTxt.style.display = "block"
+				debugLink.style.display = "none"
+			}
+			debugLink.addEventListener("click", show)
+			debugLink.addEventListener("touchstart", show)
+			this.clean(true)
 		}
+		var percentage = Math.floor(this.loadedAssets * 100 / (this.promises.length + this.afterJSCount))
+		this.errorTxt.element[this.errorTxt.method] = "```\n" + this.errorMessages.join("\n") + "\nPercentage: " + percentage + "%\n```"
 	}
 	assetLoaded(){
 		if(!this.error){
@@ -314,7 +384,11 @@ class Loader{
 			var request = new XMLHttpRequest()
 			request.open("GET", url)
 			pageEvents.load(request).then(() => {
-				resolve(request.response)
+				if(request.status === 200){
+					resolve(request.response)
+				}else{
+					reject()
+				}
 			}, reject)
 			if(customRequest){
 				customRequest(request)
@@ -322,14 +396,18 @@ class Loader{
 			request.send()
 		})
 	}
-	clean(){
+	clean(error){
 		var fontDetectDiv = document.getElementById("fontdetectHelper")
 		if(fontDetectDiv){
 			fontDetectDiv.parentNode.removeChild(fontDetectDiv)
 		}
+		delete this.loaderDiv
 		delete this.loaderPercentage
 		delete this.loaderProgress
-		delete this.promises
+		if(!error){
+			delete this.promises
+			delete this.errorText
+		}
 		pageEvents.remove(root, "touchstart")
 	}
 }
