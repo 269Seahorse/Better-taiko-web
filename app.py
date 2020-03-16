@@ -1,6 +1,7 @@
 #!/usr/bin/env python3
 
 import bcrypt
+import config
 import json
 import re
 import schema
@@ -14,27 +15,18 @@ from ffmpy import FFmpeg
 from pymongo import MongoClient
 
 app = Flask(__name__)
-client = MongoClient()
+client = MongoClient(host=config.MONGO['host'])
 
-try:
-    app.secret_key = open('secret.txt').read().strip()
-except FileNotFoundError:
-    app.secret_key = os.urandom(24).hex()
-    with open('secret.txt', 'w') as fp:
-        fp.write(app.secret_key)
-        fp.close()
-
+app.secret_key = config.SECRET_KEY
 app.config['SESSION_TYPE'] = 'redis'
 app.config['SESSION_COOKIE_HTTPONLY'] = False
-app.cache = Cache(app, config={'CACHE_TYPE': 'redis'})
+app.cache = Cache(app, config=config.REDIS)
 sess = Session()
 sess.init_app(app)
 
-db = client.taiko
+db = client[config.MONGO['database']]
 db.users.create_index('username', unique=True)
-
-DEFAULT_URL = 'https://github.com/bui/taiko-web/'
-
+db.songs.create_index('id', unique=True)
 
 def api_error(message):
     return jsonify({'status': 'error', 'message': message})
@@ -49,17 +41,19 @@ def login_required(f):
     return decorated_function
 
 
-def admin_required(f):
-    @wraps(f)
-    def decorated_function(*args, **kwargs):
-        if not session.get('username'):
-            return abort(403)
+def admin_required(level):
+    def decorated_function(f):
+        @wraps(f)
+        def wrapper(*args, **kwargs):
+            if not session.get('username'):
+                return abort(403)
+            
+            user = db.users.find_one({'username': session.get('username')})
+            if user['user_level'] < level:
+                return abort(403)
 
-        user = db.users.find_one({'username': session.get('username')})
-        if user['user_level'] < 50:
-            return abort(403)
-
-        return f(*args, **kwargs)
+            return f(*args, **kwargs)
+        return wrapper
     return decorated_function
 
 
@@ -71,27 +65,24 @@ def before_request_func():
 
 
 def get_config():
-    if os.path.isfile('config.json'):
-        try:
-            config = json.load(open('config.json', 'r'))
-        except ValueError:
-            print('WARNING: Invalid config.json, using default values')
-            config = {}
-    else:
-        print('WARNING: No config.json found, using default values')
-        config = {}
+    config_out = {
+        'songs_baseurl': config.SONGS_BASEURL,
+        'assets_baseurl': config.ASSETS_BASEURL,
+        'email': config.EMAIL,
+        'accounts': config.ACCOUNTS
+    }
 
-    if not config.get('songs_baseurl'):
-        config['songs_baseurl'] = ''.join([request.host_url, 'songs']) + '/'
-    if not config.get('assets_baseurl'):
-        config['assets_baseurl'] = ''.join([request.host_url, 'assets']) + '/'
+    if not config_out.get('songs_baseurl'):
+        config_out['songs_baseurl'] = ''.join([request.host_url, 'songs']) + '/'
+    if not config_out.get('assets_baseurl'):
+        config_out['assets_baseurl'] = ''.join([request.host_url, 'assets']) + '/'
 
-    config['_version'] = get_version()
-    return config
+    config_out['_version'] = get_version()
+    return config_out
 
 
 def get_version():
-    version = {'commit': None, 'commit_short': '', 'version': None, 'url': DEFAULT_URL}
+    version = {'commit': None, 'commit_short': '', 'version': None, 'url': config.URL}
     if os.path.isfile('version.json'):
         try:
             ver = json.load(open('version.json', 'r'))
@@ -114,20 +105,21 @@ def route_index():
 
 
 @app.route('/admin')
-@admin_required
+@admin_required(level=50)
 def route_admin():
     return redirect('/admin/songs')
 
 
 @app.route('/admin/songs')
-@admin_required
+@admin_required(level=50)
 def route_admin_songs():
     songs = db.songs.find({})
-    return render_template('admin_songs.html', songs=list(songs))
+    user = db.users.find_one({'username': session['username']})
+    return render_template('admin_songs.html', songs=list(songs), admin=user)
 
 
 @app.route('/admin/songs/<int:id>')
-@admin_required
+@admin_required(level=50)
 def route_admin_songs_id(id):
     song = db.songs.find_one({'id': id})
     if not song:
@@ -142,8 +134,58 @@ def route_admin_songs_id(id):
         song=song, categories=categories, song_skins=song_skins, makers=makers, admin=user)
 
 
+@app.route('/admin/songs/new')
+@admin_required(level=100)
+def route_admin_songs_new():
+    categories = list(db.categories.find({}))
+    song_skins = list(db.song_skins.find({}))
+    makers = list(db.makers.find({}))
+
+    return render_template('admin_song_new.html', categories=categories, song_skins=song_skins, makers=makers)
+
+
+@app.route('/admin/songs/new', methods=['POST'])
+@admin_required(level=100)
+def route_admin_songs_new_post():
+    output = {'title_lang': {}, 'subtitle_lang': {}, 'courses': {}}
+    output['enabled'] = True if request.form.get('enabled') else False
+    output['title'] = request.form.get('title') or None
+    output['subtitle'] = request.form.get('subtitle') or None
+    for lang in ['ja', 'en', 'cn', 'tw', 'ko']:
+        output['title_lang'][lang] = request.form.get('title_%s' % lang) or None
+        output['subtitle_lang'][lang] = request.form.get('subtitle_%s' % lang) or None
+
+    for course in ['easy', 'normal', 'hard', 'oni', 'ura']:
+        if request.form.get('course_%s' % course):
+            output['courses'][course] = {'stars': int(request.form.get('course_%s' % course)),
+                                         'branch': True if request.form.get('branch_%s' % course) else False}
+        else:
+            output['courses'][course] = None
+    
+    output['category_id'] = int(request.form.get('category_id')) or None
+    output['type'] = request.form.get('type')
+    output['offset'] = float(request.form.get('offset')) or None
+    output['skin_id'] = int(request.form.get('skin_id')) or None
+    output['preview'] = float(request.form.get('preview')) or None
+    output['volume'] = float(request.form.get('volume')) or None
+    output['maker_id'] = int(request.form.get('maker_id')) or None
+    output['hash'] = None
+
+    seq = db.seq.find_one({'name': 'songs'})
+    seq_new = seq['value'] + 1 if seq else 1
+    output['id'] = seq_new
+    output['order'] = seq_new
+
+    db.songs.insert_one(output)
+    flash('Song created.')
+
+    db.seq.update_one({'name': 'songs'}, {'$set': {'value': seq_new}}, upsert=True)
+
+    return redirect('/admin/songs/%s' % str(seq_new))
+
+
 @app.route('/admin/songs/<int:id>', methods=['POST'])
-@admin_required
+@admin_required(level=100)
 def route_admin_songs_id_post(id):
     song = db.songs.find_one({'id': id})
     if not song:
@@ -181,6 +223,18 @@ def route_admin_songs_id_post(id):
     flash('Changes saved.')
 
     return redirect('/admin/songs/%s' % id)
+
+
+@app.route('/admin/songs/<int:id>/delete', methods=['POST'])
+@admin_required(level=100)
+def route_admin_songs_id_delete(id):
+    song = db.songs.find_one({'id': id})
+    if not song:
+        return abort(404)
+
+    db.songs.delete_one({'id': id})
+    flash('Song deleted.')
+    return redirect('/admin/songs')
 
 
 @app.route('/api/preview')

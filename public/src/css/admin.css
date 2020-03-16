@@ -130,3 +130,23 @@ h1 small {
     margin-bottom: 10px;
     color: white;
 }
+
+.save-song {
+    font-size: 22pt;
+    width: 120px;
+}
+
+.delete-song button {
+    float: right;
+    margin-top: -25px;
+    font-size: 12pt;
+}
+
+.side-button {
+    float: right;
+    background: green;
+    padding: 5px 20px;
+    color: white;
+    text-decoration: none;
+    margin-top: 25px;
+}

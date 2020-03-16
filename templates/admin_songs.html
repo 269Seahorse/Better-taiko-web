@@ -1,6 +1,12 @@
 {% extends 'admin.html' %}
 {% block content %}
+{% if admin.user_level >= 100 %}
+<a href="/admin/songs/new" class="side-button">New song</a>
+{% endif %}
 <h1>Songs</h1>
+{% for message in get_flashed_messages() %}
+<div class="message">{{ message }}</div>
+{% endfor %}
 {% for song in songs %}
     <a href="/admin/songs/{{ song.id }}" class="song-link">
         <div class="song">

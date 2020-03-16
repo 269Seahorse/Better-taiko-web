@@ -49,6 +49,5 @@ public/api
 taiko.db
 version.json
 public/index.html
-config.json
+config.py
 public/assets/song_skins
-secret.txt

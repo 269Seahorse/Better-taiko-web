@@ -4,24 +4,30 @@
 import sqlite3
 from pymongo import MongoClient
 
-client = MongoClient()
-client.drop_database('taiko')
-db = client.taiko
+import os,sys,inspect
+current_dir = os.path.dirname(os.path.abspath(inspect.getfile(inspect.currentframe())))
+parent_dir = os.path.dirname(current_dir)
+sys.path.insert(0, parent_dir)
+import config
+
+client = MongoClient(config.MONGO['host'])
+client.drop_database(config.MONGO['database'])
+db = client[config.MONGO['database']]
 sqdb = sqlite3.connect('taiko.db')
 sqdb.row_factory = sqlite3.Row
 curs = sqdb.cursor()
 
 def migrate_songs():
-    curs.execute('select * from songs')
+    curs.execute('select * from songs order by id')
     rows = curs.fetchall()
 
     for row in rows:
         song = {
             'id': row['id'],
             'title': row['title'],
-            'title_lang': {'ja': row['title']},
+            'title_lang': {'ja': row['title'], 'en': None, 'cn': None, 'tw': None, 'ko': None},
             'subtitle': row['subtitle'],
-            'subtitle_lang': {'ja': row['subtitle']},
+            'subtitle_lang': {'ja': row['subtitle'], 'en': None, 'cn': None, 'tw': None, 'ko': None},
             'courses': {'easy': None, 'normal': None, 'hard': None, 'oni': None, 'ura': None},
             'enabled': True if row['enabled'] else False,
             'category_id': row['category'],
@@ -63,6 +69,9 @@ def migrate_songs():
                     song['subtitle_lang']['en'] = lang
 
         db.songs.insert_one(song)
+        last_song = song['id']
+    
+    db.seq.insert_one({'name': 'songs', 'value': last_song})
 
 def migrate_makers():
     curs.execute('select * from makers')
