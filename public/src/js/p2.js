@@ -116,6 +116,7 @@ class P2Connection{
 				this.kaAmount = 0
 				this.results = false
 				this.branch = "normal"
+				scoreStorage.clearP2()
 				break
 			case "gameend":
 				this.otherConnected = false
@@ -130,6 +131,7 @@ class P2Connection{
 					this.hashLock = false
 				}
 				this.name = null
+				scoreStorage.clearP2()
 				break
 			case "gameresults":
 				this.results = {}
@@ -157,12 +159,44 @@ class P2Connection{
 				this.clearMessage("users")
 				this.otherConnected = true
 				this.session = true
+				scoreStorage.clearP2()
 				if("player" in response.value){
 					this.player = response.value.player === 2 ? 2 : 1
 				}
 				break
 			case "name":
 				this.name = response.value ? response.value.toString() : response.value
+				break
+			case "getcrowns":
+				if(response.value){
+					var output = {}
+					for(var i in response.value){
+						if(response.value[i]){
+							var score = scoreStorage.get(response.value[i], false, true)
+							if(score){
+								var crowns = {}
+								for(var diff in score){
+									if(diff !== "title"){
+										crowns[diff] = {
+											crown: score[diff].crown
+										}
+									}
+								}
+							}else{
+								var crowns = null
+							}
+							output[response.value[i]] = crowns
+						}
+					}
+					p2.send("crowns", output)
+				}
+				break
+			case "crowns":
+				if(response.value){
+					for(var i in response.value){
+						scoreStorage.addP2(i, false, response.value[i], true)
+					}
+				}
 				break
 		}
 	}

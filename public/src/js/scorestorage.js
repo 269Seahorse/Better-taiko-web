@@ -1,6 +1,9 @@
 class ScoreStorage{
 	constructor(){
 		this.scores = {}
+		this.scoresP2 = {}
+		this.requestP2 = new Set()
+		this.requestedP2 = new Set()
 		this.songTitles = {}
 		this.difficulty = ["oni", "ura", "hard", "normal", "easy"]
 		this.scoreKeys = ["points", "good", "ok", "bad", "maxCombo", "drumroll"]
@@ -151,15 +154,40 @@ class ScoreStorage{
 			}
 		}
 	}
+	getP2(song, difficulty, isHash){
+		if(!song){
+			return this.scoresP2
+		}else{
+			var hash = isHash ? song : this.titleHash(song)
+			if(!(hash in this.scoresP2) && !this.requestP2.has(hash) && !this.requestedP2.has(hash)){
+				this.requestP2.add(hash)
+				this.requestedP2.add(hash)
+			}
+			if(difficulty){
+				if(hash in this.scoresP2){
+					return this.scoresP2[hash][difficulty]
+				}
+			}else{
+				return this.scoresP2[hash]
+			}
+		}
+	}
 	add(song, difficulty, scoreObject, isHash, setTitle, saveFailed){
 		var hash = isHash ? song : this.titleHash(song)
 		if(!(hash in this.scores)){
 			this.scores[hash] = {}
 		}
-		if(setTitle){
-			this.scores[hash].title = setTitle
+		if(difficulty){
+			if(setTitle){
+				this.scores[hash].title = setTitle
+			}
+			this.scores[hash][difficulty] = scoreObject
+		}else{
+			this.scores[hash] = scoreObject
+			if(setTitle){
+				this.scores[hash].title = setTitle
+			}
 		}
-		this.scores[hash][difficulty] = scoreObject
 		this.writeString(hash)
 		this.write()
 		if(saveFailed){
@@ -184,6 +212,23 @@ class ScoreStorage{
 			return this.sendToServer({
 				scores: this.prepareScores(obj)
 			}).catch(() => this.add(song, difficulty, scoreObject, isHash, setTitle, true))
+		}
+	}
+	addP2(song, difficulty, scoreObject, isHash, setTitle){
+		var hash = isHash ? song : this.titleHash(song)
+		if(!(hash in this.scores)){
+			this.scoresP2[hash] = {}
+		}
+		if(difficulty){
+			if(setTitle){
+				this.scoresP2[hash].title = setTitle
+			}
+			this.scoresP2[hash][difficulty] = scoreObject
+		}else{
+			this.scoresP2[hash] = scoreObject
+			if(setTitle){
+				this.scoresP2[hash].title = setTitle
+			}
 		}
 	}
 	template(){
@@ -256,5 +301,22 @@ class ScoreStorage{
 		}else{
 			return Promise.resolve()
 		}
+	}
+	eventLoop(){
+		if(p2.session && this.requestP2.size){
+			var req = []
+			this.requestP2.forEach(hash => {
+				req.push(hash)
+			})
+			this.requestP2.clear()
+			if(req.length){
+				p2.send("getcrowns", req)
+			}
+		}
+	}
+	clearP2(){
+		this.scoresP2 = {}
+		this.requestP2.clear()
+		this.requestedP2.clear()
 	}
 }

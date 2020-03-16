@@ -283,6 +283,12 @@ async def connection(ws, path):
 									ws.send(sent_msg),
 									user["other_user"]["ws"].send(sent_msg)
 								])
+						elif type == "crowns" or type == "getcrowns":
+							if user["other_user"]["action"] == "songsel":
+								sent_msg = msgobj(type, value)
+								await asyncio.wait([
+									user["other_user"]["ws"].send(sent_msg)
+								])
 						elif type == "join":
 							# Start game
 							if value == None:

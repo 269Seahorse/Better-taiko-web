@@ -1495,20 +1495,33 @@ class SongSelect{
 				}
 				var drawDifficulty = (ctx, i, currentUra) => {
 					if(currentSong.courses[this.difficultyId[i]] || currentUra){
-						var score = scoreStorage.get(currentSong.hash, false, true)
 						var crownDiff = currentUra ? "ura" : this.difficultyId[i]
-						var crownType = ""
-						if(score && score[crownDiff]){
-							crownType = score[crownDiff].crown
+						var players = p2.session ? 2 : 1
+						var score = [scoreStorage.get(currentSong.hash, false, true)]
+						if(p2.session){
+							score[p2.player === 1 ? "push" : "unshift"](scoreStorage.getP2(currentSong.hash, false, true))
 						}
-						this.draw.crown({
-							ctx: ctx,
-							type: crownType,
-							x: songSel ? x + 33 + i * 60 : x + 402 + i * 100,
-							y: songSel ? y + 75 : y + 30,
-							scale: 0.25,
-							ratio: this.ratio / this.pixelRatio
-						})
+						var reversed = false
+						for(var a = players; a--;){
+							var crownType = ""
+							var p = reversed ? -(a - 1) : a
+							if(score[p] && score[p][crownDiff]){
+								crownType = score[p][crownDiff].crown
+							}
+							if(!reversed && players === 2 && p === 1 && crownType){
+								reversed = true
+								a++
+							}else{
+								this.draw.crown({
+									ctx: ctx,
+									type: crownType,
+									x: (songSel ? x + 33 + i * 60 : x + 402 + i * 100) + (players === 2 ? p === 0 ? -13 : 13 : 0),
+									y: songSel ? y + 75 : y + 30,
+									scale: 0.25,
+									ratio: this.ratio / this.pixelRatio
+								})
+							}
+						}
 						if(songSel){
 							var _x = x + 33 + i * 60
 							var _y = y + 120
@@ -2269,6 +2282,11 @@ class SongSelect{
 			
 			ctx.restore()
 		}
+		
+		if(p2.session && (!this.lastScoreMS || ms > this.lastScoreMS + 1000)){
+			this.lastScoreMS = ms
+			scoreStorage.eventLoop()
+		}
 	}
 	
 	drawClosedSong(config){
@@ -2327,31 +2345,38 @@ class SongSelect{
 	drawSongCrown(config){
 		if(!config.song.action && config.song.hash){
 			var ctx = config.ctx
-			var score = scoreStorage.get(config.song.hash, false, true)
+			var players = p2.session ? 2 : 1
+			var score = [scoreStorage.get(config.song.hash, false, true)]
+			var scoreDrawn = []
+			if(p2.session){
+				score[p2.player === 1 ? "push" : "unshift"](scoreStorage.getP2(config.song.hash, false, true))
+			}
 			for(var i = this.difficultyId.length; i--;){
 				var diff = this.difficultyId[i]
-				if(!score){
-					break
-				}
-				if(config.song.courses[this.difficultyId[i]] && score[diff] && score[diff].crown){
-					this.draw.crown({
-						ctx: ctx,
-						type: score[diff].crown,
-						x: config.x + this.songAsset.width / 2,
-						y: config.y - 13,
-						scale: 0.3,
-						ratio: this.ratio / this.pixelRatio
-					})
-					this.draw.diffIcon({
-						ctx: ctx,
-						diff: i,
-						x: config.x + this.songAsset.width / 2 + 8,
-						y: config.y - 8,
-						scale: diff === "hard" || diff === "normal" ? 0.45 : 0.5,
-						border: 6.5,
-						small: true
-					})
-					break
+				for(var p = players; p--;){
+					if(!score[p] || scoreDrawn[p]){
+						continue
+					}
+					if(config.song.courses[this.difficultyId[i]] && score[p][diff] && score[p][diff].crown){
+						this.draw.crown({
+							ctx: ctx,
+							type: score[p][diff].crown,
+							x: (config.x + this.songAsset.width / 2) + (players === 2 ? p === 0 ? -13 : 13 : 0),
+							y: config.y - 13,
+							scale: 0.3,
+							ratio: this.ratio / this.pixelRatio
+						})
+						this.draw.diffIcon({
+							ctx: ctx,
+							diff: i,
+							x: (config.x + this.songAsset.width / 2 + 8) + (players === 2 ? p === 0 ? -13 : 13 : 0),
+							y: config.y - 8,
+							scale: diff === "hard" || diff === "normal" ? 0.45 : 0.5,
+							border: 6.5,
+							small: true
+						})
+						scoreDrawn[p] = true
+					}
 				}
 			}
 		}
