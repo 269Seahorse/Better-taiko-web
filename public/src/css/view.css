@@ -119,6 +119,7 @@ kbd{
 	background: #fff;
 	border: 1px solid #a9a9a9;
 	user-select: all;
+	box-sizing: border-box;
 }
 .text-warn{
 	color: #d00;

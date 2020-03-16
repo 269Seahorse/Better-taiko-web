@@ -864,7 +864,7 @@ class Scoresheet{
 			
 			if(elapsed >= 1000){
 				this.clean()
-				this.controller.songSelection(true, this.scoreSaveFailed)
+				this.controller.songSelection(true, this.showWarning)
 			}
 		}
 		
@@ -932,12 +932,12 @@ class Scoresheet{
 				delete this.resultsObj.difficulty
 				delete this.resultsObj.gauge
 				scoreStorage.add(hash, difficulty, this.resultsObj, true, title).catch(() => {
-					this.scoreSaveFailed = true
+					this.showWarning = {name: "scoreSaveFailed"}
 				})
 			}else if(oldScore && (crown === "gold" && oldScore.crown !== "gold" || crown && !oldScore.crown)){
 				oldScore.crown = crown
 				scoreStorage.add(hash, difficulty, oldScore, true, title).catch(() => {
-					this.scoreSaveFailed = true
+					this.showWarning = {name: "scoreSaveFailed"}
 				})
 			}
 		}

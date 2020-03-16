@@ -1,5 +1,5 @@
 class SongSelect{
-	constructor(fromTutorial, fadeIn, touchEnabled, songId, scoreSaveFailed){
+	constructor(fromTutorial, fadeIn, touchEnabled, songId, showWarning){
 		this.touchEnabled = touchEnabled
 		
 		loader.changePage("songselect", false)
@@ -167,7 +167,8 @@ class SongSelect{
 				category: strings.random
 			})
 		}
-		if(scoreSaveFailed){
+		this.showWarning = showWarning
+		if(showWarning && showWarning.name === "scoreSaveFailed"){
 			scoreStorage.scoreSaveFailed = true
 		}
 		this.songs.push({
@@ -383,10 +384,11 @@ class SongSelect{
 			return
 		}
 		var shift = event ? event.shiftKey : this.pressedKeys["shift"]
-		if(this.state.scoreSaveFailed){
+		if(this.state.showWarning){
 			if(name === "confirm"){
 				this.playSound("se_don")
-				this.state.scoreSaveFailed = false
+				this.state.showWarning = false
+				this.showWarning = false
 			}
 		}else if(this.state.screen === "song"){
 			if(name === "confirm"){
@@ -462,10 +464,11 @@ class SongSelect{
 			var ctrl = false
 			var touch = true
 		}
-		if(this.state.scoreSaveFailed){
+		if(this.state.showWarning){
 			if(408 < mouse.x && mouse.x < 872 && 470 < mouse.y && mouse.y < 550){
 				this.playSound("se_don")
-				this.state.scoreSaveFailed = false
+				this.state.showWarning = false
+				this.showWarning = false
 			}
 		}else if(this.state.screen === "song"){
 			if(20 < mouse.y && mouse.y < 90 && 410 < mouse.x && mouse.x < 880 && (mouse.x < 540 || mouse.x > 750)){
@@ -522,9 +525,9 @@ class SongSelect{
 	mouseMove(event){
 		var mouse = this.mouseOffset(event.offsetX, event.offsetY)
 		var moveTo = null
-		if(this.state.scoreSaveFailed){
+		if(this.state.showWarning){
 			if(408 < mouse.x && mouse.x < 872 && 470 < mouse.y && mouse.y < 550){
-				moveTo = "scoreSaveFailed"
+				moveTo = "showWarning"
 			}
 		}else if(this.state.screen === "song"){
 			if(20 < mouse.y && mouse.y < 90 && 410 < mouse.x && mouse.x < 880 && (mouse.x < 540 || mouse.x > 750)){
@@ -1019,12 +1022,17 @@ class SongSelect{
 			}
 		}
 		
-		if(screen === "song" && scoreStorage.scoreSaveFailed && !p2.session){
+		if(screen === "song" && (this.showWarning || scoreStorage.scoreSaveFailed) && !p2.session){
+			if(!this.showWarning){
+				this.showWarning = {name: "scoreSaveFailed"}
+			}
 			if(this.bgmEnabled){
 				this.playBgm(false)
 			}
-			scoreStorage.scoreSaveFailed = false
-			this.state.scoreSaveFailed = true
+			if(this.showWarning.name === "scoreSaveFailed"){
+				scoreStorage.scoreSaveFailed = false
+			}
+			this.state.showWarning = true
 			this.state.locked = true
 			this.playSound("se_pause")
 		}
@@ -2130,7 +2138,7 @@ class SongSelect{
 			})
 		}
 		
-		if(this.state.scoreSaveFailed){
+		if(this.state.showWarning){
 			if(this.preview){
 				this.endPreview()
 			}
@@ -2164,9 +2172,24 @@ class SongSelect{
 				dx: 68,
 				dy: 11
 			})
+			if(this.showWarning.name === "scoreSaveFailed"){
+				var text = strings.scoreSaveFailed
+			}else if(this.showWarning.name === "loadSongError"){
+				var text = []
+				var textIndex = 0
+				var subText = [this.showWarning.title, this.showWarning.id, this.showWarning.error]
+				var textParts = strings.loadSongError.split("%s")
+				textParts.forEach((textPart, i) => {
+					if(i !== 0){
+						text.push(subText[textIndex++])
+					}
+					text.push(textPart)
+				})
+				text = text.join("")
+			}
 			this.draw.wrappingText({
 				ctx: ctx,
-				text: strings.scoreSaveFailed,
+				text: text,
 				fontSize: 30,
 				fontFamily: this.font,
 				x: 300,
@@ -2176,7 +2199,7 @@ class SongSelect{
 				lineHeight: 35,
 				fill: "#000",
 				verticalAlign: "middle",
-				textAlign: "center",
+				textAlign: "center"
 			})
 			
 			var _x = 640
@@ -2211,7 +2234,7 @@ class SongSelect{
 			}, layers)
 			
 			var highlight = 1
-			if(this.state.moveHover === "scoreSaveFailed"){
+			if(this.state.moveHover === "showWarning"){
 				highlight = 2
 			}
 			if(highlight){
@@ -2330,7 +2353,7 @@ class SongSelect{
 	}
 	
 	startPreview(loadOnly){
-		if(!loadOnly && this.state && this.state.scoreSaveFailed){
+		if(!loadOnly && this.state && this.state.showWarning){
 			return
 		}
 		var currentSong = this.songs[this.selectedSong]
@@ -2408,7 +2431,7 @@ class SongSelect{
 		}
 	}
 	playBgm(enabled){
-		if(enabled && this.state && this.state.scoreSaveFailed){
+		if(enabled && this.state && this.state.showWarning){
 			return
 		}
 		if(enabled && !this.bgmEnabled){

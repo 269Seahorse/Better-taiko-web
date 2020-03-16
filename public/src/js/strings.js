@@ -266,6 +266,10 @@ var translations = {
 		ja: null,
 		en: "Could not connect to the server, your score has not been saved.\n\nPlease log in or refresh the page to try saving the score again."
 	},
+	loadSongError: {
+		ja: null,
+		en: "Could not load song %s with id %s.\n\n%s"
+	},
 	loading: {
 		ja: "ロード中...",
 		en: "Loading...",

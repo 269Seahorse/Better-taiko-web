@@ -207,14 +207,14 @@ class Controller{
 	displayScore(score, notPlayed, bigNote){
 		this.view.displayScore(score, notPlayed, bigNote)
 	}
-	songSelection(fadeIn, scoreSaveFailed){
+	songSelection(fadeIn, showWarning){
 		if(!fadeIn){
 			this.clean()
 		}
 		if(this.calibrationMode){
 			new SettingsView(this.touchEnabled, false, null, "latency")
 		}else{
-			new SongSelect(false, fadeIn, this.touchEnabled, null, scoreSaveFailed)
+			new SongSelect(false, fadeIn, this.touchEnabled, null, showWarning)
 		}
 	}
 	restartSong(){
