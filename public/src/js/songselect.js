@@ -711,7 +711,9 @@ class SongSelect{
 				
 				this.playSound("se_don", 0, fromP2 ? fromP2.player : false)
 				assets.sounds["v_songsel"].stop()
-				this.playSound("v_diffsel", 0.3)
+				if(!this.showWarning){
+					this.playSound("v_diffsel", 0.3)
+				}
 				pageEvents.send("song-select-difficulty", currentSong)
 			}else if(currentSong.action === "back"){
 				this.clean()
@@ -1024,7 +1026,7 @@ class SongSelect{
 			}
 		}
 		
-		if(screen === "song" && (this.showWarning && !this.showWarning.shown || scoreStorage.scoreSaveFailed)){
+		if((screen === "song" || screen === "difficulty") && (this.showWarning && !this.showWarning.shown || scoreStorage.scoreSaveFailed)){
 			if(!this.showWarning){
 				this.showWarning = {name: "scoreSaveFailed"}
 			}
