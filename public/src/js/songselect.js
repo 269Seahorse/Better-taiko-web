@@ -1022,7 +1022,7 @@ class SongSelect{
 			}
 		}
 		
-		if(screen === "song" && (this.showWarning || scoreStorage.scoreSaveFailed) && !p2.session){
+		if(screen === "song" && (this.showWarning && !this.showWarning.shown || scoreStorage.scoreSaveFailed)){
 			if(!this.showWarning){
 				this.showWarning = {name: "scoreSaveFailed"}
 			}
@@ -1032,6 +1032,7 @@ class SongSelect{
 			if(this.showWarning.name === "scoreSaveFailed"){
 				scoreStorage.scoreSaveFailed = false
 			}
+			this.showWarning.shown = true
 			this.state.showWarning = true
 			this.state.locked = true
 			this.playSound("se_pause")

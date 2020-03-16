@@ -927,8 +927,22 @@
 				}
 			}
 		}
+		var search = () => {
+			var end = line.length
+			var dist = end
+			while(dist){
+				dist >>= 1
+				line = words[i].slice(0, end)
+				lastWidth = ctx.measureText(line).width
+				end += lastWidth < config.width ? dist : -dist
+			}
+			if(line !== words[i]){
+				words.splice(i + 1, 0, words[i].slice(line.length))
+				words[i] = line
+			}
+		}
 		
-		for(var i in words){
+		for(var i = 0; i < words.length; i++){
 			var skip = words[i].substitute || words[i] === "\n"
 			if(!skip){
 				var currentWidth = ctx.measureText(line + words[i]).width
@@ -960,8 +974,22 @@
 					recenter()
 					x = 0
 					y += lineHeight
-					line = words[i] === "\n" ? "" : words[i]
-					lastWidth = ctx.measureText(line).width
+					if(words[i] === "\n"){
+						line = ""
+						lastWidth = 0
+					}else{
+						line = words[i]
+						lastWidth = ctx.measureText(line).width
+						if(line.length !== 1 && lastWidth > config.width){
+							search()
+						}
+					}
+				}
+			}else if(!line){
+				line = words[i]
+				lastWidth = ctx.measureText(line).width
+				if(line.length !== 1 && lastWidth > config.width){
+					search()
 				}
 			}else{
 				line += words[i]
