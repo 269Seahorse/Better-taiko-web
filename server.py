@@ -102,6 +102,8 @@ async def connection(ws, path):
 								user["action"] = "loading"
 								user["other_user"]["action"] = "loading"
 								user["other_user"]["other_user"] = user
+								user["other_user"]["player"] = 1
+								user["player"] = 2
 								await asyncio.wait([
 									ws.send(msgobj("gameload", {"diff": waiting_diff, "player": 2})),
 									user["other_user"]["ws"].send(msgobj("gameload", {"diff": diff, "player": 1})),
@@ -138,6 +140,8 @@ async def connection(ws, path):
 								user["other_user"]["other_user"] = user
 								user["action"] = "invite"
 								user["session"] = value["id"]
+								user["other_user"]["player"] = 1
+								user["player"] = 2
 								await asyncio.wait([
 									ws.send(msgobj("session", {"player": 2})),
 									user["other_user"]["ws"].send(msgobj("session", {"player": 1})),
@@ -273,6 +277,7 @@ async def connection(ws, path):
 						if type == "songsel" or type == "catjump":
 							# Change song select position
 							if user["other_user"]["action"] == "songsel":
+								value["player"] = user["player"]
 								sent_msg = msgobj(type, value)
 								await asyncio.wait([
 									ws.send(sent_msg),

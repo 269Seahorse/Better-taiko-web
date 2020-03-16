@@ -87,11 +87,7 @@ var assets = {
 		"settings_gamepad.png"
 	],
 	"audioSfx": [
-		"se_cancel.wav",
-		"se_don.wav",
-		"se_ka.wav",
 		"se_pause.wav",
-		"se_jump.wav",
 		"se_calibration.wav",
 
 		"v_results.wav",
@@ -103,6 +99,10 @@ var assets = {
 	"audioSfxLR": [
 		"neiro_1_don.wav",
 		"neiro_1_ka.wav",
+		"se_cancel.wav",
+		"se_don.wav",
+		"se_ka.wav",
+		"se_jump.wav",
 
 		"se_balloon.wav",
 		"se_gameclear.wav",

@@ -6,7 +6,11 @@ class Controller{
 		this.saveScore = !autoPlayEnabled
 		this.multiplayer = multiplayer
 		this.touchEnabled = touchEnabled
-		this.snd = this.multiplayer ? "_p" + this.multiplayer : ""
+		if(multiplayer === 2){
+			this.snd = p2.player === 2 ? "_p1" : "_p2"
+		}else{
+			this.snd = multiplayer ? "_p" + p2.player : ""
+		}
 		
 		this.calibrationMode = selectedSong.folder === "calibration"
 		this.audioLatency = 0

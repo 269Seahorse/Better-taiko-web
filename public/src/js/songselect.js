@@ -497,7 +497,7 @@ class SongSelect{
 				window.open(this.songs[this.selectedSong].maker.url)
 			}else if(moveBy === this.diffOptions.length + 4){
 				this.state.ura = !this.state.ura
-				this.playSound("se_ka")
+				this.playSound("se_ka", 0, p2.session ? p2.player : false)
 				if(this.selectedDiff === this.diffOptions.length + 4 && !this.state.ura){
 					this.state.move = -1
 				}
@@ -639,9 +639,10 @@ class SongSelect{
 			var scroll = resize2 - resize - scrollDelay * 2
 			
 			var soundsDelay = Math.abs((scroll + resize) / moveBy)
+			this.lastMoveBy = fromP2 ? fromP2.player : false
 			
 			for(var i = 0; i < Math.abs(moveBy) - 1; i++){
-				this.playSound("se_ka", (resize + i * soundsDelay) / 1000)
+				this.playSound("se_ka", (resize + i * soundsDelay) / 1000, fromP2 ? fromP2.player : false)
 			}
 			this.pointer(false)
 		}
@@ -663,7 +664,7 @@ class SongSelect{
 			this.state.locked = 1
 			
 			this.endPreview()
-			this.playSound("se_jump")
+			this.playSound("se_jump", 0, fromP2 ? fromP2.player : false)
 		}
 	}
 
@@ -672,7 +673,7 @@ class SongSelect{
 			this.state.move = moveBy
 			this.state.moveMS = this.getMS() - 500
 			this.state.locked = 1
-			this.playSound("se_ka")
+			this.playSound("se_ka", 0, p2.session ? p2.player : false)
 		}
 	}
 	
@@ -703,7 +704,7 @@ class SongSelect{
 					this.selectedDiff = this.diffOptions.length + 3
 				}
 				
-				this.playSound("se_don")
+				this.playSound("se_don", 0, fromP2 ? fromP2.player : false)
 				assets.sounds["v_songsel"].stop()
 				this.playSound("v_diffsel", 0.3)
 				pageEvents.send("song-select-difficulty", currentSong)
@@ -711,14 +712,14 @@ class SongSelect{
 				this.clean()
 				this.toTitleScreen()
 			}else if(currentSong.action === "random"){
-				this.playSound("se_don")
+				this.playSound("se_don", 0, fromP2 ? fromP2.player : false)
 				this.state.locked = true
 				do{
 					var i = Math.floor(Math.random() * this.songs.length)
 				}while(!this.songs[i].courses)
 				var moveBy = i - this.selectedSong
 				setTimeout(() => {
-					this.moveToSong(moveBy)
+					this.moveToSong(moveBy, fromP2)
 				}, 200)
 				pageEvents.send("song-select-random")
 			}else if(currentSong.action === "tutorial"){
@@ -748,7 +749,7 @@ class SongSelect{
 			this.state.moveHover = null
 			
 			assets.sounds["v_diffsel"].stop()
-			this.playSound("se_cancel")
+			this.playSound("se_cancel", 0, fromP2 ? fromP2.player : false)
 		}
 		this.clearHash()
 		pageEvents.send("song-select-back")
@@ -757,7 +758,7 @@ class SongSelect{
 		this.clean()
 		var selectedSong = this.songs[this.selectedSong]
 		assets.sounds["v_diffsel"].stop()
-		this.playSound("se_don")
+		this.playSound("se_don", 0, p2.session ? p2.player : false)
 		
 		try{
 			if(assets.customSongs){
@@ -799,7 +800,7 @@ class SongSelect{
 	}
 	toOptions(moveBy){
 		if(!p2.session){
-			this.playSound("se_ka")
+			this.playSound("se_ka", 0, p2.session ? p2.player : false)
 			this.selectedDiff = 1
 			do{
 				this.state.options = this.mod(this.optionsList.length, this.state.options + moveBy)
@@ -848,6 +849,7 @@ class SongSelect{
 			return
 		}
 		if(p2.session){
+			this.playSound("se_don")
 			p2.send("gameend")
 			this.state.moveHover = null
 		}else{
@@ -1045,7 +1047,7 @@ class SongSelect{
 				var previousSelectedSong = this.selectedSong
 
 				if(!isJump){
-					this.playSound("se_ka")
+					this.playSound("se_ka", 0, this.lastMoveBy)
 					this.selectedSong = this.mod(this.songs.length, this.selectedSong + this.state.move)
 				}else{
 					var currentCat = this.songs[this.selectedSong].category
@@ -2442,7 +2444,7 @@ class SongSelect{
 							this.selectedSong = index
 							this.state.move = 0
 							if(this.state.screen !== "difficulty"){
-								this.toSelectDifficulty(true)
+								this.toSelectDifficulty({player: response.value.player})
 							}
 						}
 					}
@@ -2463,7 +2465,7 @@ class SongSelect{
 						var moveBy = response.value.move
 						if(moveBy === -1 || moveBy === 1){
 							this.selectedSong = song
-							this.categoryJump(moveBy, true)
+							this.categoryJump(moveBy, {player: response.value.player})
 						}
 					}else if(!selected){
 						this.state.locked = true
@@ -2480,13 +2482,13 @@ class SongSelect{
 							if(Math.abs(altMoveBy) < Math.abs(moveBy)){
 								moveBy = altMoveBy
 							}
-							this.moveToSong(moveBy, true)
+							this.moveToSong(moveBy, {player: response.value.player})
 						}
 					}else if(this.songs[song].courses){
 						this.selectedSong = song
 						this.state.move = 0
 						if(this.state.screen !== "difficulty"){
-							this.toSelectDifficulty(true)
+							this.toSelectDifficulty({player: response.value.player})
 						}
 					}
 				}
@@ -2543,13 +2545,13 @@ class SongSelect{
 		}
 	}
 	
-	playSound(id, time){
+	playSound(id, time, snd){
 		if(!this.drumSounds && (id === "se_don" || id === "se_ka" || id === "se_cancel")){
 			return
 		}
 		var ms = Date.now() + (time || 0) * 1000
 		if(!(id in this.playedSounds) || ms > this.playedSounds[id] + 30){
-			assets.sounds[id].play(time)
+			assets.sounds[id + (snd ? "_p" + snd : "")].play(time)
 			this.playedSounds[id] = ms
 		}
 	}
