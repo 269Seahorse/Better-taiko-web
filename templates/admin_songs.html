@@ -10,7 +10,11 @@
 {% for song in songs %}
     <a href="/admin/songs/{{ song.id }}" class="song-link">
         <div class="song">
-            <p>{{ song.title }}</p>
+            {% if song.title_lang.en %}
+                <p>{{ song.title_lang.en }} <small>({{ song.title }})</small></p>
+            {% else %}
+                <p>{{ song.title }}</p>
+            {% endif %}
         </div>
     </a>
 {% endfor %}

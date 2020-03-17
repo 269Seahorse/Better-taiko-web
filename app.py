@@ -112,7 +112,6 @@ def get_config():
         config_out['assets_baseurl'] = ''.join([request.host_url, 'assets']) + '/'
 
     config_out['_version'] = get_version()
-    config_out['_csrf_token'] = generate_csrf()
     return config_out
 
 
@@ -136,6 +135,11 @@ def get_version():
 def route_index():
     version = get_version()
     return render_template('index.html', version=version, config=get_config())
+
+
+@app.route('/api/csrftoken')
+def route_csrftoken():
+    return jsonify({'status': 'ok', 'token': generate_csrf()})
 
 
 @app.route('/admin')
