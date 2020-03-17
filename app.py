@@ -53,7 +53,7 @@ def generate_hash(id, form):
     for url in urls:
         resp = requests.get(url)
         if resp.status_code != 200:
-            raise Exception('Invalid response from %s (status code %s)' % (resp.url, resp.status_code))
+            raise HashException('Invalid response from %s (status code %s)' % (resp.url, resp.status_code))
         md5.update(resp.content)
 
     return base64.b64encode(md5.digest())[:-2].decode('utf-8')
