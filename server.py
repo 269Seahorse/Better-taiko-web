@@ -276,7 +276,7 @@ async def connection(ws, path):
 					if "other_user" in user and "ws" in user["other_user"]:
 						if type == "songsel" or type == "catjump":
 							# Change song select position
-							if user["other_user"]["action"] == "songsel":
+							if user["other_user"]["action"] == "songsel" and type(value) is dict:
 								value["player"] = user["player"]
 								sent_msg = msgobj(type, value)
 								await asyncio.wait([
