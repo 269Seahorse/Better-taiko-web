@@ -1048,6 +1048,10 @@ var translations = {
 		verify_password_invalid: {
 			ja: null,
 			en: "Verification password does not match",
+		},
+		invalid_csrf: {
+			ja: null,
+			en: "Security token expired. Please refresh the page."
 		}
 	},
 	browserSupport: {

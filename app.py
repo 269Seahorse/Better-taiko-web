@@ -14,7 +14,7 @@ from functools import wraps
 from flask import Flask, g, jsonify, render_template, request, abort, redirect, session, flash
 from flask_caching import Cache
 from flask_session import Session
-from flask_wtf.csrf import CSRFProtect, generate_csrf
+from flask_wtf.csrf import CSRFProtect, generate_csrf, CSRFError
 from ffmpy import FFmpeg
 from pymongo import MongoClient
 
@@ -23,7 +23,6 @@ client = MongoClient(host=config.MONGO['host'])
 
 app.secret_key = config.SECRET_KEY
 app.config['SESSION_TYPE'] = 'redis'
-app.config['SESSION_COOKIE_HTTPONLY'] = False
 app.cache = Cache(app, config=config.REDIS)
 sess = Session()
 sess.init_app(app)
@@ -84,6 +83,11 @@ def admin_required(level):
             return f(*args, **kwargs)
         return wrapper
     return decorated_function
+
+
+@app.errorhandler(CSRFError)
+def handle_csrf_error(e):
+    return api_error('invalid_csrf')
 
 
 @app.before_request
