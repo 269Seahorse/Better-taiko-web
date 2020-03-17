@@ -1,8 +1,8 @@
 {% extends 'admin.html' %}
 {% block content %}
 <h1>{{ song.title }} <small>(ID: {{ song.id }})</small></h1>
-{% for message in get_flashed_messages() %}
-<div class="message">{{ message }}</div>
+{% for cat, message in get_flashed_messages(with_categories=true) %}
+<div class="message{% if cat %} message-{{cat}}{% endif %}">{{ message }}</div>
 {% endfor %}
 <div class="song-form">
     <form method="post">
@@ -115,6 +115,11 @@
             </select>
         </div>
 
+        <div class="form-field">
+            <p><label for="hash">Hash</label></p>
+            <input type="text" id="hash" value="{{song.hash}}" name="hash"> <span class="checkbox"><input type="checkbox" name="gen_hash" id="gen_hash"{><label for="gen_hash"> Generate</label></span>
+        </div>
+
         <button type="submit" class="save-song">Save</button>
     </form>
     {% if admin.user_level >= 100 %}
@@ -124,3 +129,4 @@
     {% endif %}
 </div>
 {% endblock %}
+

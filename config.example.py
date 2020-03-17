@@ -10,9 +10,12 @@ EMAIL = 'taiko@example.com'
 # Whether to use the user account system.
 ACCOUNTS = True
 
+# Custom JavaScript file to load with the simulator.
+CUSTOM_JS = ''
+
 # MongoDB server settings.
 MONGO = {
-    'host': ['localhost:27017'],
+    'host': ['127.0.0.1:27017'],
     'database': 'taiko'
 }
 

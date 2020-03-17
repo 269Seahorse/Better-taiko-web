@@ -1,9 +1,12 @@
 #!/usr/bin/env python3
 
+import base64
 import bcrypt
+import hashlib
 import config
 import json
 import re
+import requests
 import schema
 import os
 
@@ -28,8 +31,32 @@ db = client[config.MONGO['database']]
 db.users.create_index('username', unique=True)
 db.songs.create_index('id', unique=True)
 
+
+class HashException(Exception):
+    pass
+
+
 def api_error(message):
     return jsonify({'status': 'error', 'message': message})
+
+
+def generate_hash(id, form):
+    md5 = hashlib.md5()
+    if form['type'] == 'tja':
+        urls = ['%s%s/main.tja' % (config.SONGS_BASEURL, id)]
+    else:
+        urls = []
+        for diff in ['easy', 'normal', 'hard', 'oni', 'ura']:
+            if form['course_' + diff]:
+                urls.append('%s%s/%s.osu' % (config.SONGS_BASEURL, id, diff))
+
+    for url in urls:
+        resp = requests.get(url)
+        if resp.status_code != 200:
+            raise Exception('Invalid response from %s (status code %s)' % (resp.url, resp.status_code))
+        md5.update(resp.content)
+
+    return base64.b64encode(md5.digest())[:-2].decode('utf-8')
 
 
 def login_required(f):
@@ -69,7 +96,8 @@ def get_config():
         'songs_baseurl': config.SONGS_BASEURL,
         'assets_baseurl': config.ASSETS_BASEURL,
         'email': config.EMAIL,
-        'accounts': config.ACCOUNTS
+        'accounts': config.ACCOUNTS,
+        'custom_js': config.CUSTOM_JS
     }
 
     if not config_out.get('songs_baseurl'):
@@ -218,6 +246,14 @@ def route_admin_songs_id_post(id):
     output['preview'] = float(request.form.get('preview')) or None
     output['volume'] = float(request.form.get('volume')) or None
     output['maker_id'] = int(request.form.get('maker_id')) or None
+    output['hash'] = request.form.get('hash')
+
+    if request.form.get('gen_hash'):
+        try:
+            output['hash'] = generate_hash(id, request.form)
+        except HashException as e:
+            flash('An error occurred: %s' % str(e), 'error')
+            return redirect('/admin/songs/%s' % id)
 
     db.songs.update_one({'id': id}, {'$set': output})
     flash('Changes saved.')

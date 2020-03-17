@@ -131,6 +131,10 @@ h1 small {
     color: white;
 }
 
+.message-error {
+    background: #b92222;
+}
+
 .save-song {
     font-size: 22pt;
     width: 120px;
