@@ -397,38 +397,45 @@ class Account{
 	}
 	request(url, obj, get){
 		this.lock(true)
-		return new Promise((resolve, reject) => {
-			var request = new XMLHttpRequest()
-			request.open(get ? "GET" : "POST", "api/" + url)
-			pageEvents.load(request).then(() => {
-				this.lock(false)
-				if(request.status !== 200){
+		var doRequest = token => {
+			return new Promise((resolve, reject) => {
+				var request = new XMLHttpRequest()
+				request.open(get ? "GET" : "POST", "api/" + url)
+				pageEvents.load(request).then(() => {
+					this.lock(false)
+					if(request.status !== 200){
+						reject()
+						return
+					}
+					try{
+						var json = JSON.parse(request.response)
+					}catch(e){
+						reject()
+						return
+					}
+					if(json.status === "ok"){
+						resolve(json)
+					}else{
+						reject(json)
+					}
+				}, () => {
+					this.lock(false)
 					reject()
-					return
-				}
-				try{
-					var json = JSON.parse(request.response)
-				}catch(e){
-					reject()
-					return
-				}
-				if(json.status === "ok"){
-					resolve(json)
+				})
+				if(obj){
+					request.setRequestHeader("Content-Type", "application/json;charset=UTF-8")
+					request.setRequestHeader("X-CSRFToken", token)
+					request.send(JSON.stringify(obj))
 				}else{
-					reject(json)
+					request.send()
 				}
-			}, () => {
-				this.lock(false)
-				reject()
 			})
-			if(obj){
-				request.setRequestHeader("Content-Type", "application/json;charset=UTF-8")
-				request.setRequestHeader("X-CSRFToken", gameConfig._csrf_token)
-				request.send(JSON.stringify(obj))
-			}else{
-				request.send()
-			}
-		})
+		}
+		if(get){
+			return doRequest()
+		}else{
+			return loader.getCsrfToken().then(doRequest)
+		}
 	}
 	lock(isLocked){
 		this.locked = isLocked

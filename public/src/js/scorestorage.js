@@ -272,32 +272,35 @@ class ScoreStorage{
 	}
 	sendToServer(obj, retry){
 		if(account.loggedIn){
-			var request = new XMLHttpRequest()
-			request.open("POST", "api/scores/save")
-			var promise = pageEvents.load(request).then(response => {
-				if(request.status !== 200){
-					return Promise.reject()
-				}
-			}).catch(() => {
-				if(retry){
-					this.scoreSaveFailed = true
-					account.loggedIn = false
-					delete account.username
-					delete account.displayName
-					this.load()
-					pageEvents.send("logout")
-					return Promise.reject()
-				}else{
-					return new Promise(resolve => {
-						setTimeout(() => {
-							resolve()
-						}, 3000)
-					}).then(() => this.sendToServer(obj, true))
-				}
+			return loader.getCsrfToken().then(token => {
+				var request = new XMLHttpRequest()
+				request.open("POST", "api/scores/save")
+				var promise = pageEvents.load(request).then(response => {
+					if(request.status !== 200){
+						return Promise.reject()
+					}
+				}).catch(() => {
+					if(retry){
+						this.scoreSaveFailed = true
+						account.loggedIn = false
+						delete account.username
+						delete account.displayName
+						this.load()
+						pageEvents.send("logout")
+						return Promise.reject()
+					}else{
+						return new Promise(resolve => {
+							setTimeout(() => {
+								resolve()
+							}, 3000)
+						}).then(() => this.sendToServer(obj, true))
+					}
+				})
+				request.setRequestHeader("Content-Type", "application/json;charset=UTF-8")
+				request.setRequestHeader("X-CSRFToken", token)
+				request.send(JSON.stringify(obj))
+				return promise
 			})
-			request.setRequestHeader("Content-Type", "application/json;charset=UTF-8")
-			request.send(JSON.stringify(obj))
-			return promise
 		}else{
 			return Promise.resolve()
 		}

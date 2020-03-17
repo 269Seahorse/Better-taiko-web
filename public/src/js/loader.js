@@ -396,6 +396,16 @@ class Loader{
 			request.send()
 		})
 	}
+	getCsrfToken(){
+		return this.ajax("api/csrftoken").then(response => {
+			var json = JSON.parse(response)
+			if(json.status === "ok"){
+				return Promise.resolve(json.token)
+			}else{
+				return Promise.reject()
+			}
+		})
+	}
 	clean(error){
 		var fontDetectDiv = document.getElementById("fontdetectHelper")
 		if(fontDetectDiv){
