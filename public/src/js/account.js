@@ -423,6 +423,7 @@ class Account{
 			})
 			if(obj){
 				request.setRequestHeader("Content-Type", "application/json;charset=UTF-8")
+				request.setRequestHeader("X-CSRFToken", gameConfig._csrf_token)
 				request.send(JSON.stringify(obj))
 			}else{
 				request.send()

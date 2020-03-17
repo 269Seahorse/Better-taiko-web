@@ -6,6 +6,7 @@
 {% endfor %}
 <div class="song-form">
     <form method="post">
+        <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
 
         <div class="form-field">
             <span class="checkbox"><input type="checkbox" name="enabled" id="enabled"{% if song.enabled %} checked{% endif %}{% if admin.user_level < 100 %} disabled {% endif %}><label for="enabled"> Enabled</label></span>
@@ -124,6 +125,7 @@
     </form>
     {% if admin.user_level >= 100 %}
     <form class="delete-song" method="post" action="/admin/songs/{{song.id}}/delete" onsubmit="return confirm('Are you sure you wish to delete this song?');">
+        <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
         <button type="submit">Delete song</button>
     </form>
     {% endif %}

@@ -14,6 +14,7 @@ from functools import wraps
 from flask import Flask, g, jsonify, render_template, request, abort, redirect, session, flash
 from flask_caching import Cache
 from flask_session import Session
+from flask_wtf.csrf import CSRFProtect, generate_csrf
 from ffmpy import FFmpeg
 from pymongo import MongoClient
 
@@ -26,6 +27,7 @@ app.config['SESSION_COOKIE_HTTPONLY'] = False
 app.cache = Cache(app, config=config.REDIS)
 sess = Session()
 sess.init_app(app)
+csrf = CSRFProtect(app)
 
 db = client[config.MONGO['database']]
 db.users.create_index('username', unique=True)
@@ -106,6 +108,7 @@ def get_config():
         config_out['assets_baseurl'] = ''.join([request.host_url, 'assets']) + '/'
 
     config_out['_version'] = get_version()
+    config_out['_csrf_token'] = generate_csrf()
     return config_out
 
 
@@ -126,7 +129,6 @@ def get_version():
 
 
 @app.route('/')
-@app.cache.cached(timeout=15)
 def route_index():
     version = get_version()
     return render_template('index.html', version=version, config=get_config())

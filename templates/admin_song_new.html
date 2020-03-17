@@ -6,9 +6,10 @@
 {% endfor %}
 <div class="song-form">
     <form method="post">
+        <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
 
         <div class="form-field">
-            <span class="checkbox"><input type="checkbox" name="enabled" id="enabled" checked><label for="enabled"> Enabled</label></span>
+            <span class="checkbox"><input type="checkbox" name="enabled" id="enabled"><label for="enabled"> Enabled</label></span>
         </div>
 
         <div class="form-field">
