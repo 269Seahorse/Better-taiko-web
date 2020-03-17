@@ -422,9 +422,11 @@ class Account{
 					this.lock(false)
 					reject()
 				})
+				if(!get){
+					request.setRequestHeader("X-CSRFToken", token)
+				}
 				if(obj){
 					request.setRequestHeader("Content-Type", "application/json;charset=UTF-8")
-					request.setRequestHeader("X-CSRFToken", token)
 					request.send(JSON.stringify(obj))
 				}else{
 					request.send()

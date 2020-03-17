@@ -397,8 +397,7 @@ def route_api_login():
 
     session['session_id'] = result['session_id']
     session['username'] = result['username']
-    if data.get('remember'):
-        session.permanent = True
+    session.permanent = True if data.get('remember') else False
 
     return jsonify({'status': 'ok', 'username': result['username'], 'display_name': result['display_name']})
 
