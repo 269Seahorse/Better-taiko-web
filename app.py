@@ -52,10 +52,16 @@ def generate_hash(id, form):
                 urls.append('%s%s/%s.osu' % (config.SONGS_BASEURL, id, diff))
 
     for url in urls:
-        resp = requests.get(url)
-        if resp.status_code != 200:
-            raise HashException('Invalid response from %s (status code %s)' % (resp.url, resp.status_code))
-        md5.update(resp.content)
+        if url.startswith("http://") or url.startswith("https://"):
+            resp = requests.get(url)
+            if resp.status_code != 200:
+                raise HashException('Invalid response from %s (status code %s)' % (resp.url, resp.status_code))
+            md5.update(resp.content)
+        else:
+            if url.startswith("/"):
+                url = url[1:]
+            with open(os.path.join("public", url), "rb") as file:
+                md5.update(file.read())
 
     return base64.b64encode(md5.digest())[:-2].decode('utf-8')
 
