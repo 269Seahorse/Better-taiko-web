@@ -93,7 +93,7 @@ class ScoreStorage{
 		}
 		return output
 	}
-	save(localOnly){
+	save(){
 		for(var hash in this.scores){
 			this.writeString(hash)
 		}

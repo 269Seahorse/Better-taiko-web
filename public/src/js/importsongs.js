@@ -430,7 +430,7 @@
 		for(var i = path.length - 2; i >= 0; i--){
 			var hasTitle = false
 			for(var j in exclude){
-				if(path[i].indexOf(exclude[j].toLowerCase()) !== -1){
+				if(exclude[j] && path[i].indexOf(exclude[j].toLowerCase()) !== -1){
 					hasTitle = true
 					break
 				}
