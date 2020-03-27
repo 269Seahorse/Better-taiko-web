@@ -63,10 +63,11 @@ class Scoresheet{
 			"normal": 1,
 			"hard": 2,
 			"oni": 3,
-			"ura": 4
+			"ura": 4,
+			"ino": 5
 		}
 		
-		this.scoreSaved = false
+		this.scoreSaved = !!this.controller.ino
 		this.redrawRunning = true
 		this.redrawBind = this.redraw.bind(this)
 		this.redraw()
@@ -418,7 +419,7 @@ class Scoresheet{
 					
 					this.draw.layeredText({
 						ctx: ctx,
-						text: this.results[this.player[0]].title,
+						text: this.controller.getTitle(this.results[this.player[0]].title),
 						fontSize: 40,
 						fontFamily: this.font,
 						x: 1257,
@@ -443,12 +444,12 @@ class Scoresheet{
 					}
 					
 					ctx.drawImage(assets.image["difficulty"],
-						0, 144 * this.difficulty[results.difficulty],
+						0, 144 * this.difficulty[this.controller.ino ? "ino" : results.difficulty],
 						168, 143,
 						300, 150, 189, 162
 					)
 					var diff = results.difficulty
-					var text = strings[diff === "ura" ? "oni" : diff]
+					var text = strings[this.controller.ino ? "ino" : diff === "ura" ? "oni" : diff]
 					ctx.font = this.draw.bold(this.font) + "28px " + this.font
 					ctx.textAlign = "center"
 					ctx.textBaseline = "bottom"
@@ -697,6 +698,9 @@ class Scoresheet{
 							if(shine > 1){
 								shine = 2 - shine
 							}
+						}
+						if(this.controller.ino){
+							crownScale *= -1
 						}
 						if(this.state.screen === "fadeIn" && elapsed >= 1200 && !this.state["fullcomboPlayed" + p]){
 							this.state["fullcomboPlayed" + p] = true

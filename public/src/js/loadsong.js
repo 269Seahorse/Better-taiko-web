@@ -106,17 +106,19 @@ class LoadSong{
 		
 		var url = gameConfig.songs_baseurl + id + "/main.mp3"
 		this.addPromise(new Promise((resolve, reject) => {
-			if(songObj.sound){
-				songObj.sound.gain = snd.musicGain
+			var ino = this.selectedSong.difficulty === "ino"
+			var soundType = ino ? "inosound" : "sound"
+			if(songObj[soundType]){
+				songObj[soundType].gain = snd.musicGain
 				resolve()
 			}else if(!songObj.music){
-				snd.musicGain.load(url).then(sound => {
-					songObj.sound = sound
+				snd.musicGain.load(url, false, ino ? -1 : undefined).then(sound => {
+					songObj[soundType] = sound
 					resolve()
 				}, reject)
 			}else if(songObj.music !== "muted"){
-				snd.musicGain.load(songObj.music, true).then(sound => {
-					songObj.sound = sound
+				snd.musicGain.load(songObj.music, true, ino ? -1 : undefined).then(sound => {
+					songObj[soundType] = sound
 					resolve()
 				}, reject)
 			}else{
@@ -267,7 +269,11 @@ class LoadSong{
 		if(selectedSong.type === "tja"){
 			return directory + "main.tja"
 		}else{
-			return directory + selectedSong.difficulty + ".osu"
+			var diff = selectedSong.difficulty
+			if(diff === "ino"){
+				diff = "oni"
+			}
+			return directory + diff + ".osu"
 		}
 	}
 	setupMultiplayer(){

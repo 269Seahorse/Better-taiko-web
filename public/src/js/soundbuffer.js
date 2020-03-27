@@ -5,7 +5,7 @@
 		pageEvents.add(window, ["click", "touchend", "keypress"], this.pageClicked.bind(this))
 		this.gainList = []
 	}
-	load(url, local, gain){
+	load(url, local, gain, playbackRate){
 		if(local){
 			var reader = new FileReader()
 			var loadPromise = pageEvents.load(reader).then(event => {
@@ -19,12 +19,20 @@
 		}
 		return loadPromise.then(response => {
 			return new Promise((resolve, reject) => {
-				return this.context.decodeAudioData(response, resolve, reject)
+				return this.context.decodeAudioData(response, buffer => {
+					if(playbackRate < 0){
+						for(var i = 0; i < buffer.numberOfChannels; i++){
+							Array.prototype.reverse.call(buffer.getChannelData(i))
+						}
+					}
+					resolve(buffer)
+				}, reject)
 			}).catch(error => {
 				throw [error, url]
 			})
 		}).then(buffer => {
-			return new Sound(gain || {soundBuffer: this}, buffer)
+			playbackRate = playbackRate ? Math.abs(playbackRate) : undefined
+			return new Sound(gain || {soundBuffer: this}, buffer, playbackRate === 1 ? undefined : playbackRate)
 		})
 	}
 	createGain(channel){
@@ -90,8 +98,8 @@ class SoundGain{
 		}
 		this.setVolume(1)
 	}
-	load(url, local){
-		return this.soundBuffer.load(url, local, this)
+	load(url, local, playbackRate){
+		return this.soundBuffer.load(url, local, this, playbackRate)
 	}
 	convertTime(time, absolute){
 		return this.soundBuffer.convertTime(time, absolute)
@@ -125,16 +133,17 @@ class SoundGain{
 	}
 }
 class Sound{
-	constructor(gain, buffer){
+	constructor(gain, buffer, playbackRate){
 		this.gain = gain
 		this.buffer = buffer
+		this.playbackRate = playbackRate
 		this.soundBuffer = gain.soundBuffer
 		this.duration = buffer.duration
 		this.timeouts = new Set()
 		this.sources = new Set()
 	}
 	copy(gain){
-		return new Sound(gain, this.buffer)
+		return new Sound(gain, this.buffer, this.playbackRate)
 	}
 	getTime(){
 		return this.soundBuffer.getTime()
@@ -192,6 +201,9 @@ class Sound{
 	play(time, absolute, seek, until){
 		time = this.convertTime(time, absolute)
 		var source = this.soundBuffer.createSource(this)
+		if(this.playbackRate){
+			source.playbackRate.value = this.playbackRate
+		}
 		seek = seek || 0
 		until = until || this.duration
 		this.setTimeouts(time).then(() => {

@@ -37,7 +37,7 @@ class Game{
 		
 		assets.songs.forEach(song => {
 			if(song.id == selectedSong.folder){
-				this.mainAsset = song.sound
+				this.mainAsset = song[this.controller.ino ? "inosound" : "sound"]
 			}
 		})
 	}

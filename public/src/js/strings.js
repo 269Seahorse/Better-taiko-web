@@ -220,6 +220,13 @@ var translations = {
 		tw: "魔王",
 		ko: "귀신"
 	},
+	ino: {
+		ja: "Ino",
+		en: "Ino",
+		cn: "Ino",
+		tw: "Ino",
+		ko: "Ino"
+	},
 	songBranch: {
 		ja: "譜面分岐あり",
 		en: "Diverge Notes",

@@ -62,7 +62,8 @@
 			"normal": 1,
 			"hard": 2,
 			"oni": 3,
-			"ura": 4
+			"ura": 4,
+			"ino": 5
 		}
 		
 		this.currentScore = {
@@ -303,9 +304,10 @@
 			}, ctx => {
 				var selectedSong = this.controller.selectedSong
 				
+				var title = this.controller.getTitle(selectedSong.title)
 				this.draw.layeredText({
 					ctx: ctx,
-					text: selectedSong.title,
+					text: title,
 					fontSize: 40,
 					fontFamily: this.font,
 					x: 620,
@@ -496,7 +498,7 @@
 			// Difficulty
 			if(this.controller.selectedSong.difficulty){
 				ctx.drawImage(assets.image["difficulty"],
-					0, 144 * this.difficulty[this.controller.selectedSong.difficulty],
+					0, 144 * this.difficulty[this.controller.ino ? "ino" : this.controller.selectedSong.difficulty],
 					168, 143,
 					126, this.player === 2 ? 497 : 228,
 					62, 53
@@ -671,13 +673,13 @@
 			// Difficulty
 			if(this.controller.selectedSong.difficulty){
 				ctx.drawImage(assets.image["difficulty"],
-					0, 144 * this.difficulty[this.controller.selectedSong.difficulty],
+					0, 144 * this.difficulty[this.controller.ino ? "ino" : this.controller.selectedSong.difficulty],
 					168, 143,
 					16, this.player === 2 ? 194 : 232,
 					141, 120
 				)
 				var diff = this.controller.selectedSong.difficulty
-				var text = strings[diff === "ura" ? "oni" : diff]
+				var text = strings[this.controller.ino ? "ino" : diff === "ura" ? "oni" : diff]
 				ctx.font = this.draw.bold(this.font) + "20px " + this.font
 				ctx.textAlign = "center"
 				ctx.textBaseline = "bottom"
