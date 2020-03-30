@@ -1745,46 +1745,64 @@ class SongSelect{
 						})
 					})
 				}
-
-				if(currentSong.maker || currentSong.maker === 0){
+				
+				var hasMaker = currentSong.maker || currentSong.maker === 0
+				if(hasMaker || currentSong.lyrics){
 					if (songSel) {
 						var _x = x + 38
 						var _y = y + 10
+						ctx.strokeStyle = "#000"
 						ctx.lineWidth = 5
-
-						var grd = ctx.createLinearGradient(_x, _y, _x, _y+50);
-						grd.addColorStop(0, '#fa251a');
-						grd.addColorStop(1, '#ffdc33');
-
-						ctx.fillStyle = grd;
+						
+						if(hasMaker){
+							var grd = ctx.createLinearGradient(_x, _y, _x, _y + 50)
+							grd.addColorStop(0, "#fa251a")
+							grd.addColorStop(1, "#ffdc33")
+							ctx.fillStyle = grd
+						}else{
+							ctx.fillStyle = "#000"
+						}
 						this.draw.roundedRect({
 							ctx: ctx,
 							x: _x - 28,
 							y: _y,
-							w: 130,
+							w: 192,
 							h: 50,
 							radius: 24
 						})
 						ctx.fill()
 						ctx.stroke()
-						ctx.beginPath()
-						ctx.arc(_x, _y + 28, 20, 0, Math.PI * 2)
-						ctx.fill()
-
-						this.draw.layeredText({
-							ctx: ctx,
-							text: strings.creative.creative,
-							fontSize: strings.id == "en" ? 30 : 34,
-							fontFamily: this.font,
-							align: "center",
-							baseline: "middle",
-							x: _x + 38,
-							y: _y + (["ja", "en"].indexOf(strings.id) >= 0 ? 25 : 28),
-							width: 110
-						}, [
-							{outline: "#fff", letterBorder: 8},
-							{fill: "#000"}
-						])
+						
+						if(hasMaker){
+							this.draw.layeredText({
+								ctx: ctx,
+								text: strings.creative.creative,
+								fontSize: strings.id === "en" ? 28 : 34,
+								fontFamily: this.font,
+								align: "center",
+								baseline: "middle",
+								x: _x + 68,
+								y: _y + (strings.id === "ja" || strings.id === "en" ? 25 : 28),
+								width: 172
+							}, [
+								{outline: "#fff", letterBorder: 6},
+								{fill: "#000"}
+							])
+						}else{
+							this.draw.layeredText({
+								ctx: ctx,
+								text: strings.withLyrics,
+								fontSize: strings.id === "en" ? 28 : 34,
+								fontFamily: this.font,
+								align: "center",
+								baseline: "middle",
+								x: _x + 68,
+								y: _y + (strings.id === "ja" || strings.id === "en" ? 25 : 28),
+								width: 172
+							}, [
+								{fill: currentSong.skin.border[0]}
+							])
+						}
 					} else if(currentSong.maker && currentSong.maker.id > 0 && currentSong.maker.name){
 						var _x = x + 62
 						var _y = y + 380

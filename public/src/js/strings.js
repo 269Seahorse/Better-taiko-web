@@ -1087,6 +1087,13 @@ var translations = {
 			tw: "製作者",
 			ko: "만드는 사람"
 		}
+	},
+	withLyrics: {
+		ja: "歌詞あり",
+		en: "With lyrics",
+		cn: "带歌词",
+		tw: "帶歌詞",
+		ko: "가사가있는"
 	}
 }
 var allStrings = {}
