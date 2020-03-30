@@ -144,7 +144,7 @@ class Debug{
 				this.offsetChange(this.offsetSlider.get(), true)
 				this.branchChange(null, true)
 				this.volumeChange(this.volumeSlider.get(), true)
-				this.lyricsChange(this.lyricsSlider.get())
+				this.lyricsChange(this.lyricsSlider.get(), true)
 			}else{
 				this.songHash = selectedSong.hash
 				this.offsetSlider.set(this.defaultOffset)

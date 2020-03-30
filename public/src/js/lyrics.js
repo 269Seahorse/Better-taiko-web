@@ -42,7 +42,7 @@ class Lyrics{
 				if(index !== -1){
 					time = cmd
 				}else{
-					var matches = value.match(rLinebreak)
+					var matches = value.match(this.rLinebreak)
 					if(matches){
 						var value1 = value.slice(0, matches.index)
 						index = value1.indexOf(arrow)
