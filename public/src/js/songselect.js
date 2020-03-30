@@ -127,7 +127,8 @@ class SongSelect{
 				maker: song.maker,
 				canJump: true,
 				hash: song.hash || song.title,
-				order: song.order
+				order: song.order,
+				lyrics: song.lyrics
 			})
 		}
 		this.songs.sort((a, b) => {
@@ -802,7 +803,8 @@ class SongSelect{
 			"offset": selectedSong.offset,
 			"songSkin": selectedSong.songSkin,
 			"stars": selectedSong.courses[diff].stars,
-			"hash": selectedSong.hash
+			"hash": selectedSong.hash,
+			"lyrics": selectedSong.lyrics
 		}, autoplay, multiplayer, touch)
 	}
 	toOptions(moveBy){

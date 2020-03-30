@@ -57,6 +57,10 @@ class Controller{
 				if(song.id == this.selectedSong.folder){
 					this.mainAsset = song.sound
 					this.volume = song.volume || 1
+					if(song.lyricsData && !multiplayer && (!this.touchEnabled || this.autoPlayEnabled)){
+						var lyricsDiv = document.getElementById("song-lyrics")
+						this.lyrics = new Lyrics(song.lyricsData, selectedSong.offset, lyricsDiv)
+					}
 				}
 			})
 		}
@@ -315,6 +319,9 @@ class Controller{
 			if(debugObj.debug){
 				debugObj.debug.updateStatus()
 			}
+		}
+		if(this.lyrics){
+			this.lyrics.clean()
 		}
 	}
 }

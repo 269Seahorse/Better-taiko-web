@@ -32,7 +32,8 @@ var assets = {
 		"logo.js",
 		"settings.js",
 		"scorestorage.js",
-		"account.js"
+		"account.js",
+		"lyrics.js"
 	],
 	"css": [
 		"main.css",

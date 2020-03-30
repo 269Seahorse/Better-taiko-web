@@ -142,6 +142,12 @@ class LoadSong{
 			this.addPromise(loader.ajax(url).then(data => {
 				this.songData = data.replace(/\0/g, "").split("\n")
 			}), url)
+			if(song.lyrics && !songObj.lyricsData){
+				var url = this.getSongDir(song) + "main.vtt"
+				this.addPromise(loader.ajax(url).then(data => {
+					songObj.lyricsData = data
+				}), url)
+			}
 		}
 		if(this.touchEnabled && !assets.image["touch_drum"]){
 			let img = document.createElement("img")
@@ -262,8 +268,11 @@ class LoadSong{
 	randInt(min, max){
 		return Math.floor(Math.random() * (max - min + 1)) + min
 	}
+	getSongDir(selectedSong){
+		return gameConfig.songs_baseurl + selectedSong.folder + "/"
+	}
 	getSongPath(selectedSong){
-		var directory = gameConfig.songs_baseurl + selectedSong.folder + "/"
+		var directory = this.getSongDir(selectedSong)
 		if(selectedSong.type === "tja"){
 			return directory + "main.tja"
 		}else{

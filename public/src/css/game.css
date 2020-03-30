@@ -89,3 +89,38 @@
 .fix-animations *{
 	animation: none !important;
 }
+#song-lyrics{
+	position: absolute;
+	right: calc((100vw - 1280 / 720 * 100vh) / 2 + 100px * var(--scale));
+	bottom: calc(44 / 720 * 100vh - 30px * var(--scale));
+	left: calc((100vw - 1280 / 720 * 100vh) / 2 + 100px * var(--scale));
+	text-align: center;
+	font-family: Meiryo, sans-serif;
+	font-weight: bold;
+	font-size: calc(45px * var(--scale));
+	line-height: 1.2;
+}
+#game.portrait{
+	right: calc(20px * var(--scale));
+	left: calc(20px * var(--scale));
+}
+#song-lyrics .stroke,
+#song-lyrics .fill{
+	position: absolute;
+	right: 0;
+	bottom: 0;
+	left: 0;
+}
+#song-lyrics .stroke{
+	-webkit-text-stroke: calc(7px * var(--scale)) #00a;
+}
+#song-lyrics .fill{
+	color: #fff;
+}
+#song-lyrics ruby{
+	display: inline-flex;
+	flex-direction: column-reverse;
+}
+#song-lyrics rt{
+	line-height: 1;
+}

@@ -17,6 +17,8 @@ class Debug{
 		this.branchSelect = this.branchSelectDiv.getElementsByTagName("select")[0]
 		this.branchResetBtn = this.branchSelectDiv.getElementsByClassName("reset")[0]
 		this.volumeDiv = this.byClass("music-volume")
+		this.lyricsHideDiv = this.byClass("lyrics-hide")
+		this.lyricsOffsetDiv = this.byClass("lyrics-offset")
 		this.restartLabel = this.byClass("change-restart-label")
 		this.restartCheckbox = this.byClass("change-restart")
 		this.autoplayLabel = this.byClass("autoplay-label")
@@ -49,6 +51,9 @@ class Debug{
 		this.volumeSlider = new InputSlider(this.volumeDiv, 0, 3, 2)
 		this.volumeSlider.onchange(this.volumeChange.bind(this))
 		this.volumeSlider.set(1)
+		
+		this.lyricsSlider = new InputSlider(this.lyricsOffsetDiv, -60, 60, 3)
+		this.lyricsSlider.onchange(this.lyricsChange.bind(this))
 		
 		this.moveTo(100, 100)
 		this.restore()
@@ -129,6 +134,9 @@ class Debug{
 			if(this.controller.parsedSongData.branches){
 				this.branchHideDiv.style.display = "block"
 			}
+			if(this.controller.lyrics){
+				this.lyricsHideDiv.style.display = "block"
+			}
 			
 			var selectedSong = this.controller.selectedSong
 			this.defaultOffset = selectedSong.offset || 0
@@ -136,11 +144,13 @@ class Debug{
 				this.offsetChange(this.offsetSlider.get(), true)
 				this.branchChange(null, true)
 				this.volumeChange(this.volumeSlider.get(), true)
+				this.lyricsChange(this.lyricsSlider.get())
 			}else{
 				this.songHash = selectedSong.hash
 				this.offsetSlider.set(this.defaultOffset)
 				this.branchReset(null, true)
 				this.volumeSlider.set(this.controller.volume)
+				this.lyricsSlider.set(this.controller.lyrics ? this.controller.lyrics.vttOffset / 1000 : 0)
 			}
 			
 			var measures = this.controller.parsedSongData.measures.filter((measure, i, array) => {
@@ -174,6 +184,7 @@ class Debug{
 			this.restartBtn.style.display = ""
 			this.autoplayLabel.style.display = ""
 			this.branchHideDiv.style.display = ""
+			this.lyricsHideDiv.style.display = ""
 			this.controller = null
 		}
 		this.stopMove()
@@ -194,6 +205,9 @@ class Debug{
 					branch.ms = branch.originalMS + offset
 				})
 			}
+			if(this.controller.lyrics){
+				this.controller.lyrics.offsetChange(value * 1000)
+			}
 			if(this.restartCheckbox.checked && !noRestart){
 				this.restartSong()
 			}
@@ -208,6 +222,14 @@ class Debug{
 	volumeChange(value, noRestart){
 		if(this.controller){
 			snd.musicGain.setVolumeMul(value)
+		}
+		if(this.restartCheckbox.checked && !noRestart){
+			this.restartSong()
+		}
+	}
+	lyricsChange(value, noRestart){
+		if(this.controller && this.controller.lyrics){
+			this.controller.lyrics.offsetChange(undefined, value * 1000)
 		}
 		if(this.restartCheckbox.checked && !noRestart){
 			this.restartSong()
@@ -259,6 +281,7 @@ class Debug{
 		this.offsetSlider.clean()
 		this.measureNumSlider.clean()
 		this.volumeSlider.clean()
+		this.lyricsSlider.clean()
 		
 		pageEvents.remove(window, ["mousedown", "mouseup", "touchstart", "touchend", "blur", "resize"], this.windowSymbol)
 		pageEvents.mouseRemove(this)
@@ -285,6 +308,8 @@ class Debug{
 		delete this.branchSelect
 		delete this.branchResetBtn
 		delete this.volumeDiv
+		delete this.lyricsHideDiv
+		delete this.lyricsOffsetDiv
 		delete this.restartCheckbox
 		delete this.autoplayLabel
 		delete this.autoplayCheckbox

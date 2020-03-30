@@ -123,6 +123,7 @@
 }
 
 #debug .autoplay-label,
-#debug .branch-hide{
+#debug .branch-hide,
+#debug .lyrics-hide{
 	display: none;
 }
