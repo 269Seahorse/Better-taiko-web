@@ -1,6 +1,7 @@
 class Lyrics{
-	constructor(file, songOffset, div, parsed){
+	constructor(file, songOffset, div, parsed, reverse){
 		this.div = div
+		this.reverse = reverse
 		this.stroke = document.createElement("div")
 		this.stroke.classList.add("stroke")
 		div.appendChild(this.stroke)
@@ -19,6 +20,7 @@ class Lyrics{
 		var lines = []
 		var commands = file.split(/\n\n|\r\n\r\n/)
 		var arrow = " --> "
+		var currentLang = this.reverse ? "en" : strings.id
 		for(var i in commands){
 			var matches = commands[i].match(this.rLinebreak)
 			if(matches){
@@ -74,7 +76,7 @@ class Lyrics{
 								break
 							}
 							var lang = text.slice(index1 + 6, index2).toLowerCase()
-							if(strings.id === lang){
+							if(currentLang === lang){
 								var index3 = text.indexOf("<lang ", index2 + 1)
 								if(index3 !== -1){
 									textLang = text.slice(index2 + 1, index3)
@@ -88,6 +90,15 @@ class Lyrics{
 					}
 					if(!textLang){
 						textLang = firstLang === -1 ? text : text.slice(0, firstLang)
+					}
+					if(this.reverse){
+						if(textLang){
+							textLang = textLang.split("")
+							textLang[0] = textLang[0].toLowerCase()
+							textLang = this.reverse(textLang.join("")).split("")
+							textLang[0] = textLang[0].toUpperCase()
+							textLang = textLang.join("")
+						}
 					}
 					lines.push({
 						start: this.convertTime(start),
@@ -126,7 +137,7 @@ class Lyrics{
 		if(this.current >= this.length){
 			return
 		}
-		ms += this.songOffset + this.vttOffset
+		ms += (this.songOffset + this.vttOffset) * (this.reverse ? -1 : 1)
 		var currentLine = this.lines[this.current]
 		while(currentLine && ms > currentLine.end){
 			currentLine = this.lines[++this.current]

@@ -819,7 +819,8 @@ class SongSelect{
 			"offset": selectedSong.offset,
 			"songSkin": selectedSong.songSkin,
 			"stars": selectedSong.courses[diff === "ino" ? "oni" : diff].stars,
-			"hash": selectedSong.hash
+			"hash": selectedSong.hash,
+			"lyrics": selectedSong.lyrics
 		}, autoplay, multiplayer, touch)
 	}
 	toOptions(moveBy){

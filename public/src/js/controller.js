@@ -69,10 +69,10 @@ class Controller{
 					if(!multiplayer && (!this.touchEnabled || this.autoPlayEnabled) && settings.getItem("showLyrics")){
 						if(song.lyricsData){
 							var lyricsDiv = document.getElementById("song-lyrics")
-							this.lyrics = new Lyrics(song.lyricsData, selectedSong.offset, lyricsDiv)
+							this.lyrics = new Lyrics(song.lyricsData, selectedSong.offset, lyricsDiv, false, this.ino ? this.getTitle.bind(this) : false)
 						}else if(this.parsedSongData.lyrics){
 							var lyricsDiv = document.getElementById("song-lyrics")
-							this.lyrics = new Lyrics(this.parsedSongData.lyrics, selectedSong.offset, lyricsDiv, true)
+							this.lyrics = new Lyrics(this.parsedSongData.lyrics, selectedSong.offset, lyricsDiv, true, this.ino ? this.getTitle.bind(this) : false)
 						}
 					}
 				}
@@ -456,6 +456,16 @@ class Controller{
 				}
 			}
 			branches[0].active = relevantName
+		}
+		if(this.lyrics){
+			var lyrics = this.lyrics.lines
+			var lastMs = lyrics[lyrics.length - 1].end
+			lyrics.reverse()
+			lyrics.forEach(line => {
+				var ms = line.start
+				line.start = musicMs - (line.end || ms)
+				line.end = musicMs - ms
+			})
 		}
 	}
 	getTitle(title){
