@@ -137,11 +137,11 @@ class LoadSong{
 					reader.readAsText(songObj.chart)
 				}
 			}
-			if(songObj.lyricsFile){
+			if(songObj.lyricsFile && settings.getItem("showLyrics")){
 				var reader = new FileReader()
 				this.addPromise(pageEvents.load(reader).then(event => {
 					songObj.lyricsData = event.target.result
-				}), songObj.lyricsFile.webkitRelativePath)
+				}, () => Promise.resolve()), songObj.lyricsFile.webkitRelativePath)
 				reader.readAsText(songObj.lyricsFile)
 			}
 		}else{
@@ -149,7 +149,7 @@ class LoadSong{
 			this.addPromise(loader.ajax(url).then(data => {
 				this.songData = data.replace(/\0/g, "").split("\n")
 			}), url)
-			if(song.lyrics && !songObj.lyricsData){
+			if(song.lyrics && !songObj.lyricsData && !this.multiplayer && (!this.touchEnabled || this.autoPlayEnabled) && settings.getItem("showLyrics")){
 				var url = this.getSongDir(song) + "main.vtt"
 				this.addPromise(loader.ajax(url).then(data => {
 					songObj.lyricsData = data

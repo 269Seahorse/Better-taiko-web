@@ -160,6 +160,7 @@
 		var circleID = 0
 		var regexAZ = /[A-Z]/
 		var regexSpace = /\s/
+		var regexLinebreak = /\\n/g
 		var isAllDon = (note_chain, start_pos) => { 
 			for (var i = start_pos; i < note_chain.length; ++i) { 
 				var note = note_chain[i];
@@ -422,7 +423,7 @@
 						}
 						this.lyrics.push({
 							start: ms,
-							text: value.trim()
+							text: value.trim().replace(regexLinebreak, "\n")
 						})
 						break
 				}

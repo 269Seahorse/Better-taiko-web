@@ -57,7 +57,7 @@ class Controller{
 				if(song.id == this.selectedSong.folder){
 					this.mainAsset = song.sound
 					this.volume = song.volume || 1
-					if(!multiplayer && (!this.touchEnabled || this.autoPlayEnabled)){
+					if(!multiplayer && (!this.touchEnabled || this.autoPlayEnabled) && settings.getItem("showLyrics")){
 						if(song.lyricsData){
 							var lyricsDiv = document.getElementById("song-lyrics")
 							this.lyrics = new Lyrics(song.lyricsData, selectedSong.offset, lyricsDiv)
@@ -253,7 +253,7 @@ class Controller{
 						var reader = new FileReader()
 						promises.push(pageEvents.load(reader).then(event => {
 							songObj.lyricsData = event.target.result
-						}), songObj.lyricsFile.webkitRelativePath)
+						}, () => Promise.resolve()), songObj.lyricsFile.webkitRelativePath)
 						reader.readAsText(songObj.lyricsFile)
 					}
 					Promise.all(promises).then(resolve)

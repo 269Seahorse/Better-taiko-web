@@ -780,6 +780,12 @@ var translations = {
 				ko: "쉬운 큰 음표"
 			}
 		},
+		showLyrics: {
+			name: {
+				ja: "歌詞の表示",
+				en: "Show Lyrics"
+			}
+		},
 		on: {
 			ja: "オン",
 			en: "On",
