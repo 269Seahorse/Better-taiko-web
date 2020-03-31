@@ -50,6 +50,10 @@ class Settings{
 			easierBigNotes: {
 				type: "toggle",
 				default: false
+			},
+			showLyrics: {
+				type: "toggle",
+				default: true
 			}
 		}
 		

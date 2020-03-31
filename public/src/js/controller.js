@@ -66,6 +66,15 @@ class Controller{
 				if(song.id == this.selectedSong.folder){
 					this.mainAsset = song[this.ino ? "inosound" : "sound"]
 					this.volume = song.volume || 1
+					if(!multiplayer && (!this.touchEnabled || this.autoPlayEnabled) && settings.getItem("showLyrics")){
+						if(song.lyricsData){
+							var lyricsDiv = document.getElementById("song-lyrics")
+							this.lyrics = new Lyrics(song.lyricsData, selectedSong.offset, lyricsDiv)
+						}else if(this.parsedSongData.lyrics){
+							var lyricsDiv = document.getElementById("song-lyrics")
+							this.lyrics = new Lyrics(this.parsedSongData.lyrics, selectedSong.offset, lyricsDiv, true)
+						}
+					}
 				}
 			})
 		}
@@ -248,20 +257,27 @@ class Controller{
 					resolve()
 				}else{
 					var songObj = assets.songs.find(song => song.id === this.selectedSong.folder)
+					var promises = []
 					if(songObj.chart && songObj.chart !== "blank"){
 						var reader = new FileReader()
-						var promise = pageEvents.load(reader).then(event => {
+						promises.push(pageEvents.load(reader).then(event => {
 							this.songData = event.target.result.replace(/\0/g, "").split("\n")
-							resolve()
-						})
+							return Promise.resolve()
+						}))
 						if(this.selectedSong.type === "tja"){
 							reader.readAsText(songObj.chart, "sjis")
 						}else{
 							reader.readAsText(songObj.chart)
 						}
-					}else{
-						resolve()
 					}
+					if(songObj.lyricsFile){
+						var reader = new FileReader()
+						promises.push(pageEvents.load(reader).then(event => {
+							songObj.lyricsData = event.target.result
+						}, () => Promise.resolve()), songObj.lyricsFile.webkitRelativePath)
+						reader.readAsText(songObj.lyricsFile)
+					}
+					Promise.all(promises).then(resolve)
 				}
 			}).then(() => {
 				var taikoGame = new Controller(this.selectedSong, this.songData, this.autoPlayEnabled, false, this.touchEnabled)
@@ -499,6 +515,9 @@ class Controller{
 			if(debugObj.debug){
 				debugObj.debug.updateStatus()
 			}
+		}
+		if(this.lyrics){
+			this.lyrics.clean()
 		}
 	}
 }

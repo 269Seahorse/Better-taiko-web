@@ -248,6 +248,9 @@
 			}
 			this.fillComboCache()
 			this.setDonBgHeight()
+			if(this.controller.lyrics){
+				this.controller.lyrics.setScale(ratio / this.pixelRatio)
+			}
 			resized = true
 		}else if(this.controller.game.paused && !document.hasFocus()){
 			return
@@ -282,6 +285,10 @@
 			this.touchp2Class = false
 			this.gameDiv.classList.remove("touchp2")
 			this.setDonBgHeight()
+		}
+		
+		if(this.controller.lyrics){
+			this.controller.lyrics.update(ms)
 		}
 		
 		ctx.save()
