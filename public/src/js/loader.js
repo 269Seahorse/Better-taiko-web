@@ -131,9 +131,12 @@ class Loader{
 			snd.buffer = new SoundBuffer()
 			snd.musicGain = snd.buffer.createGain()
 			snd.sfxGain = snd.buffer.createGain()
+			snd.sfxGainSlow = snd.buffer.createGain(undefined, 0.85)
 			snd.previewGain = snd.buffer.createGain()
 			snd.sfxGainL = snd.buffer.createGain("left")
 			snd.sfxGainR = snd.buffer.createGain("right")
+			snd.sfxGainLSlow = snd.buffer.createGain("left", 0.85)
+			snd.sfxGainRSlow = snd.buffer.createGain("right", 0.85)
 			snd.sfxLoudGain = snd.buffer.createGain()
 			snd.buffer.setCrossfade(
 				[snd.musicGain, snd.previewGain],
@@ -146,7 +149,12 @@ class Loader{
 			this.afterJSCount = 0
 			
 			assets.audioSfx.forEach(name => {
-				this.addPromise(this.loadSound(name, snd.sfxGain), this.soundUrl(name))
+				this.addPromise(this.loadSound(name, snd.sfxGain).then(sound => {
+					var id = this.getFilename(name)
+					if(id.startsWith("v_")){
+						assets.sounds[id + "_slow"] = assets.sounds[id].copy(snd.sfxGainSlow)
+					}
+				}), this.soundUrl(name))
 			})
 			assets.audioMusic.forEach(name => {
 				this.addPromise(this.loadSound(name, snd.musicGain), this.soundUrl(name))
@@ -156,6 +164,11 @@ class Loader{
 					var id = this.getFilename(name)
 					assets.sounds[id + "_p1"] = assets.sounds[id].copy(snd.sfxGainL)
 					assets.sounds[id + "_p2"] = assets.sounds[id].copy(snd.sfxGainR)
+					if(id.startsWith("v_")){
+						assets.sounds[id + "_slow"] = assets.sounds[id].copy(snd.sfxGainSlow)
+						assets.sounds[id + "_p1_slow"] = assets.sounds[id].copy(snd.sfxGainLSlow)
+						assets.sounds[id + "_p2_slow"] = assets.sounds[id].copy(snd.sfxGainRSlow)
+					}
 				}), this.soundUrl(name))
 			})
 			assets.audioSfxLoud.forEach(name => {

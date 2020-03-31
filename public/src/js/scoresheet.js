@@ -72,7 +72,8 @@ class Scoresheet{
 		this.redrawBind = this.redraw.bind(this)
 		this.redraw()
 		
-		assets.sounds["v_results"].play()
+		this.snd = this.controller.ino ? "_slow" : ""
+		assets.sounds["v_results" + this.snd].play()
 		assets.sounds["bgm_result"].playLoop(3, false, 0, 0.847, 17.689)
 		
 		this.session = p2.session
@@ -893,7 +894,7 @@ class Scoresheet{
 	}
 	
 	getSound(id, p){
-		return assets.sounds[id + (this.multiplayer ? "_p" + (p + 1) : "")]
+		return assets.sounds[id + (this.multiplayer ? "_p" + (p + 1) : "") + (id.startsWith("v_") ? this.snd : "")]
 	}
 	playSound(id, p){
 		this.getSound(id, p).play()

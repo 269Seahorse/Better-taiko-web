@@ -35,8 +35,8 @@
 			return new Sound(gain || {soundBuffer: this}, buffer, playbackRate === 1 ? undefined : playbackRate)
 		})
 	}
-	createGain(channel){
-		var gain = new SoundGain(this, channel)
+	createGain(channel, playbackRate){
+		var gain = new SoundGain(this, channel, playbackRate)
 		this.gainList.push(gain)
 		return gain
 	}
@@ -85,8 +85,9 @@
 	}
 }
 class SoundGain{
-	constructor(soundBuffer, channel){
+	constructor(soundBuffer, channel, playbackRate){
 		this.soundBuffer = soundBuffer
+		this.playbackRate = playbackRate
 		this.gainNode = soundBuffer.context.createGain()
 		if(channel){
 			var index = channel === "left" ? 0 : 1
@@ -136,7 +137,7 @@ class Sound{
 	constructor(gain, buffer, playbackRate){
 		this.gain = gain
 		this.buffer = buffer
-		this.playbackRate = playbackRate
+		this.playbackRate = playbackRate || gain.playbackRate
 		this.soundBuffer = gain.soundBuffer
 		this.duration = buffer.duration
 		this.timeouts = new Set()

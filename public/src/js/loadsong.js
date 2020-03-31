@@ -23,6 +23,7 @@ class LoadSong{
 			cancel.appendChild(document.createTextNode(strings.cancel))
 			cancel.setAttribute("alt", strings.cancel)
 		}
+		this.snd = selectedSong.difficulty === "ino" ? "_slow" : ""
 		this.run()
 		pageEvents.send("load-song", {
 			selectedSong: selectedSong,
@@ -36,7 +37,7 @@ class LoadSong{
 		var id = song.folder
 		this.promises = []
 		if(song.folder !== "calibration"){
-			assets.sounds["v_start"].play()
+			assets.sounds["v_start" + this.snd].play()
 			var songObj = assets.songs.find(song => song.id === id)
 		}else{
 			var songObj = {
@@ -179,7 +180,7 @@ class LoadSong{
 			if(title !== this.selectedSong.originalTitle){
 				title += " (" + this.selectedSong.originalTitle + ")"
 			}
-			assets.sounds["v_start"].stop()
+			assets.sounds["v_start" + this.snd].stop()
 			setTimeout(() => {
 				this.clean()
 				new SongSelect(false, false, this.touchEnabled, null, {
@@ -341,7 +342,7 @@ class LoadSong{
 			p2.send("gamestart")
 		}else{
 			if(!repeat){
-				assets.sounds["v_sanka"].play()
+				assets.sounds["v_sanka" + this.snd].play()
 				pageEvents.send("load-song-unfocused")
 			}
 			setTimeout(() => {

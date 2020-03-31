@@ -11,6 +11,7 @@ class Controller{
 		}else{
 			this.snd = multiplayer ? "_p" + p2.player : ""
 		}
+		this.snd2 = this.snd
 		
 		this.calibrationMode = selectedSong.folder === "calibration"
 		this.audioLatency = 0
@@ -29,6 +30,7 @@ class Controller{
 		if(selectedSong.difficulty === "ino"){
 			this.ino = true
 			selectedSong.difficulty = "oni"
+			this.snd2 += "_slow"
 		}
 		if(selectedSong.type === "tja"){
 			this.parsedSongData = new ParseTja(songData, selectedSong.difficulty, selectedSong.stars, selectedSong.offset)
@@ -47,6 +49,9 @@ class Controller{
 					promises.push(loader.loadSound(name + ".wav", snd.sfxGain).then(sound => {
 						assets.sounds[name + "_p1"] = assets.sounds[name].copy(snd.sfxGainL)
 						assets.sounds[name + "_p2"] = assets.sounds[name].copy(snd.sfxGainR)
+						assets.sounds[name + "_slow"] = assets.sounds[name].copy(snd.sfxGainSlow)
+						assets.sounds[name + "_p1_slow"] = assets.sounds[name].copy(snd.sfxGainLSlow)
+						assets.sounds[name + "_p2_slow"] = assets.sounds[name].copy(snd.sfxGainRSlow)
 					}))
 				}
 			})
@@ -88,6 +93,7 @@ class Controller{
 				this.syncWith.ino = this.ino
 				this.syncWith.mainAsset = this.mainAsset
 				this.syncWith.inoCircles()
+				this.syncWith.snd2 += "_slow"
 			}
 		}
 		if(this.multiplayer !== 2){
@@ -269,7 +275,7 @@ class Controller{
 		}
 		var ms = Date.now() + (time || 0) * 1000
 		if(!(id in this.playedSounds) || ms > this.playedSounds[id] + 30){
-			assets.sounds[id + (noSnd ? "" : this.snd)].play(time)
+			assets.sounds[id + (noSnd ? "" : (id.startsWith("v_") ? this.snd2 : this.snd))].play(time)
 			this.playedSounds[id] = ms
 		}
 	}
