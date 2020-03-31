@@ -84,6 +84,8 @@
 					}
 				}else if(name.startsWith("branchstart") && inSong){
 					courses[courseName].branch = true
+				}else if(name.startsWith("lyric") && inSong){
+					courses[courseName].inlineLyrics = true
 				}
 				
 			}else if(!inSong){
@@ -411,6 +413,18 @@
 						}
 						branchObj[branchName] = currentBranch
 						break
+					case "lyric":
+						if(!this.lyrics){
+							this.lyrics = []
+						}
+						if(this.lyrics.length !== 0){
+							this.lyrics[this.lyrics.length - 1].end = ms
+						}
+						this.lyrics.push({
+							start: ms,
+							text: value.trim()
+						})
+						break
 				}
 				
 			}else{
@@ -544,6 +558,10 @@
 			var autoscore = new AutoScore(this.difficulty, this.stars, this.scoremode, circles);
 			this.scoreinit = autoscore.ScoreInit;
 			this.scorediff = autoscore.ScoreDiff;
+		}
+		if(this.lyrics){
+			var line = this.lyrics[this.lyrics.length - 1]
+			line.end = Math.max(ms, line.start) + 5000
 		}
 		return circles
 	}

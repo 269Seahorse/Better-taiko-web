@@ -99,8 +99,9 @@
 	font-weight: bold;
 	font-size: calc(45px * var(--scale));
 	line-height: 1.2;
+	white-space: pre-wrap;
 }
-#game.portrait{
+#game.portrait #song-lyrics{
 	right: calc(20px * var(--scale));
 	left: calc(20px * var(--scale));
 }

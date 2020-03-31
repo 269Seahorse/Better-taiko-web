@@ -137,6 +137,13 @@ class LoadSong{
 					reader.readAsText(songObj.chart)
 				}
 			}
+			if(songObj.lyricsFile){
+				var reader = new FileReader()
+				this.addPromise(pageEvents.load(reader).then(event => {
+					songObj.lyricsData = event.target.result
+				}), songObj.lyricsFile.webkitRelativePath)
+				reader.readAsText(songObj.lyricsFile)
+			}
 		}else{
 			var url = this.getSongPath(song)
 			this.addPromise(loader.ajax(url).then(data => {

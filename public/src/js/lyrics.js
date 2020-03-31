@@ -1,5 +1,5 @@
 class Lyrics{
-	constructor(file, songOffset, div){
+	constructor(file, songOffset, div, parsed){
 		this.div = div
 		this.stroke = document.createElement("div")
 		this.stroke.classList.add("stroke")
@@ -12,7 +12,7 @@ class Lyrics{
 		this.songOffset = songOffset || 0
 		this.vttOffset = 0
 		this.rLinebreak = /\n|\r\n/
-		this.lines = this.parseFile(file)
+		this.lines = parsed ? file : this.parseFile(file)
 		this.length = this.lines.length
 	}
 	parseFile(file){

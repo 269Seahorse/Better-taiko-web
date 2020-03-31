@@ -260,6 +260,15 @@
 						id: 1
 					}
 				}
+				if(meta.lyrics){
+					var lyricsFile = this.normPath(this.joinPath(dir, meta.lyrics))
+					if(lyricsFile in this.otherFiles){
+						songObj.lyrics = true
+						songObj.lyricsFile = this.otherFiles[lyricsFile]
+					}
+				}else if(meta.inlineLyrics){
+					songObj.lyrics = true
+				}
 				for(var id in allStrings){
 					var songTitle = songObj.title
 					var ura = ""
