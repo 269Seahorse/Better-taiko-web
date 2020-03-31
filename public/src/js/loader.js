@@ -146,20 +146,20 @@ class Loader{
 			this.afterJSCount = 0
 			
 			assets.audioSfx.forEach(name => {
-				this.addPromise(this.loadSound(name, snd.sfxGain, name.startsWith("v_") ? 0.85 : undefined), this.soundUrl(name))
+				this.addPromise(this.loadSound(name, snd.sfxGain), this.soundUrl(name))
 			})
 			assets.audioMusic.forEach(name => {
 				this.addPromise(this.loadSound(name, snd.musicGain), this.soundUrl(name))
 			})
 			assets.audioSfxLR.forEach(name => {
-				this.addPromise(this.loadSound(name, snd.sfxGain, name.startsWith("v_") ? 0.85 : undefined).then(sound => {
+				this.addPromise(this.loadSound(name, snd.sfxGain).then(sound => {
 					var id = this.getFilename(name)
 					assets.sounds[id + "_p1"] = assets.sounds[id].copy(snd.sfxGainL)
 					assets.sounds[id + "_p2"] = assets.sounds[id].copy(snd.sfxGainR)
 				}), this.soundUrl(name))
 			})
 			assets.audioSfxLoud.forEach(name => {
-				this.addPromise(this.loadSound(name, snd.sfxLoudGain, name.startsWith("v_") ? 0.85 : undefined), this.soundUrl(name))
+				this.addPromise(this.loadSound(name, snd.sfxLoudGain), this.soundUrl(name))
 			})
 			
 			this.canvasTest = new CanvasTest()

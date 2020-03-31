@@ -44,7 +44,7 @@ class Controller{
 
 			comboVoices.forEach(name => {
 				if (!assets.sounds[name + "_p1"]) {
-					promises.push(loader.loadSound(name + ".wav", snd.sfxGain, 0.85).then(sound => {
+					promises.push(loader.loadSound(name + ".wav", snd.sfxGain).then(sound => {
 						assets.sounds[name + "_p1"] = assets.sounds[name].copy(snd.sfxGainL)
 						assets.sounds[name + "_p2"] = assets.sounds[name].copy(snd.sfxGainR)
 					}))
