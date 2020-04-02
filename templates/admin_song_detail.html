@@ -1,0 +1,134 @@
+{% extends 'admin.html' %}
+{% block content %}
+<h1>{{ song.title }} <small>(ID: {{ song.id }})</small></h1>
+{% for cat, message in get_flashed_messages(with_categories=true) %}
+<div class="message{% if cat %} message-{{cat}}{% endif %}">{{ message }}</div>
+{% endfor %}
+<div class="song-form">
+    <form method="post">
+        <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+
+        <div class="form-field">
+            <span class="checkbox"><input type="checkbox" name="enabled" id="enabled"{% if song.enabled %} checked{% endif %}{% if admin.user_level < 100 %} disabled {% endif %}><label for="enabled"> Enabled</label></span>
+        </div>
+
+        <div class="form-field">
+            <p>Title</p>
+            <label for="title">Original</label>
+            <input type="text" id="title" value="{{song.title or ''}}" name="title" required>
+            <label for="title_ja">Japanese</label>
+            <input type="text" id="title_ja" value="{{song.title_lang.ja or ''}}" name="title_ja">
+            <label for="title_en">English</label>
+            <input type="text" id="title_en" value="{{song.title_lang.en or ''}}" name="title_en">
+            <label for="title_cn">Chinese (Simplified)</label>
+            <input type="text" id="title_cn" value="{{song.title_lang.cn or ''}}" name="title_cn">
+            <label for="title_tw">Chinese (Traditional)</label>
+            <input type="text" id="title_tw" value="{{song.title_lang.tw or ''}}" name="title_tw">
+            <label for="title_ko">Korean</label>
+            <input type="text" id="title_ko" value="{{song.title_lang.ko or ''}}" name="title_ko">
+        </div>
+
+        <div class="form-field">
+            <p>Subtitle</p>
+            <label for="subtitle">Original</label>
+            <input type="text" id="subtitle" value="{{song.subtitle or ''}}" name="subtitle">
+            <label for="subtitle_ja">Japanese</label>
+            <input type="text" id="subtitle_ja" value="{{song.subtitle_lang.ja or ''}}" name="subtitle_ja">
+            <label for="subtitle_en">English</label>
+            <input type="text" id="subtitle_en" value="{{song.subtitle_lang.en or ''}}" name="subtitle_en">
+            <label for="subtitle_cn">Chinese (Simplified)</label>
+            <input type="text" id="subtitle_cn" value="{{song.subtitle_lang.cn or ''}}" name="subtitle_cn">
+            <label for="subtitle_tw">Chinese (Traditional)</label>
+            <input type="text" id="subtitle_tw" value="{{song.subtitle_lang.tw or ''}}" name="subtitle_tw">
+            <label for="subtitle_ko">Korean</label>
+            <input type="text" id="subtitle_ko" value="{{song.subtitle_lang.ko or ''}}" name="subtitle_ko">
+        </div>
+
+        <div class="form-field">
+            <p>Courses</p>
+            <label for="course_easy">Easy</label>
+            <input type="number" id="course_easy" value="{{song.courses.easy.stars}}" name="course_easy" min="0" max="10">
+            <span class="checkbox"><input type="checkbox" name="branch_easy" id="branch_easy"{% if song.courses.easy.branch %} checked{% endif %}><label for="branch_easy"> Diverge Notes</label></span>
+            <label for="course_normal">Normal</label>
+            <input type="number" id="course_normal" value="{{song.courses.normal.stars}}" name="course_normal" min="0" max="10">
+            <span class="checkbox"><input type="checkbox" name="branch_normal" id="branch_normal"{% if song.courses.normal.branch %} checked{% endif %}><label for="branch_normal"> Diverge Notes</label></span>
+            <label for="course_hard">Hard</label>
+            <input type="number" id="course_hard" value="{{song.courses.hard.stars}}" name="course_hard" min="0" max="10">
+            <span class="checkbox"><input type="checkbox" name="branch_hard" id="branch_hard"{% if song.courses.hard.branch %} checked{% endif %}><label for="branch_hard"> Diverge Notes</label></span>
+            <label for="course_oni">Oni</label>
+            <input type="number" id="course_oni" value="{{song.courses.oni.stars}}" name="course_oni" min="0" max="10">
+            <span class="checkbox"><input type="checkbox" name="branch_oni" id="branch_oni"{% if song.courses.oni.branch %} checked{% endif %}><label for="branch_oni"> Diverge Notes</label></span>
+            <label for="course_ura">Ura</label>
+            <input type="number" id="course_ura" value="{{song.courses.ura.stars}}" name="course_ura" min="0" max="10">
+            <span class="checkbox"><input type="checkbox" name="branch_ura" id="branch_ura"{% if song.courses.ura.branch %} checked{% endif %}><label for="branch_ura"> Diverge Notes</label></span>
+        </div>
+
+        <div class="form-field">
+            <p><label for="category_id">Category</label></p>
+            <select name="category_id" id="category_id">
+                <option value="0">(none)</option>
+                {% for category in categories %}
+                    <option value="{{ category.id }}"{% if song.category_id == category.id %} selected{% endif %}>{{ category.title }}</option>
+                {% endfor %}
+            </select>
+        </div>
+
+        <div class="form-field">
+            <p><label for="type">Type</label></p>
+            <select name="type" id="type">
+                <option value="tja"{% if song.type == 'tja' %} selected{% endif %}>TJA</option>
+                <option value="osu"{% if song.type == 'osu' %} selected{% endif %}>osu!taiko</option>
+            </select>
+        </div>
+
+        <div class="form-field">
+            <p><label for="offset">Offset</label></p>
+            <input type="text" id="offset" value="{{song.offset or '0'}}" name="offset" required>
+        </div>
+
+        <div class="form-field">
+            <p><label for="skin_id">Skin</label></p>
+            <select name="skin_id" id="skin_id">
+                <option value="0">(none)</option>
+                {% for skin in song_skins %}
+                    <option value="{{ skin.id }}"{% if song.skin_id == skin.id %} selected{% endif %}>{{ skin.name }}</option>
+                {% endfor %}
+            </select>
+        </div>
+
+        <div class="form-field">
+            <p><label for="preview">Preview</label></p>
+            <input type="text" id="preview" value="{{song.preview or '0'}}" name="preview" required>
+        </div>
+
+        <div class="form-field">
+            <p><label for="volume">Volume</label></p>
+            <input type="text" id="volume" value="{{song.volume or '1.0'}}" name="volume" required>
+        </div>
+
+        <div class="form-field">
+            <p><label for="maker_id">Maker</label></p>
+            <select name="maker_id" id="maker_id">
+                <option value="0">(none)</option>
+                {% for maker in makers %}
+                    <option value="{{ maker.id }}"{% if song.maker_id == maker.id %} selected{% endif %}>{{ maker.name }}</option>
+                {% endfor %}
+            </select>
+        </div>
+
+        <div class="form-field">
+            <p><label for="hash">Hash</label></p>
+            <input type="text" id="hash" value="{{song.hash}}" name="hash"> <span class="checkbox"><input type="checkbox" name="gen_hash" id="gen_hash"{><label for="gen_hash"> Generate</label></span>
+        </div>
+
+        <button type="submit" class="save-song">Save</button>
+    </form>
+    {% if admin.user_level >= 100 %}
+    <form class="delete-song" method="post" action="/admin/songs/{{song.id}}/delete" onsubmit="return confirm('Are you sure you wish to delete this song?');">
+        <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+        <button type="submit">Delete song</button>
+    </form>
+    {% endif %}
+</div>
+{% endblock %}
+

@@ -31,7 +31,9 @@ var assets = {
 		"importsongs.js",
 		"logo.js",
 		"settings.js",
-		"scorestorage.js"
+		"scorestorage.js",
+		"account.js",
+		"lyrics.js"
 	],
 	"css": [
 		"main.css",
@@ -86,11 +88,7 @@ var assets = {
 		"settings_gamepad.png"
 	],
 	"audioSfx": [
-		"se_cancel.wav",
-		"se_don.wav",
-		"se_ka.wav",
 		"se_pause.wav",
-		"se_jump.wav",
 		"se_calibration.wav",
 
 		"v_results.wav",
@@ -102,6 +100,10 @@ var assets = {
 	"audioSfxLR": [
 		"neiro_1_don.wav",
 		"neiro_1_ka.wav",
+		"se_cancel.wav",
+		"se_don.wav",
+		"se_ka.wav",
+		"se_jump.wav",
 
 		"se_balloon.wav",
 		"se_gameclear.wav",
@@ -137,7 +139,9 @@ var assets = {
 		"about.html",
 		"debug.html",
 		"session.html",
-		"settings.html"
+		"settings.html",
+		"account.html",
+		"login.html"
 	],
 	
 	"songs": [],

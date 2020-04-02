@@ -34,7 +34,10 @@ class Session{
 				pageEvents.send("session-start", "host")
 			}
 		})
-		p2.send("invite")
+		p2.send("invite", {
+			id: null,
+			name: account.loggedIn ? account.displayName : null
+		})
 		pageEvents.send("session")
 	}
 	getElement(name){

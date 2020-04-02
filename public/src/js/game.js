@@ -5,6 +5,7 @@ class Game{
 		this.songData = songData
 		this.elapsedTime = 0
 		this.currentCircle = -1
+		this.currentEvent = 0
 		this.updateCurrentCircle()
 		this.combo = 0
 		this.rules = new GameRules(this)
@@ -47,13 +48,7 @@ class Game{
 	}
 	initTiming(){
 		// Date when the chrono is started (before the game begins)
-		var firstCircle
-		for(var i = 0; i < this.songData.circles.length; i++){
-			firstCircle = this.songData.circles[i]
-			if(firstCircle.type !== "event"){
-				break
-			}
-		}
+		var firstCircle = this.songData.circles[0]
 		if(this.controller.calibrationMode){
 			var offsetTime = 0
 		}else{
@@ -238,9 +233,6 @@ class Game{
 		}
 	}
 	skipNote(circle){
-		if(circle.type === "event"){
-			return
-		}
 		if(circle.section){
 			this.resetSection()
 		}
@@ -258,9 +250,6 @@ class Game{
 	checkPlays(){
 		var circles = this.songData.circles
 		var circle = circles[this.currentCircle]
-		if(circle && circle.type === "event"){
-			this.updateCurrentCircle()
-		}
 		
 		if(this.controller.autoPlayEnabled){
 			while(circle && this.controller.autoPlay(circle)){
@@ -469,9 +458,7 @@ class Game{
 	}
 	getLastCircle(circles){
 		for(var i = circles.length; i--;){
-			if(circles[i].type !== "event"){
-				return circles[i]
-			}
+			return circles[i]
 		}
 	}
 	whenLastCirclePlayed(){
@@ -505,7 +492,9 @@ class Game{
 			var musicDuration = duration * 1000 - this.controller.offset
 			if(this.musicFadeOut === 0){
 				if(this.controller.multiplayer === 1){
-					p2.send("gameresults", this.getGlobalScore())
+					var obj = this.getGlobalScore()
+					obj.name = account.loggedIn ? account.displayName : null
+					p2.send("gameresults", obj)
 				}
 				this.musicFadeOut++
 			}else if(this.musicFadeOut === 1 && ms >= started + 1600){
@@ -621,7 +610,7 @@ class Game{
 		var circles = this.songData.circles
 		do{
 			var circle = circles[++this.currentCircle]
-		}while(circle && (circle.branch && !circle.branch.active || circle.type === "event"))
+		}while(circle && (circle.branch && !circle.branch.active))
 	}
 	getCurrentCircle(){
 		return this.currentCircle

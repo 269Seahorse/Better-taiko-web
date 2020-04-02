@@ -1,0 +1,23 @@
+<!DOCTYPE html>
+<html lang="en">
+    <head>
+        <meta charset="utf-8">
+        <title>Taiko Web Admin</title>
+
+        <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+JP:wght@400;700&display=swap" rel="stylesheet">
+        <link href="/src/css/admin.css" rel="stylesheet">
+    </head>
+    <body>
+        <header>
+            <div class="nav">
+                <a href="/admin/songs">Songs</a>
+            </div>
+        </header>
+        
+        <main>
+            <div class="container">
+                {% block content %}{% endblock %}
+            </div>
+        </main>
+    </body>
+</html>

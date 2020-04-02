@@ -6,7 +6,11 @@ class Controller{
 		this.saveScore = !autoPlayEnabled
 		this.multiplayer = multiplayer
 		this.touchEnabled = touchEnabled
-		this.snd = this.multiplayer ? "_p" + this.multiplayer : ""
+		if(multiplayer === 2){
+			this.snd = p2.player === 2 ? "_p1" : "_p2"
+		}else{
+			this.snd = multiplayer ? "_p" + p2.player : ""
+		}
 		
 		this.calibrationMode = selectedSong.folder === "calibration"
 		this.audioLatency = 0
@@ -53,6 +57,15 @@ class Controller{
 				if(song.id == this.selectedSong.folder){
 					this.mainAsset = song.sound
 					this.volume = song.volume || 1
+					if(!multiplayer && (!this.touchEnabled || this.autoPlayEnabled) && settings.getItem("showLyrics")){
+						if(song.lyricsData){
+							var lyricsDiv = document.getElementById("song-lyrics")
+							this.lyrics = new Lyrics(song.lyricsData, selectedSong.offset, lyricsDiv)
+						}else if(this.parsedSongData.lyrics){
+							var lyricsDiv = document.getElementById("song-lyrics")
+							this.lyrics = new Lyrics(this.parsedSongData.lyrics, selectedSong.offset, lyricsDiv, true)
+						}
+					}
 				}
 			})
 		}
@@ -155,9 +168,15 @@ class Controller{
 		if(this.mainLoopRunning){
 			if(this.multiplayer !== 2){
 				requestAnimationFrame(() => {
-					this.viewLoop()
+					var player = this.multiplayer ? p2.player : 1
+					if(player === 1){
+						this.viewLoop()
+					}
 					if(this.multiplayer === 1){
 						this.syncWith.viewLoop()
+					}
+					if(player === 2){
+						this.viewLoop()
 					}
 					if(this.scoresheet){
 						if(this.view.ctx){
@@ -197,14 +216,14 @@ class Controller{
 	displayScore(score, notPlayed, bigNote){
 		this.view.displayScore(score, notPlayed, bigNote)
 	}
-	songSelection(fadeIn){
+	songSelection(fadeIn, showWarning){
 		if(!fadeIn){
 			this.clean()
 		}
 		if(this.calibrationMode){
 			new SettingsView(this.touchEnabled, false, null, "latency")
 		}else{
-			new SongSelect(false, fadeIn, this.touchEnabled)
+			new SongSelect(false, fadeIn, this.touchEnabled, null, showWarning)
 		}
 	}
 	restartSong(){
@@ -217,20 +236,27 @@ class Controller{
 					resolve()
 				}else{
 					var songObj = assets.songs.find(song => song.id === this.selectedSong.folder)
+					var promises = []
 					if(songObj.chart && songObj.chart !== "blank"){
 						var reader = new FileReader()
-						var promise = pageEvents.load(reader).then(event => {
+						promises.push(pageEvents.load(reader).then(event => {
 							this.songData = event.target.result.replace(/\0/g, "").split("\n")
-							resolve()
-						})
+							return Promise.resolve()
+						}))
 						if(this.selectedSong.type === "tja"){
 							reader.readAsText(songObj.chart, "sjis")
 						}else{
 							reader.readAsText(songObj.chart)
 						}
-					}else{
-						resolve()
 					}
+					if(songObj.lyricsFile){
+						var reader = new FileReader()
+						promises.push(pageEvents.load(reader).then(event => {
+							songObj.lyricsData = event.target.result
+						}, () => Promise.resolve()), songObj.lyricsFile.webkitRelativePath)
+						reader.readAsText(songObj.lyricsFile)
+					}
+					Promise.all(promises).then(resolve)
 				}
 			}).then(() => {
 				var taikoGame = new Controller(this.selectedSong, this.songData, this.autoPlayEnabled, false, this.touchEnabled)
@@ -305,6 +331,9 @@ class Controller{
 			if(debugObj.debug){
 				debugObj.debug.updateStatus()
 			}
+		}
+		if(this.lyrics){
+			this.lyrics.clean()
 		}
 	}
 }

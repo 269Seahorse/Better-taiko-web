@@ -43,6 +43,7 @@
 		this.metadata = this.parseMetadata()
 		this.measures = []
 		this.beatInfo = {}
+		this.events = []
 		if(!metaOnly){
 			this.circles = this.parseCircles()
 		}
@@ -83,6 +84,8 @@
 					}
 				}else if(name.startsWith("branchstart") && inSong){
 					courses[courseName].branch = true
+				}else if(name.startsWith("lyric") && inSong){
+					courses[courseName].inlineLyrics = true
 				}
 				
 			}else if(!inSong){
@@ -157,6 +160,7 @@
 		var circleID = 0
 		var regexAZ = /[A-Z]/
 		var regexSpace = /\s/
+		var regexLinebreak = /\\n/g
 		var isAllDon = (note_chain, start_pos) => { 
 			for (var i = start_pos; i < note_chain.length; ++i) { 
 				var note = note_chain[i];
@@ -248,7 +252,12 @@
 							lastDrumroll = circleObj
 						}
 						
-						circles.push(circleObj)
+						if(note.event){
+							this.events.push(circleObj)
+						}
+						if(note.type !== "event"){
+							circles.push(circleObj)
+						}
 					} else if (!(currentMeasure.length >= 24 && (!currentMeasure[i + 1] || currentMeasure[i + 1].type))
 						&& !(currentMeasure.length >= 48 && (!currentMeasure[i + 2] || currentMeasure[i + 2].type || !currentMeasure[i + 3] || currentMeasure[i + 3].type))) { 
 						if (note_chain.length > 1 && currentMeasure.length >= 8) { 
@@ -266,9 +275,12 @@
 			}
 		}
 		var insertNote = circleObj => {
-			lastBpm = bpm
-			lastGogo = gogo
 			if(circleObj){
+				if(bpm !== lastBpm || gogo !== lastGogo){
+					circleObj.event = true
+					lastBpm = bpm
+					lastGogo = gogo
+				}
 				currentMeasure.push(circleObj)
 			}
 		}
@@ -401,6 +413,18 @@
 							active: branchName === branchObj.active
 						}
 						branchObj[branchName] = currentBranch
+						break
+					case "lyric":
+						if(!this.lyrics){
+							this.lyrics = []
+						}
+						if(this.lyrics.length !== 0){
+							this.lyrics[this.lyrics.length - 1].end = ms
+						}
+						this.lyrics.push({
+							start: ms,
+							text: value.trim().replace(regexLinebreak, "\n")
+						})
 						break
 				}
 				
@@ -535,6 +559,10 @@
 			var autoscore = new AutoScore(this.difficulty, this.stars, this.scoremode, circles);
 			this.scoreinit = autoscore.ScoreInit;
 			this.scorediff = autoscore.ScoreDiff;
+		}
+		if(this.lyrics){
+			var line = this.lyrics[this.lyrics.length - 1]
+			line.end = Math.max(ms, line.start) + 5000
 		}
 		return circles
 	}

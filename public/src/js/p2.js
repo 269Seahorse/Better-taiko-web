@@ -3,6 +3,8 @@ class P2Connection{
 		this.closed = true
 		this.lastMessages = {}
 		this.otherConnected = false
+		this.name = null
+		this.player = 1
 		this.allEvents = new Map()
 		this.addEventListener("message", this.message.bind(this))
 		this.currentHash = ""
@@ -102,6 +104,10 @@ class P2Connection{
 	}
 	message(response){
 		switch(response.type){
+			case "gameload":
+				if("player" in response.value){
+					this.player = response.value.player === 2 ? 2 : 1
+				}
 			case "gamestart":
 				this.otherConnected = true
 				this.notes = []
@@ -110,6 +116,7 @@ class P2Connection{
 				this.kaAmount = 0
 				this.results = false
 				this.branch = "normal"
+				scoreStorage.clearP2()
 				break
 			case "gameend":
 				this.otherConnected = false
@@ -123,11 +130,13 @@ class P2Connection{
 					this.hash("")
 					this.hashLock = false
 				}
+				this.name = null
+				scoreStorage.clearP2()
 				break
 			case "gameresults":
 				this.results = {}
 				for(var i in response.value){
-					this.results[i] = response.value[i].toString()
+					this.results[i] = response.value[i] === null ? null : response.value[i].toString()
 				}
 				break
 			case "note":
@@ -150,6 +159,44 @@ class P2Connection{
 				this.clearMessage("users")
 				this.otherConnected = true
 				this.session = true
+				scoreStorage.clearP2()
+				if("player" in response.value){
+					this.player = response.value.player === 2 ? 2 : 1
+				}
+				break
+			case "name":
+				this.name = response.value ? response.value.toString() : response.value
+				break
+			case "getcrowns":
+				if(response.value){
+					var output = {}
+					for(var i in response.value){
+						if(response.value[i]){
+							var score = scoreStorage.get(response.value[i], false, true)
+							if(score){
+								var crowns = {}
+								for(var diff in score){
+									if(diff !== "title"){
+										crowns[diff] = {
+											crown: score[diff].crown
+										}
+									}
+								}
+							}else{
+								var crowns = null
+							}
+							output[response.value[i]] = crowns
+						}
+					}
+					p2.send("crowns", output)
+				}
+				break
+			case "crowns":
+				if(response.value){
+					for(var i in response.value){
+						scoreStorage.addP2(i, false, response.value[i], true)
+					}
+				}
 				break
 		}
 	}

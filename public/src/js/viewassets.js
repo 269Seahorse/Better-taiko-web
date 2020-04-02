@@ -18,7 +18,7 @@ class ViewAssets{
 				sw: imgw,
 				sh: imgh - 1,
 				x: view.portrait ? -60 : 0,
-				y: view.portrait ? (view.multiplayer === 2 ? 560 : 35) : (view.multiplayer === 2 ? 360 : 2),
+				y: view.portrait ? (view.player === 2 ? 560 : 35) : (view.player === 2 ? 360 : 2),
 				w: w,
 				h: h - 1
 			}

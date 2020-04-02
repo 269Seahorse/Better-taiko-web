@@ -108,8 +108,8 @@ kbd{
 .left-buttons .taibtn{
 	margin-right: 0.4em;
 }
-#diag-txt textarea,
-#diag-txt iframe{
+.diag-txt textarea,
+.diag-txt iframe{
 	width: 100%;
 	height: 5em;
 	font-size: inherit;
@@ -119,6 +119,7 @@ kbd{
 	background: #fff;
 	border: 1px solid #a9a9a9;
 	user-select: all;
+	box-sizing: border-box;
 }
 .text-warn{
 	color: #d00;
@@ -290,4 +291,89 @@ kbd{
 }
 .left-buttons .taibtn{
 	z-index: 1;
+}
+.accountpass-form,
+.accountdel-form,
+.login-form{
+	text-align: center;
+	width: 80%;
+	margin: auto;
+}
+.accountpass-form .accountpass-div,
+.accountdel-form .accountdel-div,
+.login-form .password2-div{
+	display: none;
+}
+.account-view .displayname,
+.accountpass-form input[type=password],
+.accountdel-form input[type=password],
+.login-form input[type=text],
+.login-form input[type=password]{
+	width: 100%;
+	font-size: 1.4em;
+	margin: 0.1em 0;
+	padding: 0.3em;
+	box-sizing: border-box;
+}
+.accountpass-form input[type=password]{
+	width: calc(100% / 3);
+}
+.accountpass-form input[type=password]::placeholder{
+	font-size: 0.8em;
+}
+.login-form input[type=checkbox]{
+	transform: scale(1.4);
+}
+.account-view .displayname-hint,
+.login-form .username-hint,
+.login-form .password-hint,
+.login-form .remember-label{
+	display: block;
+	font-size: 1.1em;
+	padding: 0.5em;
+}
+.login-form .remember-label{
+	padding: 0.85em;
+}
+.account-view .save-btn{
+	float: right;
+	padding: 0.4em 1.5em;
+	font-weight: bold;
+	border-color: #000;
+	color: #000;
+	z-index: 1;
+}
+.account-view .view-end-button{
+	margin-right: 0.4em;
+	font-weight: normal;
+	border-color: #dacdb2;
+	color: #555;
+}
+.account-view .save-btn:hover,
+.account-view .save-btn.selected,
+.account-view .view-end-button:hover,
+.account-view .view-end-button.selected{
+	color: #fff;
+	border-color: #fff;
+}
+.account-view .displayname-div{
+	width: 80%;
+	margin: 0 auto;
+}
+.accountpass-form .accountpass-btn,
+.accountdel-form .accountdel-btn,
+.login-form .login-btn{
+	z-index: 1;
+}
+.accountpass-form,
+.accountdel-form{
+	margin: 0.3em auto;
+}
+.view-content .error-div{
+	display: none;
+	width: 80%;
+	margin: 0 auto;
+	padding: 0.5em;
+	font-size: 1.1em;
+	color: #d00;
 }

@@ -1,0 +1,122 @@
+{% extends 'admin.html' %}
+{% block content %}
+<h1>New song</h1>
+{% for message in get_flashed_messages() %}
+<div class="message">{{ message }}</div>
+{% endfor %}
+<div class="song-form">
+    <form method="post">
+        <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+
+        <div class="form-field">
+            <span class="checkbox"><input type="checkbox" name="enabled" id="enabled"><label for="enabled"> Enabled</label></span>
+        </div>
+
+        <div class="form-field">
+            <p>Title</p>
+            <label for="title">Original</label>
+            <input type="text" id="title" value="" name="title" required>
+            <label for="title_ja">Japanese</label>
+            <input type="text" id="title_ja" value="" name="title_ja">
+            <label for="title_en">English</label>
+            <input type="text" id="title_en" value="" name="title_en">
+            <label for="title_cn">Chinese (Simplified)</label>
+            <input type="text" id="title_cn" value="" name="title_cn">
+            <label for="title_tw">Chinese (Traditional)</label>
+            <input type="text" id="title_tw" value="" name="title_tw">
+            <label for="title_ko">Korean</label>
+            <input type="text" id="title_ko" value="" name="title_ko">
+        </div>
+
+        <div class="form-field">
+            <p>Subtitle</p>
+            <label for="subtitle">Original</label>
+            <input type="text" id="subtitle" value="" name="subtitle">
+            <label for="subtitle_ja">Japanese</label>
+            <input type="text" id="subtitle_ja" value="" name="subtitle_ja">
+            <label for="subtitle_en">English</label>
+            <input type="text" id="subtitle_en" value="" name="subtitle_en">
+            <label for="subtitle_cn">Chinese (Simplified)</label>
+            <input type="text" id="subtitle_cn" value="" name="subtitle_cn">
+            <label for="subtitle_tw">Chinese (Traditional)</label>
+            <input type="text" id="subtitle_tw" value="" name="subtitle_tw">
+            <label for="subtitle_ko">Korean</label>
+            <input type="text" id="subtitle_ko" value="" name="subtitle_ko">
+        </div>
+
+        <div class="form-field">
+            <p>Courses</p>
+            <label for="course_easy">Easy</label>
+            <input type="number" id="course_easy" value="" name="course_easy" min="0" max="10">
+            <span class="checkbox"><input type="checkbox" name="branch_easy" id="branch_easy"><label for="branch_easy"> Diverge Notes</label></span>
+            <label for="course_normal">Normal</label>
+            <input type="number" id="course_normal" value="" name="course_normal" min="0" max="10">
+            <span class="checkbox"><input type="checkbox" name="branch_normal" id="branch_normal"><label for="branch_normal"> Diverge Notes</label></span>
+            <label for="course_hard">Hard</label>
+            <input type="number" id="course_hard" value="" name="course_hard" min="0" max="10">
+            <span class="checkbox"><input type="checkbox" name="branch_hard" id="branch_hard"><label for="branch_hard"> Diverge Notes</label></span>
+            <label for="course_oni">Oni</label>
+            <input type="number" id="course_oni" value="" name="course_oni" min="0" max="10">
+            <span class="checkbox"><input type="checkbox" name="branch_oni" id="branch_oni"><label for="branch_oni"> Diverge Notes</label></span>
+            <label for="course_ura">Ura</label>
+            <input type="number" id="course_ura" value="" name="course_ura" min="0" max="10">
+            <span class="checkbox"><input type="checkbox" name="branch_ura" id="branch_ura"><label for="branch_ura"> Diverge Notes</label></span>
+        </div>
+
+        <div class="form-field">
+            <p><label for="category_id">Category</label></p>
+            <select name="category_id" id="category_id">
+                <option value="0">(none)</option>
+                {% for category in categories %}
+                    <option value="{{ category.id }}">{{ category.title }}</option>
+                {% endfor %}
+            </select>
+        </div>
+
+        <div class="form-field">
+            <p><label for="type">Type</label></p>
+            <select name="type" id="type">
+                <option value="tja">TJA</option>
+                <option value="osu">osu!taiko</option>
+            </select>
+        </div>
+
+        <div class="form-field">
+            <p><label for="offset">Offset</label></p>
+            <input type="text" id="offset" value="" name="offset" required>
+        </div>
+
+        <div class="form-field">
+            <p><label for="skin_id">Skin</label></p>
+            <select name="skin_id" id="skin_id">
+                <option value="0">(none)</option>
+                {% for skin in song_skins %}
+                    <option value="{{ skin.id }}">{{ skin.name }}</option>
+                {% endfor %}
+            </select>
+        </div>
+
+        <div class="form-field">
+            <p><label for="preview">Preview</label></p>
+            <input type="text" id="preview" value="" name="preview" required>
+        </div>
+
+        <div class="form-field">
+            <p><label for="volume">Volume</label></p>
+            <input type="text" id="volume" value="" name="volume" required>
+        </div>
+
+        <div class="form-field">
+            <p><label for="maker_id">Maker</label></p>
+            <select name="maker_id" id="maker_id">
+                <option value="0">(none)</option>
+                {% for maker in makers %}
+                    <option value="{{ maker.id }}">{{ maker.name }}</option>
+                {% endfor %}
+            </select>
+        </div>
+
+        <button type="submit" class="save-song">Save</button>
+    </form>
+</div>
+{% endblock %}

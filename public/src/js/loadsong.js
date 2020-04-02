@@ -34,7 +34,7 @@ class LoadSong{
 	run(){
 		var song = this.selectedSong
 		var id = song.folder
-		var promises = []
+		this.promises = []
 		if(song.folder !== "calibration"){
 			assets.sounds["v_start"].play()
 			var songObj = assets.songs.find(song => song.id === id)
@@ -92,9 +92,9 @@ class LoadSong{
 					img.crossOrigin = "Anonymous"
 				}
 				let promise = pageEvents.load(img)
-				promises.push(promise.then(() => {
+				this.addPromise(promise.then(() => {
 					return this.scaleImg(img, filename, prefix, force)
-				}))
+				}), songObj.music ? filename + ".png" : skinBase + filename + ".png")
 				if(songObj.music){
 					img.src = URL.createObjectURL(song.songSkin[filename + ".png"])
 				}else{
@@ -102,14 +102,15 @@ class LoadSong{
 				}
 			}
 		}
-		promises.push(this.loadSongBg(id))
+		this.loadSongBg(id)
 		
-		promises.push(new Promise((resolve, reject) => {
+		var url = gameConfig.songs_baseurl + id + "/main.mp3"
+		this.addPromise(new Promise((resolve, reject) => {
 			if(songObj.sound){
 				songObj.sound.gain = snd.musicGain
 				resolve()
 			}else if(!songObj.music){
-				snd.musicGain.load(gameConfig.songs_baseurl + id + "/main.mp3").then(sound => {
+				snd.musicGain.load(url).then(sound => {
 					songObj.sound = sound
 					resolve()
 				}, reject)
@@ -121,84 +122,120 @@ class LoadSong{
 			}else{
 				resolve()
 			}
-		}))
+		}), songObj.music ? songObj.music.webkitRelativePath : url)
 		if(songObj.chart){
 			if(songObj.chart === "blank"){
 				this.songData = ""
 			}else{
 				var reader = new FileReader()
-				promises.push(pageEvents.load(reader).then(event => {
+				this.addPromise(pageEvents.load(reader).then(event => {
 					this.songData = event.target.result.replace(/\0/g, "").split("\n")
-				}))
+				}), songObj.chart.webkitRelativePath)
 				if(song.type === "tja"){
 					reader.readAsText(songObj.chart, "sjis")
 				}else{
 					reader.readAsText(songObj.chart)
 				}
 			}
+			if(songObj.lyricsFile && settings.getItem("showLyrics")){
+				var reader = new FileReader()
+				this.addPromise(pageEvents.load(reader).then(event => {
+					songObj.lyricsData = event.target.result
+				}, () => Promise.resolve()), songObj.lyricsFile.webkitRelativePath)
+				reader.readAsText(songObj.lyricsFile)
+			}
 		}else{
-			promises.push(loader.ajax(this.getSongPath(song)).then(data => {
+			var url = this.getSongPath(song)
+			this.addPromise(loader.ajax(url).then(data => {
 				this.songData = data.replace(/\0/g, "").split("\n")
-			}))
+			}), url)
+			if(song.lyrics && !songObj.lyricsData && !this.multiplayer && (!this.touchEnabled || this.autoPlayEnabled) && settings.getItem("showLyrics")){
+				var url = this.getSongDir(song) + "main.vtt"
+				this.addPromise(loader.ajax(url).then(data => {
+					songObj.lyricsData = data
+				}), url)
+			}
 		}
 		if(this.touchEnabled && !assets.image["touch_drum"]){
 			let img = document.createElement("img")
 			if(this.imgScale !== 1){
 				img.crossOrigin = "Anonymous"
 			}
-			promises.push(pageEvents.load(img).then(() => {
+			var url = gameConfig.assets_baseurl + "img/touch_drum.png"
+			this.addPromise(pageEvents.load(img).then(() => {
 				return this.scaleImg(img, "touch_drum", "")
-			}))
-			img.src = gameConfig.assets_baseurl + "img/touch_drum.png"
+			}), url)
+			img.src = url
 		}
-		Promise.all(promises).then(() => {
-			this.setupMultiplayer()
-		}, error => {
-			if(Array.isArray(error) && error[1] instanceof HTMLElement){
-				error = error[0] + ": " + error[1].outerHTML
+		Promise.all(this.promises).then(() => {
+			if(!this.error){
+				this.setupMultiplayer()
 			}
-			console.error(error)
-			pageEvents.send("load-song-error", error)
-			errorMessage(new Error(error).stack)
-			alert(strings.errorOccured)
 		})
 	}
+	addPromise(promise, url){
+		this.promises.push(promise.catch(response => {
+			this.errorMsg(response, url)
+			return Promise.resolve()
+		}))
+	}
+	errorMsg(error, url){
+		if(!this.error){
+			if(url){
+				error = (Array.isArray(error) ? error[0] + ": " : (error ? error + ": " : "")) + url
+			}
+			pageEvents.send("load-song-error", error)
+			errorMessage(new Error(error).stack)
+			var title = this.selectedSong.title
+			if(title !== this.selectedSong.originalTitle){
+				title += " (" + this.selectedSong.originalTitle + ")"
+			}
+			assets.sounds["v_start"].stop()
+			setTimeout(() => {
+				this.clean()
+				new SongSelect(false, false, this.touchEnabled, null, {
+					name: "loadSongError",
+					title: title,
+					id: this.selectedSong.folder,
+					error: error
+				})
+			}, 500)
+		}
+		this.error = true
+	}
 	loadSongBg(){
-		return new Promise((resolve, reject) => {
-			var promises = []
-			var filenames = []
-			if(this.selectedSong.songBg !== null){
-				filenames.push("bg_song_" + this.selectedSong.songBg)
+		var filenames = []
+		if(this.selectedSong.songBg !== null){
+			filenames.push("bg_song_" + this.selectedSong.songBg)
+		}
+		if(this.selectedSong.donBg !== null){
+			filenames.push("bg_don_" + this.selectedSong.donBg)
+			if(this.multiplayer){
+				filenames.push("bg_don2_" + this.selectedSong.donBg)
 			}
-			if(this.selectedSong.donBg !== null){
-				filenames.push("bg_don_" + this.selectedSong.donBg)
-				if(this.multiplayer){
-					filenames.push("bg_don2_" + this.selectedSong.donBg)
-				}
-			}
-			if(this.selectedSong.songStage !== null){
-				filenames.push("bg_stage_" + this.selectedSong.songStage)
-			}
-			for(var i = 0; i < filenames.length; i++){
-				var filename = filenames[i]
-				var stage = filename.startsWith("bg_stage_")
-				for(var letter = 0; letter < (stage ? 1 : 2); letter++){
-					let filenameAb = filenames[i] + (stage ? "" : (letter === 0 ? "a" : "b"))
-					if(!(filenameAb in assets.image)){
-						let img = document.createElement("img")
-						let force = filenameAb.startsWith("bg_song_") && this.touchEnabled
-						if(this.imgScale !== 1 || force){
-							img.crossOrigin = "Anonymous"
-						}
-						promises.push(pageEvents.load(img).then(() => {
-							return this.scaleImg(img, filenameAb, "", force)
-						}))
-						img.src = gameConfig.assets_baseurl + "img/" + filenameAb + ".png"
+		}
+		if(this.selectedSong.songStage !== null){
+			filenames.push("bg_stage_" + this.selectedSong.songStage)
+		}
+		for(var i = 0; i < filenames.length; i++){
+			var filename = filenames[i]
+			var stage = filename.startsWith("bg_stage_")
+			for(var letter = 0; letter < (stage ? 1 : 2); letter++){
+				let filenameAb = filenames[i] + (stage ? "" : (letter === 0 ? "a" : "b"))
+				if(!(filenameAb in assets.image)){
+					let img = document.createElement("img")
+					let force = filenameAb.startsWith("bg_song_") && this.touchEnabled
+					if(this.imgScale !== 1 || force){
+						img.crossOrigin = "Anonymous"
 					}
+					var url = gameConfig.assets_baseurl + "img/" + filenameAb + ".png"
+					this.addPromise(pageEvents.load(img).then(() => {
+						return this.scaleImg(img, filenameAb, "", force)
+					}), url)
+					img.src = url
 				}
 			}
-			Promise.all(promises).then(resolve, reject)
-		})
+		}
 	}
 	scaleImg(img, filename, prefix, force){
 		return new Promise((resolve, reject) => {
@@ -238,8 +275,11 @@ class LoadSong{
 	randInt(min, max){
 		return Math.floor(Math.random() * (max - min + 1)) + min
 	}
+	getSongDir(selectedSong){
+		return gameConfig.songs_baseurl + selectedSong.folder + "/"
+	}
 	getSongPath(selectedSong){
-		var directory = gameConfig.songs_baseurl + selectedSong.folder + "/"
+		var directory = this.getSongDir(selectedSong)
 		if(selectedSong.type === "tja"){
 			return directory + "main.tja"
 		}else{
@@ -264,14 +304,14 @@ class LoadSong{
 				if(event.type === "gameload"){
 					this.cancelButton.style.display = ""
 					
-					if(event.value === song.difficulty){
+					if(event.value.diff === song.difficulty){
 						this.startMultiplayer()
 					}else{
 						this.selectedSong2 = {}
 						for(var i in this.selectedSong){
 							this.selectedSong2[i] = this.selectedSong[i]
 						}
-						this.selectedSong2.difficulty = event.value
+						this.selectedSong2.difficulty = event.value.diff
 						if(song.type === "tja"){
 							this.startMultiplayer()
 						}else{
@@ -297,7 +337,8 @@ class LoadSong{
 			})
 			p2.send("join", {
 				id: song.folder,
-				diff: song.difficulty
+				diff: song.difficulty,
+				name: account.loggedIn ? account.displayName : null
 			})
 		}else{
 			this.clean()
@@ -332,6 +373,7 @@ class LoadSong{
 		pageEvents.send("load-song-cancel")
 	}
 	clean(){
+		delete this.promises
 		pageEvents.remove(p2, "message")
 		if(this.cancelButton){
 			pageEvents.remove(this.cancelButton, ["mousedown", "touchstart"])

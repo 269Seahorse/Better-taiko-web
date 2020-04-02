@@ -1,0 +1,156 @@
+body {
+    margin: 0;
+    font-family: 'Noto Sans JP', sans-serif;
+    background: #FF7F00;
+  }
+  
+  .nav {
+    margin: 0;
+    padding: 0;
+    width: 200px;
+    background-color: #A01300;
+    position: fixed;
+    height: 100%;
+    overflow: auto;
+  }
+  
+  .nav a {
+    display: block;
+    color: #FFF;
+    padding: 16px;
+    text-decoration: none;
+  }
+   
+  .nav a.active {
+    background-color: #4CAF50;
+    color: white;
+  }
+  
+  .nav a:hover:not(.active) {
+    background-color: #555;
+    color: white;
+  }
+  
+main {
+    margin-left: 200px;
+    padding: 1px 16px;
+    height: 1000px;
+  }
+  
+  @media screen and (max-width: 700px) {
+    .nav {
+      width: 100%;
+      height: auto;
+      position: relative;
+    }
+    .nav a {float: left;}
+    main {margin-left: 0;}
+  }
+  
+  @media screen and (max-width: 400px) {
+    .sidebar a {
+      text-align: center;
+      float: none;
+    }
+  }
+
+  .container {
+      margin-bottom: 40px;
+  }
+
+.song {
+    background: #F84828;
+    color: white;
+    padding: 10px;
+    font-size: 14pt;
+    margin: 10px 0;
+}
+
+.song p {
+    margin: 0;
+}
+
+.song-link {
+    text-decoration: none;
+}
+
+.song-form {
+    background: #ff5333;
+    color: #FFF;
+    padding: 20px;
+}
+
+.form-field {
+    background: #555555;
+    padding: 15px 20px 20px 20px;
+    margin-bottom: 20px;
+}
+
+.form-field p {
+    margin: 0;
+    font-size: 18pt;
+}
+
+ .form-field > label {
+    display: block;
+}
+
+.form-field input {
+    margin: 5px 0;
+}
+
+.form-field input[type="text"] {
+    width: 300px;
+}
+
+.form-field input[type="number"] {
+    width: 50px;
+}
+
+h1 small {
+    color: #4a4a4a;
+}
+
+.form-field-indent {
+    margin-left: 20px;
+}
+
+.checkbox {
+    display: inline-block;
+}
+
+.checkbox input {
+    margin-right: 3px;
+    margin-left: 5px;
+}
+
+.message {
+    background: #2c862f;
+    padding: 15px;
+    margin-bottom: 10px;
+    color: white;
+}
+
+.message-error {
+    background: #b92222;
+}
+
+.save-song {
+    font-size: 22pt;
+    width: 120px;
+}
+
+.delete-song button {
+    float: right;
+    margin-top: -25px;
+    font-size: 12pt;
+}
+
+.side-button {
+    float: right;
+    background: green;
+    padding: 5px 20px;
+    color: white;
+    text-decoration: none;
+    margin-top: 25px;
+}
