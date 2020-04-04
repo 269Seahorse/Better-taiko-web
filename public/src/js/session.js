@@ -36,7 +36,8 @@ class Session{
 		})
 		p2.send("invite", {
 			id: null,
-			name: account.loggedIn ? account.displayName : null
+			name: account.loggedIn ? account.displayName : null,
+			don: account.loggedIn ? account.don : null
 		})
 		pageEvents.send("session")
 	}
