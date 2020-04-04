@@ -384,7 +384,7 @@ kbd{
 	text-align: right;
 }
 .customdon-canvas{
-	max-width: 40vw;
+	width: 13em;
 }
 .customdon-div label{
 	display: block;
