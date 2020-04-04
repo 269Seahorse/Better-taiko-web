@@ -37,7 +37,18 @@ class LoadSong{
 		this.promises = []
 		if(song.folder !== "calibration"){
 			assets.sounds["v_start"].play()
-			var songObj = assets.songs.find(song => song.id === id)
+			var songObj
+			assets.songs.forEach(song => {
+				if(song.id === id){
+					songObj = song
+				}else{
+					if(song.sound){
+						song.sound.clean()
+						delete song.sound
+					}
+					delete song.lyricsData
+				}
+			})
 		}else{
 			var songObj = {
 				"music": "muted",
@@ -166,6 +177,9 @@ class LoadSong{
 				return this.scaleImg(img, "touch_drum", "")
 			}), url)
 			img.src = url
+		}
+		if(songObj.volume && songObj.volume !== 1){
+			this.promises.push(new Promise(resolve => setTimeout(resolve, 500)))
 		}
 		Promise.all(this.promises).then(() => {
 			if(!this.error){
@@ -338,7 +352,8 @@ class LoadSong{
 			p2.send("join", {
 				id: song.folder,
 				diff: song.difficulty,
-				name: account.loggedIn ? account.displayName : null
+				name: account.loggedIn ? account.displayName : null,
+				don: account.loggedIn ? account.don : null
 			})
 		}else{
 			this.clean()

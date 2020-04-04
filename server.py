@@ -43,7 +43,8 @@ async def connection(ws, path):
 		"ws": ws,
 		"action": "ready",
 		"session": False,
-		"name": None
+		"name": None,
+		"don": None
 	}
 	server_status["users"].append(user)
 	try:
@@ -81,6 +82,7 @@ async def connection(ws, path):
 						id = value["id"] if "id" in value else None
 						diff = value["diff"] if "diff" in value else None
 						user["name"] = value["name"] if "name" in value else None
+						user["don"] = value["don"] if "don" in value else None
 						if not id or not diff:
 							continue
 						if id not in waiting:
@@ -95,6 +97,7 @@ async def connection(ws, path):
 						else:
 							# Join the other user and start game
 							user["name"] = value["name"] if "name" in value else None
+							user["don"] = value["don"] if "don" in value else None
 							user["other_user"] = waiting[id]["user"]
 							waiting_diff = waiting[id]["diff"]
 							del waiting[id]
@@ -107,8 +110,14 @@ async def connection(ws, path):
 								await asyncio.wait([
 									ws.send(msgobj("gameload", {"diff": waiting_diff, "player": 2})),
 									user["other_user"]["ws"].send(msgobj("gameload", {"diff": diff, "player": 1})),
-									ws.send(msgobj("name", user["other_user"]["name"])),
-									user["other_user"]["ws"].send(msgobj("name", user["name"]))
+									ws.send(msgobj("name", {
+										"name": user["other_user"]["name"],
+										"don": user["other_user"]["don"]
+									})),
+									user["other_user"]["ws"].send(msgobj("name", {
+										"name": user["name"],
+										"don": user["don"]
+									}))
 								])
 							else:
 								# Wait for another user
@@ -130,10 +139,12 @@ async def connection(ws, path):
 							user["action"] = "invite"
 							user["session"] = invite
 							user["name"] = value["name"] if "name" in value else None
+							user["don"] = value["don"] if "don" in value else None
 							await ws.send(msgobj("invite", invite))
 						elif value and "id" in value and value["id"] in server_status["invites"]:
 							# Join a session with the other user
 							user["name"] = value["name"] if "name" in value else None
+							user["don"] = value["don"] if "don" in value else None
 							user["other_user"] = server_status["invites"][value["id"]]
 							del server_status["invites"][value["id"]]
 							if "ws" in user["other_user"]:
@@ -146,8 +157,14 @@ async def connection(ws, path):
 									ws.send(msgobj("session", {"player": 2})),
 									user["other_user"]["ws"].send(msgobj("session", {"player": 1})),
 									ws.send(msgobj("invite")),
-									ws.send(msgobj("name", user["other_user"]["name"])),
-									user["other_user"]["ws"].send(msgobj("name", user["name"]))
+									ws.send(msgobj("name", {
+										"name": user["other_user"]["name"],
+										"don": user["other_user"]["don"]
+									})),
+									user["other_user"]["ws"].send(msgobj("name", {
+										"name": user["name"],
+										"don": user["don"]
+									}))
 								])
 							else:
 								del user["other_user"]

@@ -131,6 +131,7 @@ class P2Connection{
 					this.hashLock = false
 				}
 				this.name = null
+				this.don = null
 				scoreStorage.clearP2()
 				break
 			case "gameresults":
@@ -165,7 +166,8 @@ class P2Connection{
 				}
 				break
 			case "name":
-				this.name = response.value ? response.value.toString() : response.value
+				this.name = response.value ? (response.value.name || "").toString() : ""
+				this.don = response.value ? (response.value.don) : null
 				break
 			case "getcrowns":
 				if(response.value){

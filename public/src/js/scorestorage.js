@@ -285,6 +285,7 @@ class ScoreStorage{
 						account.loggedIn = false
 						delete account.username
 						delete account.displayName
+						delete account.don
 						this.load()
 						pageEvents.send("logout")
 						return Promise.reject()

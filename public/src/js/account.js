@@ -42,6 +42,35 @@ class Account{
 		this.displayname.value = account.displayName
 		this.inputForms.push(this.displayname)
 		
+		this.redrawRunning = true
+		this.customdonRedrawBind = this.customdonRedraw.bind(this)
+		this.start = new Date().getTime()
+		this.frames = [
+			0 ,0 ,0 ,0 ,1 ,2 ,3 ,4 ,5 ,6 ,6 ,5 ,4 ,3 ,2 ,1 ,
+			0 ,0 ,0 ,0 ,1 ,2 ,3 ,4 ,5 ,6 ,6 ,5 ,4 ,3 ,2 ,1 ,
+			0 ,0 ,0 ,0 ,1 ,2 ,3 ,4 ,5 ,6 ,6 ,5 ,7 ,8 ,9 ,10,
+			11,11,11,11,10,9 ,8 ,7 ,13,12,12,13,14,15,16,17
+		]
+		this.customdonCache = new CanvasCache()
+		this.customdonCache.resize(723 * 2, 1858, 1)
+		this.customdonCanvas = this.getElement("customdon-canvas")
+		this.customdonCtx = this.customdonCanvas.getContext("2d")
+		this.customdonBodyFill = this.getElement("customdon-bodyfill")
+		this.customdonBodyFill.value = account.don.body_fill
+		var parent = this.customdonBodyFill.parentNode
+		parent.insertBefore(document.createTextNode(strings.account.customdon.bodyFill), parent.firstChild)
+		pageEvents.add(this.customdonBodyFill, "change", this.customdonChange.bind(this))
+		this.customdonFaceFill = this.getElement("customdon-facefill")
+		this.customdonFaceFill.value = account.don.face_fill
+		var parent = this.customdonFaceFill.parentNode
+		parent.insertBefore(document.createTextNode(strings.account.customdon.faceFill), parent.firstChild)
+		pageEvents.add(this.customdonFaceFill, "change", this.customdonChange.bind(this))
+		this.customdonResetBtn = this.getElement("customdon-reset")
+		this.customdonResetBtn.value = strings.account.customdon.reset
+		pageEvents.add(this.customdonResetBtn, ["click", "touchstart"], this.customdonReset.bind(this))
+		this.customdonChange()
+		this.customdonRedraw()
+		
 		this.accountPassButton = this.getElement("accountpass-btn")
 		this.setAltText(this.accountPassButton, strings.account.changePassword)
 		pageEvents.add(this.accountPassButton, ["click", "touchstart"], event => {
@@ -82,6 +111,70 @@ class Account{
 		for(var i = 0; i < this.inputForms.length; i++){
 			pageEvents.add(this.inputForms[i], ["keydown", "keyup", "keypress"], this.onFormPress.bind(this))
 		}
+	}
+	customdonChange(){
+		var ctx = this.customdonCtx
+		this.customdonCache.clear()
+		var w = 722
+		var h = 1858
+		this.customdonCache.set({
+			w: w, h: h, id: "bodyFill"
+		}, ctx => {
+			ctx.drawImage(assets.image["don_anim_normal_b1"], 0, 0)
+			ctx.globalCompositeOperation = "source-atop"
+			ctx.fillStyle = this.customdonBodyFill.value
+			ctx.fillRect(0, 0, w, h)
+		})
+		this.customdonCache.set({
+			w: w, h: h, id: "faceFill"
+		}, ctx => {
+			ctx.drawImage(assets.image["don_anim_normal_b2"], 0, 0)
+			ctx.globalCompositeOperation = "source-atop"
+			ctx.fillStyle = this.customdonFaceFill.value
+			ctx.fillRect(0, 0, w, h)
+			
+			ctx.globalCompositeOperation = "source-over"
+			this.customdonCache.get({
+				ctx: ctx,
+				x: 0, y: 0, w: w, h: h,
+				id: "bodyFill"
+			})
+		})
+	}
+	customdonReset(event){
+		if(event.type === "touchstart"){
+			event.preventDefault()
+		}
+		this.customdonBodyFill.value = defaultDon.body_fill
+		this.customdonFaceFill.value = defaultDon.face_fill
+		this.customdonChange()
+	}
+	customdonRedraw(){
+		if(!this.redrawRunning){
+			return
+		}
+		requestAnimationFrame(this.customdonRedrawBind)
+		if(!document.hasFocus()){
+			return
+		}
+		var ms = new Date().getTime()
+		var ctx = this.customdonCtx
+		var frame = this.frames[Math.floor((ms - this.start) / 30) % this.frames.length]
+		var w = 360
+		var h = 184
+		var sx = Math.floor(frame / 10) * (w + 2)
+		var sy = (frame % 10) * (h + 2)
+		ctx.clearRect(0, 0, w, h)
+		this.customdonCache.get({
+			ctx: ctx,
+			sx: sx, sy: sy, sw: w, sh: h,
+			x: -26, y: 0, w: w, h: h,
+			id: "faceFill"
+		})
+		ctx.drawImage(assets.image["don_anim_normal_a"],
+			sx, sy, w, h,
+			-26, 0, w, h
+		)
 	}
 	showDiv(event, div){
 		if(event){
@@ -257,6 +350,7 @@ class Account{
 			account.loggedIn = true
 			account.username = response.username
 			account.displayName = response.display_name
+			account.don = response.don
 			var loadScores = scores => {
 				scoreStorage.load(scores)
 				this.onEnd(false, true, true)
@@ -300,6 +394,7 @@ class Account{
 		account.loggedIn = false
 		delete account.username
 		delete account.displayName
+		delete account.don
 		var loadScores = () => {
 			scoreStorage.load()
 			this.onEnd(false, true)
@@ -344,6 +439,7 @@ class Account{
 				account.loggedIn = false
 				delete account.username
 				delete account.displayName
+				delete account.don
 				scoreStorage.load()
 				pageEvents.send("logout")
 				return Promise.resolve
@@ -355,6 +451,16 @@ class Account{
 				display_name: newName
 			}).then(response => {
 				account.displayName = response.display_name
+			}))
+		}
+		var bodyFill = this.customdonBodyFill.value
+		var faceFill = this.customdonFaceFill.value
+		if(!noNameChange && (bodyFill !== account.body_fill || this.customdonFaceFill.value !== account.face_fill)){
+			promises.push(this.request("account/don", {
+				body_fill: bodyFill,
+				face_fill: faceFill
+			}).then(response => {
+				account.don = response.don
 			}))
 		}
 		var error = false
@@ -470,6 +576,11 @@ class Account{
 				this.accountPass.reset()
 				this.accountDel.reset()
 			}
+			this.redrawRunning = false
+			this.customdonCache.clean()
+			pageEvents.remove(this.customdonBodyFill, "change")
+			pageEvents.remove(this.customdonFaceFill, "change")
+			pageEvents.remove(this.customdonResetBtn, ["click", "touchstart"])
 			pageEvents.remove(this.accounPassButton, ["click", "touchstart"])
 			pageEvents.remove(this.accountDelButton, ["click", "touchstart"])
 			pageEvents.remove(this.logoutButton, ["mousedown", "touchstart"])
@@ -479,6 +590,12 @@ class Account{
 			}
 			delete this.errorDiv
 			delete this.displayname
+			delete this.frames
+			delete this.customdonCanvas
+			delete this.customdonCtx
+			delete this.customdonBodyFill
+			delete this.customdonFaceFill
+			delete this.customdonResetBtn
 			delete this.accountPassButton
 			delete this.accountPass
 			delete this.accountPassDiv

@@ -8,8 +8,16 @@ class Controller{
 		this.touchEnabled = touchEnabled
 		if(multiplayer === 2){
 			this.snd = p2.player === 2 ? "_p1" : "_p2"
+			this.don = p2.don || defaultDon
 		}else{
 			this.snd = multiplayer ? "_p" + p2.player : ""
+			this.don = account.loggedIn ? account.don : defaultDon
+		}
+		if(this.snd === "_p2" && this.objEqual(defaultDon, this.don)){
+			this.don = {
+				body_fill: defaultDon.face_fill,
+				face_fill: defaultDon.body_fill
+			}
 		}
 		
 		this.calibrationMode = selectedSong.folder === "calibration"
@@ -316,6 +324,14 @@ class Controller{
 		}else{
 			return this.mekadon.play(circle)
 		}
+	}
+	objEqual(a, b){
+		for(var i in a){
+			if(a[i] !== b[i]){
+				return false
+			}
+		}
+		return true
 	}
 	clean(){
 		if(this.multiplayer === 1){

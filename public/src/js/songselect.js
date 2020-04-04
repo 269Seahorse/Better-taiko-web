@@ -492,7 +492,7 @@ class SongSelect{
 			}
 		}else if(this.state.screen === "difficulty"){
 			var moveBy = this.diffSelMouse(mouse.x, mouse.y)
-			if(mouse.x < 183 || mouse.x > 1095 || mouse.y < 40 || mouse.y > 540){
+			if(mouse.x < 183 || mouse.x > 1095 || mouse.y < 54 || mouse.y > 554){
 				this.toSongSelect()
 			}else if(moveBy === 0){
 				this.selectedDiff = 0
@@ -596,11 +596,11 @@ class SongSelect{
 	}
 	diffSelMouse(x, y){
 		if(this.state.locked === 0){
-			if(223 < x && x < 367 && 118 < y && y < 422){
+			if(223 < x && x < 367 && 132 < y && y < 436){
 				return Math.floor((x - 223) / ((367 - 223) / 2))
-			}else if(this.songs[this.selectedSong].maker && this.songs[this.selectedSong].maker.id > 0 && this.songs[this.selectedSong].maker.url && x > 230 && x < 485 && y > 432 && y < 519) {
+			}else if(this.songs[this.selectedSong].maker && this.songs[this.selectedSong].maker.id > 0 && this.songs[this.selectedSong].maker.url && x > 230 && x < 485 && y > 446 && y < 533) {
 				return "maker"
-			}else if(550 < x && x < 1050 && 95 < y && y < 524){
+			}else if(550 < x && x < 1050 && 109 < y && y < 538){
 				var moveBy = Math.floor((x - 550) / ((1050 - 550) / 5)) + this.diffOptions.length
 				var currentSong = this.songs[this.selectedSong]
 				if(
@@ -1631,17 +1631,6 @@ class SongSelect{
 						if(this.selectedDiff === 4 + this.diffOptions.length){
 							currentDiff = 3
 						}
-						if(songSel && i === currentSong.p2Cursor && p2.socket.readyState === 1){
-							this.draw.diffCursor({
-								ctx: ctx,
-								font: this.font,
-								x: _x,
-								y: _y - 45,
-								two: !p2.session || p2.player === 1,
-								side: false,
-								scale: 0.7
-							})
-						}
 						if(!songSel){
 							var highlight = 0
 							if(this.state.moveHover - this.diffOptions.length === i){
@@ -1865,6 +1854,24 @@ class SongSelect{
 								h: 80 + 7,
 								opacity: 0.8,
 								radius: 15
+							})
+						}
+					}
+				}
+				
+				for(var i = 0; currentSong.courses && i < 4; i++){
+					if(currentSong.courses[this.difficultyId[i]] || currentUra){
+						if(songSel && i === currentSong.p2Cursor && p2.socket.readyState === 1){
+							var _x = x + 33 + i * 60
+							var _y = y + 120
+							this.draw.diffCursor({
+								ctx: ctx,
+								font: this.font,
+								x: _x,
+								y: _y - 45,
+								two: !p2.session || p2.player === 1,
+								side: false,
+								scale: 0.7
 							})
 						}
 					}

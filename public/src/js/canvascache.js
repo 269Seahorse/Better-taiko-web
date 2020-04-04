@@ -91,8 +91,12 @@ class CanvasCache{
 			return
 		}
 		var z = this.scale
+		var sx = (img.x + (config.sx || 0)) * z |0
+		var sy = (img.y + (config.sy || 0)) * z |0
+		var sw = (config.sw || img.w) * z |0
+		var sh = (config.sh || img.h) * z |0
 		config.ctx.drawImage(this.canvas,
-			img.x * z |0, img.y * z |0, img.w * z |0, img.h * z |0,
+			sx, sy, sw, sh,
 			config.x |0, config.y |0, config.w |0, config.h |0
 		)
 		if(saved){
