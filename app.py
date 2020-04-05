@@ -136,6 +136,29 @@ def get_version():
 
     return version
 
+def get_db_don(user):
+    don_body_fill = user['don_body_fill'] if 'don_body_fill' in user else get_default_don('body_fill')
+    don_face_fill = user['don_face_fill'] if 'don_face_fill' in user else get_default_don('face_fill')
+    return {'body_fill': don_body_fill, 'face_fill': don_face_fill}
+
+def get_default_don(part=None):
+    if part == None:
+        return {
+            'body_fill': get_default_don('body_fill'),
+            'face_fill': get_default_don('face_fill')
+        }
+    elif part == 'body_fill':
+        return '#5fb7c1'
+    elif part == 'face_fill':
+        return '#ff5724'
+
+def is_hex(input):
+    try:
+        int(input, 16)
+        return True
+    except ValueError:
+        return False
+
 
 @app.route('/')
 def route_index():
@@ -213,6 +236,7 @@ def route_admin_songs_new_post():
     output['preview'] = float(request.form.get('preview')) or None
     output['volume'] = float(request.form.get('volume')) or None
     output['maker_id'] = int(request.form.get('maker_id')) or None
+    output['lyrics'] = True if request.form.get('lyrics') else False
     output['hash'] = None
 
     seq = db.seq.find_one({'name': 'songs'})
@@ -262,6 +286,7 @@ def route_admin_songs_id_post(id):
     output['preview'] = float(request.form.get('preview')) or None
     output['volume'] = float(request.form.get('volume')) or None
     output['maker_id'] = int(request.form.get('maker_id')) or None
+    output['lyrics'] = True if request.form.get('lyrics') else False
     output['hash'] = request.form.get('hash')
 
     if request.form.get('gen_hash'):
@@ -366,13 +391,15 @@ def route_api_register():
 
     salt = bcrypt.gensalt()
     hashed = bcrypt.hashpw(password, salt)
-
+    don = get_default_don()
+    
     session_id = os.urandom(24).hex()
     db.users.insert_one({
         'username': username,
         'username_lower': username.lower(),
         'password': hashed,
-        'display_name':  username,
+        'display_name': username,
+        'don': don,
         'user_level': 1,
         'session_id': session_id
     })
@@ -380,7 +407,7 @@ def route_api_register():
     session['session_id'] = session_id
     session['username'] = username
     session.permanent = True
-    return jsonify({'status': 'ok', 'username': username, 'display_name': username})
+    return jsonify({'status': 'ok', 'username': username, 'display_name': username, 'don': don})
 
 
 @app.route('/api/login', methods=['POST'])
@@ -400,12 +427,14 @@ def route_api_login():
     password = data.get('password', '').encode('utf-8')
     if not bcrypt.checkpw(password, result['password']):
         return api_error('invalid_username_password')
-
+    
+    don = get_db_don(result)
+    
     session['session_id'] = result['session_id']
     session['username'] = result['username']
     session.permanent = True if data.get('remember') else False
 
-    return jsonify({'status': 'ok', 'username': result['username'], 'display_name': result['display_name']})
+    return jsonify({'status': 'ok', 'username': result['username'], 'display_name': result['display_name'], 'don': don})
 
 
 @app.route('/api/logout', methods=['POST'])
@@ -433,6 +462,31 @@ def route_api_account_display_name():
     })
 
     return jsonify({'status': 'ok', 'display_name': display_name})
+
+
+@app.route('/api/account/don', methods=['POST'])
+@login_required
+def route_api_account_don():
+    data = request.get_json()
+    if not schema.validate(data, schema.update_don):
+        return abort(400)
+    
+    don_body_fill = data.get('body_fill', '').strip()
+    don_face_fill = data.get('face_fill', '').strip()
+    if len(don_body_fill) != 7 or\
+        not don_body_fill.startswith("#")\
+        or not is_hex(don_body_fill[1:])\
+        or len(don_face_fill) != 7\
+        or not don_face_fill.startswith("#")\
+        or not is_hex(don_face_fill[1:]):
+        return api_error('invalid_don')
+    
+    db.users.update_one({'username': session.get('username')}, {'$set': {
+        'don_body_fill': don_body_fill,
+        'don_face_fill': don_face_fill,
+    }})
+    
+    return jsonify({'status': 'ok', 'don': {'body_fill': don_body_fill, 'face_fill': don_face_fill}})
 
 
 @app.route('/api/account/password', methods=['POST'])
@@ -518,7 +572,8 @@ def route_api_scores_get():
         })
 
     user = db.users.find_one({'username': username})
-    return jsonify({'status': 'ok', 'scores': scores, 'username': user['username'], 'display_name': user['display_name']})
+    don = get_db_don(user)
+    return jsonify({'status': 'ok', 'scores': scores, 'username': user['username'], 'display_name': user['display_name'], 'don': don})
 
 
 def make_preview(song_id, song_type, preview):

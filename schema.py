@@ -34,6 +34,15 @@ update_display_name = {
     }
 }
 
+update_don = {
+    '$schema': 'http://json-schema.org/schema#',
+    'type': 'object',
+    'properties': {
+        'body_fill': {'type': 'string'},
+        'face_fill': {'type': 'string'}
+    }
+}
+
 update_password = {
     '$schema': 'http://json-schema.org/schema#',
     'type': 'object',

@@ -82,6 +82,9 @@ class Debug{
 		}
 	}
 	stopMove(event){
+		if(this.debugDiv.style.display === "none"){
+			return
+		}
 		if(!event || event.type === "resize"){
 			var divPos = this.debugDiv.getBoundingClientRect()
 			var x = divPos.left

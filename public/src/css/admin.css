@@ -107,8 +107,12 @@ main {
     width: 50px;
 }
 
-h1 small {
+h1 .song-id {
     color: #4a4a4a;
+}
+
+.song .song-id {
+    color: #a01300;
 }
 
 .form-field-indent {

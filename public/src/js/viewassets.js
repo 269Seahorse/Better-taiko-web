@@ -9,18 +9,17 @@ class ViewAssets{
 		this.don = this.createAsset("background", frame => {
 			var imgw = 360
 			var imgh = 184
-			var scale = 165
 			var w = imgw
 			var h = imgh
 			return {
-				sx: Math.floor(frame / 10) * imgw,
-				sy: (frame % 10) * imgh + 1,
+				sx: Math.floor(frame / 10) * (imgw + 2),
+				sy: (frame % 10) * (imgh + 2),
 				sw: imgw,
-				sh: imgh - 1,
+				sh: imgh,
 				x: view.portrait ? -60 : 0,
-				y: view.portrait ? (view.player === 2 ? 560 : 35) : (view.player === 2 ? 360 : 2),
-				w: w,
-				h: h - 1
+				y: view.portrait ? (view.player === 2 ? 560 : 35) : (view.player === 2 ? 360 : 0),
+				w: w / h * (h + 0.5),
+				h: h + 0.5
 			}
 		})
 		this.don.addFrames("normal", [
@@ -28,15 +27,15 @@ class ViewAssets{
 			0 ,0 ,0 ,0 ,1 ,2 ,3 ,4 ,5 ,6 ,6 ,5 ,4 ,3 ,2 ,1 ,
 			0 ,0 ,0 ,0 ,1 ,2 ,3 ,4 ,5 ,6 ,6 ,5 ,7 ,8 ,9 ,10,
 			11,11,11,11,10,9 ,8 ,7 ,13,12,12,13,14,15,16,17
-		], "don_anim_normal")
-		this.don.addFrames("10combo", 22, "don_anim_10combo")
+		], "don_anim_normal", this.controller.don)
+		this.don.addFrames("10combo", 22, "don_anim_10combo", this.controller.don)
 		this.don.addFrames("gogo", [
 			42,43,43,44,45,46,47,48,49,50,51,52,53,54,
 			55,0 ,1 ,2 ,3 ,4 ,5 ,6 ,7 ,8 ,9 ,11,12,13,
 			14,14,15,16,17,18,19,20,21,22,23,24,25,26,
 			27,28,29,30,31,32,33,34,35,36,37,38,39,40,41
-		], "don_anim_gogo")
-		this.don.addFrames("gogostart", 27, "don_anim_gogostart")
+		], "don_anim_gogo", this.controller.don)
+		this.don.addFrames("gogostart", 27, "don_anim_gogostart", this.controller.don)
 		this.don.normalAnimation = () => {
 			if(this.view.gogoTime){
 				var length = this.don.getAnimationLength("gogo")
@@ -58,7 +57,7 @@ class ViewAssets{
 				}
 			}
 		}
-		this.don.addFrames("clear", 30, "don_anim_clear")
+		this.don.addFrames("clear", 30, "don_anim_clear", this.controller.don)
 		this.don.normalAnimation()
 		
 		// Bar
@@ -176,6 +175,7 @@ class ViewAssets{
 		})
 	}
 	clean(){
+		this.don.clean()
 		delete this.ctx
 		delete this.don
 		delete this.fire

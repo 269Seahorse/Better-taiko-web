@@ -377,3 +377,29 @@ kbd{
 	font-size: 1.1em;
 	color: #d00;
 }
+.customdon-div{
+	display: flex;
+	justify-content: center;
+	align-items: center;
+	text-align: right;
+}
+.customdon-canvas{
+	width: 13em;
+}
+.customdon-div label{
+	display: block;
+	padding: 0.3em;
+}
+.customdon-div input[type="color"]{
+	font-size: inherit;
+	width: 2.6em;
+	height: 1.6em;
+	padding: 0 0.1em;
+	vertical-align: middle;
+}
+.customdon-reset{
+	width: 100%;
+	font-family: inherit;
+	font-size: 1em;
+	padding: 0.2em;
+}

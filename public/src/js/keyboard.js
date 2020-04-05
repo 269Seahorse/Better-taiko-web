@@ -65,7 +65,13 @@ class Keyboard{
 	}
 	keyEvent(event){
 		var key = event.key.toLowerCase()
-		if(key === "escape" || key === "backspace" || key === "tab"){
+		if(
+			key === "escape" ||
+			key === "backspace" ||
+			key === "tab" ||
+			key === "contextmenu" ||
+			key === "alt"
+		){
 			event.preventDefault()
 		}
 		if(!event.repeat){

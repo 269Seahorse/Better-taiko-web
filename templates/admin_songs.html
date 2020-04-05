@@ -11,9 +11,9 @@
     <a href="/admin/songs/{{ song.id }}" class="song-link">
         <div class="song">
             {% if song.title_lang.en %}
-                <p>{{ song.title_lang.en }} <small>({{ song.title }})</small></p>
+                <p><span class="song-id">{{ song.id }}.</span> {{ song.title_lang.en }} <small>({{ song.title }})</small></p>
             {% else %}
-                <p>{{ song.title }}</p>
+                <p><span class="song-id">{{ song.id }}.</span> {{ song.title }}</p>
             {% endif %}
         </div>
     </a>

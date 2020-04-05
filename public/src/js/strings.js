@@ -995,7 +995,22 @@ var translations = {
 			en: "Save",
 		},
 		displayName: {
+			ja: null,
 			en: "Displayed Name",
+		},
+		customdon: {
+			bodyFill: {
+				ja: null,
+				en: "Body",
+			},
+			faceFill: {
+				ja: null,
+				en: "Face",
+			},
+			reset: {
+				ja: null,
+				en: "Reset",
+			}
 		},
 		changePassword: {
 			ja: null,
@@ -1042,6 +1057,10 @@ var translations = {
 		invalid_display_name: {
 			ja: null,
 			en: "Cannot use this name, please check that your new name is at most 25 characters long",
+		},
+		invalid_don: {
+			ja: null,
+			en: "Could not save your custom Don"
 		},
 		current_password_invalid: {
 			ja: null,

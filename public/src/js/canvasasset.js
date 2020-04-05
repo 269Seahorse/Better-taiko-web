@@ -44,11 +44,47 @@ class CanvasAsset{
 	mod(length, index){
 		return ((index % length) + length) % length
 	}
-	addFrames(name, frames, image){
+	addFrames(name, frames, image, don){
 		var framesObj = {
-			frames: frames
+			frames: frames,
+			don: don
 		}
-		if(image){
+		if(don){
+			var img = assets.image[image + "_a"]
+			var cache1 = new CanvasCache()
+			var cache2 = new CanvasCache()
+			var w = img.width
+			var h = img.height
+			cache1.resize(w, h, 1)
+			cache2.resize(w, h, 1)
+			cache1.set({
+				w: w, h: h, id: "1"
+			}, ctx => {
+				ctx.drawImage(assets.image[image + "_b1"], 0, 0)
+				ctx.globalCompositeOperation = "source-atop"
+				ctx.fillStyle = don.body_fill
+				ctx.fillRect(0, 0, w, h)
+			})
+			cache2.set({
+				w: w, h: h, id: "2"
+			}, ctx => {
+				ctx.drawImage(assets.image[image + "_b2"], 0, 0)
+				ctx.globalCompositeOperation = "source-atop"
+				ctx.fillStyle = don.face_fill
+				ctx.fillRect(0, 0, w, h)
+				
+				ctx.globalCompositeOperation = "source-over"
+				cache1.get({
+					ctx: ctx,
+					x: 0, y: 0, w: w, h: h,
+					id: "1"
+				})
+				ctx.drawImage(img, 0, 0)
+			})
+			cache1.clean()
+			framesObj.cache = cache2
+			framesObj.image = cache2.canvas
+		}else if(image){
 			framesObj.image = assets.image[image]
 		}
 		this.animationFrames[name] = framesObj
@@ -61,6 +97,7 @@ class CanvasAsset{
 			if(framesObj.image){
 				this.image = framesObj.image
 			}
+			this.don = framesObj.don
 		}else{
 			this.animation = false
 		}
@@ -99,5 +136,13 @@ class CanvasAsset{
 			this.animationStart = ms - (ms - this.animationStart) / this.beatInterval * beatMS
 		}
 		this.beatInterval = beatMS
+	}
+	clean(){
+		for(var i in this.animationFrames){
+			var frame = this.animationFrames[i]
+			if(frame.cache){
+				frame.cache.clean()
+			}
+		}
 	}
 }

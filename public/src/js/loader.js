@@ -178,6 +178,7 @@ class Loader{
 						account.loggedIn = true
 						account.username = response.username
 						account.displayName = response.display_name
+						account.don = response.don
 						scoreStorage.load(response.scores)
 						pageEvents.send("login", account.username)
 					}
@@ -236,7 +237,8 @@ class Loader{
 						})
 						p2.send("invite", {
 							id: location.hash.slice(1).toLowerCase(),
-							name: account.loggedIn ? account.displayName : null
+							name: account.loggedIn ? account.displayName : null,
+							don: account.loggedIn ? account.don : null
 						})
 						setTimeout(() => {
 							if(p2.socket.readyState !== 1){
