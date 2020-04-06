@@ -17,12 +17,19 @@ from flask_session import Session
 from flask_wtf.csrf import CSRFProtect, generate_csrf, CSRFError
 from ffmpy import FFmpeg
 from pymongo import MongoClient
+from redis import Redis
 
 app = Flask(__name__)
 client = MongoClient(host=config.MONGO['host'])
 
 app.secret_key = config.SECRET_KEY
 app.config['SESSION_TYPE'] = 'redis'
+app.config['SESSION_REDIS'] = Redis(
+    host=config.REDIS['CACHE_REDIS_HOST'],
+    port=config.REDIS['CACHE_REDIS_PORT'],
+    password=config.REDIS['CACHE_REDIS_PASSWORD'],
+    db=config.REDIS['CACHE_REDIS_DB']
+)
 app.cache = Cache(app, config=config.REDIS)
 sess = Session()
 sess.init_app(app)
