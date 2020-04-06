@@ -253,7 +253,7 @@ def route_admin_songs_new_post():
 
 
 @app.route('/admin/songs/<int:id>', methods=['POST'])
-@admin_required(level=100)
+@admin_required(level=50)
 def route_admin_songs_id_post(id):
     song = db.songs.find_one({'id': id})
     if not song:
