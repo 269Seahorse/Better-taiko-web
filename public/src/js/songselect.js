@@ -96,14 +96,29 @@ class SongSelect{
 				background: "#ff5716",
 				border: ["#ffa66b", "#b53000"],
 				outline: "#9c2000"
-			},
-			"default": {
-				sort: 7,
-				background: "#ececec",
-				border: ["#fbfbfb", "#8b8b8b"],
-				outline: "#656565"
 			}
 		}
+
+		let sortCount = 7;
+
+		for(let category of assets.categories){
+			if(!this.songSkin[category.title] && category.songSkin){
+				if(!category.songSkin.sort){
+					category.songSkin.sort = sortCount
+					sortCount += 1
+				}
+
+				this.songSkin[category.title] = category.songSkin
+			}
+		}
+
+		this.songSkin.default = {
+			sort: Object.keys(this.songSkin).length + 1,
+			background: "#ececec",
+			border: ["#fbfbfb", "#8b8b8b"],
+			outline: "#656565"
+		}
+
 		this.font = strings.font
 		
 		this.songs = []
@@ -118,6 +133,7 @@ class SongSelect{
 				skin: song.category in this.songSkin ? this.songSkin[song.category] : this.songSkin.default,
 				courses: song.courses,
 				category: song.category,
+				category_id: song.category_id,
 				preview: song.preview || 0,
 				type: song.type,
 				offset: song.offset,
@@ -292,7 +308,7 @@ class SongSelect{
 		this.songSelect = document.getElementById("song-select")
 		var cat = this.songs[this.selectedSong].category
 		var sort = cat in this.songSkin ? this.songSkin[cat].sort : 7
-		this.songSelect.style.backgroundImage = "url('" + assets.image["bg_genre_" + sort].src + "')"
+		this.drawBackground(cat, sort)
 		
 		this.previewId = 0
 		this.previewList = Array(5)
@@ -1201,7 +1217,8 @@ class SongSelect{
 				if(this.songs[this.selectedSong].action !== "back"){
 					var cat = this.songs[this.selectedSong].category
 					var sort = cat in this.songSkin ? this.songSkin[cat].sort : 7
-					this.songSelect.style.backgroundImage = "url('" + assets.image["bg_genre_" + sort].src + "')"
+
+					this.drawBackground(cat, sort)				
 				}
 			}
 			if(this.state.moveMS && ms < this.state.moveMS + changeSpeed){
@@ -2305,6 +2322,18 @@ class SongSelect{
 			this.lastScoreMS = ms
 			scoreStorage.eventLoop()
 		}
+	}
+
+	drawBackground(cat, sort){
+		if(this.songSkin[cat] && this.songSkin[cat].bg_img){
+			this.songSelect.style.backgroundImage = "url('assets/img/" + this.songSkin[cat].bg_img + "')"
+		}else{
+			if(assets.image["bg_genre_" + sort]){
+				this.songSelect.style.backgroundImage = "url('" + assets.image["bg_genre_" + sort].src + "')"
+			}else{
+				this.songSelect.style.backgroundImage = "url('" + assets.image["bg_genre_def"].src + "')"
+			}
+		}	
 	}
 	
 	drawClosedSong(config){

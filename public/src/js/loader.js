@@ -104,6 +104,10 @@ class Loader{
 				assets.pages[id] = page
 			}), url)
 		})
+
+		this.addPromise(this.ajax("/api/categories").then(categories => {
+			assets.categories = JSON.parse(categories)
+		}), "/api/categories")
 		
 		this.addPromise(this.ajax("/api/songs").then(songs => {
 			assets.songsDefault = JSON.parse(songs)

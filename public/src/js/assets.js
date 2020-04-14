@@ -83,6 +83,7 @@ var assets = {
 		"bg_genre_5.png",
 		"bg_genre_6.png",
 		"bg_genre_7.png",
+		"bg_genre_def.png",
 		"bg_score_p1.png",
 		"bg_score_p2.png",
 		"bg_settings.png",
@@ -157,7 +158,8 @@ var assets = {
 	"songs": [],
 	"sounds": {},
 	"image": {},
-	"pages": {}
+	"pages": {},
+	"categories": {}
 }
 
 var gameConfig = {}
