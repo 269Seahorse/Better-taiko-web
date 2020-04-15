@@ -26,97 +26,47 @@ class SongSelect{
 				outline: "#ad7723"
 			},
 			"random": {
-				sort: 7,
+				sort: 0,
 				background: "#fa91ff",
 				border: ["#ffdfff", "#b068b2"],
 				outline: "#b221bb"
 			},
 			"tutorial": {
-				sort: 7,
+				sort: 0,
 				background: "#29e8aa",
 				border: ["#86ffbd", "#009a8c"],
 				outline: "#08a28c"
 			},
 			"about": {
-				sort: 7,
+				sort: 0,
 				background: "#a2d0e7",
 				border: ["#c6dfff", "#4485d9"],
 				outline: "#2390d9"
 			},
 			"settings": {
-				sort: 7,
+				sort: 0,
 				background: "#ce93fa",
 				border: ["#dec4fd", "#a543ef"],
 				outline: "#a741ef"
 			},
 			"browse": {
-				sort: 7,
+				sort: 0,
 				background: "#fab5d3",
 				border: ["#ffe7ef", "#d36aa2"],
 				outline: "#d36aa2"
-			},
-			"J-POP": {
-				sort: 0,
-				background: "#219fbb",
-				border: ["#7ec3d3", "#0b6773"],
-				outline: "#005058"
-			},
-			"アニメ": {
-				sort: 1,
-				background: "#ff9700",
-				border: ["#ffdb8c", "#e75500"],
-				outline: "#9c4100"
-			},
-			"ボーカロイド™曲": {
-				sort: 2,
-				background: "#def2ef",
-				border: ["#f7fbff", "#79919f"],
-				outline: "#5a6584"
-			},
-			"バラエティ": {
-				sort: 3,
-				background: "#8fd321",
-				border: ["#f7fbff", "#587d0b"],
-				outline: "#374c00"
-			},
-			"クラシック": {
-				sort: 4,
-				background: "#d1a016",
-				border: ["#e7cf6b", "#9a6b00"],
-				outline: "#734d00"
-			},
-			"ゲームミュージック": {
-				sort: 5,
-				background: "#9c72c0",
-				border: ["#bda2ce", "#63407e"],
-				outline: "#4b1c74"
-			},
-			"ナムコオリジナル": {
-				sort: 6,
-				background: "#ff5716",
-				border: ["#ffa66b", "#b53000"],
-				outline: "#9c2000"
 			}
 		}
 
-		let sortCount = 7;
-
 		for(let category of assets.categories){
 			if(!this.songSkin[category.title] && category.songSkin){
-				if(!category.songSkin.sort){
-					category.songSkin.sort = sortCount
-					sortCount += 1
+				if(!category.songSkin.sort == null){
+					category.songSkin.sort = Object.keys(this.songSkin).length + 1
 				}
 				this.songSkin[category.title] = category.songSkin
 			}
 		}
 
-		this.songSkin.default = {
-			sort: Object.keys(this.songSkin).length + 1,
-			background: "#ececec",
-			border: ["#fbfbfb", "#8b8b8b"],
-			outline: "#656565"
-		}
+		this.songSkin['default'].sort= Object.keys(this.songSkin).length + 1
 
 		this.font = strings.font
 		

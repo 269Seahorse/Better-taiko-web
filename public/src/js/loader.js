@@ -107,6 +107,14 @@ class Loader{
 
 		this.addPromise(this.ajax("/api/categories").then(categories => {
 			assets.categories = JSON.parse(categories)
+			assets.categories.push({
+				title: "default",
+				songSkin: {
+					background: "#ececec",
+					border: ["#fbfbfb", "#8b8b8b"],
+					outline: "#656565"
+				}
+			})
 		}), "/api/categories")
 		
 		this.addPromise(this.ajax("/api/songs").then(songs => {
