@@ -107,7 +107,6 @@ class SongSelect{
 					category.songSkin.sort = sortCount
 					sortCount += 1
 				}
-
 				this.songSkin[category.title] = category.songSkin
 			}
 		}
@@ -2326,7 +2325,8 @@ class SongSelect{
 
 	drawBackground(cat, sort){
 		if(this.songSkin[cat] && this.songSkin[cat].bg_img){
-			this.songSelect.style.backgroundImage = "url('assets/img/" + this.songSkin[cat].bg_img + "')"
+			let filename = this.songSkin[cat].bg_img.slice(0, this.songSkin[cat].bg_img.lastIndexOf("."))
+			this.songSelect.style.backgroundImage = "url('" + assets.image[filename].src + "')"
 		}else{
 			if(assets.image["bg_genre_" + sort]){
 				this.songSelect.style.backgroundImage = "url('" + assets.image["bg_genre_" + sort].src + "')"

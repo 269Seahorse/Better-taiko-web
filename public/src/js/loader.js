@@ -86,7 +86,7 @@ class Loader{
 			}), url)
 		}
 		
-		assets.img.forEach(name => {
+		assets.img.forEach(name=>{
 			var id = this.getFilename(name)
 			var image = document.createElement("img")
 			var url = gameConfig.assets_baseurl + "img/" + name
@@ -132,6 +132,20 @@ class Loader{
 				return
 			}
 			
+			assets.categories //load category backgrounds to DOM
+				.filter(cat=>cat.songSkin && cat.songSkin.bg_img)
+				.forEach(cat=>{
+					let name = cat.songSkin.bg_img
+					var id = this.getFilename(name)
+					var image = document.createElement("img")
+					var url = gameConfig.assets_baseurl + "img/" + name
+					this.addPromise(pageEvents.load(image), url)
+					image.id = name
+					image.src = url
+					this.assetsDiv.appendChild(image)
+					assets.image[id] = image
+			})
+
 			snd.buffer = new SoundBuffer()
 			snd.musicGain = snd.buffer.createGain()
 			snd.sfxGain = snd.buffer.createGain()
