@@ -256,8 +256,7 @@ class SongSelect{
 		
 		this.songSelect = document.getElementById("song-select")
 		var cat = this.songs[this.selectedSong].category
-		var sort = cat in this.songSkin ? this.songSkin[cat].sort : 7
-		this.drawBackground(cat, sort)
+		this.drawBackground(cat)
 		
 		this.previewId = 0
 		this.previewList = Array(5)
@@ -1165,9 +1164,7 @@ class SongSelect{
 				
 				if(this.songs[this.selectedSong].action !== "back"){
 					var cat = this.songs[this.selectedSong].category
-					var sort = cat in this.songSkin ? this.songSkin[cat].sort : 7
-
-					this.drawBackground(cat, sort)				
+					this.drawBackground(cat)				
 				}
 			}
 			if(this.state.moveMS && ms < this.state.moveMS + changeSpeed){
@@ -2273,18 +2270,14 @@ class SongSelect{
 		}
 	}
 
-	drawBackground(cat, sort){
+	drawBackground(cat){
 		if(this.songSkin[cat] && this.songSkin[cat].bg_img){
 			let filename = this.songSkin[cat].bg_img.slice(0, this.songSkin[cat].bg_img.lastIndexOf("."))
 			this.songSelect.style.backgroundImage = "url('" + assets.image[filename].src + "')"
 		}else{
-			if(assets.image["bg_genre_" + sort]){
-				this.songSelect.style.backgroundImage = "url('" + assets.image["bg_genre_" + sort].src + "')"
-			}else{
-				this.songSelect.style.backgroundImage = "url('" + assets.image["bg_genre_def"].src + "')"
+			this.songSelect.style.backgroundImage = "url('" + assets.image["bg_genre_def"].src + "')"
 			}
 		}	
-	}
 	
 	drawClosedSong(config){
 		var ctx = config.ctx

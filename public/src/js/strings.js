@@ -47,52 +47,7 @@ var translations = {
 		en: "Taiko no Tatsujin ©&™ 2011 BANDAI NAMCO Entertainment Inc."
 	},
 	categories: {
-		"J-POP": {
-			ja: "J-POP",
-			en: "Pop",
-			cn: "流行音乐",
-			tw: "流行音樂",
-			ko: "POP"
-		},
-		"アニメ": {
-			ja: "アニメ",
-			en: "Anime",
-			cn: "卡通动画音乐",
-			tw: "卡通動畫音樂",
-			ko: "애니메이션"
-		},
-		"ボーカロイド™曲": {
-			ja: "ボーカロイド™曲",
-			en: "VOCALOID™ Music"
-		},
-		"バラエティ": {
-			ja: "バラエティ",
-			en: "Variety",
-			cn: "综合音乐",
-			tw: "綜合音樂",
-			ko: "버라이어티"
-		},
-		"クラシック": {
-			ja: "クラシック",
-			en: "Classical",
-			cn: "古典音乐",
-			tw: "古典音樂",
-			ko: "클래식"
-		},
-		"ゲームミュージック": {
-			ja: "ゲームミュージック",
-			en: "Game Music",
-			cn: "游戏音乐",
-			tw: "遊戲音樂",
-			ko: "게임"
-		},
-		"ナムコオリジナル": {
-			ja: "ナムコオリジナル",
-			en: "NAMCO Original",
-			cn: "NAMCO原创音乐",
-			tw: "NAMCO原創音樂",
-			ko: "남코 오리지널"
-		}
+		
 	},
 	selectSong: {
 		ja: "曲をえらぶ",
@@ -1130,7 +1085,7 @@ function separateStrings(){
 		}
 		var str = allStrings[lang]
 		var translateObj = function(obj, name, str){
-			if("en" in obj){
+			if(obj != null && "en" in obj && obj["en"] != null){
 				for(var i in obj){
 					str[name] = obj[lang] || obj.en
 				}

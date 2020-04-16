@@ -107,6 +107,14 @@ class Loader{
 
 		this.addPromise(this.ajax("/api/categories").then(categories => {
 			assets.categories = JSON.parse(categories)
+			assets.categories.forEach(cat => {
+				let title = cat.title
+				// if(cat.title_lang){
+					translations.categories[title] = cat.title_lang					
+				// }
+				
+			});
+			separateStrings()
 			assets.categories.push({
 				title: "default",
 				songSkin: {
