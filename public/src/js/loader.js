@@ -109,12 +109,9 @@ class Loader{
 			assets.categories = JSON.parse(categories)
 			assets.categories.forEach(cat => {
 				let title = cat.title
-				// if(cat.title_lang){
-					translations.categories[title] = cat.title_lang					
-				// }
-				
+				translations.categories[title] = cat.title_lang					
 			});
-			separateStrings()
+			separateStrings() //load categories into strings.js to handle multi language
 			assets.categories.push({
 				title: "default",
 				songSkin: {
@@ -298,11 +295,8 @@ class Loader{
 					this.callback(songId)
 					pageEvents.send("ready", readyEvent)
 				})
-			}, this.errorMsg.bind(this))
-			
-		
-		})
-	
+			}, this.errorMsg.bind(this))		
+		})	
 	}
 	addPromise(promise, url){
 		this.promises.push(promise)
