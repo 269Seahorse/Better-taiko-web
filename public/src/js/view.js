@@ -295,10 +295,12 @@
 					var _h = 22
 					var _x = 628 - _w
 					var _y = 88 - _h
-					if(assets.categories.find(cat=>cat.title == selectedSong.category)){
-						ctx.fillStyle = assets.categories.find(cat=>cat.title == selectedSong.category).songSkin.outline
+
+					let category = assets.categories.find(cat=>cat.title == selectedSong.category)
+					if(category != null && category.songSkin != null && category.songSkin.infoFill != null){
+						ctx.fillStyle = assets.categories.find(cat=>cat.title == selectedSong.category).songSkin.infoFill
 					}else{
-						ctx.fillStyle = assets.categories.find(cat=>cat.title == 'default').songSkin.outline
+						ctx.fillStyle = assets.categories.find(cat=>cat.title == 'default').songSkin.infoFill
 					}
 					this.draw.roundedRect({
 						ctx: ctx,

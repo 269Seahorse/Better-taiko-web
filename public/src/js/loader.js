@@ -109,7 +109,7 @@ class Loader{
 			assets.categories = JSON.parse(categories)
 			assets.categories.forEach(cat => {
 				let title = cat.title
-				translations.categories[title] = cat.title_lang					
+					translations.categories[title] = cat.title_lang					
 			});
 			separateStrings() //load categories into strings.js to handle multi language
 			assets.categories.push({
@@ -117,7 +117,8 @@ class Loader{
 				songSkin: {
 					background: "#ececec",
 					border: ["#fbfbfb", "#8b8b8b"],
-					outline: "#656565"
+					outline: "#656565",
+					infoFill: "#656565"
 				}
 			})
 		}), "/api/categories")
