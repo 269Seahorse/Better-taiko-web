@@ -52,19 +52,19 @@
             <p>Courses</p>
             <label for="course_easy">Easy</label>
             <input type="number" id="course_easy" value="{{song.courses.easy.stars}}" name="course_easy" min="0" max="10">
-            <span class="checkbox"><input type="checkbox" name="branch_easy" id="branch_easy"{% if song.courses.easy.branch %} checked{% endif %}><label for="branch_easy"> Diverge Notes</label></span>
+            <span class="checkbox"><input type="checkbox" name="branch_easy" id="branch_easy"{% if song.courses.easy.branch %} checked{% endif %} tabindex="-1"><label for="branch_easy"> Diverge Notes</label></span>
             <label for="course_normal">Normal</label>
             <input type="number" id="course_normal" value="{{song.courses.normal.stars}}" name="course_normal" min="0" max="10">
-            <span class="checkbox"><input type="checkbox" name="branch_normal" id="branch_normal"{% if song.courses.normal.branch %} checked{% endif %}><label for="branch_normal"> Diverge Notes</label></span>
+            <span class="checkbox"><input type="checkbox" name="branch_normal" id="branch_normal"{% if song.courses.normal.branch %} checked{% endif %} tabindex="-1"><label for="branch_normal"> Diverge Notes</label></span>
             <label for="course_hard">Hard</label>
             <input type="number" id="course_hard" value="{{song.courses.hard.stars}}" name="course_hard" min="0" max="10">
-            <span class="checkbox"><input type="checkbox" name="branch_hard" id="branch_hard"{% if song.courses.hard.branch %} checked{% endif %}><label for="branch_hard"> Diverge Notes</label></span>
+            <span class="checkbox"><input type="checkbox" name="branch_hard" id="branch_hard"{% if song.courses.hard.branch %} checked{% endif %} tabindex="-1"><label for="branch_hard"> Diverge Notes</label></span>
             <label for="course_oni">Oni</label>
             <input type="number" id="course_oni" value="{{song.courses.oni.stars}}" name="course_oni" min="0" max="10">
-            <span class="checkbox"><input type="checkbox" name="branch_oni" id="branch_oni"{% if song.courses.oni.branch %} checked{% endif %}><label for="branch_oni"> Diverge Notes</label></span>
+            <span class="checkbox"><input type="checkbox" name="branch_oni" id="branch_oni"{% if song.courses.oni.branch %} checked{% endif %} tabindex="-1"><label for="branch_oni"> Diverge Notes</label></span>
             <label for="course_ura">Ura</label>
             <input type="number" id="course_ura" value="{{song.courses.ura.stars}}" name="course_ura" min="0" max="10">
-            <span class="checkbox"><input type="checkbox" name="branch_ura" id="branch_ura"{% if song.courses.ura.branch %} checked{% endif %}><label for="branch_ura"> Diverge Notes</label></span>
+            <span class="checkbox"><input type="checkbox" name="branch_ura" id="branch_ura"{% if song.courses.ura.branch %} checked{% endif %} tabindex="-1"><label for="branch_ura"> Diverge Notes</label></span>
         </div>
 
         <div class="form-field">

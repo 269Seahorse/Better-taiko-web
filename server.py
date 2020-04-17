@@ -52,12 +52,12 @@ async def connection(ws, path):
 		await ws.send(status_event())
 		while True:
 			try:
-				message = await asyncio.wait_for(ws.recv(), timeout=5)
+				message = await asyncio.wait_for(ws.recv(), timeout=10)
 			except asyncio.TimeoutError:
 				# Keep user connected
 				pong_waiter = await ws.ping()
 				try:
-					await asyncio.wait_for(pong_waiter, timeout=5)
+					await asyncio.wait_for(pong_waiter, timeout=10)
 				except asyncio.TimeoutError:
 					# Disconnect
 					break
@@ -338,8 +338,10 @@ async def connection(ws, path):
 							sent_msg2 = status_event()
 							await asyncio.wait([
 								ws.send(sent_msg1),
+								user["other_user"]["ws"].send(sent_msg1)
+							])
+							await asyncio.wait([
 								ws.send(sent_msg2),
-								user["other_user"]["ws"].send(sent_msg1),
 								user["other_user"]["ws"].send(sent_msg2)
 							])
 							del user["other_user"]["other_user"]

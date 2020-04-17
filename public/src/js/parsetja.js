@@ -153,6 +153,7 @@
 		var sectionBegin = true
 		var lastBpm = bpm
 		var lastGogo = gogo
+		var lyricsLine = null
 		
 		var currentMeasure = []
 		var firstNote = true
@@ -265,6 +266,18 @@
 						}
 						note_chain = [];
 					}
+					if("lyricsLine" in note){
+						if(!this.lyrics){
+							this.lyrics = []
+						}
+						if(this.lyrics.length !== 0){
+							this.lyrics[this.lyrics.length - 1].end = note.start
+						}
+						this.lyrics.push({
+							start: note.start,
+							text: note.lyricsLine
+						})
+					}
 				}
 				if (note_chain.length > 1 && currentMeasure.length >= 8) { 
 					checkChain(note_chain, currentMeasure.length, false);
@@ -281,6 +294,10 @@
 					lastBpm = bpm
 					lastGogo = gogo
 				}
+				if(lyricsLine !== null){
+					circleObj.lyricsLine = lyricsLine
+					lyricsLine = null
+				}
 				currentMeasure.push(circleObj)
 			}
 		}
@@ -293,12 +310,21 @@
 					gogo: gogo
 				})
 			}else if(!circleObj){
-				currentMeasure.push({
+				var circleObj2 = {
 					bpm: bpm,
 					scroll: scroll
-				})
+				}
+				if(lyricsLine !== null){
+					circleObj2.lyricsLine = lyricsLine
+					lyricsLine = null
+				}
+				currentMeasure.push(circleObj2)
 			}
 			if(circleObj){
+				if(lyricsLine !== null){
+					circleObj.lyricsLine = lyricsLine
+					lyricsLine = null
+				}
 				currentMeasure.push(circleObj)
 			}
 		}
@@ -307,8 +333,9 @@
 			var line = this.data[lineNum]
 			if(line.slice(0, 1) === "#"){
 				
-				var line = line.slice(1).toLowerCase()
+				var line = line.slice(1)
 				var [name, value] = this.split(line, " ")
+				name = name.toLowerCase()
 				
 				switch(name){
 					case "gogostart":
@@ -415,16 +442,7 @@
 						branchObj[branchName] = currentBranch
 						break
 					case "lyric":
-						if(!this.lyrics){
-							this.lyrics = []
-						}
-						if(this.lyrics.length !== 0){
-							this.lyrics[this.lyrics.length - 1].end = ms
-						}
-						this.lyrics.push({
-							start: ms,
-							text: value.trim().replace(regexLinebreak, "\n")
-						})
+						lyricsLine = value.replace(regexLinebreak, "\n").trim()
 						break
 				}
 				
@@ -512,13 +530,8 @@
 							}
 							break
 						case ",":
-							if(currentMeasure.length === 0 && (bpm !== lastBpm || gogo !== lastGogo)){
-								insertNote({
-									type: "event",
-									bpm: bpm,
-									scroll: scroll,
-									gogo: gogo
-								})
+							if(currentMeasure.length === 0 && (bpm !== lastBpm || gogo !== lastGogo || lyricsLine !== null)){
+								insertBlankNote()
 							}
 							pushMeasure()
 							currentMeasure = []

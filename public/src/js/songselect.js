@@ -2642,6 +2642,7 @@ class SongSelect{
 		this.difficultyCache.clean()
 		this.sessionCache.clean()
 		this.currentSongCache.clean()
+		this.nameplateCache.clean()
 		assets.sounds["bgm_songsel"].stop()
 		if(!this.bgmEnabled){
 			snd.musicGain.fadeIn()
