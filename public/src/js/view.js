@@ -591,8 +591,8 @@
 			
 			this.nameplateCache.get({
 				ctx: ctx,
-				x: 320,
-				y: this.player === 2 ? 460 : 20,
+				x: touchMultiplayer ? 47 : 320,
+				y: touchMultiplayer ? (this.player === 2 ? 361 : 119) : (this.player === 2 ? 460 : 20),
 				w: 273,
 				h: 66,
 				id: "1p",
@@ -743,7 +743,7 @@
 			y: animPos.y2
 		}]
 		
-		var touchTop = frameTop + (touchMultiplayer ? 135 : 0)
+		var touchTop = frameTop + (touchMultiplayer ? 135 : 0) + (this.player === 2 ? -165 : 0)
 		this.touchDrum = (() => {
 			var sw = 842
 			var sh = 340
@@ -2263,6 +2263,7 @@
 		this.comboCache.clean()
 		this.pauseCache.clean()
 		this.branchCache.clean()
+		this.nameplateCache.clean()
 		
 		versionDiv.classList.remove("version-hide")
 		loader.screen.parentNode.appendChild(versionDiv)

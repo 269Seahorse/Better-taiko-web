@@ -409,10 +409,6 @@ class Loader{
 		})
 	}
 	clean(error){
-		var fontDetectDiv = document.getElementById("fontdetectHelper")
-		if(fontDetectDiv){
-			fontDetectDiv.parentNode.removeChild(fontDetectDiv)
-		}
 		delete this.loaderDiv
 		delete this.loaderPercentage
 		delete this.loaderProgress

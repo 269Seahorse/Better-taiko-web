@@ -67,7 +67,10 @@ def generate_hash(id, form):
         else:
             if url.startswith("/"):
                 url = url[1:]
-            with open(os.path.join("public", url), "rb") as file:
+            path = os.path.normpath(os.path.join("public", url))
+            if not os.path.isfile(path):
+                raise HashException("File not found: %s" % (os.path.abspath(path)))
+            with open(path, "rb") as file:
                 md5.update(file.read())
 
     return base64.b64encode(md5.digest())[:-2].decode('utf-8')
@@ -244,18 +247,28 @@ def route_admin_songs_new_post():
     output['volume'] = float(request.form.get('volume')) or None
     output['maker_id'] = int(request.form.get('maker_id')) or None
     output['lyrics'] = True if request.form.get('lyrics') else False
-    output['hash'] = None
-
+    output['hash'] = request.form.get('hash')
+    
     seq = db.seq.find_one({'name': 'songs'})
     seq_new = seq['value'] + 1 if seq else 1
+    
+    hash_error = False
+    if request.form.get('gen_hash'):
+        try:
+            output['hash'] = generate_hash(seq_new, request.form)
+        except HashException as e:
+            hash_error = True
+            flash('An error occurred: %s' % str(e), 'error')
+    
     output['id'] = seq_new
     output['order'] = seq_new
-
+    
     db.songs.insert_one(output)
-    flash('Song created.')
-
+    if not hash_error:
+        flash('Song created.')
+    
     db.seq.update_one({'name': 'songs'}, {'$set': {'value': seq_new}}, upsert=True)
-
+    
     return redirect('/admin/songs/%s' % str(seq_new))
 
 
@@ -295,17 +308,19 @@ def route_admin_songs_id_post(id):
     output['maker_id'] = int(request.form.get('maker_id')) or None
     output['lyrics'] = True if request.form.get('lyrics') else False
     output['hash'] = request.form.get('hash')
-
+    
+    hash_error = False
     if request.form.get('gen_hash'):
         try:
             output['hash'] = generate_hash(id, request.form)
         except HashException as e:
+            hash_error = True
             flash('An error occurred: %s' % str(e), 'error')
-            return redirect('/admin/songs/%s' % id)
-
+    
     db.songs.update_one({'id': id}, {'$set': output})
-    flash('Changes saved.')
-
+    if not hash_error:
+        flash('Changes saved.')
+    
     return redirect('/admin/songs/%s' % id)
 
 

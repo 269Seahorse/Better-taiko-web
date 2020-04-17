@@ -56,7 +56,7 @@
 			ideographicComma: /[、。]/,
 			apostrophe: /['＇’]/,
 			degree: /[ﾟ°]/,
-			brackets: /[\(（\)）\[\]「」『』【】:：;；]/,
+			brackets: /[\(（\)）\[\]「」『』【】:：;；≠]/,
 			tilde: /[\-－~～〜_]/,
 			tall: /[bｂdｄfｆgｇhｈj-lｊ-ｌtｔ♪]/,
 			i: /[iｉ]/,

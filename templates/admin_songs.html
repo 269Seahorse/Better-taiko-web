@@ -10,10 +10,14 @@
 {% for song in songs %}
     <a href="/admin/songs/{{ song.id }}" class="song-link">
         <div class="song">
-            {% if song.title_lang.en %}
-                <p><span class="song-id">{{ song.id }}.</span> {{ song.title_lang.en }} <small>({{ song.title }})</small></p>
+            {% if song.title_lang.en and song.title_lang.en != song.title %}
+                <p><span class="song-id">{{ song.id }}.</span>
+                {% if not song.enabled %}(Not enabled){% endif %}
+                {{ song.title_lang.en }} <small>({{ song.title }})</small></p>
             {% else %}
-                <p><span class="song-id">{{ song.id }}.</span> {{ song.title }}</p>
+                <p><span class="song-id">{{ song.id }}.</span>
+                {% if not song.enabled %}(Not enabled){% endif %}
+                {{ song.title }}</p>
             {% endif %}
         </div>
     </a>
