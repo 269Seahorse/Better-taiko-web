@@ -42,10 +42,10 @@
 		this.categoryAliases = {}
 
 		assets.categories.forEach(cat => {
-			this.categoryAliases[cat.title.toLowerCase()] = cat.title.toLowerCase()
+			this.categoryAliases[cat.title.toLowerCase()] = cat.title
 			if(cat.aliases != null){
 				cat.aliases.forEach(alias => {
-					this.categoryAliases[alias.toLowerCase()] = cat.title.toLowerCase()
+					this.categoryAliases[alias.toLowerCase()] = cat.title
 				});
 			}
 		});
