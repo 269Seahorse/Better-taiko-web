@@ -78,13 +78,13 @@ class Titlescreen{
 	}
 	setLang(){
 		let stringLang = allStrings[settings.getItem("language")]
-		let categoryLang = categories[settings.getItem("language")]
-		
+		let categoryLang = categoryStrings[settings.getItem("language")]
+
 		strings = stringLang
 		strings.categories = categoryLang
 
 		settings.setLang(stringLang, true, allStrings)
-		settings.setLang(categoryLang, true, categories)
+		settings.setLang(categoryLang, true, categoryStrings)
 
 		let boldFonts = strings.font === "Microsoft YaHei, sans-serif"
 		loader.screen.style.fontFamily = strings.font

@@ -1074,11 +1074,11 @@ var translations = {
 	}
 }
 var categories = {}
+
 var allStrings = {}
+var categoryStrings = {}
 
 function separateStrings(){
-	let categoriesTemp =  Object.assign({}, categories);
-	categories = {}
 
 	for(var j in languageList){
 		var lang = languageList[j]
@@ -1106,12 +1106,11 @@ function separateStrings(){
 			translateObj(translations[i], i, str)
 		}
 
-		categories[lang] = {
-			id: lang
-		}
-		var str = categories[lang]
-		for(var i in categoriesTemp){
-			translateObj(categoriesTemp[i], i, str)
+		categoryStrings[lang] = {}
+		var str = categoryStrings[lang]
+
+		for(var i in categories){
+			translateObj(categories[i], i, str)
 		}
 	}
 }
