@@ -145,12 +145,9 @@ class Settings{
 		}
 		return this.allLanguages[0]
 	}
-	setLang(lang, noEvent){
-		strings = lang
-		var boldFonts = strings.font === "Microsoft YaHei, sans-serif"
-		loader.screen.style.fontFamily = strings.font
-		loader.screen.style.fontWeight = boldFonts ? "bold" : ""
-		loader.screen.classList[boldFonts ? "add" : "remove"]("bold-fonts")
+	setLang(lang, noEvent, stringRepo){
+		stringRepo = lang
+		
 		if(!noEvent){
 			pageEvents.send("language-change", lang.id)
 		}

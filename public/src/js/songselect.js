@@ -54,6 +54,12 @@ class SongSelect{
 				background: "#fab5d3",
 				border: ["#ffe7ef", "#d36aa2"],
 				outline: "#d36aa2"
+			},
+			"default": {
+				background: "#ececec",
+				border: ["#fbfbfb", "#8b8b8b"],
+				outline: "#656565",
+				infoFill: "#656565"
 			}
 		}
 
@@ -917,13 +923,11 @@ class SongSelect{
 			
 			this.nameplateCache.resize(274, 134, ratio + 0.2)
 			
-			var categories = 0
 			var lastCategory
 			this.songs.forEach(song => {
 				var cat = (song.category || "") + song.skin.outline
 				if(lastCategory !== cat){
 					lastCategory = cat
-					categories++
 				}
 			})
 			this.categoryCache.resize(280, this.songAsset.marginTop + 1 , ratio + 0.5)

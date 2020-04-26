@@ -46,9 +46,6 @@ var translations = {
 	titleCopyright: {
 		en: "Taiko no Tatsujin ©&™ 2011 BANDAI NAMCO Entertainment Inc."
 	},
-	categories: {
-		
-	},
 	selectSong: {
 		ja: "曲をえらぶ",
 		en: "Select Song",
@@ -1076,14 +1073,20 @@ var translations = {
 		ko: "가사가있는"
 	}
 }
+var categories = {}
 var allStrings = {}
+
 function separateStrings(){
+	let categoriesTemp =  Object.assign({}, categories);
+	categories = {}
+
 	for(var j in languageList){
 		var lang = languageList[j]
 		allStrings[lang] = {
 			id: lang
 		}
 		var str = allStrings[lang]
+		
 		var translateObj = function(obj, name, str){
 			if(obj != null && "en" in obj && obj["en"] != null){
 				for(var i in obj){
@@ -1094,11 +1097,21 @@ function separateStrings(){
 				for(var i in obj){
 					translateObj(obj[i], i, str[name])
 				}
+			}else{ //key appears in string obj but has no language values, so just apply the key name to each language for consistency and as fallback
+				str[name] = name
 			}
 		}
+
 		for(var i in translations){
 			translateObj(translations[i], i, str)
 		}
+
+		categories[lang] = {
+			id: lang
+		}
+		var str = categories[lang]
+		for(var i in categoriesTemp){
+			translateObj(categoriesTemp[i], i, str)
+		}
 	}
 }
-separateStrings()

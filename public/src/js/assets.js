@@ -151,7 +151,7 @@ var assets = {
 	"sounds": {},
 	"image": {},
 	"pages": {},
-	"categories": {}
+	"categories": []
 }
 
 var gameConfig = {}

@@ -105,13 +105,18 @@ class Loader{
 			}), url)
 		})
 
-		this.addPromise(this.ajax("/api/categories").then(categories => {
-			assets.categories = JSON.parse(categories)
-			assets.categories.forEach(cat => {
+		this.addPromise(this.ajax("/api/categories").then(cats => {
+			let jsonCategories = JSON.parse(cats)
+			
+			for (var i in jsonCategories) { //rename the song_skin property and add category title to categories array
+				let cat = jsonCategories[i]
+				cat.songSkin = cat.song_Skin
+				delete cat.song_Skin
+				assets.categories.push(cat)
 				let title = cat.title
-					translations.categories[title] = cat.title_lang					
-			});
-			separateStrings() //load categories into strings.js to handle multi language
+				categories[title] = cat.title_lang	
+			}
+
 			assets.categories.push({
 				title: "default",
 				songSkin: {
@@ -145,6 +150,7 @@ class Loader{
 			if(this.error){
 				return
 			}
+			separateStrings() //iterate over strings and apply translations where required
 			
 			assets.categories //load category backgrounds to DOM
 				.filter(cat=>cat.songSkin && cat.songSkin.bg_img)
