@@ -80,6 +80,8 @@ class SongSelect{
 		for(let song of assets.songs){
 			var title = this.getLocalTitle(song.title, song.title_lang)
 			var subtitle = this.getLocalTitle(title === song.title ? song.subtitle : "", song.subtitle_lang)
+			let category = assets.categories.find(cat=>cat.id == song.category_id)
+			var categoryName = this.getLocalTitle(category.title, category.title_lang)
 			this.songs.push({
 				id: song.id,
 				title: title,
@@ -87,7 +89,8 @@ class SongSelect{
 				subtitle: subtitle,
 				skin: song.category in this.songSkin ? this.songSkin[song.category] : this.songSkin.default,
 				courses: song.courses,
-				category: song.category,
+				originalCategory: song.category,
+				category: categoryName,
 				category_id: song.category_id,
 				preview: song.preview || 0,
 				type: song.type,
@@ -103,8 +106,8 @@ class SongSelect{
 			})
 		}
 		this.songs.sort((a, b) => {
-			var catA = a.category in this.songSkin ? this.songSkin[a.category] : this.songSkin.default
-			var catB = b.category in this.songSkin ? this.songSkin[b.category] : this.songSkin.default
+			var catA = a.originalCategory in this.songSkin ? this.songSkin[a.originalCategory] : this.songSkin.default
+			var catB = b.originalCategory in this.songSkin ? this.songSkin[b.originalCategory] : this.songSkin.default
 			if(catA.sort === catB.sort){
 				if(a.order === b.order){
 					return a.id > b.id ? 1 : -1
@@ -261,7 +264,7 @@ class SongSelect{
 		}
 		
 		this.songSelect = document.getElementById("song-select")
-		var cat = this.songs[this.selectedSong].category
+		var cat = this.songs[this.selectedSong].originalCategory
 		this.drawBackground(cat)
 		
 		this.previewId = 0
@@ -769,6 +772,7 @@ class SongSelect{
 			"folder": selectedSong.id,
 			"difficulty": diff,
 			"category": selectedSong.category,
+			"category_id":selectedSong.category_id,
 			"type": selectedSong.type,
 			"offset": selectedSong.offset,
 			"songSkin": selectedSong.songSkin,
@@ -1043,8 +1047,8 @@ class SongSelect{
 				])
 			})
 			
-			var category = this.songs[this.selectedSong].category
 			var selectedSong = this.songs[this.selectedSong]
+			var category = selectedSong.category
 			this.draw.category({
 				ctx: ctx,
 				x: winW / 2 - 280 / 2 - 30,
@@ -1069,8 +1073,9 @@ class SongSelect{
 				id: category + selectedSong.skin.outline
 			}, ctx => {
 				if(category){
-					if(category in strings.categories){
-						var categoryName = strings.categories[category]
+					let cat = assets.categories.find(cat=>cat.title === category)
+					if(cat){
+						var categoryName = this.getLocalTitle(cat.title, cat.title_lang)
 					}else{
 						var categoryName = category
 					}
@@ -1167,7 +1172,7 @@ class SongSelect{
 				}
 				
 				if(this.songs[this.selectedSong].action !== "back"){
-					var cat = this.songs[this.selectedSong].category
+					var cat = this.songs[this.selectedSong].originalCategory
 					this.drawBackground(cat)				
 				}
 			}

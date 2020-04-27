@@ -11,7 +11,7 @@ class Titlescreen{
 			this.disclaimerCopyright = document.getElementById("title-disclaimer-copyright")
 			this.logo = new Logo()
 		}
-		this.setLang()
+		this.setLang(allStrings[settings.getItem("language")])
 		
 		if(songId){
 			if(localStorage.getItem("tutorial") === "true"){
@@ -76,20 +76,8 @@ class Titlescreen{
 			}, 500)
 		}
 	}
-	setLang(){
-		let stringLang = allStrings[settings.getItem("language")]
-		let categoryLang = categoryStrings[settings.getItem("language")]
-
-		strings = stringLang
-		strings.categories = categoryLang
-
-		settings.setLang(stringLang, true, allStrings)
-		settings.setLang(categoryLang, true, categoryStrings)
-
-		let boldFonts = strings.font === "Microsoft YaHei, sans-serif"
-		loader.screen.style.fontFamily = strings.font
-		loader.screen.style.fontWeight = boldFonts ? "bold" : ""
-		loader.screen.classList[boldFonts ? "add" : "remove"]("bold-fonts")
+	setLang(lang, noEvent){
+        settings.setLang(lang, true)
 
 		if(this.songId){
 			return

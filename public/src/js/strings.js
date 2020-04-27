@@ -1073,13 +1073,10 @@ var translations = {
 		ko: "가사가있는"
 	}
 }
-var categories = {}
 
 var allStrings = {}
-var categoryStrings = {}
 
 function separateStrings(){
-
 	for(var j in languageList){
 		var lang = languageList[j]
 		allStrings[lang] = {
@@ -1097,20 +1094,13 @@ function separateStrings(){
 				for(var i in obj){
 					translateObj(obj[i], i, str[name])
 				}
-			}else{ //key appears in string obj but has no language values, so just apply the key name to each language for consistency and as fallback
-				str[name] = name
 			}
 		}
 
 		for(var i in translations){
 			translateObj(translations[i], i, str)
 		}
-
-		categoryStrings[lang] = {}
-		var str = categoryStrings[lang]
-
-		for(var i in categories){
-			translateObj(categories[i], i, str)
-		}
 	}
 }
+
+separateStrings()

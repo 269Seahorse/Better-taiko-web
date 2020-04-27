@@ -296,9 +296,9 @@
 					var _x = 628 - _w
 					var _y = 88 - _h
 
-					let category = assets.categories.find(cat=>cat.title == selectedSong.category)
+					let category = assets.categories.find(cat=>cat.id == selectedSong.category_id)
 					if(category != null && category.songSkin != null && category.songSkin.infoFill != null){
-						ctx.fillStyle = assets.categories.find(cat=>cat.title == selectedSong.category).songSkin.infoFill
+						ctx.fillStyle = category.songSkin.infoFill
 					}else{
 						ctx.fillStyle = assets.categories.find(cat=>cat.title == 'default').songSkin.infoFill
 					}
@@ -308,16 +308,11 @@
 						w: _w, h: _h,
 						radius: 11
 					})
-					ctx.fill()
-					
-					if(selectedSong.category in strings.categories){
-						var categoryName = strings.categories[selectedSong.category]
-					}else{
-						var categoryName = selectedSong.category
-					}
+					ctx.fill()					
+
 					this.draw.layeredText({
 						ctx: ctx,
-						text: categoryName,
+						text: selectedSong.category,
 						fontSize: 15,
 						fontFamily: this.font,
 						align: "center",

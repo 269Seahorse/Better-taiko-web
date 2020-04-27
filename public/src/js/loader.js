@@ -106,16 +106,11 @@ class Loader{
 		})
 
 		this.addPromise(this.ajax("/api/categories").then(cats => {
-			let jsonCategories = JSON.parse(cats)
-			
-			for (var i in jsonCategories) { //rename the song_skin property and add category title to categories array
-				let cat = jsonCategories[i]
-				cat.songSkin = cat.song_Skin
+			assets.categories = JSON.parse(cats)
+			assets.categories.forEach(cat => {
+				cat.songSkin = cat.song_Skin //rename the song_skin property and add category title to categories array
 				delete cat.song_Skin
-				assets.categories.push(cat)
-				let title = cat.title
-				categories[title] = cat.title_lang	
-			}
+			});
 
 			assets.categories.push({
 				title: "default",
@@ -150,8 +145,7 @@ class Loader{
 			if(this.error){
 				return
 			}
-			separateStrings() //iterate over strings and apply translations where required
-			
+
 			assets.categories //load category backgrounds to DOM
 				.filter(cat=>cat.songSkin && cat.songSkin.bg_img)
 				.forEach(cat=>{
