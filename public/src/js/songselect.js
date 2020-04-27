@@ -56,40 +56,52 @@ class SongSelect{
 				outline: "#d36aa2"
 			},
 			"default": {
+				sort: null,
 				background: "#ececec",
 				border: ["#fbfbfb", "#8b8b8b"],
 				outline: "#656565",
 				infoFill: "#656565"
 			}
 		}
-
-		for(let category of assets.categories){
+		
+		var songSkinLength = Object.keys(this.songSkin).length
+		for(var i in assets.categories){
+			var category = assets.categories[i]
 			if(!this.songSkin[category.title] && category.songSkin){
-				if(!category.songSkin.sort == null){
-					category.songSkin.sort = Object.keys(this.songSkin).length + 1
+				if(category.songSkin.sort === null){
+					category.songSkin.sort = songSkinLength + 1
 				}
 				this.songSkin[category.title] = category.songSkin
 			}
 		}
-
-		this.songSkin['default'].sort= Object.keys(this.songSkin).length + 1
-
+		this.songSkin["default"].sort = songSkinLength + 1
+		
 		this.font = strings.font
 		
 		this.songs = []
 		for(let song of assets.songs){
 			var title = this.getLocalTitle(song.title, song.title_lang)
 			var subtitle = this.getLocalTitle(title === song.title ? song.subtitle : "", song.subtitle_lang)
-			let category = assets.categories.find(cat=>cat.id == song.category_id)
-			var categoryName = this.getLocalTitle(category.title, category.title_lang)
+			var skin = null
+			var categoryName = ""
+			var originalCategory = ""
+			if(song.category_id !== null && song.category_id !== undefined){
+				var category = assets.categories.find(cat => cat.id === song.category_id)
+				var categoryName = this.getLocalTitle(category.title, category.title_lang)
+				var originalCategory = category.title
+				var skin = this.songSkin[category.title]
+			}else if(song.category){
+				var categoryName = song.category
+				var originalCategory = song.category
+			}
 			this.songs.push({
 				id: song.id,
 				title: title,
 				originalTitle: song.title,
 				subtitle: subtitle,
-				skin: song.category in this.songSkin ? this.songSkin[song.category] : this.songSkin.default,
+				skin: skin || this.songSkin.default,
 				courses: song.courses,
-				originalCategory: song.category,
+				originalCategory: originalCategory,
 				category: categoryName,
 				category_id: song.category_id,
 				preview: song.preview || 0,
@@ -108,14 +120,14 @@ class SongSelect{
 		this.songs.sort((a, b) => {
 			var catA = a.originalCategory in this.songSkin ? this.songSkin[a.originalCategory] : this.songSkin.default
 			var catB = b.originalCategory in this.songSkin ? this.songSkin[b.originalCategory] : this.songSkin.default
-			if(catA.sort === catB.sort){
-				if(a.order === b.order){
-					return a.id > b.id ? 1 : -1
-				}else{
-					return a.order > b.order ? 1 : -1
-				}
-			}else{
+			if(catA.sort !== catB.sort){
 				return catA.sort > catB.sort ? 1 : -1
+			}else if(a.originalCategory !== b.originalCategory){
+				return a.originalCategory > b.originalCategory ? 1 : -1
+			}else if(a.order !== b.order){
+				return a.order > b.order ? 1 : -1
+			}else{
+				return a.id > b.id ? 1 : -1
 			}
 		})
 		this.songs.push({
