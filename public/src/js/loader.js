@@ -108,11 +108,11 @@ class Loader{
 		this.addPromise(this.ajax("/api/categories").then(cats => {
 			assets.categories = JSON.parse(cats)
 			assets.categories.forEach(cat => {
-				if(cat.song_Skin){
-					cat.songSkin = cat.song_Skin //rename the song_skin property and add category title to categories array
-					delete cat.song_Skin
-					cat.songSkin.infoFill = cat.songSkin.info_Fill
-					delete cat.songSkin.info_Fill
+				if(cat.song_skin){
+					cat.songSkin = cat.song_skin //rename the song_skin property and add category title to categories array
+					delete cat.song_skin
+					cat.songSkin.infoFill = cat.songSkin.info_fill
+					delete cat.songSkin.info_fill
 				}				
 			});
 
