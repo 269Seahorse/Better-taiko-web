@@ -1073,9 +1073,7 @@ var translations = {
 		ko: "가사가있는"
 	}
 }
-
 var allStrings = {}
-
 function separateStrings(){
 	for(var j in languageList){
 		var lang = languageList[j]
@@ -1083,9 +1081,8 @@ function separateStrings(){
 			id: lang
 		}
 		var str = allStrings[lang]
-		
 		var translateObj = function(obj, name, str){
-			if(obj != null && "en" in obj && obj["en"] != null){
+			if("en" in obj){
 				for(var i in obj){
 					str[name] = obj[lang] || obj.en
 				}
@@ -1096,11 +1093,9 @@ function separateStrings(){
 				}
 			}
 		}
-
 		for(var i in translations){
 			translateObj(translations[i], i, str)
 		}
 	}
 }
-
 separateStrings()

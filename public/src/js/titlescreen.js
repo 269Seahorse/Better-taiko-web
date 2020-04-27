@@ -77,8 +77,7 @@ class Titlescreen{
 		}
 	}
 	setLang(lang, noEvent){
-        settings.setLang(lang, true)
-
+		settings.setLang(lang, true)
 		if(this.songId){
 			return
 		}
