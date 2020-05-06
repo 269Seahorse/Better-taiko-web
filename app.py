@@ -343,6 +343,7 @@ def route_api_preview():
     if not song_id or not re.match('^[0-9]+$', song_id):
         abort(400)
 
+    song_id = int(song_id)
     song = db.songs.find_one({'id': song_id})
     if not song:
         abort(400)
