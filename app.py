@@ -340,7 +340,7 @@ def route_admin_songs_id_delete(id):
 @app.cache.cached(timeout=15, query_string=True)
 def route_api_preview():
     song_id = request.args.get('id', None)
-    if not song_id or not re.match('^[0-9]+$', song_id):
+    if not song_id or not re.match('^[0-9]{1,9}}$', song_id):
         abort(400)
 
     song_id = int(song_id)
