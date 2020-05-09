@@ -75,14 +75,7 @@ var assets = {
 		"don_anim_clear_b2.png",
 		"fire_anim.png",
 		"fireworks_anim.png",
-		"bg_genre_0.png",
-		"bg_genre_1.png",
-		"bg_genre_2.png",
-		"bg_genre_3.png",
-		"bg_genre_4.png",
-		"bg_genre_5.png",
-		"bg_genre_6.png",
-		"bg_genre_7.png",
+		"bg_genre_def.png",
 		"bg_score_p1.png",
 		"bg_score_p2.png",
 		"bg_settings.png",
@@ -157,7 +150,8 @@ var assets = {
 	"songs": [],
 	"sounds": {},
 	"image": {},
-	"pages": {}
+	"pages": {},
+	"categories": []
 }
 
 var gameConfig = {}

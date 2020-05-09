@@ -38,25 +38,22 @@
 			"oni": 3,
 			"ura": 4
 		}
-		this.categories = {
-			"ボーカロイド曲": "ボーカロイド™曲",
-			"ボーカロイド": "ボーカロイド™曲",
-			"vocaloid music": "ボーカロイド™曲",
-			"vocaloid": "ボーカロイド™曲",
-			"バラエティー": "バラエティ",
-			"どうよう": "バラエティ",
-			"童謡・民謡": "バラエティ",
-			"children": "バラエティ",
-			"children/folk": "バラエティ",
-			"children-folk": "バラエティ",
-			"クラッシック": "クラシック",
-			"classic": "クラシック"
-		}
-		for(var i in allStrings){
-			for(var ja in allStrings[i].categories){
-				this.categories[allStrings[i].categories[ja].toLowerCase()] = ja
+		
+		this.categoryAliases = {}
+		assets.categories.forEach(cat => {
+			this.categoryAliases[cat.title.toLowerCase()] = cat.id
+			if(cat.aliases){
+				cat.aliases.forEach(alias => {
+					this.categoryAliases[alias.toLowerCase()] = cat.id
+				})
 			}
-		}
+			if(cat.title_lang){
+				for(var i in cat.title_lang){
+					this.categoryAliases[cat.title_lang[i].toLowerCase()] = cat.id
+				}
+			}
+		})
+		
 		this.assetSelectors = {
 			"bg-pattern-1": ".pattern-bg",
 			"bg_genre_0": "#song-select",
@@ -137,7 +134,11 @@
 						var equalsPos = line.indexOf("=")
 						if(equalsPos !== -1 && line.slice(0, equalsPos).trim() === "genrename"){
 							var value = line.slice(equalsPos + 1).trim()
-							category = this.categories[value] || data[i].trim().slice(equalsPos + 1).trim()
+							if(value.toLowerCase() in this.categoryAliases){
+								category = value
+							}else{
+								category = data[i].trim().slice(equalsPos + 1).trim()
+							}
 							break
 						}
 					}
@@ -147,12 +148,16 @@
 					var line = data[i].trim().toLowerCase()
 					if(line.startsWith("#title:")){
 						var value = line.slice(7).trim()
-						if(value in this.categories){
-							category = this.categories[value]
+						if(value.toLowerCase() in this.categoryAliases){
+							category = value
 						}
 					}else if(line.startsWith("#genre:")){
 						var value = line.slice(7).trim()
-						category = this.categories[value] || data[i].trim().slice(7).trim()
+						if(value.toLowerCase() in this.categoryAliases){
+							category = value
+						}else{
+							category = data[i].trim().slice(7).trim()
+						}
 						break
 					}
 				}
@@ -176,7 +181,11 @@
 				var filesLoop = fileObj => {
 					var tjaPath = fileObj.file.webkitRelativePath.toLowerCase().slice(0, fileObj.file.name.length * -1)
 					if(tjaPath.startsWith(metaPath) && (!("categoryLevel" in fileObj) || fileObj.categoryLevel < level)){
-						fileObj.category = category
+						if(category.toLowerCase() in this.categoryAliases){
+							fileObj.category_id = this.categoryAliases[category.toLowerCase()]
+						}else{
+							fileObj.category = category
+						}
 						fileObj.categoryLevel = level
 					}
 				}
@@ -196,6 +205,7 @@
 		var file = fileObj.file
 		var index = fileObj.index
 		var category = fileObj.category
+		var category_id = fileObj.category_id
 		var reader = new FileReader()
 		var promise = pageEvents.load(reader).then(event => {
 			var data = event.target.result.replace(/\0/g, "").split("\n")
@@ -215,7 +225,6 @@
 			var subtitleLang = {}
 			var dir = file.webkitRelativePath.toLowerCase()
 			dir = dir.slice(0, dir.lastIndexOf("/") + 1)
-			var hasCategory = false
 			for(var diff in tja.metadata){
 				var meta = tja.metadata[diff]
 				songObj.title = meta.title || file.name.slice(0, file.name.lastIndexOf("."))
@@ -234,7 +243,11 @@
 					songObj.music = this.otherFiles[dir + meta.wave.toLowerCase()] || songObj.music
 				}
 				if(meta.genre){
-					songObj.category = this.categories[meta.genre.toLowerCase()] || meta.genre
+					if(meta.genre.toLowerCase() in this.categoryAliases){
+						songObj.category_id = this.categoryAliases[meta.genre.toLowerCase()]
+					}else{
+						songObj.category = meta.genre
+					}
 				}
 				if(meta.taikowebskin){
 					songObj.song_skin = this.getSkin(dir, meta.taikowebskin)
@@ -298,8 +311,15 @@
 			if(subtitleLangAdded){
 				songObj.subtitle_lang = subtitleLang
 			}
-			if(!songObj.category){
-				songObj.category = category || this.getCategory(file, [songTitle || songObj.title, file.name.slice(0, file.name.lastIndexOf("."))])
+			if(!songObj.category_id && !songObj.category){
+				if(!category && category_id === undefined){
+					songObj.category_id = this.getCategory(file, [songTitle || songObj.title, file.name.slice(0, file.name.lastIndexOf("."))])
+				}else if(category){
+					songObj.category = category
+					songObj.orginalCategory = category
+				}else{
+					songObj.category_id = category_id
+				}
 			}
 			if(coursesAdded){
 				this.songs[index] = songObj
@@ -320,6 +340,7 @@
 		var file = fileObj.file
 		var index = fileObj.index
 		var category = fileObj.category
+		var category_id = fileObj.category_id
 		var reader = new FileReader()
 		var promise = pageEvents.load(reader).then(event => {
 			var data = event.target.result.replace(/\0/g, "").split("\n")
@@ -360,7 +381,14 @@
 				songObj.title = filename
 			}
 			this.songs[index] = songObj
-			songObj.category = category || this.getCategory(file, [osu.metadata.TitleUnicode, osu.metadata.Title, file.name.slice(0, file.name.lastIndexOf("."))])
+			if(!category && category_id === undefined){
+				songObj.category_id = this.getCategory(file, [osu.metadata.TitleUnicode, osu.metadata.Title, file.name.slice(0, file.name.lastIndexOf("."))])
+			}else if(category){
+				songObj.category = category
+				songObj.orginalCategory = category
+			}else{
+				songObj.category_id = category_id
+			}
 			var hash = md5.base64(event.target.result).slice(0, -2)
 			songObj.hash = hash
 			scoreStorage.songTitles[songObj.title] = hash
@@ -445,9 +473,9 @@
 				}
 			}
 			if(!hasTitle){
-				for(var cat in this.categories){
+				for(var cat in this.categoryAliases){
 					if(path[i].indexOf(cat) !== -1){
-						return this.categories[cat]
+						return this.categoryAliases[cat]
 					}
 				}
 			}

@@ -23,40 +23,6 @@
 		this.darkDonBg = false
 		
 		this.pauseOptions = strings.pauseOptions
-		this.categories = {
-			"J-POP": {
-				sort: 0,
-				infoFill: "#004d68"
-			},
-			"アニメ": {
-				sort: 1,
-				infoFill: "#9c4002"
-			},
-			"ボーカロイド™曲": {
-				sort: 2,
-				infoFill: "#546184"
-			},
-			"バラエティ": {
-				sort: 3,
-				infoFill: "#3c6800"
-			},
-			"クラシック": {
-				sort: 4,
-				infoFill: "#865800"
-			},
-			"ゲームミュージック": {
-				sort: 5,
-				infoFill: "#4f2886"
-			},
-			"ナムコオリジナル": {
-				sort: 6,
-				infoFill: "#961e00"
-			},
-			"default": {
-				sort: 7,
-				infoFill: "#656565"
-			}
-		}
 		this.difficulty = {
 			"easy": 0,
 			"normal": 1,
@@ -329,10 +295,12 @@
 					var _h = 22
 					var _x = 628 - _w
 					var _y = 88 - _h
-					if(selectedSong.category in this.categories){
-						ctx.fillStyle = this.categories[selectedSong.category].infoFill
+
+					let category = assets.categories.find(cat=>cat.id == selectedSong.category_id)
+					if(category != null && category.songSkin != null && category.songSkin.infoFill != null){
+						ctx.fillStyle = category.songSkin.infoFill
 					}else{
-						ctx.fillStyle = this.categories.default.infoFill
+						ctx.fillStyle = assets.categories.find(cat=>cat.title == 'default').songSkin.infoFill
 					}
 					this.draw.roundedRect({
 						ctx: ctx,
@@ -340,16 +308,11 @@
 						w: _w, h: _h,
 						radius: 11
 					})
-					ctx.fill()
-					
-					if(selectedSong.category in strings.categories){
-						var categoryName = strings.categories[selectedSong.category]
-					}else{
-						var categoryName = selectedSong.category
-					}
+					ctx.fill()					
+
 					this.draw.layeredText({
 						ctx: ctx,
-						text: categoryName,
+						text: selectedSong.category,
 						fontSize: 15,
 						fontFamily: this.font,
 						align: "center",
@@ -1424,12 +1387,6 @@
 		var supportsBlend = "mixBlendMode" in this.songBg.style
 		var songLayers = [document.getElementById("layer1"), document.getElementById("layer2")]
 		var prefix = ""
-		
-		if(selectedSong.category in this.categories){
-			var catId = this.categories[selectedSong.category].sort
-		}else{
-			var catId = this.categories.default.sort
-		}
 		
 		if(!selectedSong.songSkin.song){
 			var id = selectedSong.songBg

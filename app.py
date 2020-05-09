@@ -191,8 +191,9 @@ def route_admin():
 @admin_required(level=50)
 def route_admin_songs():
     songs = db.songs.find({})
+    categories = db.categories.find({})
     user = db.users.find_one({'username': session['username']})
-    return render_template('admin_songs.html', songs=list(songs), admin=user)
+    return render_template('admin_songs.html', songs=list(songs), admin=user, categories=list(categories))
 
 
 @app.route('/admin/songs/<int:id>')
@@ -373,7 +374,7 @@ def route_api_songs():
             song['category'] = db.categories.find_one({'id': song['category_id']})['title']
         else:
             song['category'] = None
-        del song['category_id']
+        #del song['category_id']
 
         if song['skin_id']:
             song['song_skin'] = db.song_skins.find_one({'id': song['skin_id']}, {'_id': False, 'id': False})
@@ -383,6 +384,11 @@ def route_api_songs():
 
     return jsonify(songs)
 
+@app.route('/api/categories')
+@app.cache.cached(timeout=15)
+def route_api_categories():
+    categories = list(db.categories.find({},{'_id': False}))
+    return jsonify(categories)
 
 @app.route('/api/config')
 @app.cache.cached(timeout=15)

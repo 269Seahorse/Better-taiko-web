@@ -26,98 +26,84 @@ class SongSelect{
 				outline: "#ad7723"
 			},
 			"random": {
-				sort: 7,
+				sort: 0,
 				background: "#fa91ff",
 				border: ["#ffdfff", "#b068b2"],
 				outline: "#b221bb"
 			},
 			"tutorial": {
-				sort: 7,
+				sort: 0,
 				background: "#29e8aa",
 				border: ["#86ffbd", "#009a8c"],
 				outline: "#08a28c"
 			},
 			"about": {
-				sort: 7,
+				sort: 0,
 				background: "#a2d0e7",
 				border: ["#c6dfff", "#4485d9"],
 				outline: "#2390d9"
 			},
 			"settings": {
-				sort: 7,
+				sort: 0,
 				background: "#ce93fa",
 				border: ["#dec4fd", "#a543ef"],
 				outline: "#a741ef"
 			},
 			"browse": {
-				sort: 7,
+				sort: 0,
 				background: "#fab5d3",
 				border: ["#ffe7ef", "#d36aa2"],
 				outline: "#d36aa2"
 			},
-			"J-POP": {
-				sort: 0,
-				background: "#219fbb",
-				border: ["#7ec3d3", "#0b6773"],
-				outline: "#005058"
-			},
-			"アニメ": {
-				sort: 1,
-				background: "#ff9700",
-				border: ["#ffdb8c", "#e75500"],
-				outline: "#9c4100"
-			},
-			"ボーカロイド™曲": {
-				sort: 2,
-				background: "#def2ef",
-				border: ["#f7fbff", "#79919f"],
-				outline: "#5a6584"
-			},
-			"バラエティ": {
-				sort: 3,
-				background: "#8fd321",
-				border: ["#f7fbff", "#587d0b"],
-				outline: "#374c00"
-			},
-			"クラシック": {
-				sort: 4,
-				background: "#d1a016",
-				border: ["#e7cf6b", "#9a6b00"],
-				outline: "#734d00"
-			},
-			"ゲームミュージック": {
-				sort: 5,
-				background: "#9c72c0",
-				border: ["#bda2ce", "#63407e"],
-				outline: "#4b1c74"
-			},
-			"ナムコオリジナル": {
-				sort: 6,
-				background: "#ff5716",
-				border: ["#ffa66b", "#b53000"],
-				outline: "#9c2000"
-			},
 			"default": {
-				sort: 7,
+				sort: null,
 				background: "#ececec",
 				border: ["#fbfbfb", "#8b8b8b"],
-				outline: "#656565"
+				outline: "#656565",
+				infoFill: "#656565"
 			}
 		}
+		
+		var songSkinLength = Object.keys(this.songSkin).length
+		for(var i in assets.categories){
+			var category = assets.categories[i]
+			if(!this.songSkin[category.title] && category.songSkin){
+				if(category.songSkin.sort === null){
+					category.songSkin.sort = songSkinLength + 1
+				}
+				this.songSkin[category.title] = category.songSkin
+			}
+		}
+		this.songSkin["default"].sort = songSkinLength + 1
+		
 		this.font = strings.font
 		
 		this.songs = []
 		for(let song of assets.songs){
 			var title = this.getLocalTitle(song.title, song.title_lang)
 			var subtitle = this.getLocalTitle(title === song.title ? song.subtitle : "", song.subtitle_lang)
+			var skin = null
+			var categoryName = ""
+			var originalCategory = ""
+			if(song.category_id !== null && song.category_id !== undefined){
+				var category = assets.categories.find(cat => cat.id === song.category_id)
+				var categoryName = this.getLocalTitle(category.title, category.title_lang)
+				var originalCategory = category.title
+				var skin = this.songSkin[category.title]
+			}else if(song.category){
+				var categoryName = song.category
+				var originalCategory = song.category
+			}
 			this.songs.push({
 				id: song.id,
 				title: title,
 				originalTitle: song.title,
 				subtitle: subtitle,
-				skin: song.category in this.songSkin ? this.songSkin[song.category] : this.songSkin.default,
+				skin: skin || this.songSkin.default,
 				courses: song.courses,
-				category: song.category,
+				originalCategory: originalCategory,
+				category: categoryName,
+				category_id: song.category_id,
 				preview: song.preview || 0,
 				type: song.type,
 				offset: song.offset,
@@ -132,16 +118,16 @@ class SongSelect{
 			})
 		}
 		this.songs.sort((a, b) => {
-			var catA = a.category in this.songSkin ? this.songSkin[a.category] : this.songSkin.default
-			var catB = b.category in this.songSkin ? this.songSkin[b.category] : this.songSkin.default
-			if(catA.sort === catB.sort){
-				if(a.order === b.order){
-					return a.id > b.id ? 1 : -1
-				}else{
-					return a.order > b.order ? 1 : -1
-				}
-			}else{
+			var catA = a.originalCategory in this.songSkin ? this.songSkin[a.originalCategory] : this.songSkin.default
+			var catB = b.originalCategory in this.songSkin ? this.songSkin[b.originalCategory] : this.songSkin.default
+			if(catA.sort !== catB.sort){
 				return catA.sort > catB.sort ? 1 : -1
+			}else if(a.originalCategory !== b.originalCategory){
+				return a.originalCategory > b.originalCategory ? 1 : -1
+			}else if(a.order !== b.order){
+				return a.order > b.order ? 1 : -1
+			}else{
+				return a.id > b.id ? 1 : -1
 			}
 		})
 		this.songs.push({
@@ -290,9 +276,8 @@ class SongSelect{
 		}
 		
 		this.songSelect = document.getElementById("song-select")
-		var cat = this.songs[this.selectedSong].category
-		var sort = cat in this.songSkin ? this.songSkin[cat].sort : 7
-		this.songSelect.style.backgroundImage = "url('" + assets.image["bg_genre_" + sort].src + "')"
+		var cat = this.songs[this.selectedSong].originalCategory
+		this.drawBackground(cat)
 		
 		this.previewId = 0
 		this.previewList = Array(5)
@@ -799,6 +784,7 @@ class SongSelect{
 			"folder": selectedSong.id,
 			"difficulty": diff,
 			"category": selectedSong.category,
+			"category_id":selectedSong.category_id,
 			"type": selectedSong.type,
 			"offset": selectedSong.offset,
 			"songSkin": selectedSong.songSkin,
@@ -953,13 +939,11 @@ class SongSelect{
 			
 			this.nameplateCache.resize(274, 134, ratio + 0.2)
 			
-			var categories = 0
 			var lastCategory
 			this.songs.forEach(song => {
 				var cat = (song.category || "") + song.skin.outline
 				if(lastCategory !== cat){
 					lastCategory = cat
-					categories++
 				}
 			})
 			this.categoryCache.resize(280, this.songAsset.marginTop + 1 , ratio + 0.5)
@@ -1075,8 +1059,8 @@ class SongSelect{
 				])
 			})
 			
-			var category = this.songs[this.selectedSong].category
 			var selectedSong = this.songs[this.selectedSong]
+			var category = selectedSong.category
 			this.draw.category({
 				ctx: ctx,
 				x: winW / 2 - 280 / 2 - 30,
@@ -1101,8 +1085,9 @@ class SongSelect{
 				id: category + selectedSong.skin.outline
 			}, ctx => {
 				if(category){
-					if(category in strings.categories){
-						var categoryName = strings.categories[category]
+					let cat = assets.categories.find(cat=>cat.title === category)
+					if(cat){
+						var categoryName = this.getLocalTitle(cat.title, cat.title_lang)
 					}else{
 						var categoryName = category
 					}
@@ -1199,9 +1184,8 @@ class SongSelect{
 				}
 				
 				if(this.songs[this.selectedSong].action !== "back"){
-					var cat = this.songs[this.selectedSong].category
-					var sort = cat in this.songSkin ? this.songSkin[cat].sort : 7
-					this.songSelect.style.backgroundImage = "url('" + assets.image["bg_genre_" + sort].src + "')"
+					var cat = this.songs[this.selectedSong].originalCategory
+					this.drawBackground(cat)				
 				}
 			}
 			if(this.state.moveMS && ms < this.state.moveMS + changeSpeed){
@@ -2306,6 +2290,15 @@ class SongSelect{
 			scoreStorage.eventLoop()
 		}
 	}
+
+	drawBackground(cat){
+		if(this.songSkin[cat] && this.songSkin[cat].bg_img){
+			let filename = this.songSkin[cat].bg_img.slice(0, this.songSkin[cat].bg_img.lastIndexOf("."))
+			this.songSelect.style.backgroundImage = "url('" + assets.image[filename].src + "')"
+		}else{
+			this.songSelect.style.backgroundImage = "url('" + assets.image["bg_genre_def"].src + "')"
+			}
+		}	
 	
 	drawClosedSong(config){
 		var ctx = config.ctx

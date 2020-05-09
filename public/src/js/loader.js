@@ -86,7 +86,7 @@ class Loader{
 			}), url)
 		}
 		
-		assets.img.forEach(name => {
+		assets.img.forEach(name=>{
 			var id = this.getFilename(name)
 			var image = document.createElement("img")
 			var url = gameConfig.assets_baseurl + "img/" + name
@@ -104,6 +104,28 @@ class Loader{
 				assets.pages[id] = page
 			}), url)
 		})
+
+		this.addPromise(this.ajax("/api/categories").then(cats => {
+			assets.categories = JSON.parse(cats)
+			assets.categories.forEach(cat => {
+				if(cat.song_skin){
+					cat.songSkin = cat.song_skin //rename the song_skin property and add category title to categories array
+					delete cat.song_skin
+					cat.songSkin.infoFill = cat.songSkin.info_fill
+					delete cat.songSkin.info_fill
+				}				
+			});
+
+			assets.categories.push({
+				title: "default",
+				songSkin: {
+					background: "#ececec",
+					border: ["#fbfbfb", "#8b8b8b"],
+					outline: "#656565",
+					infoFill: "#656565"
+				}
+			})
+		}), "/api/categories")
 		
 		this.addPromise(this.ajax("/api/songs").then(songs => {
 			assets.songsDefault = JSON.parse(songs)
@@ -127,7 +149,21 @@ class Loader{
 			if(this.error){
 				return
 			}
-			
+
+			assets.categories //load category backgrounds to DOM
+				.filter(cat=>cat.songSkin && cat.songSkin.bg_img)
+				.forEach(cat=>{
+					let name = cat.songSkin.bg_img
+					var id = this.getFilename(name)
+					var image = document.createElement("img")
+					var url = gameConfig.assets_baseurl + "img/" + name
+					this.addPromise(pageEvents.load(image), url)
+					image.id = name
+					image.src = url
+					this.assetsDiv.appendChild(image)
+					assets.image[id] = image
+			})
+
 			snd.buffer = new SoundBuffer()
 			snd.musicGain = snd.buffer.createGain()
 			snd.sfxGain = snd.buffer.createGain()
@@ -264,11 +300,8 @@ class Loader{
 					this.callback(songId)
 					pageEvents.send("ready", readyEvent)
 				})
-			}, this.errorMsg.bind(this))
-			
-		
-		})
-	
+			}, this.errorMsg.bind(this))		
+		})	
 	}
 	addPromise(promise, url){
 		this.promises.push(promise)
