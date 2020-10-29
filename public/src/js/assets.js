@@ -33,7 +33,9 @@ var assets = {
 		"settings.js",
 		"scorestorage.js",
 		"account.js",
-		"lyrics.js"
+		"lyrics.js",
+		"customsongs.js",
+		"abstractfile.js"
 	],
 	"css": [
 		"main.css",
@@ -144,7 +146,8 @@ var assets = {
 		"session.html",
 		"settings.html",
 		"account.html",
-		"login.html"
+		"login.html",
+		"customsongs.html"
 	],
 	
 	"songs": [],

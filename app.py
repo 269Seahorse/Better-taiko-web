@@ -119,7 +119,8 @@ def get_config():
         'assets_baseurl': config.ASSETS_BASEURL,
         'email': config.EMAIL,
         'accounts': config.ACCOUNTS,
-        'custom_js': config.CUSTOM_JS
+        'custom_js': config.CUSTOM_JS,
+        'google_credentials': config.GOOGLE_CREDENTIALS
     }
 
     if not config_out.get('songs_baseurl'):

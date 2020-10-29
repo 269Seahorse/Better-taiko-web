@@ -102,20 +102,6 @@ var translations = {
 		tw: "遊戲設定",
 		ko: "게임 설정"
 	},
-	browse: {
-		ja: "参照する…",
-		en: "Browse…",
-		cn: "浏览…",
-		tw: "開啟檔案…",
-		ko: "찾아보기…"
-	},
-	defaultSongList: {
-		ja: "デフォルト曲リスト",
-		en: "Default Song List",
-		cn: "默认歌曲列表",
-		tw: "默認歌曲列表",
-		ko: "기본 노래 목록"
-	},
 	songOptions: {
 		ja: "演奏オプション",
 		en: "Song Options",
@@ -1071,6 +1057,43 @@ var translations = {
 		cn: "带歌词",
 		tw: "帶歌詞",
 		ko: "가사가있는"
+	},
+	customSongs: {
+		title: {
+			en: "Custom Song List",
+		},
+		default: {
+			ja: "デフォルト曲リスト",
+			en: "Default Song List",
+			cn: "默认歌曲列表",
+			tw: "默認歌曲列表",
+			ko: "기본 노래 목록"
+		},
+		description: {
+			en: [
+				"Pick a folder with Taiko chart files in TJA format to play on a custom song list!"
+			]
+		},
+		localFolder: {
+			en: "Local Folder..."
+		},
+		gdriveFolder: {
+			en: "Google Drive..."
+		}
+	},
+	gpicker: {
+		myDrive: {
+			en: "My Drive"
+		},
+		starred: {
+			en: "Starred"
+		},
+		sharedWithMe: {
+			en: "Shared with me"
+		},
+		authError: {
+			en: "Auth error: %s"
+		}
 	}
 }
 var allStrings = {}

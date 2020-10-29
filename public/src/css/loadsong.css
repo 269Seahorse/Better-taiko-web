@@ -19,6 +19,7 @@
 	border-radius: 5px;
 	border: 3px solid white;
 	color: #fff;
+	z-index: 1;
 }
 #loading-don{
 	width: 10vw;

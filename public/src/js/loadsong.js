@@ -34,10 +34,10 @@ class LoadSong{
 	run(){
 		var song = this.selectedSong
 		var id = song.folder
+		var songObj
 		this.promises = []
-		if(song.folder !== "calibration"){
+		if(id !== "calibration"){
 			assets.sounds["v_start"].play()
-			var songObj
 			assets.songs.forEach(song => {
 				if(song.id === id){
 					songObj = song
@@ -50,11 +50,12 @@ class LoadSong{
 				}
 			})
 		}else{
-			var songObj = {
-				"music": "muted",
-				"chart": "blank"
+			songObj = {
+				music: "muted",
+				custom: true
 			}
 		}
+		this.songObj = songObj
 		
 		song.songBg = this.randInt(1, 5)
 		song.songStage = this.randInt(1, 3)
@@ -99,14 +100,14 @@ class LoadSong{
 				}
 				let img = document.createElement("img")
 				let force = imgLoad[i].type === "song" && this.touchEnabled
-				if(!songObj.music && (this.imgScale !== 1 || force)){
+				if(!songObj.custom && (this.imgScale !== 1 || force)){
 					img.crossOrigin = "Anonymous"
 				}
 				let promise = pageEvents.load(img)
 				this.addPromise(promise.then(() => {
 					return this.scaleImg(img, filename, prefix, force)
-				}), songObj.music ? filename + ".png" : skinBase + filename + ".png")
-				if(songObj.music){
+				}), songObj.custom ? filename + ".png" : skinBase + filename + ".png")
+				if(songObj.custom){
 					img.src = URL.createObjectURL(song.songSkin[filename + ".png"])
 				}else{
 					img.src = skinBase + filename + ".png"
@@ -115,57 +116,29 @@ class LoadSong{
 		}
 		this.loadSongBg(id)
 		
-		var url = gameConfig.songs_baseurl + id + "/main.mp3"
-		this.addPromise(new Promise((resolve, reject) => {
-			if(songObj.sound){
-				songObj.sound.gain = snd.musicGain
-				resolve()
-			}else if(!songObj.music){
-				snd.musicGain.load(url).then(sound => {
-					songObj.sound = sound
-					resolve()
-				}, reject)
-			}else if(songObj.music !== "muted"){
-				snd.musicGain.load(songObj.music, true).then(sound => {
-					songObj.sound = sound
-					resolve()
-				}, reject)
-			}else{
-				resolve()
-			}
-		}), songObj.music ? songObj.music.webkitRelativePath : url)
-		if(songObj.chart){
-			if(songObj.chart === "blank"){
-				this.songData = ""
-			}else{
-				var reader = new FileReader()
-				this.addPromise(pageEvents.load(reader).then(event => {
-					this.songData = event.target.result.replace(/\0/g, "").split("\n")
-				}), songObj.chart.webkitRelativePath)
-				if(song.type === "tja"){
-					reader.readAsText(songObj.chart, "sjis")
-				}else{
-					reader.readAsText(songObj.chart)
-				}
-			}
-			if(songObj.lyricsFile && settings.getItem("showLyrics")){
-				var reader = new FileReader()
-				this.addPromise(pageEvents.load(reader).then(event => {
-					songObj.lyricsData = event.target.result
-				}, () => Promise.resolve()), songObj.lyricsFile.webkitRelativePath)
-				reader.readAsText(songObj.lyricsFile)
-			}
-		}else{
-			var url = this.getSongPath(song)
-			this.addPromise(loader.ajax(url).then(data => {
+		if(songObj.sound){
+			songObj.sound.gain = snd.musicGain
+		}else if(songObj.music !== "muted"){
+			this.addPromise(snd.musicGain.load(songObj.music).then(sound => {
+				songObj.sound = sound
+			}), songObj.music.url)
+		}
+		var chart = songObj.chart
+		if(chart.separateDiff){
+			var chartDiff = this.selectedSong.difficulty
+			chart = chart[chartDiff]
+		}
+		if(chart){
+			this.addPromise(chart.read(song.type === "tja" ? "sjis" : "").then(data => {
 				this.songData = data.replace(/\0/g, "").split("\n")
-			}), url)
-			if(song.lyrics && !songObj.lyricsData && !this.multiplayer && (!this.touchEnabled || this.autoPlayEnabled) && settings.getItem("showLyrics")){
-				var url = this.getSongDir(song) + "main.vtt"
-				this.addPromise(loader.ajax(url).then(data => {
-					songObj.lyricsData = data
-				}), url)
-			}
+			}), chart.url)
+		}else{
+			this.songData = ""
+		}
+		if(songObj.lyricsFile && !songObj.lyricsData && !this.multiplayer && (!this.touchEnabled || this.autoPlayEnabled) && settings.getItem("showLyrics")){
+			this.addPromise(songObj.lyricsFile.read().then(data => {
+				songObj.lyricsData = data
+			}, () => {}), songObj.lyricsFile.url)
 		}
 		if(this.touchEnabled && !assets.image["touch_drum"]){
 			let img = document.createElement("img")
@@ -289,17 +262,6 @@ class LoadSong{
 	randInt(min, max){
 		return Math.floor(Math.random() * (max - min + 1)) + min
 	}
-	getSongDir(selectedSong){
-		return gameConfig.songs_baseurl + selectedSong.folder + "/"
-	}
-	getSongPath(selectedSong){
-		var directory = this.getSongDir(selectedSong)
-		if(selectedSong.type === "tja"){
-			return directory + "main.tja"
-		}else{
-			return directory + selectedSong.difficulty + ".osu"
-		}
-	}
 	setupMultiplayer(){
 		var song = this.selectedSong
 		
@@ -326,13 +288,14 @@ class LoadSong{
 							this.selectedSong2[i] = this.selectedSong[i]
 						}
 						this.selectedSong2.difficulty = event.value.diff
-						if(song.type === "tja"){
+						var chart = this.songObj.chart
+						var chartDiff = this.selectedSong2.difficulty
+						if(song.type === "tja" || !chart || !chart.separateDiff || !chart[chartDiff]){
 							this.startMultiplayer()
 						}else{
-							loader.ajax(this.getSongPath(this.selectedSong2)).then(data => {
+							chart[chartDiff].read(song.type === "tja" ? "sjis" : "").then(data => {
 								this.song2Data = data.replace(/\0/g, "").split("\n")
-								this.startMultiplayer()
-							}, () => {
+							}, () => {}).then(() => {
 								this.startMultiplayer()
 							})
 						}
@@ -389,6 +352,7 @@ class LoadSong{
 	}
 	clean(){
 		delete this.promises
+		delete this.songObj
 		pageEvents.remove(p2, "message")
 		if(this.cancelButton){
 			pageEvents.remove(this.cancelButton, ["mousedown", "touchstart"])

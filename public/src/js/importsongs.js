@@ -1,32 +1,10 @@
 ﻿class ImportSongs{
-	constructor(songSelect, event){
-		this.songSelect = songSelect
-		this.songSelect.redrawRunning = false
-		this.songSelect.pointer(false)
-		
-		this.loaderDiv = document.createElement("div")
-		this.loaderDiv.innerHTML = assets.pages["loadsong"]
-		loader.screen.appendChild(this.loaderDiv)
-		var loadingText = document.getElementById("loading-text")
-		loadingText.appendChild(document.createTextNode(strings.loading))
-		loadingText.setAttribute("alt", strings.loading)
-		
-		var files = []
-		for(var i = 0; i < event.target.files.length; i++){
-			files.push(event.target.files[i])
-		}
-		var extensionRegex = /\.[^\/]+$/
-		files.sort((a, b) => {
-			var path1 = a.webkitRelativePath.replace(extensionRegex, "")
-			var path2 = b.webkitRelativePath.replace(extensionRegex, "")
-			return path1 > path2 ? 1 : -1
-		})
-		
+	constructor(limited, otherFiles){
+		this.limited = limited
 		this.tjaFiles = []
 		this.osuFiles = []
 		this.assetFiles = {}
-		var metaFiles = []
-		this.otherFiles = {}
+		this.otherFiles = otherFiles || {}
 		this.songs = []
 		this.stylesheet = []
 		this.songTitle = {}
@@ -38,7 +16,6 @@
 			"oni": 3,
 			"ura": 4
 		}
-		
 		this.categoryAliases = {}
 		assets.categories.forEach(cat => {
 			this.categoryAliases[cat.title.toLowerCase()] = cat.id
@@ -53,7 +30,6 @@
 				}
 			}
 		})
-		
 		this.assetSelectors = {
 			"bg-pattern-1": ".pattern-bg",
 			"bg_genre_0": "#song-select",
@@ -66,11 +42,20 @@
 			"bg_stage_2": ".song-stage-2",
 			"bg_stage_3": ".song-stage-3"
 		}
+	}
+	load(files){
+		var extensionRegex = /\.[^\/]+$/
+		files.sort((a, b) => {
+			var path1 = a.path.replace(extensionRegex, "")
+			var path2 = b.path.replace(extensionRegex, "")
+			return path1 > path2 ? 1 : -1
+		})
 		
+		var metaFiles = []
 		for(var i = 0; i < files.length; i++){
 			var file = files[i]
 			var name = file.name.toLowerCase()
-			var path = file.webkitRelativePath.toLowerCase()
+			var path = file.path.toLowerCase()
 			if(name.endsWith(".tja")){
 				this.tjaFiles.push({
 					file: file,
@@ -81,13 +66,13 @@
 					file: file,
 					index: i
 				})
-			}else if(name === "genre.ini" || name === "box.def" || name === "songtitle.txt"){
-				var level = (file.webkitRelativePath.match(/\//g) || []).length
+			}else if(!this.limited && (name === "genre.ini" || name === "box.def" || name === "songtitle.txt")){
+				var level = (file.path.match(/\//g) || []).length
 				metaFiles.push({
 					file: file,
 					level: (level * 2) + (name === "genre.ini" ? 1 : 0)
 				})
-			}else if(path.indexOf("/taiko-web assets/") !== -1){
+			}else if(!this.limited && path.indexOf("/taiko-web assets/") !== -1){
 				if(!(name in this.assetFiles)){
 					this.assetFiles[name] = file
 				}
@@ -97,32 +82,30 @@
 		}
 		
 		var metaPromises = []
-		
 		metaFiles.forEach(fileObj => {
 			metaPromises.push(this.addMeta(fileObj))
 		})
 		
-		Promise.all(metaPromises).then(() => {
+		return Promise.all(metaPromises).then(() => {
 			var songPromises = []
 			
 			this.tjaFiles.forEach(fileObj => {
-				songPromises.push(this.addTja(fileObj))
+				songPromises.push(this.addTja(fileObj).catch(e => console.warn(e)))
 			})
 			this.osuFiles.forEach(fileObj => {
-				songPromises.push(this.addOsu(fileObj))
+				songPromises.push(this.addOsu(fileObj).catch(e => console.warn(e)))
 			})
 			songPromises.push(this.addAssets())
-			Promise.all(songPromises).then(this.loaded.bind(this))
-		})
+			return Promise.all(songPromises)
+		}).then(this.loaded.bind(this))
 	}
 	
 	addMeta(fileObj){
 		var file = fileObj.file
 		var level = fileObj.level
 		var name = file.name.toLowerCase()
-		var reader = new FileReader()
-		var promise = pageEvents.load(reader).then(event => {
-			var data = event.target.result.replace(/\0/g, "").split("\n")
+		return file.read(name === "songtitle.txt" ? undefined : "sjis").then(data => {
+			var data = data.replace(/\0/g, "").split("\n")
 			var category
 			if(name === "genre.ini"){
 				var key
@@ -177,9 +160,9 @@
 				}
 			}
 			if(category){
-				var metaPath = file.webkitRelativePath.toLowerCase().slice(0, file.name.length * -1)
+				var metaPath = file.path.toLowerCase().slice(0, file.name.length * -1)
 				var filesLoop = fileObj => {
-					var tjaPath = fileObj.file.webkitRelativePath.toLowerCase().slice(0, fileObj.file.name.length * -1)
+					var tjaPath = fileObj.file.path.toLowerCase().slice(0, fileObj.file.name.length * -1)
 					if(tjaPath.startsWith(metaPath) && (!("categoryLevel" in fileObj) || fileObj.categoryLevel < level)){
 						if(category.toLowerCase() in this.categoryAliases){
 							fileObj.category_id = this.categoryAliases[category.toLowerCase()]
@@ -192,13 +175,9 @@
 				this.tjaFiles.forEach(filesLoop)
 				this.osuFiles.forEach(filesLoop)
 			}
-		}).catch(() => {})
-		if(name === "songtitle.txt"){
-			reader.readAsText(file)
-		}else{
-			reader.readAsText(file, "sjis")
-		}
-		return promise
+		}).catch(e => {
+			console.warn(e)
+		})
 	}
 	
 	addTja(fileObj){
@@ -206,24 +185,33 @@
 		var index = fileObj.index
 		var category = fileObj.category
 		var category_id = fileObj.category_id
-		var reader = new FileReader()
-		var promise = pageEvents.load(reader).then(event => {
-			var data = event.target.result.replace(/\0/g, "").split("\n")
+		if(!this.limited){
+			var filePromise = file.read("sjis")
+		}else{
+			var filePromise = Promise.resolve()
+		}
+		return filePromise.then(dataRaw => {
+			var data = dataRaw ? dataRaw.replace(/\0/g, "").split("\n") : []
 			var tja = new ParseTja(data, "oni", 0, 0, true)
 			var songObj = {
 				id: index + 1,
 				order: index + 1,
+				title: file.name.slice(0, file.name.lastIndexOf(".")),
 				type: "tja",
 				chart: file,
 				courses: {},
-				music: "muted"
+				music: "muted",
+				custom: true
+			}
+			if(this.limited){
+				songObj.unloaded = true
 			}
 			var coursesAdded = false
 			var titleLang = {}
 			var titleLangAdded = false
 			var subtitleLangAdded = false
 			var subtitleLang = {}
-			var dir = file.webkitRelativePath.toLowerCase()
+			var dir = file.path.toLowerCase()
 			dir = dir.slice(0, dir.lastIndexOf("/") + 1)
 			for(var diff in tja.metadata){
 				var meta = tja.metadata[diff]
@@ -321,19 +309,19 @@
 					songObj.category_id = category_id
 				}
 			}
-			if(coursesAdded){
+			if(coursesAdded || songObj.unloaded){
 				this.songs[index] = songObj
 			}
-			var hash = md5.base64(event.target.result).slice(0, -2)
-			songObj.hash = hash
-			scoreStorage.songTitles[songObj.title] = hash
-			var score = scoreStorage.get(hash, false, true)
-			if(score){
-				score.title = songObj.title
+			if(!this.limited){
+				var hash = md5.base64(dataRaw).slice(0, -2)
+				songObj.hash = hash
+				scoreStorage.songTitles[songObj.title] = hash
+				var score = scoreStorage.get(hash, false, true)
+				if(score){
+					score.title = songObj.title
+				}
 			}
-		}).catch(() => {})
-		reader.readAsText(file, "sjis")
-		return promise
+		})
 	}
 	
 	addOsu(fileObj){
@@ -341,11 +329,15 @@
 		var index = fileObj.index
 		var category = fileObj.category
 		var category_id = fileObj.category_id
-		var reader = new FileReader()
-		var promise = pageEvents.load(reader).then(event => {
-			var data = event.target.result.replace(/\0/g, "").split("\n")
-			var osu = new ParseOsu(data, "oni", 0, 0, true);
-			var dir = file.webkitRelativePath.toLowerCase()
+		if(!this.limited){
+			var filePromise = file.read()
+		}else{
+			var filePromise = Promise.resolve()
+		}
+		return filePromise.then(dataRaw => {
+			var data = dataRaw ? dataRaw.replace(/\0/g, "").split("\n") : []
+			var osu = new ParseOsu(data, "oni", 0, 0, true)
+			var dir = file.path.toLowerCase()
 			dir = dir.slice(0, dir.lastIndexOf("/") + 1)
 			var songObj = {
 				id: index + 1,
@@ -356,14 +348,17 @@
 				subtitle_lang: {
 					en: osu.metadata.Artist || osu.metadata.ArtistUnicode
 				},
-				preview: osu.generalInfo.PreviewTime / 1000,
-				courses: {
-					oni:{
-						stars: parseInt(osu.difficulty.overallDifficulty) || 0,
-						branch: false
-					}
-				},
-				music: this.otherFiles[dir + osu.generalInfo.AudioFilename.toLowerCase()] || "muted"
+				preview: osu.generalInfo.PreviewTime ? osu.generalInfo.PreviewTime / 1000 : 0,
+				courses: {},
+				music: (osu.generalInfo.AudioFilename ? this.otherFiles[dir + osu.generalInfo.AudioFilename.toLowerCase()] : "") || "muted"
+			}
+			if(!this.limited){
+				songObj.courses.oni = {
+					stars: parseInt(osu.difficulty.overallDifficulty) || 0,
+					branch: false
+				}
+			}else{
+				songObj.unloaded = true
 			}
 			var filename = file.name.slice(0, file.name.lastIndexOf("."))
 			var title = osu.metadata.TitleUnicode || osu.metadata.Title || file.name.slice(0, file.name.lastIndexOf("."))
@@ -375,7 +370,7 @@
 				}
 				songObj.title = title + suffix
 				songObj.title_lang = {
-					en: (osu.metadata.Title || osu.metadata.TitleUnicode) + suffix
+					en: (osu.metadata.Title || osu.metadata.TitleUnicode || title) + suffix
 				}
 			}else{
 				songObj.title = filename
@@ -389,72 +384,68 @@
 			}else{
 				songObj.category_id = category_id
 			}
-			var hash = md5.base64(event.target.result).slice(0, -2)
-			songObj.hash = hash
-			scoreStorage.songTitles[songObj.title] = hash
-			var score = scoreStorage.get(hash, false, true)
-			if(score){
-				score.title = songObj.title
+			if(!this.limited){
+				var hash = md5.base64(dataRaw).slice(0, -2)
+				songObj.hash = hash
+				scoreStorage.songTitles[songObj.title] = hash
+				var score = scoreStorage.get(hash, false, true)
+				if(score){
+					score.title = songObj.title
+				}
 			}
-		}).catch(() => {})
-		reader.readAsText(file)
-		return promise
+		})
 	}
 	
 	addAssets(){
-		return new Promise((resolve, reject) => {
-			var promises = []
-			for(let name in this.assetFiles){
-				let id = this.getFilename(name)
-				var file = this.assetFiles[name]
-				if(name === "vectors.json"){
-					var reader = new FileReader()
-					promises.push(pageEvents.load(reader).then(() => response => {
-						vectors = JSON.parse(response)
-					}))
-					reader.readAsText(file)
-				}
-				if(assets.img.indexOf(name) !== -1){
-					let image = document.createElement("img")
-					promises.push(pageEvents.load(image).then(() => {
-						if(id in this.assetSelectors){
-							var selector = this.assetSelectors[id]
-							this.stylesheet.push(selector + '{background-image:url("' + image.src + '")}')
-						}
-					}))
-					image.id = name
-					image.src = URL.createObjectURL(file)
-					loader.assetsDiv.appendChild(image)
-					assets.image[id].parentNode.removeChild(assets.image[id])
-					assets.image[id] = image
-				}
-				if(assets.audioSfx.indexOf(name) !== -1){
-					assets.sounds[id].clean()
-					promises.push(this.loadSound(file, name, snd.sfxGain))
-				}
-				if(assets.audioMusic.indexOf(name) !== -1){
-					assets.sounds[id].clean()
-					promises.push(this.loadSound(file, name, snd.musicGain))
-				}
-				if(assets.audioSfxLR.indexOf(name) !== -1){
-					assets.sounds[id + "_p1"].clean()
-					assets.sounds[id + "_p2"].clean()
-					promises.push(this.loadSound(file, name, snd.sfxGain).then(sound => {
-						assets.sounds[id + "_p1"] = assets.sounds[id].copy(snd.sfxGainL)
-						assets.sounds[id + "_p2"] = assets.sounds[id].copy(snd.sfxGainR)
-					}))
-				}
-				if(assets.audioSfxLoud.indexOf(name) !== -1){
-					assets.sounds[id].clean()
-					promises.push(this.loadSound(file, name, snd.sfxLoudGain))
-				}
+		var promises = []
+		for(let name in this.assetFiles){
+			let id = this.getFilename(name)
+			var file = this.assetFiles[name]
+			if(name === "vectors.json"){
+				promises.push(file.read().then(() => response => {
+					vectors = JSON.parse(response)
+				}))
 			}
-			Promise.all(promises).then(resolve, reject)
-		})
+			if(assets.img.indexOf(name) !== -1){
+				let image = document.createElement("img")
+				promises.push(pageEvents.load(image).then(() => {
+					if(id in this.assetSelectors){
+						var selector = this.assetSelectors[id]
+						this.stylesheet.push(selector + '{background-image:url("' + image.src + '")}')
+					}
+				}))
+				image.id = name
+				image.src = URL.createObjectURL(file)
+				loader.assetsDiv.appendChild(image)
+				assets.image[id].parentNode.removeChild(assets.image[id])
+				assets.image[id] = image
+			}
+			if(assets.audioSfx.indexOf(name) !== -1){
+				assets.sounds[id].clean()
+				promises.push(this.loadSound(file, name, snd.sfxGain))
+			}
+			if(assets.audioMusic.indexOf(name) !== -1){
+				assets.sounds[id].clean()
+				promises.push(this.loadSound(file, name, snd.musicGain))
+			}
+			if(assets.audioSfxLR.indexOf(name) !== -1){
+				assets.sounds[id + "_p1"].clean()
+				assets.sounds[id + "_p2"].clean()
+				promises.push(this.loadSound(file, name, snd.sfxGain).then(sound => {
+					assets.sounds[id + "_p1"] = assets.sounds[id].copy(snd.sfxGainL)
+					assets.sounds[id + "_p2"] = assets.sounds[id].copy(snd.sfxGainR)
+				}))
+			}
+			if(assets.audioSfxLoud.indexOf(name) !== -1){
+				assets.sounds[id].clean()
+				promises.push(this.loadSound(file, name, snd.sfxLoudGain))
+			}
+		}
+		return Promise.all(promises)
 	}
 	loadSound(file, name, gain){
 		var id = this.getFilename(name)
-		return gain.load(file, true).then(sound => {
+		return gain.load(file).then(sound => {
 			assets.sounds[id] = sound
 		})
 	}
@@ -463,7 +454,7 @@
 	}
 	
 	getCategory(file, exclude){
-		var path = file.webkitRelativePath.toLowerCase().split("/")
+		var path = file.path.toLowerCase().split("/")
 		for(var i = path.length - 2; i >= 0; i--){
 			var hasTitle = false
 			for(var j in exclude){
@@ -532,24 +523,14 @@
 			document.head.appendChild(style)
 		}
 		if(this.songs.length){
-			var length = this.songs.length
-			assets.songs = this.songs
-			assets.customSongs = true
-			assets.customSelected = 0
-			assets.sounds["se_don"].play()
-			this.songSelect.clean()
-			setTimeout(() => {
-				loader.screen.removeChild(this.loaderDiv)
-				this.clean()
-				new SongSelect("browse", false, this.songSelect.touchEnabled)
-				pageEvents.send("import-songs", length)
-			}, 500)
+			if(this.limited){
+				assets.otherFiles = this.otherFiles
+			}
+			return Promise.resolve(this.songs)
 		}else{
-			loader.screen.removeChild(this.loaderDiv)
-			this.songSelect.browse.parentNode.reset()
-			this.songSelect.redrawRunning = true
-			this.clean()
+			return Promise.reject("cancel")
 		}
+		this.clean()
 	}
 	
 	joinPath(){
@@ -587,7 +568,6 @@
 	}
 	
 	clean(){
-		delete this.loaderDiv
 		delete this.songs
 		delete this.tjaFiles
 		delete this.osuFiles

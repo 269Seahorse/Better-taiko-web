@@ -246,23 +246,15 @@ class Controller{
 					var songObj = assets.songs.find(song => song.id === this.selectedSong.folder)
 					var promises = []
 					if(songObj.chart && songObj.chart !== "blank"){
-						var reader = new FileReader()
-						promises.push(pageEvents.load(reader).then(event => {
-							this.songData = event.target.result.replace(/\0/g, "").split("\n")
+						promises.push(songObj.chart.read(this.selectedSong.type === "tja" ? "sjis" : undefined).then(data => {
+							this.songData = data.replace(/\0/g, "").split("\n")
 							return Promise.resolve()
 						}))
-						if(this.selectedSong.type === "tja"){
-							reader.readAsText(songObj.chart, "sjis")
-						}else{
-							reader.readAsText(songObj.chart)
-						}
 					}
 					if(songObj.lyricsFile){
-						var reader = new FileReader()
-						promises.push(pageEvents.load(reader).then(event => {
+						promises.push(songObj.lyricsFile.read().then(event => {
 							songObj.lyricsData = event.target.result
-						}, () => Promise.resolve()), songObj.lyricsFile.webkitRelativePath)
-						reader.readAsText(songObj.lyricsFile)
+						}, () => Promise.resolve()), songObj.lyricsFile.path)
 					}
 					Promise.all(promises).then(resolve)
 				}

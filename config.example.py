@@ -33,3 +33,11 @@ SECRET_KEY = 'change-me'
 
 # Git repository base URL.
 URL = 'https://github.com/bui/taiko-web/'
+
+# Google Drive API.
+GOOGLE_CREDENTIALS = {
+    'gdrive_enabled': False,
+    'api_key': '',
+    'oauth_client_id': '',
+    'project_number': ''
+}

@@ -49,7 +49,7 @@ class SongSelect{
 				border: ["#dec4fd", "#a543ef"],
 				outline: "#a741ef"
 			},
-			"browse": {
+			"customSongs": {
 				sort: 0,
 				background: "#fab5d3",
 				border: ["#ffe7ef", "#d36aa2"],
@@ -80,42 +80,7 @@ class SongSelect{
 		
 		this.songs = []
 		for(let song of assets.songs){
-			var title = this.getLocalTitle(song.title, song.title_lang)
-			var subtitle = this.getLocalTitle(title === song.title ? song.subtitle : "", song.subtitle_lang)
-			var skin = null
-			var categoryName = ""
-			var originalCategory = ""
-			if(song.category_id !== null && song.category_id !== undefined){
-				var category = assets.categories.find(cat => cat.id === song.category_id)
-				var categoryName = this.getLocalTitle(category.title, category.title_lang)
-				var originalCategory = category.title
-				var skin = this.songSkin[category.title]
-			}else if(song.category){
-				var categoryName = song.category
-				var originalCategory = song.category
-			}
-			this.songs.push({
-				id: song.id,
-				title: title,
-				originalTitle: song.title,
-				subtitle: subtitle,
-				skin: skin || this.songSkin.default,
-				courses: song.courses,
-				originalCategory: originalCategory,
-				category: categoryName,
-				category_id: song.category_id,
-				preview: song.preview || 0,
-				type: song.type,
-				offset: song.offset,
-				songSkin: song.song_skin || {},
-				music: song.music,
-				volume: song.volume,
-				maker: song.maker,
-				canJump: true,
-				hash: song.hash || song.title,
-				order: song.order,
-				lyrics: song.lyrics
-			})
+			this.songs.push(this.addSong(song))
 		}
 		this.songs.sort((a, b) => {
 			var catA = a.originalCategory in this.songSkin ? this.songSkin[a.originalCategory] : this.songSkin.default
@@ -170,17 +135,26 @@ class SongSelect{
 			action: "settings",
 			category: strings.random
 		})
-		if("webkitdirectory" in HTMLInputElement.prototype && !(/Android|iPhone|iPad/.test(navigator.userAgent))){
-			this.browse = document.getElementById("browse")
-			pageEvents.add(this.browse, "change", this.browseChange.bind(this))
-			
+		
+		var showCustom = false
+		if(gameConfig.google_credentials.gdrive_enabled){
+			if(!(/iPhone|iPad/.test(navigator.userAgent))){
+				showCustom = true
+			}
+		}else{
+			if("webkitdirectory" in HTMLInputElement.prototype && !(/Android|iPhone|iPad/.test(navigator.userAgent))){
+				showCustom = true
+			}
+		}
+		if(showCustom){
 			this.songs.push({
-				title: assets.customSongs ? strings.defaultSongList : strings.browse,
-				skin: this.songSkin.browse,
-				action: "browse",
+				title: assets.customSongs ? strings.customSongs.default : strings.customSongs.title,
+				skin: this.songSkin.customSongs,
+				action: "customSongs",
 				category: strings.random
 			})
 		}
+		
 		this.songs.push({
 			title: strings.back,
 			skin: this.songSkin.back,
@@ -501,11 +475,11 @@ class SongSelect{
 		event.preventDefault()
 		if(this.state.screen === "song" && this.redrawRunning){
 			var currentSong = this.songs[this.selectedSong]
-			if(currentSong.action === "browse"){
+			if(currentSong.action === "customSongs"){
 				var mouse = this.mouseOffset(event.changedTouches[0].pageX, event.changedTouches[0].pageY)
 				var moveBy = this.songSelMouse(mouse.x, mouse.y)
 				if(moveBy === 0){
-					this.toBrowse()
+					this.toCustomSongs()
 				}
 			}
 		}
@@ -668,10 +642,6 @@ class SongSelect{
 		}
 	}
 	
-	browseChange(event){
-		new ImportSongs(this, event)
-	}
-	
 	toSelectDifficulty(fromP2){
 		var currentSong = this.songs[this.selectedSong]
 		if(p2.session && !fromP2 && currentSong.action !== "random"){
@@ -686,6 +656,9 @@ class SongSelect{
 			}
 		}else if(this.state.locked === 0 || fromP2){
 			if(currentSong.courses){
+				if(currentSong.unloaded){
+					return
+				}
 				this.state.screen = "difficulty"
 				this.state.screenMS = this.getMS()
 				this.state.locked = true
@@ -721,8 +694,8 @@ class SongSelect{
 				this.toAbout()
 			}else if(currentSong.action === "settings"){
 				this.toSettings()
-			}else if(currentSong.action === "browse"){
-				this.toBrowse()
+			}else if(currentSong.action === "customSongs"){
+				this.toCustomSongs()
 			}
 		}
 		this.pointer(false)
@@ -857,18 +830,25 @@ class SongSelect{
 			}, 500)
 		}
 	}
-	toBrowse(){
+	toCustomSongs(){
 		if(assets.customSongs){
 			assets.customSongs = false
 			assets.songs = assets.songsDefault
+			delete assets.otherFiles
 			this.playSound("se_don")
 			this.clean()
 			setTimeout(() => {
-				new SongSelect("browse", false, this.touchEnabled)
+				new SongSelect("customSongs", false, this.touchEnabled)
 			}, 500)
 			pageEvents.send("import-songs-default")
 		}else{
-			this.browse.click()
+			localStorage["selectedSong"] = this.selectedSong
+			
+			this.playSound("se_don")
+			this.clean()
+			setTimeout(() => {
+				new CustomSongs(this.touchEnabled)
+			}, 500)
 		}
 	}
 	
@@ -2420,30 +2400,31 @@ class SongSelect{
 				}
 			}else{
 				songObj = {id: id}
-				
-				var previewFilename = prvTime > 0 ? "/preview.mp3" : "/main.mp3"
-				
-				var loadPreview = previewFilename => {
-					return snd.previewGain.load(gameConfig.songs_baseurl + id + previewFilename)
-				}
-				
-				new Promise((resolve, reject) => {
-					if(!currentSong.music){
-						songObj.preview_time = 0
-						loadPreview(previewFilename).catch(() => {
-							songObj.preview_time = prvTime
-							return loadPreview("/main.mp3")
-						}).then(resolve, reject)
-					}else if(currentSong.music !== "muted"){
+				if(currentSong.previewMusic){
+					songObj.preview_time = 0
+					var promise = snd.previewGain.load(currentSong.previewMusic).catch(() => {
 						songObj.preview_time = prvTime
-						snd.previewGain.load(currentSong.music, true).then(resolve, reject)
-					}
-				}).then(sound => {
-					if(currentId === this.previewId){
+						return snd.previewGain.load(currentSong.music)
+					})
+				}else if(currentSong.unloaded){
+					var promise = this.getUnloaded(this.selectedSong, songObj)
+				}else if(currentSong.sound){
+					songObj.preview_time = prvTime
+					currentSong.sound.gain = snd.previewGain
+					var promise = Promise.resolve(currentSong.sound)
+				}else if(currentSong.music !== "muted"){
+					songObj.preview_time = prvTime
+					var promise = snd.previewGain.load(currentSong.music)
+				}else{
+					return
+				}
+				promise.then(sound => {
+					if(currentId === this.previewId || loadOnly){
 						songObj.preview_sound = sound
-						this.preview = sound
-						this.previewLoaded(startLoad, songObj.preview_time, currentSong.volume)
-						
+						if(!loadOnly){
+							this.preview = sound
+							this.previewLoaded(startLoad, songObj.preview_time, currentSong.volume)
+						}
 						var oldPreview = this.previewList.shift()
 						if(oldPreview){
 							oldPreview.preview_sound.clean()
@@ -2451,6 +2432,10 @@ class SongSelect{
 						this.previewList.push(songObj)
 					}else{
 						sound.clean()
+					}
+				}).catch(e => {
+					if(e !== "cancel"){
+						return Promise.reject(e)
 					}
 				})
 			}
@@ -2482,6 +2467,72 @@ class SongSelect{
 			this.bgmEnabled = false
 			snd.musicGain.fadeOut(0.4)
 		}
+	}
+	getUnloaded(selectedSong, songObj){
+		var currentSong = this.songs[selectedSong]
+		var file = currentSong.chart
+		var importSongs = new ImportSongs(false, assets.otherFiles)
+		return file.read(currentSong.type === "tja" ? "sjis" : "").then(data => {
+			currentSong.chart = new CachedFile(data, file)
+			return importSongs.addTja({
+				file: currentSong.chart,
+				index: 0
+			})
+		}).then(() => {
+			var imported = importSongs.songs[0]
+			importSongs.clean()
+			imported.id = currentSong.id
+			imported.order = currentSong.order
+			delete imported.song_skin
+			songObj.preview_time = imported.preview
+			if(imported.music){
+				return snd.previewGain.load(imported.music).then(sound => {
+					imported.sound = sound
+					var index = assets.songs.findIndex(song => song.id === currentSong.id)
+					if(index !== -1){
+						assets.songs[index] = imported
+					}
+					this.songs[selectedSong] = this.addSong(imported)
+					return sound.copy()
+				})
+			}else{
+				return Promise.reject("cancel")
+			}
+		})
+	}
+	addSong(song){
+		var title = this.getLocalTitle(song.title, song.title_lang)
+		var subtitle = this.getLocalTitle(title === song.title ? song.subtitle : "", song.subtitle_lang)
+		var skin = null
+		var categoryName = ""
+		var originalCategory = ""
+		if(song.category_id !== null && song.category_id !== undefined){
+			var category = assets.categories.find(cat => cat.id === song.category_id)
+			var categoryName = this.getLocalTitle(category.title, category.title_lang)
+			var originalCategory = category.title
+			var skin = this.songSkin[category.title]
+		}else if(song.category){
+			var categoryName = song.category
+			var originalCategory = song.category
+		}
+		var addedSong = {
+			title: title,
+			originalTitle: song.title,
+			subtitle: subtitle,
+			skin: skin || this.songSkin.default,
+			originalCategory: originalCategory,
+			category: categoryName,
+			preview: song.preview || 0,
+			songSkin: song.song_skin || {},
+			canJump: true,
+			hash: song.hash || song.title
+		}
+		for(var i in song){
+			if(!(i in addedSong)){
+				addedSong[i] = song[i]
+			}
+		}
+		return addedSong
 	}
 	
 	onusers(response){
@@ -2657,8 +2708,6 @@ class SongSelect{
 			pageEvents.remove(this.touchFullBtn, "click")
 			delete this.touchFullBtn
 		}
-		pageEvents.remove(this.browse, "change")
-		delete this.browse
 		delete this.selectable
 		delete this.ctx
 		delete this.canvas

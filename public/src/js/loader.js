@@ -25,21 +25,13 @@ class Loader{
 		this.loaderPercentage = document.querySelector("#loader .percentage")
 		this.loaderProgress = document.querySelector("#loader .progress")
 		
-		var queryString = gameConfig._version.commit_short ? "?" + gameConfig._version.commit_short : ""
+		this.queryString = gameConfig._version.commit_short ? "?" + gameConfig._version.commit_short : ""
 		
 		if(gameConfig.custom_js){
-			var script = document.createElement("script")
-			var url = gameConfig.custom_js + queryString
-			this.addPromise(pageEvents.load(script), url)
-			script.src = url
-			document.head.appendChild(script)
+			this.addPromise(this.loadScript(gameConfig.custom_js), gameConfig.custom_js)
 		}
 		assets.js.forEach(name => {
-			var script = document.createElement("script")
-			var url = "/src/js/" + name + queryString
-			this.addPromise(pageEvents.load(script), url)
-			script.src = url
-			document.head.appendChild(script)
+			this.addPromise(this.loadScript("/src/js/" + name), "/src/js/" + name)
 		})
 		
 		var pageVersion = versionLink.href
@@ -53,20 +45,19 @@ class Loader{
 				gameConfig._version.commit &&
 				versionLink.href.indexOf(gameConfig._version.commit) === -1
 			){
-				// Version in the config does not match version on the page
-				reject()
+				reject("Version on the page and config does not match\n(page:  " + pageVersion + ",\nconfig: "+ gameConfig._version.commit + ")")
 			}
 			var cssCount = document.styleSheets.length + assets.css.length
 			assets.css.forEach(name => {
 				var stylesheet = document.createElement("link")
 				stylesheet.rel = "stylesheet"
-				stylesheet.href = "/src/css/" + name + queryString
+				stylesheet.href = "/src/css/" + name + this.queryString
 				document.head.appendChild(stylesheet)
 			})
 			assets.assetsCss.forEach(name => {
 				var stylesheet = document.createElement("link")
 				stylesheet.rel = "stylesheet"
-				stylesheet.href = gameConfig.assets_baseurl + name + queryString
+				stylesheet.href = gameConfig.assets_baseurl + name + this.queryString
 				document.head.appendChild(stylesheet)
 			})
 			var checkStyles = () => {
@@ -77,7 +68,7 @@ class Loader{
 			}
 			var interval = setInterval(checkStyles, 100)
 			checkStyles()
-		}), "Version on the page and config does not match\n(page:  " + pageVersion + ",\nconfig: "+ gameConfig._version.commit + ")")
+		}))
 		
 		for(var name in assets.fonts){
 			var url = gameConfig.assets_baseurl + "fonts/" + assets.fonts[name]
@@ -99,12 +90,12 @@ class Loader{
 		
 		assets.views.forEach(name => {
 			var id = this.getFilename(name)
-			var url = "/src/views/" + name + queryString
+			var url = "/src/views/" + name + this.queryString
 			this.addPromise(this.ajax(url).then(page => {
 				assets.pages[id] = page
 			}), url)
 		})
-
+		
 		this.addPromise(this.ajax("/api/categories").then(cats => {
 			assets.categories = JSON.parse(cats)
 			assets.categories.forEach(cat => {
@@ -113,9 +104,9 @@ class Loader{
 					delete cat.song_skin
 					cat.songSkin.infoFill = cat.songSkin.info_fill
 					delete cat.songSkin.info_fill
-				}				
-			});
-
+				}
+			})
+			
 			assets.categories.push({
 				title: "default",
 				songSkin: {
@@ -127,18 +118,17 @@ class Loader{
 			})
 		}), "/api/categories")
 		
-		this.addPromise(this.ajax("/api/songs").then(songs => {
-			assets.songsDefault = JSON.parse(songs)
-			assets.songs = assets.songsDefault
-		}), "/api/songs")
-		
-		var url = gameConfig.assets_baseurl + "img/vectors.json" + queryString
+		var url = gameConfig.assets_baseurl + "img/vectors.json" + this.queryString
 		this.addPromise(this.ajax(url).then(response => {
 			vectors = JSON.parse(response)
 		}), url)
 		
 		this.afterJSCount =
-			["blurPerformance"].length +
+			[
+				"/api/songs",
+				"blurPerformance",
+				"categories"
+			].length +
 			assets.audioSfx.length +
 			assets.audioMusic.length +
 			assets.audioSfxLR.length +
@@ -149,21 +139,51 @@ class Loader{
 			if(this.error){
 				return
 			}
-
+			
+			this.addPromise(this.ajax("/api/songs").then(songs => {
+				songs = JSON.parse(songs)
+				songs.forEach(song => {
+					var directory = gameConfig.songs_baseurl + song.id + "/"
+					song.music = new RemoteFile(directory + "main.mp3")
+					if(song.type === "tja"){
+						song.chart = new RemoteFile(directory + "main.tja")
+					}else{
+						song.chart = {separateDiff: true}
+						for(var diff in song.courses){
+							if(song.courses[diff]){
+								song.chart[diff] = new RemoteFile(directory + diff + ".osu")
+							}
+						}
+					}
+					if(song.lyrics){
+						song.lyricsFile = new RemoteFile(gameConfig.songs_baseurl + song.id + "main.vtt")
+					}
+					if(song.preview > 0){
+						song.previewMusic = new RemoteFile(directory + "preview.mp3")
+					}
+				})
+				assets.songsDefault = songs
+				assets.songs = assets.songsDefault
+			}), "/api/songs")
+			
+			var categoryPromises = []
 			assets.categories //load category backgrounds to DOM
-				.filter(cat=>cat.songSkin && cat.songSkin.bg_img)
-				.forEach(cat=>{
+				.filter(cat => cat.songSkin && cat.songSkin.bg_img)
+				.forEach(cat => {
 					let name = cat.songSkin.bg_img
 					var id = this.getFilename(name)
 					var image = document.createElement("img")
 					var url = gameConfig.assets_baseurl + "img/" + name
-					this.addPromise(pageEvents.load(image), url)
+					categoryPromises.push(pageEvents.load(image).catch(response => {
+						this.errorMsg(response, url)
+					}))
 					image.id = name
 					image.src = url
 					this.assetsDiv.appendChild(image)
 					assets.image[id] = image
-			})
-
+				})
+			this.addPromise(Promise.all(categoryPromises))
+			
 			snd.buffer = new SoundBuffer()
 			snd.musicGain = snd.buffer.createGain()
 			snd.sfxGain = snd.buffer.createGain()
@@ -300,14 +320,13 @@ class Loader{
 					this.callback(songId)
 					pageEvents.send("ready", readyEvent)
 				})
-			}, this.errorMsg.bind(this))		
-		})	
+			}, this.errorMsg.bind(this))
+		})
 	}
 	addPromise(promise, url){
 		this.promises.push(promise)
 		promise.then(this.assetLoaded.bind(this), response => {
 			this.errorMsg(response, url)
-			return Promise.resolve()
 		})
 	}
 	soundUrl(name){
@@ -315,7 +334,7 @@ class Loader{
 	}
 	loadSound(name, gain){
 		var id = this.getFilename(name)
-		return gain.load(this.soundUrl(name)).then(sound => {
+		return gain.load(new RemoteFile(this.soundUrl(name))).then(sound => {
 			assets.sounds[id] = sound
 		})
 	}
@@ -415,21 +434,28 @@ class Loader{
 		this.screen.classList[patternBg ? "add" : "remove"]("pattern-bg")
 	}
 	ajax(url, customRequest){
-		return new Promise((resolve, reject) => {
-			var request = new XMLHttpRequest()
-			request.open("GET", url)
-			pageEvents.load(request).then(() => {
-				if(request.status === 200){
-					resolve(request.response)
-				}else{
-					reject()
-				}
-			}, reject)
-			if(customRequest){
-				customRequest(request)
+		var request = new XMLHttpRequest()
+		request.open("GET", url)
+		var promise = pageEvents.load(request).then(() => {
+			if(request.status === 200){
+				return request.response
+			}else{
+				return Promise.reject(`${url} (${request.status})`)
 			}
-			request.send()
 		})
+		if(customRequest){
+			customRequest(request)
+		}
+		request.send()
+		return promise
+	}
+	loadScript(url){
+		var script = document.createElement("script")
+		var url = url + this.queryString
+		var promise = pageEvents.load(script)
+		script.src = url
+		document.head.appendChild(script)
+		return promise
 	}
 	getCsrfToken(){
 		return this.ajax("api/csrftoken").then(response => {
