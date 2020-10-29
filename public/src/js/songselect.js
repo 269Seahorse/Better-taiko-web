@@ -2407,7 +2407,7 @@ class SongSelect{
 						return snd.previewGain.load(currentSong.music)
 					})
 				}else if(currentSong.unloaded){
-					var promise = this.getUnloaded(this.selectedSong, songObj)
+					var promise = this.getUnloaded(this.selectedSong, songObj, currentId)
 				}else if(currentSong.sound){
 					songObj.preview_time = prvTime
 					currentSong.sound.gain = snd.previewGain
@@ -2468,13 +2468,13 @@ class SongSelect{
 			snd.musicGain.fadeOut(0.4)
 		}
 	}
-	getUnloaded(selectedSong, songObj){
+	getUnloaded(selectedSong, songObj, currentId){
 		var currentSong = this.songs[selectedSong]
 		var file = currentSong.chart
 		var importSongs = new ImportSongs(false, assets.otherFiles)
 		return file.read(currentSong.type === "tja" ? "sjis" : "").then(data => {
 			currentSong.chart = new CachedFile(data, file)
-			return importSongs.addTja({
+			return importSongs[currentSong.type === "tja" ? "addTja" : "addOsu"]({
 				file: currentSong.chart,
 				index: 0
 			})
@@ -2485,14 +2485,15 @@ class SongSelect{
 			imported.order = currentSong.order
 			delete imported.song_skin
 			songObj.preview_time = imported.preview
-			if(imported.music){
+			var index = assets.songs.findIndex(song => song.id === currentSong.id)
+			if(index !== -1){
+				assets.songs[index] = imported
+			}
+			this.songs[selectedSong] = this.addSong(imported)
+			if(imported.music && currentId === this.previewId){
 				return snd.previewGain.load(imported.music).then(sound => {
 					imported.sound = sound
-					var index = assets.songs.findIndex(song => song.id === currentSong.id)
-					if(index !== -1){
-						assets.songs[index] = imported
-					}
-					this.songs[selectedSong] = this.addSong(imported)
+					this.songs[selectedSong].sound = sound
 					return sound.copy()
 				})
 			}else{

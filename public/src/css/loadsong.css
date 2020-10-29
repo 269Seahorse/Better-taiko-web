@@ -13,8 +13,8 @@
 	flex-direction: column;
 	justify-content: center;
 	align-items: center;
-	width: 20vw;
-	height: 15vw;
+	width: 20vmax;
+	height: 15vmax;
 	background: rgba(0, 0, 0, 0.75);
 	border-radius: 5px;
 	border: 3px solid white;
@@ -22,14 +22,14 @@
 	z-index: 1;
 }
 #loading-don{
-	width: 10vw;
-	height: calc(10vw / 120 * 115);
+	width: 10vmax;
+	height: calc(10vmax / 120 * 115);
 	background-size: contain;
 	background-repeat: no-repeat;
 }
 .loading-text{
 	position: relative;
-	font-size: 1.5vw;
+	font-size: 1.5vmax;
 	text-align: center;
 	z-index: 1;
 }

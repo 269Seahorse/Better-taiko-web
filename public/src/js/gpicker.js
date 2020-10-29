@@ -21,6 +21,9 @@ class Gpicker{
 						for(var i = 0; i < files.length; i++){
 							var path = files[i].path ? files[i].path + "/" : ""
 							var list = files[i].list
+							if(!list){
+								continue
+							}
 							for(var j = 0; j < list.length; j++){
 								var file = list[j]
 								if(file.mimeType === this.folder){
@@ -68,7 +71,7 @@ class Gpicker{
 	}
 	loadApi(){
 		if(window.gapi && gapi.client && gapi.client.drive){
-			return
+			return Promise.resolve()
 		}
 		return loader.loadScript("https://apis.google.com/js/api.js")
 		.then(() => new Promise((resolve, reject) =>
@@ -83,7 +86,7 @@ class Gpicker{
 	}
 	getToken(lockedCallback){
 		if(this.oauthToken){
-			return
+			return Promise.resolve()
 		}
 		if(!this.auth){
 			var authPromise = gapi.auth2.init({
