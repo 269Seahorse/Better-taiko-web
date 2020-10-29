@@ -62,9 +62,12 @@ class GdriveFile{
 	}
 	read(encoding){
 		if(encoding){
-			return this.arrayBuffer().then(response =>
-				new TextDecoder(encoding).decode(response)
-			)
+			return this.arrayBuffer().then(response => {
+				var reader = new FileReader()
+				var promise = pageEvents.load(reader).then(event => event.target.result)
+				reader.readAsText(new Blob([response]), encoding)
+				return promise
+			})
 		}else{
 			return gpicker.downloadFile(this.id)
 		}
