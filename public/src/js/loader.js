@@ -156,7 +156,7 @@ class Loader{
 						}
 					}
 					if(song.lyrics){
-						song.lyricsFile = new RemoteFile(gameConfig.songs_baseurl + song.id + "main.vtt")
+						song.lyricsFile = new RemoteFile(directory + "main.vtt")
 					}
 					if(song.preview > 0){
 						song.previewMusic = new RemoteFile(directory + "preview.mp3")
