@@ -136,10 +136,12 @@ class CustomSongs{
 		}
 	}
 	songsLoaded(songs){
-		var length = songs.length
-		assets.songs = songs
-		assets.customSongs = true
-		assets.customSelected = 0
+		if(songs){
+			var length = songs.length
+			assets.songs = songs
+			assets.customSongs = true
+			assets.customSelected = 0
+		}
 		assets.sounds["se_don"].play()
 		this.clean()
 		setTimeout(() => {

@@ -1,3 +1,9 @@
+function readFile(file, arrayBuffer, encoding){
+	var reader = new FileReader()
+	var promise = pageEvents.load(reader).then(event => event.target.result)
+	reader[arrayBuffer ? "readAsArrayBuffer" : "readAsText"](file, encoding)
+	return promise
+}
 class RemoteFile{
 	constructor(url){
 		this.url = url
@@ -22,12 +28,13 @@ class RemoteFile{
 	}
 	read(encoding){
 		if(encoding){
-			return this.arrayBuffer().then(response =>
-				new TextDecoder(encoding).decode(response)
-			)
+			return this.blob().then(blob => readFile(blob, false, encoding))
 		}else{
 			return loader.ajax(this.url)
 		}
+	}
+	blob(){
+		return this.arrayBuffer().then(response => new Blob([response]))
 	}
 }
 class LocalFile{
@@ -38,16 +45,13 @@ class LocalFile{
 		this.name = file.name
 	}
 	arrayBuffer(){
-		var reader = new FileReader()
-		var promise = pageEvents.load(reader).then(event => event.target.result)
-		reader.readAsArrayBuffer(this.file)
-		return promise
+		return readFile(this.file, true)
 	}
 	read(encoding){
-		var reader = new FileReader()
-		var promise = pageEvents.load(reader).then(event => event.target.result)
-		reader.readAsText(this.file, encoding)
-		return promise
+		return readFile(this.file, false, encoding)
+	}
+	blob(){
+		return Promise.resolve(this.file)
 	}
 }
 class GdriveFile{
@@ -62,15 +66,13 @@ class GdriveFile{
 	}
 	read(encoding){
 		if(encoding){
-			return this.arrayBuffer().then(response => {
-				var reader = new FileReader()
-				var promise = pageEvents.load(reader).then(event => event.target.result)
-				reader.readAsText(new Blob([response]), encoding)
-				return promise
-			})
+			return this.blob().then(blob => readFile(blob, false, encoding))
 		}else{
 			return gpicker.downloadFile(this.id)
 		}
+	}
+	blob(){
+		return this.arrayBuffer().then(response => new Blob([response]))
 	}
 }
 class CachedFile{
@@ -86,5 +88,8 @@ class CachedFile{
 	}
 	read(encoding){
 		return this.arrayBuffer()
+	}
+	blob(){
+		return this.arrayBuffer().then(response => new Blob([response]))
 	}
 }

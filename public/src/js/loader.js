@@ -433,16 +433,19 @@ class Loader{
 		this.screen.innerHTML = assets.pages[name]
 		this.screen.classList[patternBg ? "add" : "remove"]("pattern-bg")
 	}
-	ajax(url, customRequest){
+	ajax(url, customRequest, customResponse){
 		var request = new XMLHttpRequest()
 		request.open("GET", url)
-		var promise = pageEvents.load(request).then(() => {
-			if(request.status === 200){
-				return request.response
-			}else{
-				return Promise.reject(`${url} (${request.status})`)
-			}
-		})
+		var promise = pageEvents.load(request)
+		if(!customResponse){
+			promise = promise.then(() => {
+				if(request.status === 200){
+					return request.response
+				}else{
+					return Promise.reject(`${url} (${request.status})`)
+				}
+			})
+		}
 		if(customRequest){
 			customRequest(request)
 		}

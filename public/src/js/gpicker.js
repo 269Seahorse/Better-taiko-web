@@ -84,7 +84,7 @@ class Gpicker{
 			gapi.client.load("drive", "v3").then(resolve, reject)
 		))
 	}
-	getToken(lockedCallback){
+	getToken(lockedCallback=()=>{}){
 		if(this.oauthToken){
 			return Promise.resolve()
 		}
@@ -156,13 +156,31 @@ class Gpicker{
 			.build()
 			.setVisible(true)
 	}
-	downloadFile(id, arrayBuffer){
-		return this.queue().then(() =>
-			loader.ajax(this.filesUrl + id + "?alt=media", request => {
+	downloadFile(id, arrayBuffer, retry){
+		var url = this.filesUrl + id + "?alt=media"
+		return this.queue().then(this.getToken.bind(this)).then(() =>
+			loader.ajax(url, request => {
 				if(arrayBuffer){
 					request.responseType = "arraybuffer"
 				}
 				request.setRequestHeader("Authorization", "Bearer " + this.oauthToken)
+			}, true).then(event => {
+				var request = event.target
+				var reject = () => Promise.reject(`${url} (${request.status})`)
+				if(request.status === 200){
+					return request.response
+				}else if(request.status === 401 && !retry){
+					return new Response(request.response).json().then(response => {
+						var e = response.error
+						if(e && e.errors[0].reason === "authError"){
+							delete this.oauthToken
+							return this.downloadFile(id, arrayBuffer, true)
+						}else{
+							return reject()
+						}
+					}, reject)
+				}
+				return reject()
 			})
 		)
 	}

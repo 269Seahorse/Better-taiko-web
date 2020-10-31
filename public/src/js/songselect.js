@@ -1090,7 +1090,7 @@ class SongSelect{
 		}
 		
 		if(screen === "song"){
-			if(this.songs[this.selectedSong].courses){
+			if(this.songs[this.selectedSong].courses && !this.songs[this.selectedSong].unloaded){
 				selectedWidth = this.songAsset.selectedWidth
 			}
 			
@@ -1101,11 +1101,11 @@ class SongSelect{
 			var resize2 = changeSpeed - resize
 			var scroll = resize2 - resize - scrollDelay * 2
 			var elapsed = ms - this.state.moveMS
-
+			
 			if(this.state.catJump || (this.state.move && ms > this.state.moveMS + resize2 - scrollDelay)){
 				var isJump = this.state.catJump
 				var previousSelectedSong = this.selectedSong
-
+				
 				if(!isJump){
 					this.playSound("se_ka", 0, this.lastMoveBy)
 					this.selectedSong = this.mod(this.songs.length, this.selectedSong + this.state.move)
@@ -1165,7 +1165,7 @@ class SongSelect{
 				
 				if(this.songs[this.selectedSong].action !== "back"){
 					var cat = this.songs[this.selectedSong].originalCategory
-					this.drawBackground(cat)				
+					this.drawBackground(cat)
 				}
 			}
 			if(this.state.moveMS && ms < this.state.moveMS + changeSpeed){
@@ -1291,7 +1291,7 @@ class SongSelect{
 			highlight = 1
 		}
 		var selectedSkin = this.songSkin.selected
-		if(screen === "title" || screen === "titleFadeIn" || this.state.locked === 3){
+		if(screen === "title" || screen === "titleFadeIn" || this.state.locked === 3 || currentSong.unloaded){
 			selectedSkin = currentSong.skin
 			highlight = 2
 		}else if(songSelMoving){
@@ -2278,7 +2278,7 @@ class SongSelect{
 		}else{
 			this.songSelect.style.backgroundImage = "url('" + assets.image["bg_genre_def"].src + "')"
 			}
-		}	
+		}
 	
 	drawClosedSong(config){
 		var ctx = config.ctx
@@ -2476,20 +2476,18 @@ class SongSelect{
 			currentSong.chart = new CachedFile(data, file)
 			return importSongs[currentSong.type === "tja" ? "addTja" : "addOsu"]({
 				file: currentSong.chart,
-				index: 0
+				index: currentSong.id
 			})
 		}).then(() => {
-			var imported = importSongs.songs[0]
+			var imported = importSongs.songs[currentSong.id]
 			importSongs.clean()
-			imported.id = currentSong.id
-			imported.order = currentSong.order
-			delete imported.song_skin
 			songObj.preview_time = imported.preview
 			var index = assets.songs.findIndex(song => song.id === currentSong.id)
 			if(index !== -1){
 				assets.songs[index] = imported
 			}
 			this.songs[selectedSong] = this.addSong(imported)
+			this.state.moveMS = this.getMS() - this.songSelecting.speed * this.songSelecting.resize
 			if(imported.music && currentId === this.previewId){
 				return snd.previewGain.load(imported.music).then(sound => {
 					imported.sound = sound

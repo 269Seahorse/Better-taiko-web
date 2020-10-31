@@ -108,7 +108,9 @@ class LoadSong{
 					return this.scaleImg(img, filename, prefix, force)
 				}), songObj.custom ? filename + ".png" : skinBase + filename + ".png")
 				if(songObj.custom){
-					img.src = URL.createObjectURL(song.songSkin[filename + ".png"])
+					this.addPromise(song.songSkin[filename + ".png"].blob().then(blob => {
+						img.src = URL.createObjectURL(blob)
+					}))
 				}else{
 					img.src = skinBase + filename + ".png"
 				}

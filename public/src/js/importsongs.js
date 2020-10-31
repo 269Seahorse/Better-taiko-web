@@ -7,7 +7,7 @@
 		this.otherFiles = otherFiles || {}
 		this.songs = []
 		this.stylesheet = []
-		this.songTitle = {}
+		this.songTitle = this.otherFiles.songTitle || {}
 		this.uraRegex = /\s*[\(（]裏[\)）]$/
 		this.courseTypes = {
 			"easy": 0,
@@ -42,6 +42,7 @@
 			"bg_stage_2": ".song-stage-2",
 			"bg_stage_3": ".song-stage-3"
 		}
+		this.comboVoices = ["v_combo_50"].concat(Array.from(Array(50), (d, i) => "v_combo_" + ((i + 1) * 100)))
 	}
 	load(files){
 		var extensionRegex = /\.[^\/]+$/
@@ -66,13 +67,13 @@
 					file: file,
 					index: i
 				})
-			}else if(!this.limited && (name === "genre.ini" || name === "box.def" || name === "songtitle.txt")){
+			}else if(!this.limited && (name === "genre.ini" || name === "box.def") || name === "songtitle.txt"){
 				var level = (file.path.match(/\//g) || []).length
 				metaFiles.push({
 					file: file,
 					level: (level * 2) + (name === "genre.ini" ? 1 : 0)
 				})
-			}else if(!this.limited && path.indexOf("/taiko-web assets/") !== -1){
+			}else if(!this.limited && (path.indexOf("/taiko-web assets/") !== -1 || path.indexOf("taiko-web assets/") === 0)){
 				if(!(name in this.assetFiles)){
 					this.assetFiles[name] = file
 				}
@@ -401,12 +402,13 @@
 		for(let name in this.assetFiles){
 			let id = this.getFilename(name)
 			var file = this.assetFiles[name]
+			var index = name.lastIndexOf(".")
 			if(name === "vectors.json"){
-				promises.push(file.read().then(() => response => {
+				promises.push(file.read().then(response => {
 					vectors = JSON.parse(response)
 				}))
 			}
-			if(assets.img.indexOf(name) !== -1){
+			if(name.endsWith(".png")){
 				let image = document.createElement("img")
 				promises.push(pageEvents.load(image).then(() => {
 					if(id in this.assetSelectors){
@@ -415,9 +417,12 @@
 					}
 				}))
 				image.id = name
-				image.src = URL.createObjectURL(file)
+				image.src = URL.createObjectURL(file.blob())
 				loader.assetsDiv.appendChild(image)
-				assets.image[id].parentNode.removeChild(assets.image[id])
+				var oldImage = assets.image[id]
+				if(oldImage && oldImage.parentNode){
+					oldImage.parentNode.removeChild(oldImage)
+				}
 				assets.image[id] = image
 			}
 			if(assets.audioSfx.indexOf(name) !== -1){
@@ -439,6 +444,13 @@
 			if(assets.audioSfxLoud.indexOf(name) !== -1){
 				assets.sounds[id].clean()
 				promises.push(this.loadSound(file, name, snd.sfxLoudGain))
+			}
+			if(this.comboVoices.indexOf(id) !== -1){
+				promises.push(snd.sfxGain.load(file).then(sound => {
+					assets.sounds[id] = sound
+					assets.sounds[id + "_p1"] = assets.sounds[id].copy(snd.sfxGainL)
+					assets.sounds[id + "_p2"] = assets.sounds[id].copy(snd.sfxGainR)
+				}))
 			}
 		}
 		return Promise.all(promises)
@@ -525,8 +537,11 @@
 		if(this.songs.length){
 			if(this.limited){
 				assets.otherFiles = this.otherFiles
+				assets.otherFiles.songTitle = this.songTitle
 			}
 			return Promise.resolve(this.songs)
+		}else if(Object.keys(this.assetFiles).length){
+			return Promise.resolve()
 		}else{
 			return Promise.reject("cancel")
 		}
@@ -571,6 +586,7 @@
 		delete this.songs
 		delete this.tjaFiles
 		delete this.osuFiles
+		delete this.assetFiles
 		delete this.otherFiles
 	}
 }
