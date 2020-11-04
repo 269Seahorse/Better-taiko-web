@@ -38,9 +38,9 @@ class RemoteFile{
 	}
 }
 class LocalFile{
-	constructor(file){
+	constructor(file, path){
 		this.file = file
-		this.path = file.webkitRelativePath
+		this.path = path || file.webkitRelativePath
 		this.url = this.path
 		this.name = file.name
 	}

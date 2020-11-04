@@ -252,8 +252,8 @@ class Controller{
 						}))
 					}
 					if(songObj.lyricsFile){
-						promises.push(songObj.lyricsFile.read().then(event => {
-							songObj.lyricsData = event.target.result
+						promises.push(songObj.lyricsFile.read().then(result => {
+							songObj.lyricsData = result
 						}, () => Promise.resolve()), songObj.lyricsFile.path)
 					}
 					Promise.all(promises).then(resolve)

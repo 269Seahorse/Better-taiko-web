@@ -417,10 +417,13 @@
 					}
 				}))
 				image.id = name
-				image.src = URL.createObjectURL(file.blob())
+				promises.push(file.blob().then(blob => {
+					image.src = URL.createObjectURL(blob)
+				}))
 				loader.assetsDiv.appendChild(image)
 				var oldImage = assets.image[id]
 				if(oldImage && oldImage.parentNode){
+					URL.revokeObjectURL(oldImage.src)
 					oldImage.parentNode.removeChild(oldImage)
 				}
 				assets.image[id] = image
@@ -543,7 +546,7 @@
 		}else if(Object.keys(this.assetFiles).length){
 			return Promise.resolve()
 		}else{
-			return Promise.reject("cancel")
+			return Promise.reject("nosongs")
 		}
 		this.clean()
 	}

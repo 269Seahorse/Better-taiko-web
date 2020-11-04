@@ -1060,7 +1060,11 @@ var translations = {
 	},
 	customSongs: {
 		title: {
+			ja: "カスタム曲リスト",
 			en: "Custom Song List",
+			cn: "自定义歌曲列表",
+			tw: "自定義歌曲列表",
+			ko: "맞춤 노래 목록"
 		},
 		default: {
 			ja: "デフォルト曲リスト",
@@ -1075,21 +1079,61 @@ var translations = {
 			]
 		},
 		localFolder: {
-			en: "Local Folder..."
+			ja: "ローカルフォルダ...",
+			en: "Local Folder...",
+			cn: "本地文件夹...",
+			tw: "本地文件夾...",
+			ko: "로컬 폴더..."
 		},
 		gdriveFolder: {
-			en: "Google Drive..."
+			ja: "Google ドライブ...",
+			en: "Google Drive...",
+			cn: "Google云端硬盘...",
+			tw: "Google雲端硬碟...",
+			ko: "구글 드라이브..."
+		},
+		dropzone: {
+			ja: "ここにファイルをドロップ",
+			en: "Drop files here",
+			cn: "将文件拖至此处",
+			tw: "將文件拖至此處",
+			ko: "파일을 여기에 드롭"
+		},
+		importError: {
+			en: "Import Error"
+		},
+		noSongs: {
+			en: "No Taiko chart files have been found in the provided folder."
 		}
 	},
 	gpicker: {
+		locale: {
+			ja: "ja",
+			en: "en-GB",
+			cn: "zh-CN",
+			tw: "zh-TW",
+			ko: "ko"
+		},
 		myDrive: {
-			en: "My Drive"
+			ja: "マイドライブ",
+			en: "My Drive",
+			cn: "我的云端硬盘",
+			tw: "我的雲端硬碟",
+			ko: "내 드라이브"
 		},
 		starred: {
-			en: "Starred"
+			ja: "スター付き",
+			en: "Starred",
+			cn: "已加星标",
+			tw: "已加星號",
+			ko: "중요 문서함"
 		},
 		sharedWithMe: {
-			en: "Shared with me"
+			ja: "共有アイテム",
+			en: "Shared with me",
+			cn: "与我共享",
+			tw: "與我共用",
+			ko: "공유 문서함"
 		},
 		authError: {
 			en: "Auth error: %s"

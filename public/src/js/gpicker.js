@@ -9,15 +9,17 @@ class Gpicker{
 		this.resolveQueue = []
 		this.queueActive = false
 	}
-	browse(lockedCallback){
+	browse(lockedCallback, errorCallback){
 		return this.loadApi()
-		.then(() => this.getToken(lockedCallback))
+		.then(() => this.getToken(lockedCallback, errorCallback))
 		.then(() => new Promise((resolve, reject) => {
 			this.displayPicker(data => {
 				if(data.action === "picked"){
 					var file = data.docs[0]
+					var folders = []
+					var rateLimit = -1
+					var lastBatch = 0
 					var walk = (files, output=[]) => {
-						var batch = null
 						for(var i = 0; i < files.length; i++){
 							var path = files[i].path ? files[i].path + "/" : ""
 							var list = files[i].list
@@ -27,14 +29,9 @@ class Gpicker{
 							for(var j = 0; j < list.length; j++){
 								var file = list[j]
 								if(file.mimeType === this.folder){
-									if(!batch){
-										batch = gapi.client.newBatch()
-									}
-									batch.add(gapi.client.drive.files.list({
-										q: "'" + file.id + "' in parents",
-										orderBy: "name_natural"
-									}), {
-										id: path + file.name
+									folders.push({
+										path: path + file.name,
+										id: file.id
 									})
 								}else{
 									output.push(new GdriveFile({
@@ -45,14 +42,64 @@ class Gpicker{
 								}
 							}
 						}
-						if(batch){
-							return this.queue()
-							.then(() => batch.then(responses => {
-								var files = []
-								for(var path in responses.result){
-									files.push({path: path, list: responses.result[path].result.files})
+						var batchList = []
+						for(var i = 0; i < folders.length && batchList.length < 100; i++){
+							if(!folders[i].listed){
+								folders[i].pos = i
+								folders[i].listed = true
+								batchList.push(folders[i])
+							}
+						}
+						if(batchList.length){
+							var batch = gapi.client.newBatch()
+							batchList.forEach(folder => {
+								var req = {
+									q: "'" + folder.id + "' in parents and trashed = false",
+									orderBy: "name_natural"
 								}
-								return walk(files, output)
+								if(folder.pageToken){
+									req.pageToken = folder.pageToken
+								}
+								batch.add(gapi.client.drive.files.list(req), {id: folder.pos})
+							})
+							if(lastBatch + batchList.length > 100){
+								var waitPromise = this.sleep(1000)
+							}else{
+								var waitPromise = Promise.resolve()
+							}
+							return waitPromise.then(() => this.queue()).then(() => batch.then(responses => {
+								var files = []
+								var rateLimited = false
+								for(var i in responses.result){
+									var result = responses.result[i].result
+									if(result.error){
+										if(result.error.errors[0].domain !== "usageLimits"){
+											console.warn(result)
+										}else if(!rateLimited){
+											rateLimited = true
+											rateLimit++
+											folders.push({
+												path: folders[i].path,
+												id: folders[i].id,
+												pageToken: folders[i].pageToken
+											})
+										}
+									}else{
+										if(result.nextPageToken){
+											folders.push({
+												path: folders[i].path,
+												id: folders[i].id,
+												pageToken: result.nextPageToken
+											})
+										}
+										files.push({path: folders[i].path, list: result.files})
+									}
+								}
+								if(rateLimited){
+									return this.sleep(Math.pow(2, rateLimit) * 1000).then(() => walk(files, output))
+								}else{
+									return walk(files, output)
+								}
 							}))
 						}else{
 							return output
@@ -84,7 +131,7 @@ class Gpicker{
 			gapi.client.load("drive", "v3").then(resolve, reject)
 		))
 	}
-	getToken(lockedCallback=()=>{}){
+	getToken(lockedCallback=()=>{}, errorCallback=()=>{}){
 		if(this.oauthToken){
 			return Promise.resolve()
 		}
@@ -97,7 +144,7 @@ class Gpicker{
 				this.auth = gapi.auth2.getAuthInstance()
 			}, e => {
 				if(e.details){
-					alert(strings.gpicker.authError.replace("%s", e.details))
+					errorCallback(strings.gpicker.authError.replace("%s", e.details))
 				}
 				return Promise.reject(e)
 			})
@@ -132,6 +179,7 @@ class Gpicker{
 			.setDeveloperKey(this.apiKey)
 			.setAppId(this.projectNumber)
 			.setOAuthToken(this.oauthToken)
+			.setLocale(strings.gpicker.locale)
 			.hideTitleBar()
 			.addView(new picker.DocsView("folders")
 				.setLabel(strings.gpicker.myDrive)
@@ -183,6 +231,9 @@ class Gpicker{
 				return reject()
 			})
 		)
+	}
+	sleep(time){
+		return new Promise(resolve => setTimeout(resolve, time))
 	}
 	queue(){
 		return new Promise(resolve => {

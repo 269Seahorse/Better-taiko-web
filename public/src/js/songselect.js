@@ -586,7 +586,7 @@ class SongSelect{
 				})
 			}
 		}else if(this.state.locked !== 1 || fromP2){
-			if(this.songs[this.selectedSong].courses && (this.state.locked === 0 || fromP2)){
+			if(this.songs[this.selectedSong].courses && !this.songs[this.selectedSong].unloaded && (this.state.locked === 0 || fromP2)){
 				this.state.moveMS = ms
 			}else{
 				this.state.moveMS = ms - this.songSelecting.speed * this.songSelecting.resize
@@ -2222,7 +2222,7 @@ class SongSelect{
 			]
 			this.draw.layeredText({
 				ctx: ctx,
-				text: strings.ok,
+				text: strings.tutorial.ok,
 				x: _x,
 				y: _y + 18,
 				width: _w,

@@ -108,6 +108,14 @@ kbd{
 .left-buttons .taibtn{
 	margin-right: 0.4em;
 }
+.center-buttons{
+	display: flex;
+	justify-content: center;
+	margin: 1.5em 0;
+}
+.center-buttons .taibtn{
+	margin: 0 0.2em;
+}
 .diag-txt textarea,
 .diag-txt iframe{
 	width: 100%;
@@ -217,7 +225,8 @@ kbd{
 	z-index: 1;
 }
 #settings-gamepad,
-#settings-latency{
+#settings-latency,
+#customsongs-error{
 	display: none;
 }
 #settings-gamepad .view{
@@ -289,7 +298,8 @@ kbd{
 .latency-buttons span:active{
 	background-color: #946013;
 }
-.left-buttons .taibtn{
+.left-buttons .taibtn,
+.center-buttons .taibtn{
 	z-index: 1;
 }
 .accountpass-form,
@@ -402,4 +412,20 @@ kbd{
 	font-family: inherit;
 	font-size: 1em;
 	padding: 0.2em;
+}
+#customsongs-error .view,
+#dropzone .view{
+	width: 600px;
+}
+#dropzone{
+	pointer-events: none;
+	opacity: 0;
+	transition: opacity 0.5s;
+}
+#dropzone .view-content{
+	font-size: 2em;
+	text-align: center;
+}
+#dropzone.dragover{
+	opacity: 1;
 }

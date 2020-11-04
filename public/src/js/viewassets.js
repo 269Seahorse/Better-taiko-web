@@ -175,7 +175,9 @@ class ViewAssets{
 		})
 	}
 	clean(){
-		this.don.clean()
+		if(this.don){
+			this.don.clean()
+		}
 		delete this.ctx
 		delete this.don
 		delete this.fire
