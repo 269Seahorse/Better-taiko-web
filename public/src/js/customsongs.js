@@ -107,7 +107,7 @@ class CustomSongs{
 		element.innerText = text
 		element.setAttribute("alt", text)
 	}
-	localFolder(){
+	localFolder(event){
 		if(event){
 			if(event.type === "touchstart"){
 				event.preventDefault()
