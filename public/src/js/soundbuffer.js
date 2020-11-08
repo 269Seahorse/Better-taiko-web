@@ -5,24 +5,11 @@
 		pageEvents.add(window, ["click", "touchend", "keypress"], this.pageClicked.bind(this))
 		this.gainList = []
 	}
-	load(url, local, gain){
-		if(local){
-			var reader = new FileReader()
-			var loadPromise = pageEvents.load(reader).then(event => {
-				return event.target.result
-			})
-			reader.readAsArrayBuffer(url)
-		}else{
-			var loadPromise = loader.ajax(url, request => {
-				request.responseType = "arraybuffer"
-			})
-		}
-		return loadPromise.then(response => {
+	load(file, gain){
+		return file.arrayBuffer().then(response => {
 			return new Promise((resolve, reject) => {
 				return this.context.decodeAudioData(response, resolve, reject)
-			}).catch(error => {
-				throw [error, url]
-			})
+			}).catch(error => Promise.reject([error, file.url]))
 		}).then(buffer => {
 			return new Sound(gain || {soundBuffer: this}, buffer)
 		})
@@ -90,8 +77,8 @@ class SoundGain{
 		}
 		this.setVolume(1)
 	}
-	load(url, local){
-		return this.soundBuffer.load(url, local, this)
+	load(url){
+		return this.soundBuffer.load(url, this)
 	}
 	convertTime(time, absolute){
 		return this.soundBuffer.convertTime(time, absolute)
@@ -134,7 +121,7 @@ class Sound{
 		this.sources = new Set()
 	}
 	copy(gain){
-		return new Sound(gain, this.buffer)
+		return new Sound(gain || this.gain, this.buffer)
 	}
 	getTime(){
 		return this.soundBuffer.getTime()

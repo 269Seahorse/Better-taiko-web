@@ -308,8 +308,8 @@
 						w: _w, h: _h,
 						radius: 11
 					})
-					ctx.fill()					
-
+					ctx.fill()
+					
 					this.draw.layeredText({
 						ctx: ctx,
 						text: selectedSong.category,

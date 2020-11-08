@@ -165,7 +165,6 @@ class AutoScore {
 	GetMaxCombo() { 
 		var combo = 0;
 		for (var circle of this.circles) { 
-			//alert(this.IsCommonCircle(circle));
 			if (this.IsCommonCircle(circle) && (!circle.branch || circle.branch.name === "master")) { 
 				combo++;
 			}

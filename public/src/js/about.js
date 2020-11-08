@@ -138,7 +138,7 @@
 				if(gamepads[i]){
 					var gamepadDiag = []
 					gamepadDiag.push(gamepads[i].id)
-					gamepadDiag.push("buttons: " + 	gamepads[i].buttons.length)
+					gamepadDiag.push("buttons: " + gamepads[i].buttons.length)
 					gamepadDiag.push("axes: " + gamepads[i].axes.length)
 					diag.push("Gamepad #" + (i + 1) + ": " + gamepadDiag.join(", "))
 				}

@@ -40,12 +40,12 @@ class Controller{
 			this.parsedSongData = new ParseOsu(songData, selectedSong.difficulty, selectedSong.stars, selectedSong.offset)
 		}
 		this.offset = this.parsedSongData.soundOffset
-
+		
 		var maxCombo = this.parsedSongData.circles.filter(circle => ["don", "ka", "daiDon", "daiKa"].indexOf(circle.type) > -1 && (!circle.branch || circle.branch.name == "master")).length
 		if (maxCombo >= 50) {
-			var comboVoices = ["v_combo_50"].concat([...Array(Math.floor(maxCombo/100)).keys()].map(i => "v_combo_" + (i + 1)*100))
+			var comboVoices = ["v_combo_50"].concat(Array.from(Array(Math.min(50, Math.floor(maxCombo / 100))), (d, i) => "v_combo_" + ((i + 1) * 100)))
 			var promises = []
-
+			
 			comboVoices.forEach(name => {
 				if (!assets.sounds[name + "_p1"]) {
 					promises.push(loader.loadSound(name + ".wav", snd.sfxGain).then(sound => {
@@ -54,7 +54,7 @@ class Controller{
 					}))
 				}
 			})
-
+			
 			Promise.all(promises)
 		}
 		
@@ -246,23 +246,15 @@ class Controller{
 					var songObj = assets.songs.find(song => song.id === this.selectedSong.folder)
 					var promises = []
 					if(songObj.chart && songObj.chart !== "blank"){
-						var reader = new FileReader()
-						promises.push(pageEvents.load(reader).then(event => {
-							this.songData = event.target.result.replace(/\0/g, "").split("\n")
+						promises.push(songObj.chart.read(this.selectedSong.type === "tja" ? "sjis" : undefined).then(data => {
+							this.songData = data.replace(/\0/g, "").split("\n")
 							return Promise.resolve()
 						}))
-						if(this.selectedSong.type === "tja"){
-							reader.readAsText(songObj.chart, "sjis")
-						}else{
-							reader.readAsText(songObj.chart)
-						}
 					}
 					if(songObj.lyricsFile){
-						var reader = new FileReader()
-						promises.push(pageEvents.load(reader).then(event => {
-							songObj.lyricsData = event.target.result
-						}, () => Promise.resolve()), songObj.lyricsFile.webkitRelativePath)
-						reader.readAsText(songObj.lyricsFile)
+						promises.push(songObj.lyricsFile.read().then(result => {
+							songObj.lyricsData = result
+						}, () => Promise.resolve()), songObj.lyricsFile.path)
 					}
 					Promise.all(promises).then(resolve)
 				}

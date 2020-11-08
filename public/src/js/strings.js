@@ -102,20 +102,6 @@ var translations = {
 		tw: "遊戲設定",
 		ko: "게임 설정"
 	},
-	browse: {
-		ja: "参照する…",
-		en: "Browse…",
-		cn: "浏览…",
-		tw: "開啟檔案…",
-		ko: "찾아보기…"
-	},
-	defaultSongList: {
-		ja: "デフォルト曲リスト",
-		en: "Default Song List",
-		cn: "默认歌曲列表",
-		tw: "默認歌曲列表",
-		ko: "기본 노래 목록"
-	},
 	songOptions: {
 		ja: "演奏オプション",
 		en: "Song Options",
@@ -1071,6 +1057,87 @@ var translations = {
 		cn: "带歌词",
 		tw: "帶歌詞",
 		ko: "가사가있는"
+	},
+	customSongs: {
+		title: {
+			ja: "カスタム曲リスト",
+			en: "Custom Song List",
+			cn: "自定义歌曲列表",
+			tw: "自定義歌曲列表",
+			ko: "맞춤 노래 목록"
+		},
+		default: {
+			ja: "デフォルト曲リスト",
+			en: "Default Song List",
+			cn: "默认歌曲列表",
+			tw: "默認歌曲列表",
+			ko: "기본 노래 목록"
+		},
+		description: {
+			en: [
+				"Pick a folder with Taiko chart files in TJA format to play on a custom song list!"
+			]
+		},
+		localFolder: {
+			ja: "ローカルフォルダ...",
+			en: "Local Folder...",
+			cn: "本地文件夹...",
+			tw: "本地文件夾...",
+			ko: "로컬 폴더..."
+		},
+		gdriveFolder: {
+			ja: "Google ドライブ...",
+			en: "Google Drive...",
+			cn: "Google云端硬盘...",
+			tw: "Google雲端硬碟...",
+			ko: "구글 드라이브..."
+		},
+		dropzone: {
+			ja: "ここにファイルをドロップ",
+			en: "Drop files here",
+			cn: "将文件拖至此处",
+			tw: "將文件拖至此處",
+			ko: "파일을 여기에 드롭"
+		},
+		importError: {
+			en: "Import Error"
+		},
+		noSongs: {
+			en: "No Taiko chart files have been found in the provided folder."
+		}
+	},
+	gpicker: {
+		locale: {
+			ja: "ja",
+			en: "en-GB",
+			cn: "zh-CN",
+			tw: "zh-TW",
+			ko: "ko"
+		},
+		myDrive: {
+			ja: "マイドライブ",
+			en: "My Drive",
+			cn: "我的云端硬盘",
+			tw: "我的雲端硬碟",
+			ko: "내 드라이브"
+		},
+		starred: {
+			ja: "スター付き",
+			en: "Starred",
+			cn: "已加星标",
+			tw: "已加星號",
+			ko: "중요 문서함"
+		},
+		sharedWithMe: {
+			ja: "共有アイテム",
+			en: "Shared with me",
+			cn: "与我共享",
+			tw: "與我共用",
+			ko: "공유 문서함"
+		},
+		authError: {
+			en: "Auth error: %s"
+		}
 	}
 }
 var allStrings = {}
