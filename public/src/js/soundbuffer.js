@@ -2,13 +2,16 @@
 	constructor(){
 		var AudioContext = window.AudioContext || window.webkitAudioContext
 		this.context = new AudioContext()
+		this.audioDecoder = this.context.decodeAudioData.bind(this.context)
+		this.oggDecoder = this.audioDecoder
 		pageEvents.add(window, ["click", "touchend", "keypress"], this.pageClicked.bind(this))
 		this.gainList = []
 	}
 	load(file, gain){
+		var decoder = file.name.endsWith(".ogg") ? this.oggDecoder : this.audioDecoder
 		return file.arrayBuffer().then(response => {
 			return new Promise((resolve, reject) => {
-				return this.context.decodeAudioData(response, resolve, reject)
+				return decoder(response, resolve, reject)
 			}).catch(error => Promise.reject([error, file.url]))
 		}).then(buffer => {
 			return new Sound(gain || {soundBuffer: this}, buffer)

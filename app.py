@@ -243,6 +243,7 @@ def route_admin_songs_new_post():
     
     output['category_id'] = int(request.form.get('category_id')) or None
     output['type'] = request.form.get('type')
+    output['music_type'] = request.form.get('music_type')
     output['offset'] = float(request.form.get('offset')) or None
     output['skin_id'] = int(request.form.get('skin_id')) or None
     output['preview'] = float(request.form.get('preview')) or None
@@ -303,6 +304,7 @@ def route_admin_songs_id_post(id):
     
     output['category_id'] = int(request.form.get('category_id')) or None
     output['type'] = request.form.get('type')
+    output['music_type'] = request.form.get('music_type')
     output['offset'] = float(request.form.get('offset')) or None
     output['skin_id'] = int(request.form.get('skin_id')) or None
     output['preview'] = float(request.form.get('preview')) or None
@@ -351,9 +353,10 @@ def route_api_preview():
         abort(400)
 
     song_type = song['type']
-    prev_path = make_preview(song_id, song_type, song['preview'])
+    song_ext = song['music_type'] if song['music_type'] else "mp3"
+    prev_path = make_preview(song_id, song_type, song_ext, song['preview'])
     if not prev_path:
-        return redirect(get_config()['songs_baseurl'] + '%s/main.mp3' % song_id)
+        return redirect(get_config()['songs_baseurl'] + '%s/main.%s' % (song_id, song_ext))
 
     return redirect(get_config()['songs_baseurl'] + '%s/preview.mp3' % song_id)
 
@@ -606,8 +609,8 @@ def route_api_scores_get():
     return jsonify({'status': 'ok', 'scores': scores, 'username': user['username'], 'display_name': user['display_name'], 'don': don})
 
 
-def make_preview(song_id, song_type, preview):
-    song_path = 'public/songs/%s/main.mp3' % song_id
+def make_preview(song_id, song_type, song_ext, preview):
+    song_path = 'public/songs/%s/main.%s' % (song_id, song_ext)
     prev_path = 'public/songs/%s/preview.mp3' % song_id
 
     if os.path.isfile(song_path) and not os.path.isfile(prev_path):

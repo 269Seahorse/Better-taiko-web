@@ -30,6 +30,10 @@ class Loader{
 		if(gameConfig.custom_js){
 			this.addPromise(this.loadScript(gameConfig.custom_js), gameConfig.custom_js)
 		}
+		var oggSupport = new Audio().canPlayType("audio/ogg;codecs=vorbis")
+		if(!oggSupport){
+			assets.js.push("lib/oggmented.min.js")
+		}
 		assets.js.forEach(name => {
 			this.addPromise(this.loadScript("/src/js/" + name), "/src/js/" + name)
 		})
@@ -144,7 +148,8 @@ class Loader{
 				songs = JSON.parse(songs)
 				songs.forEach(song => {
 					var directory = gameConfig.songs_baseurl + song.id + "/"
-					song.music = new RemoteFile(directory + "main.mp3")
+					var songExt = song.music_type ? song.music_type : "mp3"
+					song.music = new RemoteFile(directory + "main." + songExt)
 					if(song.type === "tja"){
 						song.chart = new RemoteFile(directory + "main.tja")
 					}else{
@@ -185,6 +190,10 @@ class Loader{
 			this.addPromise(Promise.all(categoryPromises))
 			
 			snd.buffer = new SoundBuffer()
+			if(!oggSupport){
+				var oggmentedCtx = new oggmented.default()
+				snd.buffer.oggDecoder = oggmentedCtx.decodeAudioData.bind(oggmentedCtx)
+			}
 			snd.musicGain = snd.buffer.createGain()
 			snd.sfxGain = snd.buffer.createGain()
 			snd.previewGain = snd.buffer.createGain()

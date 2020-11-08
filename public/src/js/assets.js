@@ -93,37 +93,37 @@ var assets = {
 		"settings_gamepad.png"
 	],
 	"audioSfx": [
-		"se_pause.wav",
-		"se_calibration.wav",
-
-		"v_results.wav",
-		"v_sanka.wav",
-		"v_songsel.wav",
-		"v_start.wav",
-		"v_title.wav"
+		"se_pause.ogg",
+		"se_calibration.ogg",
+		
+		"v_results.ogg",
+		"v_sanka.ogg",
+		"v_songsel.ogg",
+		"v_start.ogg",
+		"v_title.ogg"
 	],
 	"audioSfxLR": [
-		"neiro_1_don.wav",
-		"neiro_1_ka.wav",
-		"se_cancel.wav",
-		"se_don.wav",
-		"se_ka.wav",
-		"se_jump.wav",
-
-		"se_balloon.wav",
-		"se_gameclear.wav",
-		"se_gamefail.wav",
-		"se_gamefullcombo.wav",
-		"se_results_countup.wav",
-		"se_results_crown.wav",
-
-		"v_fullcombo.wav",
-		"v_renda.wav",
-		"v_results_fullcombo.wav",
-		"v_results_fullcombo2.wav"
+		"neiro_1_don.ogg",
+		"neiro_1_ka.ogg",
+		"se_cancel.ogg",
+		"se_don.ogg",
+		"se_ka.ogg",
+		"se_jump.ogg",
+		
+		"se_balloon.ogg",
+		"se_gameclear.ogg",
+		"se_gamefail.ogg",
+		"se_gamefullcombo.ogg",
+		"se_results_countup.ogg",
+		"se_results_crown.ogg",
+		
+		"v_fullcombo.ogg",
+		"v_renda.ogg",
+		"v_results_fullcombo.ogg",
+		"v_results_fullcombo2.ogg"
 	],
 	"audioSfxLoud": [
-		"v_diffsel.wav"
+		"v_diffsel.ogg"
 	],
 	"audioMusic": [
 		"bgm_songsel.mp3",

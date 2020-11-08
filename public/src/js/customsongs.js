@@ -19,7 +19,7 @@ class CustomSongs{
 		
 		this.items = []
 		this.linkLocalFolder = document.getElementById("link-localfolder")
-		this.hasLocal = "webkitdirectory" in HTMLInputElement.prototype && !(/Android/.test(navigator.userAgent))
+		this.hasLocal = "webkitdirectory" in HTMLInputElement.prototype && !(/Android|iPhone|iPad/.test(navigator.userAgent))
 		if(this.hasLocal){
 			this.browse = document.getElementById("browse")
 			pageEvents.add(this.browse, "change", this.browseChange.bind(this))
