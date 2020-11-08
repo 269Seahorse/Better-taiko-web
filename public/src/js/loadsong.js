@@ -126,7 +126,7 @@ class LoadSong{
 			}), songObj.music.url)
 		}
 		var chart = songObj.chart
-		if(chart.separateDiff){
+		if(chart && chart.separateDiff){
 			var chartDiff = this.selectedSong.difficulty
 			chart = chart[chartDiff]
 		}
