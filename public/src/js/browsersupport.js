@@ -50,6 +50,9 @@ function browserSupport(){
 		},
 		"Font Loading API": function(){
 			return typeof FontFace === "function"
+		},
+		"OGG or WebAssembly": function(){
+			return new Audio().canPlayType("audio/ogg;codecs=vorbis") || "WebAssembly" in window
 		}
 	}
 	failedTests = []
@@ -179,11 +182,6 @@ function showUnsupported(strings){
 		event.preventDefault()
 		chrome.click()
 	})
-	var touchText = function(){
-		div.style.fontSize = "4em"
-		removeEventListener("touchstart", touchText)
-	}
-	addEventListener("touchstart", touchText)
 }
 var failedTests
 browserSupport()
