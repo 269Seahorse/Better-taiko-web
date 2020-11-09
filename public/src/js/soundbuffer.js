@@ -65,6 +65,9 @@
 			gain.setVolume(gain.defaultVol)
 		}
 	}
+	fallbackDecoder(buffer, resolve, reject){
+		Oggmented().then(oggmented => oggmented.decodeOggData(buffer, resolve, reject), reject)
+	}
 }
 class SoundGain{
 	constructor(soundBuffer, channel){

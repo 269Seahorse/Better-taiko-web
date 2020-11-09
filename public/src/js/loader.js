@@ -32,7 +32,7 @@ class Loader{
 		}
 		var oggSupport = new Audio().canPlayType("audio/ogg;codecs=vorbis")
 		if(!oggSupport){
-			assets.js.push("lib/oggmented.min.js")
+			assets.js.push("lib/oggmented-wasm.js")
 		}
 		assets.js.forEach(name => {
 			this.addPromise(this.loadScript("/src/js/" + name), "/src/js/" + name)
@@ -191,8 +191,7 @@ class Loader{
 			
 			snd.buffer = new SoundBuffer()
 			if(!oggSupport){
-				var oggmentedCtx = new oggmented.default()
-				snd.buffer.oggDecoder = oggmentedCtx.decodeAudioData.bind(oggmentedCtx)
+				snd.buffer.oggDecoder = snd.buffer.fallbackDecoder
 			}
 			snd.musicGain = snd.buffer.createGain()
 			snd.sfxGain = snd.buffer.createGain()
