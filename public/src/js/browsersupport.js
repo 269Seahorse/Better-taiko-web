@@ -182,11 +182,6 @@ function showUnsupported(strings){
 		event.preventDefault()
 		chrome.click()
 	})
-	var touchText = function(){
-		div.style.fontSize = "4em"
-		removeEventListener("touchstart", touchText)
-	}
-	addEventListener("touchstart", touchText)
 }
 var failedTests
 browserSupport()
