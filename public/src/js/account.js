@@ -59,12 +59,12 @@ class Account{
 		this.customdonBodyFill.value = account.don.body_fill
 		var parent = this.customdonBodyFill.parentNode
 		parent.insertBefore(document.createTextNode(strings.account.customdon.bodyFill), parent.firstChild)
-		pageEvents.add(this.customdonBodyFill, "change", this.customdonChange.bind(this))
+		pageEvents.add(this.customdonBodyFill, ["change", "input"], this.customdonChange.bind(this))
 		this.customdonFaceFill = this.getElement("customdon-facefill")
 		this.customdonFaceFill.value = account.don.face_fill
 		var parent = this.customdonFaceFill.parentNode
 		parent.insertBefore(document.createTextNode(strings.account.customdon.faceFill), parent.firstChild)
-		pageEvents.add(this.customdonFaceFill, "change", this.customdonChange.bind(this))
+		pageEvents.add(this.customdonFaceFill, ["change", "input"], this.customdonChange.bind(this))
 		this.customdonResetBtn = this.getElement("customdon-reset")
 		this.customdonResetBtn.value = strings.account.customdon.reset
 		pageEvents.add(this.customdonResetBtn, ["click", "touchstart"], this.customdonReset.bind(this))
@@ -578,8 +578,8 @@ class Account{
 			}
 			this.redrawRunning = false
 			this.customdonCache.clean()
-			pageEvents.remove(this.customdonBodyFill, "change")
-			pageEvents.remove(this.customdonFaceFill, "change")
+			pageEvents.remove(this.customdonBodyFill, ["change", "input"])
+			pageEvents.remove(this.customdonFaceFill, ["change", "input"])
 			pageEvents.remove(this.customdonResetBtn, ["click", "touchstart"])
 			pageEvents.remove(this.accounPassButton, ["click", "touchstart"])
 			pageEvents.remove(this.accountDelButton, ["click", "touchstart"])

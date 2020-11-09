@@ -138,13 +138,9 @@ class SongSelect{
 		
 		var showCustom = false
 		if(gameConfig.google_credentials.gdrive_enabled){
-			if(!(/iPhone|iPad/.test(navigator.userAgent))){
-				showCustom = true
-			}
-		}else{
-			if("webkitdirectory" in HTMLInputElement.prototype && !(/Android|iPhone|iPad/.test(navigator.userAgent))){
-				showCustom = true
-			}
+			showCustom = true
+		}else if("webkitdirectory" in HTMLInputElement.prototype && !(/Android|iPhone|iPad/.test(navigator.userAgent))){
+			showCustom = true
 		}
 		if(showCustom){
 			this.songs.push({

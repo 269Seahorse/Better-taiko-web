@@ -48,7 +48,7 @@ class Controller{
 			
 			comboVoices.forEach(name => {
 				if (!assets.sounds[name + "_p1"]) {
-					promises.push(loader.loadSound(name + ".wav", snd.sfxGain).then(sound => {
+					promises.push(loader.loadSound(name + ".ogg", snd.sfxGain).then(sound => {
 						assets.sounds[name + "_p1"] = assets.sounds[name].copy(snd.sfxGainL)
 						assets.sounds[name + "_p2"] = assets.sounds[name].copy(snd.sfxGainR)
 					}))
@@ -246,7 +246,12 @@ class Controller{
 					var songObj = assets.songs.find(song => song.id === this.selectedSong.folder)
 					var promises = []
 					if(songObj.chart && songObj.chart !== "blank"){
-						promises.push(songObj.chart.read(this.selectedSong.type === "tja" ? "sjis" : undefined).then(data => {
+						var chart = songObj.chart
+						if(chart.separateDiff){
+							var chartDiff = this.selectedSong.difficulty
+							chart = chart[chartDiff]
+						}
+						promises.push(chart.read(this.selectedSong.type === "tja" ? "sjis" : undefined).then(data => {
 							this.songData = data.replace(/\0/g, "").split("\n")
 							return Promise.resolve()
 						}))
