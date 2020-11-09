@@ -50,6 +50,9 @@ function browserSupport(){
 		},
 		"Font Loading API": function(){
 			return typeof FontFace === "function"
+		},
+		"OGG or WebAssembly": function(){
+			return new Audio().canPlayType("audio/ogg;codecs=vorbis") || "WebAssembly" in window
 		}
 	}
 	failedTests = []
