@@ -69,11 +69,11 @@
 			smallHiragana: /[ぁぃぅぇぉっゃゅょァィゥェォッャュョ]/,
 			hiragana: /[\u3040-\u30ff]/,
 			todo: /[トド]/,
-			en: /[ceghknsuxyzｃｅｇｈｋｎｓｕｘｙｚ]/,
+			en: /[ceghknsuxyzｃｅｇｈｋｎｓｕｘｙｚçèéêëùúûü]/,
 			em: /[mwｍｗ]/,
 			emCap: /[MWＭＷ]/,
-			rWidth: /[abdfIjo-rtvａｂｄｆＩｊｏ-ｒｔｖ]/,
-			lWidth: /[ilｉｌ]/,
+			rWidth: /[abdfIjo-rtvａｂｄｆＩｊｏ-ｒｔｖàáâäòóôö]/,
+			lWidth: /[ilｉｌìíîï]/,
 			ura: /\s*[\(（]裏[\)）]$/,
 			cjk: /[\u3040-ゞ゠-ヾ一-\u9ffe]/
 		}

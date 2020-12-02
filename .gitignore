@@ -51,3 +51,4 @@ version.json
 public/index.html
 config.py
 public/assets/song_skins
+.venv
