@@ -483,7 +483,7 @@ var translations = {
 			],
 			cn: [
 				"%s暂停游戏",
-				'%s and %s while selecting song \u2014 navigate categories',
+				'%s 和 %s 选择歌曲时快速切换类别',
 				"选择难度时按住%s以启用自动模式",
 				"选择难度时按住%s以启用网络对战模式"
 			],
@@ -520,10 +520,16 @@ var translations = {
 				"Please report any bugs you find.",
 				"You can report bugs either via our Git repository or email."
 			],
+			cn: [
+				"这款模拟器仍处于开发中，",
+				"您可以向我们报告在游戏中出现的任何bug，",
+				"可以通过我们的Github仓库或发送电子邮件来报告错误。"
+			],
 		},
 		diagnosticWarning: {
 			ja: "以下の端末診断情報も併せて報告してください！",
 			en: "Be sure to include the following diagnostic data!",
+			cn: "请确保您的报告包括以下诊断数据!",
 		},
 		issueTemplate: {
 			ja: "###### 下記の問題を説明してください。 スクリーンショットと診断情報を含めてください。",
@@ -687,26 +693,32 @@ var translations = {
 			name: {
 				ja: null,
 				en: "Latency",
+				cn: "延迟校准",
 			},
 			value: {
 				ja: null,
 				en: "Audio: %s, Video: %s",
+				cn: "音频: %s, 视频: %s",
 			},
 			calibration: {
 				ja: null,
 				en: "Latency Calibration",
+				cn: "自动辅助校准",
 			},
 			audio: {
 				ja: null,
 				en: "Audio",
+				cn: "音频",
 			},
 			video: {
 				ja: null,
 				en: "Video",
+				cn: "视频",
 			},
 			drumSounds: {
 				ja: null,
 				en: "Drum Sounds",
+				cn: "鼓声",
 			}
 		},
 		easierBigNotes: {
@@ -721,7 +733,8 @@ var translations = {
 		showLyrics: {
 			name: {
 				ja: "歌詞の表示",
-				en: "Show Lyrics"
+				en: "Show Lyrics",
+				cn: "显示歌词",
 			}
 		},
 		on: {
@@ -1076,7 +1089,10 @@ var translations = {
 		description: {
 			en: [
 				"Pick a folder with Taiko chart files in TJA format to play on a custom song list!"
-			]
+			],
+			cn: [
+				"请选择一个含有太鼓谱面文件（TJA格式）的文件夹，以用于在自定义歌单中游玩。"
+			],
 		},
 		localFolder: {
 			ja: "ローカルフォルダ...",
