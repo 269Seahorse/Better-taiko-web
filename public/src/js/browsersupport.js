@@ -53,6 +53,9 @@ function browserSupport(){
 		},
 		"OGG or WebAssembly": function(){
 			return new Audio().canPlayType("audio/ogg;codecs=vorbis") || "WebAssembly" in window
+		},
+		"KeyboardEvent.key": function(){
+			return "key" in KeyboardEvent.prototype
 		}
 	}
 	failedTests = []

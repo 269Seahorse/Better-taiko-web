@@ -226,21 +226,21 @@
 				for (var i = 0; i < currentMeasure.length; i++){
 					//console.log(note_chain.length);
 					var note = currentMeasure[i]
+					circleID++
+					var circleObj = new Circle({
+						id: circleID,
+						start: note.start,
+						type: note.type,
+						txt: note.txt,
+						speed: note.bpm * note.scroll / 60,
+						gogoTime: note.gogo,
+						endTime: note.endTime,
+						requiredHits: note.requiredHits,
+						beatMS: 60000 / note.bpm,
+						branch: currentBranch,
+						section: note.section
+					})
 					if (note.type) {
-						circleID++
-						var circleObj = new Circle({
-							id: circleID,
-							start: note.start,
-							type: note.type,
-							txt: note.txt,
-							speed: note.bpm * note.scroll / 60,
-							gogoTime: note.gogo,
-							endTime: note.endTime,
-							requiredHits: note.requiredHits,
-							beatMS: 60000 / note.bpm,
-							branch: currentBranch,
-							section: note.section
-						})
 						if (note.type === "don" || note.type === "ka" || note.type === "daiDon" || note.type === "daiKa") {
 							note_chain.push(circleObj);
 						} else { 
@@ -253,9 +253,6 @@
 							lastDrumroll = circleObj
 						}
 						
-						if(note.event){
-							this.events.push(circleObj)
-						}
 						if(note.type !== "event"){
 							circles.push(circleObj)
 						}
@@ -265,6 +262,9 @@
 							checkChain(note_chain, currentMeasure.length, true);
 						}
 						note_chain = [];
+					}
+					if(note.event){
+						this.events.push(circleObj)
 					}
 					if("lyricsLine" in note){
 						if(!this.lyrics){
@@ -488,8 +488,9 @@
 							sectionBegin = false
 							if(lastDrumroll){
 								if(symbol === "9"){
-									insertBlankNote({
+									insertNote({
 										endDrumroll: lastDrumroll,
+										gogo: gogo,
 										bpm: bpm,
 										scroll: scroll,
 										section: sectionBegin
@@ -514,8 +515,9 @@
 							break
 						case "8":
 							if(lastDrumroll){
-								insertBlankNote({
+								insertNote({
 									endDrumroll: lastDrumroll,
+									gogo: gogo,
 									bpm: bpm,
 									scroll: scroll,
 									section: sectionBegin
@@ -523,10 +525,7 @@
 								sectionBegin = false
 								lastDrumroll = false
 							}else{
-								insertBlankNote({
-									bpm: bpm,
-									scroll: scroll
-								})
+								insertBlankNote()
 							}
 							break
 						case ",":

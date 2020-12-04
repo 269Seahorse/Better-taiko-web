@@ -4,6 +4,7 @@ class Mekadon{
 		this.game = game
 		this.lr = false
 		this.lastHit = -Infinity
+		this.delay = controller.audioLatency
 	}
 	play(circle){
 		var type = circle.type
@@ -24,7 +25,7 @@ class Mekadon{
 		}
 	}
 	playAt(circle, ms, score, dai, reverse){
-		var currentMs = circle.ms - this.getMS()
+		var currentMs = circle.ms - this.getMS() + this.delay
 		if(ms > currentMs - 10){
 			return this.playNow(circle, score, dai, reverse)
 		}

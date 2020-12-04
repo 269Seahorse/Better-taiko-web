@@ -191,10 +191,10 @@ def route_admin():
 @app.route('/admin/songs')
 @admin_required(level=50)
 def route_admin_songs():
-    songs = db.songs.find({})
+    songs = sorted(list(db.songs.find({})), key=lambda x: x['id'])
     categories = db.categories.find({})
     user = db.users.find_one({'username': session['username']})
-    return render_template('admin_songs.html', songs=list(songs), admin=user, categories=list(categories))
+    return render_template('admin_songs.html', songs=songs, admin=user, categories=list(categories), config=get_config())
 
 
 @app.route('/admin/songs/<int:id>')
@@ -210,7 +210,7 @@ def route_admin_songs_id(id):
     user = db.users.find_one({'username': session['username']})
 
     return render_template('admin_song_detail.html',
-        song=song, categories=categories, song_skins=song_skins, makers=makers, admin=user)
+        song=song, categories=categories, song_skins=song_skins, makers=makers, admin=user, config=get_config())
 
 
 @app.route('/admin/songs/new')
@@ -219,8 +219,10 @@ def route_admin_songs_new():
     categories = list(db.categories.find({}))
     song_skins = list(db.song_skins.find({}))
     makers = list(db.makers.find({}))
+    seq = db.seq.find_one({'name': 'songs'})
+    seq_new = seq['value'] + 1 if seq else 1
 
-    return render_template('admin_song_new.html', categories=categories, song_skins=song_skins, makers=makers)
+    return render_template('admin_song_new.html', categories=categories, song_skins=song_skins, makers=makers, config=get_config(), id=seq_new)
 
 
 @app.route('/admin/songs/new', methods=['POST'])

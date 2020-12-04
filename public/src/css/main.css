@@ -55,6 +55,9 @@
 	white-space: nowrap;
 	transition: background-image 0.5s;
 }
+#song-select.unfocused{
+	animation-play-state: paused;
+}
 #song-sel-canvas{
 	position: absolute;
 	right: 0;

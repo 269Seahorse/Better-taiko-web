@@ -36,9 +36,29 @@ class Tutorial{
 		parent.appendChild(document.createTextNode(text))
 	}
 	insertKey(key, parent){
-		var kbd = document.createElement("kbd")
-		kbd.innerText = key
-		parent.appendChild(kbd)
+		if(!Array.isArray(key)){
+			key = [key]
+		}
+		var join = true
+		for(var i = 0; i < key.length; i++){
+			if(key[i] === false){
+				join = false
+				continue
+			}
+			if(i !== 0){
+				if(join){
+					var span = document.createElement("span")
+					span.classList.add("key-join")
+					span.innerText = strings.tutorial.key.join
+					parent.appendChild(span)
+				}else{
+					parent.appendChild(document.createTextNode(strings.tutorial.key.or))
+				}
+			}
+			var kbd = document.createElement("kbd")
+			kbd.innerText = key[i]
+			parent.appendChild(kbd)
+		}
 	}
 	onEnd(pressed, name){
 		if(pressed){
@@ -59,13 +79,21 @@ class Tutorial{
 		this.endButton.setAttribute("alt", strings.tutorial.ok)
 		this.tutorialDiv.innerHTML = ""
 		var kbdSettings = settings.getItem("keyboardSettings")
-		var pauseKey = "ESC"
+		var pauseKey = [strings.tutorial.key.esc]
+		if(pageEvents.kbd.indexOf("q") === -1){
+			pauseKey.push(false)
+			pauseKey.push("Q")
+		}
 		var keys = [
 			kbdSettings.don_l[0].toUpperCase(),
 			kbdSettings.don_r[0].toUpperCase(),
 			kbdSettings.ka_l[0].toUpperCase(),
 			kbdSettings.ka_r[0].toUpperCase(),
-			pauseKey, "SHIFT+LEFT", "SHIFT+RIGHT", "SHIFT", "CTRL"
+			pauseKey,
+			[strings.tutorial.key.shift, strings.tutorial.key.leftArrow],
+			[strings.tutorial.key.shift, strings.tutorial.key.rightArrow],
+			strings.tutorial.key.shift,
+			strings.tutorial.key.ctrl
 		]
 		var keyIndex = 0
 		strings.tutorial.basics.forEach(string => {

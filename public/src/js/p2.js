@@ -218,7 +218,7 @@ class P2Connection{
 			var type = circle.type
 			var drumrollNotes = type === "balloon" || type === "drumroll" || type === "daiDrumroll"
 			
-			if(drumrollNotes && mekadon.getMS() > circle.endTime){
+			if(drumrollNotes && mekadon.getMS() > circle.endTime + mekadon.delay){
 				circle.played(-1, false)
 				mekadon.game.updateCurrentCircle()
 			}

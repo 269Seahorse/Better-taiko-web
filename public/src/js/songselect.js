@@ -258,13 +258,15 @@ class SongSelect{
 			screenMS: this.getMS(),
 			move: 0,
 			moveMS: 0,
+			mouseMoveMS: 0,
 			ura: 0,
 			moveHover: null,
 			locked: true,
 			hasPointer: false,
 			options: 0,
 			selLock: false,
-			catJump: false
+			catJump: false,
+			focused: true
 		}
 		this.songSelecting = {
 			speed: 800,
@@ -284,7 +286,8 @@ class SongSelect{
 			down: ["down"],
 			session: ["backspace"],
 			ctrl: ["ctrl"],
-			shift: ["shift"]
+			shift: ["shift"],
+			mute: ["q"]
 		}, this.keyPress.bind(this))
 		this.gamepad = new Gamepad({
 			confirm: ["b", "start", "ls", "rs"],
@@ -294,7 +297,7 @@ class SongSelect{
 			up: ["u", "lsu"],
 			down: ["d", "lsd"],
 			session: ["back"],
-			ctrl: ["y"],
+			ctrlGamepad: ["y"],
 			shift: ["x"],
 			jump_left: ["lb"],
 			jump_right: ["rb"]
@@ -341,6 +344,7 @@ class SongSelect{
 		if(name === "ctrl" || name === "shift" || !this.redrawRunning){
 			return
 		}
+		var ctrl = this.pressedKeys["ctrl"] || this.pressedKeys["ctrlGamepad"]
 		var shift = event ? event.shiftKey : this.pressedKeys["shift"]
 		if(this.state.showWarning){
 			if(name === "confirm"){
@@ -375,6 +379,9 @@ class SongSelect{
 				this.categoryJump(-1)
 			}else if(name === "jump_right" && !repeat){
 				this.categoryJump(1)
+			}else if(name === "mute" || name === "ctrlGamepad"){
+				this.endPreview(true)
+				this.playBgm(false)
 			}
 		}else if(this.state.screen === "difficulty"){
 			if(name === "confirm"){
@@ -383,7 +390,7 @@ class SongSelect{
 				}else if(this.selectedDiff === 1){
 					this.toOptions(1)
 				}else{
-					this.toLoadSong(this.selectedDiff - this.diffOptions.length, shift, this.pressedKeys["ctrl"])
+					this.toLoadSong(this.selectedDiff - this.diffOptions.length, shift, ctrl)
 				}
 			}else if(name === "back" || name === "session"){
 				this.toSongSelect()
@@ -393,6 +400,9 @@ class SongSelect{
 				this.moveToDiff(1)
 			}else if(this.selectedDiff === 1 && (name === "up" || name === "down")){
 				this.toOptions(name === "up" ? -1 : 1)
+			}else if(name === "mute" || name === "ctrlGamepad"){
+				this.endPreview(true)
+				this.playBgm(false)
 			}
 		}
 	}
@@ -417,7 +427,9 @@ class SongSelect{
 			var touch = false
 		}else{
 			event.preventDefault()
-			var mouse = this.mouseOffset(event.touches[0].pageX, event.touches[0].pageY)
+			var x = event.touches[0].pageX - this.canvas.offsetLeft
+			var y = event.touches[0].pageY - this.canvas.offsetTop
+			var mouse = this.mouseOffset(x, y)
 			var shift = false
 			var ctrl = false
 			var touch = true
@@ -472,7 +484,9 @@ class SongSelect{
 		if(this.state.screen === "song" && this.redrawRunning){
 			var currentSong = this.songs[this.selectedSong]
 			if(currentSong.action === "customSongs"){
-				var mouse = this.mouseOffset(event.changedTouches[0].pageX, event.changedTouches[0].pageY)
+				var x = event.changedTouches[0].pageX - this.canvas.offsetLeft
+				var y = event.changedTouches[0].pageY - this.canvas.offsetTop
+				var mouse = this.mouseOffset(x, y)
 				var moveBy = this.songSelMouse(mouse.x, mouse.y)
 				if(moveBy === 0){
 					this.toCustomSongs()
@@ -499,14 +513,14 @@ class SongSelect{
 			}else{
 				var moveTo = this.songSelMouse(mouse.x, mouse.y)
 				if(moveTo === null && this.state.moveHover === 0 && !this.songs[this.selectedSong].courses){
-					this.state.moveMS = this.getMS() - this.songSelecting.speed
+					this.state.mouseMoveMS = this.getMS() - this.songSelecting.speed
 				}
 			}
 			this.state.moveHover = moveTo
 		}else if(this.state.screen === "difficulty"){
 			var moveTo = this.diffSelMouse(mouse.x, mouse.y)
 			if(moveTo === null && this.state.moveHover === this.selectedDiff){
-				this.state.moveMS = this.getMS() - 1000
+				this.state.mouseMoveMS = this.getMS() - 1000
 			}
 			this.state.moveHover = moveTo
 		}
@@ -953,10 +967,17 @@ class SongSelect{
 			
 			this.selectableText = ""
 		}else if(!document.hasFocus() && !p2.session){
-			this.pointer(false)
+			if(this.state.focused){
+				this.state.focused = false
+				this.songSelect.classList.add("unfocused")
+			}
 			return
 		}else{
 			ctx.clearRect(0, 0, winW / ratio, winH / ratio)
+		}
+		if(!this.state.focused){
+			this.state.focused = true
+			this.songSelect.classList.remove("unfocused")
 		}
 		this.winW = winW
 		this.winH = winH
@@ -1178,7 +1199,9 @@ class SongSelect{
 					selectedWidth = this.songAsset.width
 				}
 			}else{
-				this.playBgm(!this.songs[this.selectedSong].courses)
+				if(this.previewing !== "muted"){
+					this.playBgm(!this.songs[this.selectedSong].courses)
+				}
 				this.state.locked = 0
 			}
 		}else if(screen === "difficulty"){
@@ -1220,7 +1243,7 @@ class SongSelect{
 				this.endPreview()
 			}
 		}else if(screen !== "title" && screen !== "titleFadeIn" && ms > this.state.moveMS + 100){
-			if(this.previewing !== this.selectedSong && "id" in this.songs[this.selectedSong]){
+			if(this.previewing !== "muted" && this.previewing !== this.selectedSong && "id" in this.songs[this.selectedSong]){
 				this.startPreview()
 			}
 		}
@@ -1328,7 +1351,7 @@ class SongSelect{
 			borderStyle: selectedSkin.border,
 			highlight: highlight,
 			noCrop: screen === "difficulty",
-			animateMS: this.state.moveMS,
+			animateMS: Math.max(this.state.moveMS, this.state.mouseMoveMS),
 			cached: selectedWidth === this.songAsset.fullWidth ? 3 : (selectedWidth === this.songAsset.selectedWidth ? 2 : (selectedWidth === this.songAsset.width ? 1 : 0)),
 			frameCache: this.songFrameCache,
 			disabled: p2.session && currentSong.action && currentSong.action !== "random",
@@ -1430,7 +1453,7 @@ class SongSelect{
 								w: 64,
 								h: 304,
 								animate: highlight === 1,
-								animateMS: this.state.moveMS,
+								animateMS: Math.max(this.state.moveMS, this.state.mouseMoveMS),
 								opacity: highlight === 2 ? 0.8 : 1,
 								radius: 24
 							})
@@ -1547,7 +1570,8 @@ class SongSelect{
 						var songStarsObj = (currentUra ? currentSong.courses.ura : currentSong.courses[this.difficultyId[i]])
 						var songStars = songStarsObj.stars
 						var songBranch = songStarsObj.branch
-						var elapsedMS = this.state.screenMS > this.state.moveMS || !songSel ? this.state.screenMS : this.state.moveMS
+						var moveMS = Math.max(this.state.moveMS, this.state.mouseMoveMS)
+						var elapsedMS = this.state.screenMS > moveMS || !songSel ? this.state.screenMS : moveMS
 						var fade = ((ms - elapsedMS) % 2000) / 2000
 						if(songBranch && fade > 0.25 && fade < 0.75){
 							this.draw.verticalText({
@@ -1616,7 +1640,7 @@ class SongSelect{
 									w: 64,
 									h: 362,
 									animate: highlight === 1,
-									animateMS: this.state.moveMS,
+									animateMS: Math.max(this.state.moveMS, this.state.mouseMoveMS),
 									opacity: highlight === 2 ? 0.8 : 1
 								})
 							}
@@ -1627,7 +1651,7 @@ class SongSelect{
 					var currentUra = i === 3 && (this.state.ura && !songSel || currentSong.courses.ura && songSel)
 					if(songSel && currentUra){
 						drawDifficulty(ctx, i, false)
-						var elapsedMS = this.state.screenMS > this.state.moveMS ? this.state.screenMS : this.state.moveMS
+						var elapsedMS = Math.max(this.state.screenMS, this.state.moveMS, this.state.mouseMoveMS)
 						var fade = ((ms - elapsedMS) % 4000) / 4000
 						var alphaFade = 0
 						if(fade > 0.95){
@@ -1651,6 +1675,9 @@ class SongSelect{
 						var _x = x + 402 + i * 100
 						var _y = y + 87
 						var currentDiff = this.selectedDiff - this.diffOptions.length
+						if(this.selectedDiff === 4 + this.diffOptions.length){
+							currentDiff = 3
+						}
 						this.draw.diffCursor({
 							ctx: ctx,
 							font: this.font,
@@ -2241,7 +2268,7 @@ class SongSelect{
 					w: _w + 7,
 					h: _h + 7,
 					animate: highlight === 1,
-					animateMS: this.state.moveMS,
+					animateMS: Math.max(this.state.moveMS, this.state.mouseMoveMS),
 					opacity: highlight === 2 ? 0.8 : 1,
 					radius: 30
 				})
@@ -2273,8 +2300,8 @@ class SongSelect{
 			this.songSelect.style.backgroundImage = "url('" + assets.image[filename].src + "')"
 		}else{
 			this.songSelect.style.backgroundImage = "url('" + assets.image["bg_genre_def"].src + "')"
-			}
 		}
+	}
 	
 	drawClosedSong(config){
 		var ctx = config.ctx
@@ -2288,7 +2315,7 @@ class SongSelect{
 		config.borderStyle = config.song.skin.border
 		config.outline = config.song.skin.outline
 		config.text = config.song.title
-		config.animateMS = this.state.moveMS
+		config.animateMS = Math.max(this.state.moveMS, this.state.mouseMoveMS)
 		config.cached = 1
 		config.frameCache = this.songFrameCache
 		config.innerContent = (x, y, w, h) => {
@@ -2376,7 +2403,7 @@ class SongSelect{
 		var currentSong = this.songs[this.selectedSong]
 		var id = currentSong.id
 		var prvTime = currentSong.preview
-		this.endPreview(true)
+		this.endPreview()
 		
 		if("id" in currentSong){
 			var startLoad = this.getMS()
@@ -2445,9 +2472,9 @@ class SongSelect{
 		snd.previewGain.setVolumeMul(volume || 1)
 		this.preview.playLoop(delay / 1000, false, prvTime)
 	}
-	endPreview(){
+	endPreview(force){
 		this.previewId++
-		this.previewing = null
+		this.previewing = force ? "muted" : null
 		if(this.preview){
 			this.preview.stop()
 		}
