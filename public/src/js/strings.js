@@ -506,6 +506,33 @@ var translations = {
 			cn: "确定",
 			tw: "確定",
 			ko: "확인"
+		},
+		key: {
+			ctrl: {
+				en: "CTRL"
+			},
+			shift: {
+				en: "⇧ SHIFT"
+			},
+			leftArrow: {
+				en: "\u2190"
+			},
+			rightArrow: {
+				en: "\u2192"
+			},
+			esc: {
+				en: "ESC"
+			},
+			join: {
+				en: "+"
+			},
+			or: {
+				ja: "または",
+				en: " or ",
+				cn: "或",
+				tw: "或",
+				ko: " 또는 "
+			}
 		}
 	},
 	about: {

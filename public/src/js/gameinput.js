@@ -212,11 +212,6 @@ class GameInput{
 				}
 				this.keyboardEvents++
 			}
-		}else{
-			this.keys[name] = false
-			this.waitKeyupScore[name] = false
-			this.waitKeyupSound[name] = false
-			this.waitKeyupMenu[name] = false
 		}
 	}
 	isWaiting(name, type){

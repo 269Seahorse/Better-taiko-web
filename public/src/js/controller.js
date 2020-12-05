@@ -25,7 +25,7 @@ class Controller{
 		this.videoLatency = 0
 		if(!this.calibrationMode){
 			var latency = settings.getItem("latency")
-			if(!autoPlayEnabled){
+			if(!autoPlayEnabled || this.multiplayer){
 				this.audioLatency = Math.round(latency.audio) || 0
 			}
 			this.videoLatency = Math.round(latency.video) || 0 + this.audioLatency
@@ -218,6 +218,9 @@ class Controller{
 	}
 	displayResults(){
 		if(this.multiplayer !== 2){
+			if(this.view.cursorHidden){
+				this.view.canvas.style.cursor = ""
+			}
 			this.scoresheet = new Scoresheet(this, this.getGlobalScore(), this.multiplayer, this.touchEnabled)
 		}
 	}
@@ -251,15 +254,15 @@ class Controller{
 							var chartDiff = this.selectedSong.difficulty
 							chart = chart[chartDiff]
 						}
-						promises.push(chart.read(this.selectedSong.type === "tja" ? "sjis" : undefined).then(data => {
+						this.addPromise(promises, chart.read(this.selectedSong.type === "tja" ? "sjis" : undefined).then(data => {
 							this.songData = data.replace(/\0/g, "").split("\n")
 							return Promise.resolve()
-						}))
+						}), chart.url)
 					}
 					if(songObj.lyricsFile){
-						promises.push(songObj.lyricsFile.read().then(result => {
+						this.addPromise(promises, songObj.lyricsFile.read().then(result => {
 							songObj.lyricsData = result
-						}, () => Promise.resolve()), songObj.lyricsFile.path)
+						}, () => Promise.resolve()), songObj.lyricsFile.url)
 					}
 					Promise.all(promises).then(resolve)
 				}
@@ -268,6 +271,32 @@ class Controller{
 				taikoGame.run()
 			})
 		}
+	}
+	addPromise(promises, promise, url){
+		promises.push(promise.catch(error => {
+			if(this.restartSongError){
+				return
+			}
+			this.restartSongError = true
+			if(url){
+				error = (Array.isArray(error) ? error[0] + ": " : (error ? error + ": " : "")) + url
+			}
+			pageEvents.send("load-song-error", error)
+			errorMessage(new Error(error).stack)
+			var title = this.selectedSong.title
+			if(title !== this.selectedSong.originalTitle){
+				title += " (" + this.selectedSong.originalTitle + ")"
+			}
+			setTimeout(() => {
+				new SongSelect(false, false, this.touchEnabled, null, {
+					name: "loadSongError",
+					title: title,
+					id: this.selectedSong.folder,
+					error: error
+				})
+			}, 500)
+			return Promise.reject(error)
+		}))
 	}
 	playSound(id, time, noSnd){
 		if(!this.drumSounds && (id === "neiro_1_don" || id === "neiro_1_ka" || id === "se_don" || id === "se_ka")){

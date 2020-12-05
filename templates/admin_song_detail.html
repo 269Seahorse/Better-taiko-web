@@ -1,6 +1,6 @@
 {% extends 'admin.html' %}
 {% block content %}
-{% if song.title_lang.en %}
+{% if song.title_lang.en and song.title_lang.en != song.title %}
     <h1>{{ song.title_lang.en }} <small>({{ song.title }})</small> <small class="song-id">(ID: {{ song.id }})</small></h1>
 {% else %}
     <h1>{{ song.title }} <small class="song-id">(ID: {{ song.id }})</small></h1>

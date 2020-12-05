@@ -1,6 +1,6 @@
 {% extends 'admin.html' %}
 {% block content %}
-<h1>New song</h1>
+<h1>New song <small class="song-id">(ID: {{ id }})</small></h1>
 {% for message in get_flashed_messages() %}
 <div class="message">{{ message }}</div>
 {% endfor %}
@@ -9,7 +9,7 @@
         <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
 
         <div class="form-field">
-            <span class="checkbox"><input type="checkbox" name="enabled" id="enabled"><label for="enabled"> Enabled</label></span>
+            <span class="checkbox"><input type="checkbox" name="enabled" id="enabled" checked><label for="enabled"> Enabled</label></span>
         </div>
 
         <div class="form-field">

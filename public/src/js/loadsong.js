@@ -110,7 +110,7 @@ class LoadSong{
 				if(songObj.custom){
 					this.addPromise(song.songSkin[filename + ".png"].blob().then(blob => {
 						img.src = URL.createObjectURL(blob)
-					}))
+					}), song.songSkin[filename + ".png"].url)
 				}else{
 					img.src = skinBase + filename + ".png"
 				}
@@ -118,7 +118,7 @@ class LoadSong{
 		}
 		this.loadSongBg(id)
 		
-		if(songObj.sound){
+		if(songObj.sound && songObj.sound.buffer){
 			songObj.sound.gain = snd.musicGain
 		}else if(songObj.music !== "muted"){
 			this.addPromise(snd.musicGain.load(songObj.music).then(sound => {

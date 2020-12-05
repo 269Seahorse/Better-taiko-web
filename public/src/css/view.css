@@ -59,6 +59,9 @@ kbd{
 	line-height: 1.4;
 	white-space: nowrap;
 }
+.key-join{
+	font-size: 0.6em;
+}
 .taibtn{
 	display: inline-block;
 	background: #f6ead4;

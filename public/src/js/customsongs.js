@@ -20,12 +20,18 @@ class CustomSongs{
 		this.items = []
 		this.linkLocalFolder = document.getElementById("link-localfolder")
 		this.hasLocal = "webkitdirectory" in HTMLInputElement.prototype && !(/Android|iPhone|iPad/.test(navigator.userAgent))
+		this.selected = -1
+		
 		if(this.hasLocal){
 			this.browse = document.getElementById("browse")
 			pageEvents.add(this.browse, "change", this.browseChange.bind(this))
 			this.setAltText(this.linkLocalFolder, strings.customSongs.localFolder)
 			pageEvents.add(this.linkLocalFolder, ["mousedown", "touchstart"], this.localFolder.bind(this))
 			this.items.push(this.linkLocalFolder)
+			if(this.selected === -1){
+				this.linkLocalFolder.classList.add("selected")
+				this.selected = this.items.length - 1
+			}
 		}else{
 			this.linkLocalFolder.parentNode.removeChild(this.linkLocalFolder)
 		}
@@ -35,6 +41,10 @@ class CustomSongs{
 			this.setAltText(this.linkGdriveFolder, strings.customSongs.gdriveFolder)
 			pageEvents.add(this.linkGdriveFolder, ["mousedown", "touchstart"], this.gdriveFolder.bind(this))
 			this.items.push(this.linkGdriveFolder)
+			if(this.selected === -1){
+				this.linkGdriveFolder.classList.add("selected")
+				this.selected = this.items.length - 1
+			}
 		}else{
 			this.linkGdriveFolder.parentNode.removeChild(this.linkGdriveFolder)
 		}
@@ -43,7 +53,10 @@ class CustomSongs{
 		this.setAltText(this.endButton, strings.session.cancel)
 		pageEvents.add(this.endButton, ["mousedown", "touchstart"], event => this.onEnd(event, true))
 		this.items.push(this.endButton)
-		this.selected = this.items.length - 1
+		if(this.selected === -1){
+			this.endButton.classList.add("selected")
+			this.selected = this.items.length - 1
+		}
 		
 		this.loaderDiv = document.createElement("div")
 		this.loaderDiv.innerHTML = assets.pages["loadsong"]

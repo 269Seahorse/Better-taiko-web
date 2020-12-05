@@ -236,6 +236,12 @@ class Scoresheet{
 					}
 				}
 			}else if(!document.hasFocus() && this.state.screen === "scoresShown"){
+				if(this.state["countup0"]){
+					this.stopSound("se_results_countup", 0)
+				}
+				if(this.state["countup1"]){
+					this.stopSound("se_results_countup", 1)
+				}
 				return
 			}else{
 				ctx.clearRect(0, 0, winW / ratio, winH / ratio)
