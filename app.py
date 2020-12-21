@@ -9,9 +9,10 @@ import re
 import requests
 import schema
 import os
+import time
 
 from functools import wraps
-from flask import Flask, g, jsonify, render_template, request, abort, redirect, session, flash
+from flask import Flask, g, jsonify, render_template, request, abort, redirect, session, flash, make_response
 from flask_caching import Cache
 from flask_session import Session
 from flask_wtf.csrf import CSRFProtect, generate_csrf, CSRFError
@@ -113,15 +114,27 @@ def before_request_func():
             session.clear()
 
 
-def get_config():
+def get_config(credentials=False):
     config_out = {
         'songs_baseurl': config.SONGS_BASEURL,
         'assets_baseurl': config.ASSETS_BASEURL,
         'email': config.EMAIL,
         'accounts': config.ACCOUNTS,
-        'custom_js': config.CUSTOM_JS,
-        'google_credentials': config.GOOGLE_CREDENTIALS
+        'custom_js': config.CUSTOM_JS
     }
+    if credentials:
+        min_level = config.GOOGLE_CREDENTIALS['min_level'] or 0
+        if not session.get('username'):
+            user_level = 0
+        else:
+            user = db.users.find_one({'username': session.get('username')})
+            user_level = user['user_level']
+        if user_level >= min_level:
+            config_out['google_credentials'] = config.GOOGLE_CREDENTIALS
+        else:
+            config_out['google_credentials'] = {
+                'gdrive_enabled': False
+            }
 
     if not config_out.get('songs_baseurl'):
         config_out['songs_baseurl'] = ''.join([request.host_url, 'songs']) + '/'
@@ -342,6 +355,43 @@ def route_admin_songs_id_delete(id):
     return redirect('/admin/songs')
 
 
+@app.route('/admin/users')
+@admin_required(level=50)
+def route_admin_users():
+    user = db.users.find_one({'username': session.get('username')})
+    max_level = user['user_level'] - 1
+    return render_template('admin_users.html', config=get_config(), max_level=max_level, username='', level='')
+
+
+@app.route('/admin/users', methods=['POST'])
+@admin_required(level=50)
+def route_admin_users_post():
+    admin_name = session.get('username')
+    admin = db.users.find_one({'username': admin_name})
+    max_level = admin['user_level'] - 1
+    
+    username = request.form.get('username')
+    level = int(request.form.get('level')) or 0
+    
+    user = db.users.find_one({'username': username})
+    if not user:
+        flash('Error: User was not found.')
+    elif admin_name == username:
+        flash('Error: You cannot modify your own level.')
+    else:
+        user_level = user['user_level']
+        if level < 0 or level > max_level:
+            flash('Error: Invalid level.')
+        elif user_level > max_level:
+            flash('Error: This user has higher level than you.')
+        else:
+            output = {'user_level': level}
+            db.users.update_one({'username': username}, {'$set': output})
+            flash('User updated.')
+    
+    return render_template('admin_users.html', config=get_config(), max_level=max_level, username=username, level=level)
+
+
 @app.route('/api/preview')
 @app.cache.cached(timeout=15, query_string=True)
 def route_api_preview():
@@ -400,7 +450,7 @@ def route_api_categories():
 @app.route('/api/config')
 @app.cache.cached(timeout=15)
 def route_api_config():
-    config = get_config()
+    config = get_config(credentials=True)
     return jsonify(config)
 
 
@@ -609,6 +659,16 @@ def route_api_scores_get():
     user = db.users.find_one({'username': username})
     don = get_db_don(user)
     return jsonify({'status': 'ok', 'scores': scores, 'username': user['username'], 'display_name': user['display_name'], 'don': don})
+
+
+@app.route('/privacy')
+def route_api_privacy():
+    last_modified = time.strftime('%d %B %Y', time.gmtime(os.path.getmtime('templates/privacy.txt')))
+    integration = config.GOOGLE_CREDENTIALS['gdrive_enabled']
+    
+    response = make_response(render_template('privacy.txt', last_modified=last_modified, config=get_config(), integration=integration))
+    response.headers['Content-type'] = 'text/plain; charset=utf-8'
+    return response
 
 
 def make_preview(song_id, song_type, song_ext, preview):

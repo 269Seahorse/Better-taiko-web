@@ -1,0 +1,38 @@
+Taiko Web is committed to safeguarding and preserving the privacy of our website visitors and players. This Privacy Policy explains what happens to any personal data that you provide to us or that we collect from you while you play our game or visit our site.
+
+1. The Types and Sources of Data We Collect
+
+1.1 Basic Account Data
+When setting up an account, we will collect your user name and password.
+
+1.2 Game High Score Data
+When setting a high score in-game, we will collect and store your score. This information may become available to other users when you start a multiplayer game with them.
+
+1.3 Cookies
+We use "Cookies", which are text files placed on your computer, and similar technologies to improve the services we are offering and to improve website functionality.
+
+2. Who Has Access to Data
+
+Taiko Web does not sell Personal Data. However, we may share or provide access to each of the categories of Personal Data we collect as necessary for the following business purposes.
+
+2.1 Taiko Web includes multiplayer features, where users can play the game with each other. When playing with other users, please be aware that the information is being made available to them; therefore, you are doing so at your own risk.
+{% if integration %}
+3. Google Drive Integration
+
+You can use the Google Drive integration to let Taiko Web make your Taiko chart files and other related files available in-game.
+
+Applications that integrate with a Google account must declare their intent by requesting permissions. These permissions to your account must be granted in order for Taiko Web to integrate with Google accounts. Below is a list of these permissions and why they are required. At no time will Taiko Web request or have access to your Google account password.
+
+3.1 "Associate you with your personal info on Google" Permission
+Required for Google Sign-In to provide Taiko Web with a non-identifiable user authentication token. No other information provided by this permission is used.
+
+3.2 "See and download all your Google Drive files" Permission
+When selecting a folder with the Google Drive file picker, Taiko Web instructs your Browser to recursively download all the files of that folder directly into your computer's memory. Limitation of Google Drive's permission model requires us to request access to all your Google Drive files, however, Taiko Web will only access the selected folder and its children, and only when requested. File parsing is handled locally; none of your Google Drive files is ever sent to our servers or third parties.
+{% endif %}{% if config.email %}
+{% if integration %}4{% else %}3{% endif %}. Contact Info
+
+You can contact the Taiko Web operator at the email address below.
+
+{{config.email}}
+{% endif %}
+Revision Date: {{last_modified}}

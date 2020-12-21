@@ -39,5 +39,6 @@ GOOGLE_CREDENTIALS = {
     'gdrive_enabled': False,
     'api_key': '',
     'oauth_client_id': '',
-    'project_number': ''
+    'project_number': '',
+    'min_level': None
 }

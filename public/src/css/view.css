@@ -112,9 +112,14 @@ kbd{
 	margin-right: 0.4em;
 }
 .center-buttons{
-	display: flex;
-	justify-content: center;
 	margin: 1.5em 0;
+}
+.account-view .center-buttons{
+	margin: 0.3em 0;
+}
+.center-buttons>div{
+	text-align: center;
+	margin: 0.2em 0;
 }
 .center-buttons .taibtn{
 	margin: 0 0.2em;

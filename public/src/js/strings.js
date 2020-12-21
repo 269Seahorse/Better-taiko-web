@@ -918,6 +918,13 @@ var translations = {
 			tw: "註冊",
 			ko: "가입하기"
 		},
+		privacy: {
+			ja: "プライバシー",
+			en: "Privacy",
+			cn: "隐私权",
+			tw: "隱私權",
+			ko: "개인정보처리방침"
+		},
 		registerAccount: {
 			ja: "アカウントを登録",
 			en: "Register account",
@@ -1135,6 +1142,13 @@ var translations = {
 			tw: "Google雲端硬碟...",
 			ko: "구글 드라이브..."
 		},
+		gdriveAccount: {
+			ja: "アカウントの切り替え",
+			en: "Switch Accounts",
+			cn: "切换帐户",
+			tw: "切換帳戶",
+			ko: "계정 전환"
+		},
 		dropzone: {
 			ja: "ここにファイルをドロップ",
 			en: "Drop files here",
@@ -1180,6 +1194,9 @@ var translations = {
 		},
 		authError: {
 			en: "Auth error: %s"
+		},
+		cookieError: {
+			en: "This function requires third party cookies."
 		}
 	}
 }
