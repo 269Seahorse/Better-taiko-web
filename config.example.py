@@ -1,11 +1,11 @@
 # The full URL base asset URL, with trailing slash.
-ASSETS_BASEURL = ''
+ASSETS_BASEURL = '/assets/'
 
 # The full URL base song URL, with trailing slash.
-SONGS_BASEURL = ''
+SONGS_BASEURL = '/songs/'
 
 # The email address to display in the "About Simulator" menu.
-EMAIL = 'taiko@example.com'
+EMAIL = None
 
 # Whether to use the user account system.
 ACCOUNTS = True

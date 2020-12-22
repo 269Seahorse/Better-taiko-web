@@ -56,6 +56,7 @@ class CustomSongs{
 			this.items.push(this.linkPrivacy)
 		}else{
 			groupGdrive.style.display = "none"
+			this.linkPrivacy.parentNode.removeChild(this.linkPrivacy)
 		}
 		
 		this.endButton = this.getElement("view-end-button")
@@ -349,7 +350,9 @@ class CustomSongs{
 				}
 			}else if(name === "previous" || name === "next"){
 				selected.classList.remove("selected")
-				this.selected = this.mod(this.items.length, this.selected + (name === "next" ? 1 : -1))
+				do{
+					this.selected = this.mod(this.items.length, this.selected + (name === "next" ? 1 : -1))
+				}while(this.items[this.selected] === this.linkPrivacy && name !== "previous")
 				this.items[this.selected].classList.add("selected")
 				assets.sounds["se_ka"].play()
 			}else if(name === "back" || name === "backEsc"){
