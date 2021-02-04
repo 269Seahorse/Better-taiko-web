@@ -34,7 +34,7 @@ var translations = {
 		en: "Click or Press Enter!",
 		cn: "点击或按回车！",
 		tw: "點擊或按確認！",
-		ko: "클릭하거나 Enter를 누릅니다!"
+		ko: "클릭하거나 Enter를 누르세요!"
 	},
 	titleDisclaimer: {
 		ja: "この非公式シミュレーターはバンダイナムコとは関係がありません。",
@@ -65,7 +65,7 @@ var translations = {
 		en: "Back",
 		cn: "返回",
 		tw: "返回",
-		ko: "돌아간다"
+		ko: "돌아가기"
 	},
 	random: {
 		ja: "ランダム",
@@ -86,14 +86,14 @@ var translations = {
 		en: "How to Play",
 		cn: "操作说明",
 		tw: "操作說明",
-		ko: "지도 시간"
+		ko: "플레이 방법"
 	},
 	aboutSimulator: {
 		ja: "このシミュレータについて",
 		en: "About Simulator",
 		cn: "关于模拟器",
 		tw: "關於模擬器",
-		ko: "게임 정보"
+		ko: "시뮬레이터 정보"
 	},
 	gameSettings: {
 		ja: "ゲーム設定",
@@ -121,14 +121,14 @@ var translations = {
 		en: "Auto",
 		cn: "自动",
 		tw: "自動",
-		ko: "오토"
+		ko: "자동"
 	},
 	netplay: {
 		ja: "ネットプレイ",
 		en: "Netplay",
 		cn: "网络对战",
 		tw: "網上對打",
-		ko: "넷 플레이"
+		ko: "온라인 대전"
 	},
 	easy: {
 		ja: "かんたん",
@@ -156,14 +156,14 @@ var translations = {
 		en: "Extreme",
 		cn: "魔王",
 		tw: "魔王",
-		ko: "귀신"
+		ko: "오니"
 	},
 	songBranch: {
 		ja: "譜面分岐あり",
 		en: "Diverge Notes",
 		cn: "有谱面分歧",
 		tw: "有譜面分歧",
-		ko: "악보 분기 있습니다"
+		ko: "악보 분기 있음"
 	},
 	defaultName: {
 		ja: "どんちゃん",
@@ -220,7 +220,7 @@ var translations = {
 		en: "Waiting for Another Player...",
 		cn: "正在等待对方玩家...",
 		tw: "正在等待對方玩家...",
-		ko: "Waiting for Another Player..."
+		ko: "다른 플레이어 대기 중..."
 	},
 	cancel: {
 		ja: "キャンセル",
@@ -455,7 +455,7 @@ var translations = {
 				"USB控制器也支持！"
 			],
 			ko: [
-				"이동하는 음표가 테두리와 겹쳐졌을 때 북채로 태고를 두드리자！",
+				"이동하는 음표가 테두리와 겹쳐졌을 때 북채로 태고를 두드리자!",
 				"빨간 음표는 면을 두드리자 (%s 또는 %s)",
 				"파란 음표는 테를 두드리자 (%s 또는 %s)",
 				"USB 컨트롤러도 지원됩니다!"
@@ -495,9 +495,9 @@ var translations = {
 			],
 			ko: [
 				"%s \u2014 게임을 일시 중지합니다",
-				'%s and %s while selecting song \u2014 navigate categories',
-				"난이도 선택 동안 %s 홀드 \u2014 오토 모드 활성화",
-				"난이도 선택 동안 %s 홀드 \u2014 넷 플레이 모드 활성화"
+				'곡 선택 중 %s 또는 %s \u2014 카테고리 이동',
+				"난이도 선택 동안 %s 홀드 \u2014 자동 모드 활성화",
+				"난이도 선택 동안 %s 홀드 \u2014 온라인 대전 모드 활성화"
 			],
 		},
 		ok: {
@@ -552,11 +552,17 @@ var translations = {
 				"您可以向我们报告在游戏中出现的任何bug，",
 				"可以通过我们的Github仓库或发送电子邮件来报告错误。"
 			],
+			ko: [
+				"이 시뮬레이터는 아직 개발 중입니다.",
+				"버그를 찾으시면 신고해주시기 바랍니다.",
+				"Github 레포지터리나 이메일을 통해 버그를 신고하실 수 있습니다."
+			]
 		},
 		diagnosticWarning: {
 			ja: "以下の端末診断情報も併せて報告してください！",
 			en: "Be sure to include the following diagnostic data!",
 			cn: "请确保您的报告包括以下诊断数据!",
+			ko: "신고하실 때 반드시 다음 진단 정보를 포함해주시기 바랍니다!"
 		},
 		issueTemplate: {
 			ja: "###### 下記の問題を説明してください。 スクリーンショットと診断情報を含めてください。",
@@ -576,14 +582,14 @@ var translations = {
 			en: "Multiplayer Session",
 			cn: "在线会话",
 			tw: "多人模式",
-			ko: null
+			ko: "멀티플레이어 세션"
 		},
 		linkTutorial: {
 			ja: null,
 			en: "Share this link with your friend to start playing together! Do not leave this screen while they join.",
 			cn: "复制下方地址，给你的朋友即可开始一起游戏！当他们与您联系之前，请不要离开此页面。",
 			tw: "複製下方地址，給你的朋友即可開始一起遊戲！當他們與您聯繫之前，請不要離開此頁面。",
-			ko: null
+			ko: "링크를 공유하여 친구와 플레이하세요! 친구가 입장하기 전에 페이지를 나가지 말아주세요."
 		},
 		cancel: {
 			ja: "キャンセル",
@@ -616,7 +622,7 @@ var translations = {
 				en: "High",
 				cn: "高",
 				tw: "高",
-				ko: "높은"
+				ko: "높음"
 			},
 			medium: {
 				ja: "中",
@@ -630,14 +636,14 @@ var translations = {
 				en: "Low",
 				cn: "低",
 				tw: "低",
-				ko: "저"
+				ko: "낮음"
 			},
 			lowest: {
 				ja: "最低",
 				en: "Lowest",
 				cn: "最低",
 				tw: "最低",
-				ko: "최저"
+				ko: "매우 낮음"
 			}
 		},
 		touchAnimation: {
@@ -669,14 +675,14 @@ var translations = {
 				en: "Left Surface",
 				cn: "表面（左）",
 				tw: "表面（左）",
-				ko: "표면 (왼쪽)"
+				ko: "북 면 (왼쪽)"
 			},
 			don_r: {
 				ja: "面(右)",
 				en: "Right Surface",
 				cn: "表面（右）",
 				tw: "表面（右）",
-				ko: "표면 (오른쪽)"
+				ko: "북 면 (오른쪽)"
 			},
 			ka_r: {
 				ja: "ふち(右)",
@@ -721,31 +727,37 @@ var translations = {
 				ja: null,
 				en: "Latency",
 				cn: "延迟校准",
+				ko: "레이턴시"
 			},
 			value: {
 				ja: null,
 				en: "Audio: %s, Video: %s",
 				cn: "音频: %s, 视频: %s",
+				ko: "오디오: %s, 비디오: %s"
 			},
 			calibration: {
 				ja: null,
 				en: "Latency Calibration",
 				cn: "自动辅助校准",
+				ko: "레이턴시 조절"
 			},
 			audio: {
 				ja: null,
 				en: "Audio",
 				cn: "音频",
+				ko: "오디오"
 			},
 			video: {
 				ja: null,
 				en: "Video",
 				cn: "视频",
+				ko: "비디오"
 			},
 			drumSounds: {
 				ja: null,
 				en: "Drum Sounds",
 				cn: "鼓声",
+				ko: "북 소리"
 			}
 		},
 		easierBigNotes: {
@@ -762,6 +774,7 @@ var translations = {
 				ja: "歌詞の表示",
 				en: "Show Lyrics",
 				cn: "显示歌词",
+				ko: "가사 표시하기"
 			}
 		},
 		on: {
@@ -769,14 +782,14 @@ var translations = {
 			en: "On",
 			cn: "开",
 			tw: "開",
-			ko: "온"
+			ko: "켜짐"
 		},
 		off: {
 			ja: "オフ",
 			en: "Off",
 			cn: "关",
 			tw: "關",
-			ko: "오프"
+			ko: "꺼짐"
 		},
 		default: {
 			ja: "既定値にリセット",
@@ -941,7 +954,7 @@ var translations = {
 			en: "%s cannot be empty",
 			cn: "%s不能为空",
 			tw: "%s不能為空",
-			ko: "%s 비어 있을 수 없습니다"
+			ko: "%s는 비어 있을 수 없습니다"
 		},
 		error: {
 			ja: "リクエストの処理中にエラーが発生しました",
@@ -955,14 +968,14 @@ var translations = {
 			en: "Log Out",
 			cn: "登出",
 			tw: "登出",
-			ko: "로그 아웃"
+			ko: "로그아웃"
 		},
 		back: {
 			ja: "もどる",
 			en: "Back",
 			cn: "返回",
 			tw: "返回",
-			ko: "돌아간다"
+			ko: "돌아가기"
 		},
 		cancel: {
 			ja: null,
@@ -1088,7 +1101,7 @@ var translations = {
 			en: "Maker:",
 			cn: "制作者",
 			tw: "製作者",
-			ko: "만드는 사람"
+			ko: "제작자:"
 		}
 	},
 	withLyrics: {
@@ -1096,7 +1109,7 @@ var translations = {
 		en: "With lyrics",
 		cn: "带歌词",
 		tw: "帶歌詞",
-		ko: "가사가있는"
+		ko: "가사 포함됨"
 	},
 	customSongs: {
 		title: {
@@ -1104,7 +1117,7 @@ var translations = {
 			en: "Custom Song List",
 			cn: "自定义歌曲列表",
 			tw: "自定義歌曲列表",
-			ko: "맞춤 노래 목록"
+			ko: "커스텀 노래 목록"
 		},
 		default: {
 			ja: "デフォルト曲リスト",
@@ -1140,7 +1153,7 @@ var translations = {
 			en: "Drop files here",
 			cn: "将文件拖至此处",
 			tw: "將文件拖至此處",
-			ko: "파일을 여기에 드롭"
+			ko: "파일을 여기에 드롭하세요"
 		},
 		importError: {
 			en: "Import Error"
