@@ -156,7 +156,7 @@ var translations = {
 		en: "Extreme",
 		cn: "魔王",
 		tw: "魔王",
-		ko: "오니"
+		ko: "귀신"
 	},
 	songBranch: {
 		ja: "譜面分岐あり",
