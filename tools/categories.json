@@ -1,0 +1,146 @@
+[{
+	"id": 1,
+	"title": "Pop",
+	"title_lang": {
+		"ja": "J-POP",
+		"en": "Pop",
+		"cn": "流行音乐",
+		"tw": "流行音樂",
+		"ko": "POP"
+	},
+	"song_skin": {
+		"sort": 1,
+		"background": "#219fbb",
+		"border": ["#7ec3d3", "#0b6773"],
+		"outline": "#005058",
+		"info_fill": "#004d68",
+		"bg_img": "bg_genre_0.png"
+	},
+	"aliases": null
+},{
+	"id": 2,
+	"title": "Anime",
+	"title_lang": {
+		"ja": "アニメ",
+		"en": "Anime",
+		"cn": "卡通动画音乐",
+		"tw": "卡通動畫音樂",
+		"ko": "애니메이션"
+	},
+	"song_skin": {
+		"sort": 2,
+		"background": "#ff9700",
+		"border": ["#ffdb8c", "#e75500"],
+		"outline": "#9c4100",
+		"info_fill": "#9c4002",
+		"bg_img": "bg_genre_1.png"
+	},
+	"aliases": null
+},{
+	"id": 3,
+	"title": "VOCALOID™ Music",
+	"title_lang": {
+		"ja": "ボーカロイド™曲",
+		"en": "VOCALOID™ Music"
+	},
+	"song_skin": {
+		"sort": 3,
+		"background": "#def2ef",
+		"border": ["#f7fbff", "#79919f"],
+		"outline": "#5a6584",
+		"info_fill": "#546184",
+		"bg_img": "bg_genre_2.png"
+	},
+	"aliases": [
+		"ボーカロイド曲",
+		"ボーカロイド",
+		"vocaloid music",
+		"vocaloid"
+	]
+},{
+	"id": 4,
+	"title": "Variety",
+	"title_lang": {
+		"ja": "バラエティ",
+		"en": "Variety",
+		"cn": "综合音乐",
+		"tw": "綜合音樂",
+		"ko": "버라이어티"
+	},
+	"song_skin": {
+		"sort": 4,
+		"background": "#8fd321",
+		"border": ["#f7fbff", "#587d0b"],
+		"outline": "#374c00",
+		"info_fill": "#3c6800",
+		"bg_img": "bg_genre_3.png"
+	},
+	"aliases": [
+		"バラエティー",
+		"どうよう",
+		"童謡・民謡",
+		"children",
+		"children/folk",
+		"children-folk"
+	]
+},{
+	"id": 5,
+	"title": "Classical",
+	"title_lang": {
+		"ja": "クラシック",
+		"en": "Classical",
+		"cn": "古典音乐",
+		"tw": "古典音樂",
+		"ko": "클래식"
+	},
+	"song_skin": {
+		"sort": 5,
+		"background": "#d1a016",
+		"border": ["#e7cf6b", "#9a6b00"],
+		"outline": "#734d00",
+		"info_fill": "#865800",
+		"bg_img": "bg_genre_4.png"
+	},
+	"aliases": [
+		"クラッシック",
+		"classic"
+	]
+},{
+	"id": 6,
+	"title": "Game Music",
+	"title_lang": {
+		"ja": "ゲームミュージック",
+		"en": "Game Music",
+		"cn": "游戏音乐",
+		"tw": "遊戲音樂",
+		"ko": "게임"
+	},
+	"song_skin": {
+		"sort": 6,
+		"background": "#9c72c0",
+		"border": ["#bda2ce", "#63407e"],
+		"outline": "#4b1c74",
+		"info_fill": "#4f2886",
+		"bg_img": "bg_genre_5.png"
+	},
+	"aliases": null
+},{
+	"id": 7,
+	"title": "NAMCO Original",
+	"title_lang": {
+		"ja": "ナムコオリジナル",
+		"en": "NAMCO Original",
+		"cn": "NAMCO原创音乐",
+		"tw": "NAMCO原創音樂",
+		"ko": "남코 오리지널"
+	},
+	"song_skin": {
+		"sort": 7,
+		"background": "#ff5716",
+		"border": ["#ffa66b", "#b53000"],
+		"outline": "#941c00",
+		"info_fill": "#961e00",
+		"bg_img": "bg_genre_6.png"
+	},
+	"aliases": null
+}]

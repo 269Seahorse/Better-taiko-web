@@ -36,7 +36,10 @@ class CustomSongs{
 			this.linkLocalFolder.parentNode.removeChild(this.linkLocalFolder)
 		}
 		
+		var groupGdrive = document.getElementById("group-gdrive")
 		this.linkGdriveFolder = document.getElementById("link-gdrivefolder")
+		this.linkGdriveAccount = document.getElementById("link-gdriveaccount")
+		this.linkPrivacy = document.getElementById("link-privacy")
 		if(gameConfig.google_credentials.gdrive_enabled){
 			this.setAltText(this.linkGdriveFolder, strings.customSongs.gdriveFolder)
 			pageEvents.add(this.linkGdriveFolder, ["mousedown", "touchstart"], this.gdriveFolder.bind(this))
@@ -45,8 +48,15 @@ class CustomSongs{
 				this.linkGdriveFolder.classList.add("selected")
 				this.selected = this.items.length - 1
 			}
+			this.setAltText(this.linkGdriveAccount, strings.customSongs.gdriveAccount)
+			pageEvents.add(this.linkGdriveAccount, ["mousedown", "touchstart"], this.gdriveAccount.bind(this))
+			this.items.push(this.linkGdriveAccount)
+			this.setAltText(this.linkPrivacy, strings.account.privacy)
+			pageEvents.add(this.linkPrivacy, ["mousedown", "touchstart"], this.openPrivacy.bind(this))
+			this.items.push(this.linkPrivacy)
 		}else{
-			this.linkGdriveFolder.parentNode.removeChild(this.linkGdriveFolder)
+			groupGdrive.style.display = "none"
+			this.linkPrivacy.parentNode.removeChild(this.linkPrivacy)
 		}
 		
 		this.endButton = this.getElement("view-end-button")
@@ -237,13 +247,67 @@ class CustomSongs{
 			}else if(e !== "cancel"){
 				return Promise.reject(e)
 			}
+		}).finally(() => {
+			var addRemove = !gpicker || !gpicker.oauthToken ? "add" : "remove"
+			this.linkGdriveAccount.classList[addRemove]("hiddenbtn")
 		})
+	}
+	gdriveAccount(event){
+		if(event){
+			if(event.type === "touchstart"){
+				event.preventDefault()
+			}else if(event.which !== 1){
+				return
+			}
+		}
+		if(this.locked || this.mode !== "main"){
+			return
+		}
+		this.changeSelected(this.linkGdriveAccount)
+		this.locked = true
+		this.loading(true)
+		if(!gpicker){
+			var gpickerPromise = loader.loadScript("/src/js/gpicker.js").then(() => {
+				gpicker = new Gpicker()
+			})
+		}else{
+			var gpickerPromise = Promise.resolve()
+		}
+		gpickerPromise.then(() => {
+			return gpicker.switchAccounts(locked => {
+				this.locked = locked
+				this.loading(locked)
+			}, error => {
+				this.showError(error)
+			})
+		}).then(() => {
+			this.locked = false
+			this.loading(false)
+		}).catch(error => {
+			if(error !== "cancel"){
+				this.showError(error)
+			}
+		})
+	}
+	openPrivacy(event){
+		if(event){
+			if(event.type === "touchstart"){
+				event.preventDefault()
+			}else if(event.which !== 1){
+				return
+			}
+		}
+		if(this.locked || this.mode !== "main"){
+			return
+		}
+		this.changeSelected(this.linkPrivacy)
+		open("privacy")
 	}
 	loading(show){
 		if(show){
 			loader.screen.appendChild(this.loaderDiv)
-		}else{
-			loader.screen.removeChild(this.loaderDiv)
+		}else if(this.loaderDiv.parentNode){
+			this.loaderDiv.parentNode.removeChild(this.loaderDiv)
 		}
 	}
 	songsLoaded(songs){
@@ -276,11 +340,19 @@ class CustomSongs{
 					}else if(selected === this.linkGdriveFolder){
 						assets.sounds["se_don"].play()
 						this.gdriveFolder()
+					}else if(selected === this.linkGdriveAccount){
+						assets.sounds["se_don"].play()
+						this.gdriveAccount()
+					}else if(selected === this.linkPrivacy){
+						assets.sounds["se_don"].play()
+						this.openPrivacy()
 					}
 				}
 			}else if(name === "previous" || name === "next"){
 				selected.classList.remove("selected")
-				this.selected = this.mod(this.items.length, this.selected + (name === "next" ? 1 : -1))
+				do{
+					this.selected = this.mod(this.items.length, this.selected + (name === "next" ? 1 : -1))
+				}while(this.items[this.selected] === this.linkPrivacy && name !== "previous")
 				this.items[this.selected].classList.add("selected")
 				assets.sounds["se_ka"].play()
 			}else if(name === "back" || name === "backEsc"){
@@ -327,6 +399,8 @@ class CustomSongs{
 		}, 500)
 	}
 	showError(text){
+		this.locked = false
+		this.loading(false)
 		if(this.mode === "error"){
 			return
 		}
@@ -352,6 +426,8 @@ class CustomSongs{
 		}
 		if(gameConfig.google_credentials.gdrive_enabled){
 			pageEvents.remove(this.linkGdriveFolder, ["mousedown", "touchstart"])
+			pageEvents.remove(this.linkGdriveAccount, ["mousedown", "touchstart"])
+			pageEvents.remove(this.linkPrivacy, ["mousedown", "touchstart"])
 		}
 		pageEvents.remove(this.endButton, ["mousedown", "touchstart"])
 		pageEvents.remove(this.errorDiv, ["mousedown", "touchstart"])
@@ -363,6 +439,8 @@ class CustomSongs{
 		delete this.browse
 		delete this.linkLocalFolder
 		delete this.linkGdriveFolder
+		delete this.linkGdriveAccount
+		delete this.linkPrivacy
 		delete this.endButton
 		delete this.items
 		delete this.loaderDiv

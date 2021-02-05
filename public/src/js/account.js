@@ -93,6 +93,11 @@ class Account{
 		this.inputForms.push(this.accountDel.password)
 		this.accountDelDiv = this.getElement("accountdel-div")
 		
+		this.linkPrivacy = this.getElement("privacy-btn")
+		this.setAltText(this.linkPrivacy, strings.account.privacy)
+		pageEvents.add(this.linkPrivacy, ["mousedown", "touchstart"], this.openPrivacy.bind(this))
+		this.items.push(this.linkPrivacy)
+		
 		this.logoutButton = this.getElement("logout-btn")
 		this.setAltText(this.logoutButton, strings.account.logout)
 		pageEvents.add(this.logoutButton, ["mousedown", "touchstart"], this.onLogout.bind(this))
@@ -245,6 +250,12 @@ class Account{
 		
 		pageEvents.add(this.registerButton, ["mousedown", "touchstart"], this.onSwitchMode.bind(this))
 		this.items.push(this.registerButton)
+		
+		this.linkPrivacy = this.getElement("privacy-btn")
+		this.setAltText(this.linkPrivacy, strings.account.privacy)
+		pageEvents.add(this.linkPrivacy, ["mousedown", "touchstart"], this.openPrivacy.bind(this))
+		this.items.push(this.linkPrivacy)
+		
 		if(!register){
 			this.items.push(this.loginButton)
 		}
@@ -282,11 +293,17 @@ class Account{
 				this.onSwitchMode()
 			}else if(selected === this.loginButton){
 				this.onLogin()
+			}else if(selected === this.linkPrivacy){
+				assets.sounds["se_don"].play()
+				this.openPrivacy()
 			}
 		}else if(name === "previous" || name === "next"){
 			selected.classList.remove("selected")
 			this.selected = this.mod(this.items.length, this.selected + (name === "next" ? 1 : -1))
 			this.items[this.selected].classList.add("selected")
+			if(this.items[this.selected] === this.linkPrivacy){
+				this.items[this.selected].scrollIntoView()
+			}
 			assets.sounds["se_ka"].play()
 		}else if(name === "back"){
 			this.onEnd()
@@ -379,6 +396,19 @@ class Account{
 				this.error(strings.account.error)
 			}
 		})
+	}
+	openPrivacy(event){
+		if(event){
+			if(event.type === "touchstart"){
+				event.preventDefault()
+			}else if(event.which !== 1){
+				return
+			}
+		}
+		if(this.locked){
+			return
+		}
+		open("privacy")
 	}
 	onLogout(){
 		if(event){
@@ -583,6 +613,7 @@ class Account{
 			pageEvents.remove(this.customdonResetBtn, ["click", "touchstart"])
 			pageEvents.remove(this.accounPassButton, ["click", "touchstart"])
 			pageEvents.remove(this.accountDelButton, ["click", "touchstart"])
+			pageEvents.remove(this.linkPrivacy, ["mousedown", "touchstart"])
 			pageEvents.remove(this.logoutButton, ["mousedown", "touchstart"])
 			pageEvents.remove(this.saveButton, ["mousedown", "touchstart"])
 			for(var i = 0; i < this.inputForms.length; i++){
@@ -602,6 +633,7 @@ class Account{
 			delete this.accountDelButton
 			delete this.accountDel
 			delete this.accountDelDiv
+			delete this.linkPrivacy
 			delete this.logoutButton
 			delete this.saveButton
 			delete this.inputForms
@@ -615,12 +647,14 @@ class Account{
 			for(var i = 0; i < this.form.length; i++){
 				pageEvents.remove(this.registerButton, ["keydown", "keyup", "keypress"])
 			}
+			pageEvents.remove(this.linkPrivacy, ["mousedown", "touchstart"])
 			delete this.errorDiv
 			delete this.form
 			delete this.password2
 			delete this.remember
 			delete this.loginButton
 			delete this.registerButton
+			delete this.linkPrivacy
 		}
 		pageEvents.remove(this.endButton, ["mousedown", "touchstart"])
 		delete this.endButton

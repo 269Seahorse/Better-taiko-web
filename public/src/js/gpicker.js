@@ -131,37 +131,48 @@ class Gpicker{
 			gapi.client.load("drive", "v3").then(resolve, reject)
 		))
 	}
-	getToken(lockedCallback=()=>{}, errorCallback=()=>{}){
-		if(this.oauthToken){
-			return Promise.resolve()
-		}
+	getAuth(errorCallback=()=>{}){
 		if(!this.auth){
-			var authPromise = gapi.auth2.init({
-				clientId: this.oauthClientId,
-				fetch_basic_profile: false,
-				scope: this.scope
-			}).then(() => {
-				this.auth = gapi.auth2.getAuthInstance()
-			}, e => {
-				if(e.details){
-					errorCallback(strings.gpicker.authError.replace("%s", e.details))
-				}
-				return Promise.reject(e)
+			return new Promise((resolve, reject) => {
+				gapi.auth2.init({
+					clientId: this.oauthClientId,
+					fetch_basic_profile: false,
+					scope: this.scope
+				}).then(() => {
+					this.auth = gapi.auth2.getAuthInstance()
+					resolve(this.auth)
+				}, e => {
+					if(e.details){
+						var errorStr = strings.gpicker.authError.replace("%s", e.details)
+						if(/cookie/i.test(e.details)){
+							errorStr += "\n\n" + strings.gpicker.cookieError
+						}
+						errorCallback(errorStr)
+					}
+					reject(e)
+				})
 			})
 		}else{
-			var authPromise = Promise.resolve()
+			return Promise.resolve(this.auth)
 		}
-		return authPromise.then(() => {
-			var user = this.auth.currentUser.get()
-			if(!this.checkScope(user)){
+	}
+	getToken(lockedCallback=()=>{}, errorCallback=()=>{}, force){
+		if(this.oauthToken && !force){
+			return Promise.resolve()
+		}
+		return this.getAuth(errorCallback).then(auth => {
+			var user = force || auth.currentUser.get()
+			if(force || !this.checkScope(user)){
 				lockedCallback(false)
-				this.auth.signIn().then(user => {
+				return auth.signIn(force ? {
+					prompt: "select_account"
+				} : undefined).then(user => {
 					if(this.checkScope(user)){
 						lockedCallback(true)
 					}else{
 						return Promise.reject("cancel")
 					}
-				})
+				}, () => Promise.reject("cancel"))
 			}
 		})
 	}
@@ -172,6 +183,9 @@ class Gpicker{
 		}else{
 			return false
 		}
+	}
+	switchAccounts(lockedCallback, errorCallback){
+		return this.loadApi().then(() => this.getToken(lockedCallback, errorCallback, true))
 	}
 	displayPicker(callback){
 		var picker = gapi.picker.api

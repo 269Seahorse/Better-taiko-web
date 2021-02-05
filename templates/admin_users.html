@@ -1,0 +1,21 @@
+{% extends 'admin.html' %}
+{% block content %}
+<h1>Users</h1>
+{% for message in get_flashed_messages() %}
+<div class="message">{{ message }}</div>
+{% endfor %}
+<div class="song-form">
+    <form method="post">
+        <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+        
+        <div class="form-field">
+            <label for="username">Username</label>
+            <input type="text" id="username" name="username" value="{{username}}" required>
+            <label for="level">Level</label>
+            <input type="number" id="level" name="level" min="0" max="{{max_level}}" value="{{level}}" required>
+        </div>
+        
+        <button type="submit" class="save-song">Save</button>
+    </form>
+</div>
+{% endblock %}

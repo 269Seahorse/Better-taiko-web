@@ -1,6 +1,6 @@
 addEventListener("error", function(err){
 	var stack
-	if("error" in err){
+	if("error" in err && err.error){
 		stack = err.error.stack
 	}else{
 		stack = err.message + "\n    at " + err.filename + ":" + err.lineno + ":" + err.colno
