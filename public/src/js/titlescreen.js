@@ -1,6 +1,7 @@
 class Titlescreen{
 	constructor(songId){
 		this.songId = songId
+		db.getItem("customFolder").then(folder => this.customFolder = folder)
 		
 		if(!songId){
 			loader.changePage("titlescreen", false)
@@ -50,7 +51,7 @@ class Titlescreen{
 	
 	onPressed(pressed, name){
 		if(pressed){
-			if(name === "gamepadConfirm" && snd.buffer.context.state === "suspended"){
+			if(name === "gamepadConfirm" && (snd.buffer.context.state === "suspended" || this.customFolder)){
 				return
 			}
 			this.titleScreen.style.cursor = "auto"
@@ -62,18 +63,28 @@ class Titlescreen{
 	goNext(fromP2){
 		if(p2.session && !fromP2){
 			p2.send("songsel")
-		}else if(fromP2 || localStorage.getItem("tutorial") === "true"){
-			if(this.touched){
-				localStorage.setItem("tutorial", "true")
-			}
-			pageEvents.remove(p2, "message")
-			setTimeout(() => {
-				new SongSelect(false, false, this.touched, this.songId)
-			}, 500)
 		}else{
-			setTimeout(() => {
-				new SettingsView(this.touched, true, this.songId)
-			}, 500)
+			if(fromP2 || this.customFolder || localStorage.getItem("tutorial") === "true"){
+				if(this.touched){
+					localStorage.setItem("tutorial", "true")
+				}
+				pageEvents.remove(p2, "message")
+				if(this.customFolder && !fromP2 && !assets.customSongs){
+					var customSongs = new CustomSongs(this.touched, true)
+					customSongs.walkFilesystem(this.customFolder).then(files => customSongs.importLocal(files)).catch(() => {
+						db.removeItem("customFolder")
+						new SongSelect(false, false, this.touched, this.songId)
+					})
+				}else{
+					setTimeout(() => {
+						new SongSelect(false, false, this.touched, this.songId)
+					}, 500)
+				}
+			}else{
+				setTimeout(() => {
+					new SettingsView(this.touched, true, this.songId)
+				}, 500)
+			}
 		}
 	}
 	setLang(lang, noEvent){

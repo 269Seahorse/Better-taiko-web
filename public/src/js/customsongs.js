@@ -1,12 +1,23 @@
 class CustomSongs{
-	constructor(touchEnabled){
+	constructor(touchEnabled, noPage){
+		this.loaderDiv = document.createElement("div")
+		this.loaderDiv.innerHTML = assets.pages["loadsong"]
+		var loadingText = this.loaderDiv.querySelector("#loading-text")
+		this.setAltText(loadingText, strings.loading)
+		
+		this.locked = false
+		this.mode = "main"
+		
+		if(noPage){
+			this.noPage = true
+			return
+		}
+		
 		this.touchEnabled = touchEnabled
 		loader.changePage("customsongs", true)
 		if(touchEnabled){
 			this.getElement("view-outer").classList.add("touch-enabled")
 		}
-		this.locked = false
-		this.mode = "main"
 		
 		var tutorialTitle = this.getElement("view-title")
 		this.setAltText(tutorialTitle, strings.customSongs.title)
@@ -19,7 +30,7 @@ class CustomSongs{
 		
 		this.items = []
 		this.linkLocalFolder = document.getElementById("link-localfolder")
-		this.hasLocal = "webkitdirectory" in HTMLInputElement.prototype && !(/Android|iPhone|iPad/.test(navigator.userAgent))
+		this.hasLocal = (typeof showDirectoryPicker === "function" || "webkitdirectory" in HTMLInputElement.prototype) && !(/Android|iPhone|iPad/.test(navigator.userAgent))
 		this.selected = -1
 		
 		if(this.hasLocal){
@@ -68,12 +79,7 @@ class CustomSongs{
 			this.selected = this.items.length - 1
 		}
 		
-		this.loaderDiv = document.createElement("div")
-		this.loaderDiv.innerHTML = assets.pages["loadsong"]
-		var loadingText = this.loaderDiv.querySelector("#loading-text")
-		this.setAltText(loadingText, strings.loading)
-		
-		if(DataTransferItem.prototype.webkitGetAsEntry){
+		if(DataTransferItem.prototype.getAsFileSystemHandle || DataTransferItem.prototype.webkitGetAsEntry){
 			this.dropzone = document.getElementById("dropzone")
 			var dropContent = this.dropzone.getElementsByClassName("view-content")[0]
 			dropContent.innerText = strings.customSongs.dropzone
@@ -142,7 +148,19 @@ class CustomSongs{
 			return
 		}
 		this.changeSelected(this.linkLocalFolder)
-		this.browse.click()
+		if(typeof showDirectoryPicker === "function"){
+			return showDirectoryPicker().then(file => {
+				this.walkFilesystem(file).then(files => this.importLocal(files)).then(e => {
+					db.setItem("customFolder", file)
+				}).catch(e => {
+					if(e !== "cancel"){
+						return Promise.reject(e)
+					}
+				})
+			}, () => {})
+		}else{
+			this.browse.click()
+		}
 	}
 	browseChange(event){
 		var files = []
@@ -151,6 +169,24 @@ class CustomSongs{
 		}
 		this.importLocal(files)
 	}
+	walkFilesystem(dir, path=dir.name + "/", output=[]){
+		return filePermission(dir).then(dir => {
+			var values = dir.values()
+			var walkValues = () => values.next().then(generator => {
+				if(generator.done){
+					return output
+				}
+				var file = generator.value
+				if(file.kind === "directory"){
+					return this.walkFilesystem(file, path + file.name + "/", output).then(() => walkValues())
+				}else{
+					output.push(new FilesystemFile(file, path + file.name))
+					return walkValues()
+				}
+			})
+			return walkValues()
+		}, () => Promise.resolve())
+	}
 	filesDropped(event){
 		event.preventDefault()
 		this.dropzone.classList.remove("dragover")
@@ -158,46 +194,69 @@ class CustomSongs{
 		if(this.locked){
 			return
 		}
-		var files = []
-		var walk = (entry, path="") => {
-			return new Promise(resolve => {
-				if(entry.isFile){
-					entry.file(file => {
-						files.push(new LocalFile(file, path + file.name))
-						return resolve()
-					}, resolve)
-				}else if(entry.isDirectory){
-					var dirReader = entry.createReader()
-					dirReader.readEntries(entries => {
-						var dirPromises = []
-						for(var i = 0; i < entries.length; i++){
-							dirPromises.push(walk(entries[i], path + entry.name + "/"))
-						}
-						return Promise.all(dirPromises).then(resolve)
-					}, resolve)
-				}else{
-					return resolve()
-				}
-			})
-		}
+		var allFiles = []
 		var dropPromises = []
-		for(var i = 0; i < event.dataTransfer.items.length; i++){
-			var entry = event.dataTransfer.items[i].webkitGetAsEntry()
-			if(entry){
-				dropPromises.push(walk(entry))
+		var dropLength = event.dataTransfer.items.length
+		for(var i = 0; i < dropLength; i++){
+			var item = event.dataTransfer.items[i]
+			let promise
+			if(item.getAsFileSystemHandle){
+				promise = item.getAsFileSystemHandle().then(file => {
+					if(file.kind === "directory"){
+						return this.walkFilesystem(file).then(files => {
+							if(files.length && dropLength === 1){
+								db.setItem("customFolder", file)
+							}
+							return files
+						})
+					}else{
+						return [new FilesystemFile(file, file.name)]
+					}
+				})
+			}else{
+				var entry = item.webkitGetAsEntry()
+				if(entry){
+					promise = this.walkEntry(entry)
+				}
+			}
+			if(promise){
+				dropPromises.push(promise.then(files => {
+					allFiles = allFiles.concat(files)
+				}))
 			}
 		}
-		Promise.all(dropPromises).then(() => this.importLocal(files))
+		Promise.all(dropPromises).then(() => this.importLocal(allFiles))
+	}
+	walkEntry(entry, path="", output=[]){
+		return new Promise(resolve => {
+			if(entry.isFile){
+				entry.file(file => {
+					output.push(new LocalFile(file, path + file.name))
+					return resolve()
+				}, resolve)
+			}else if(entry.isDirectory){
+				var dirReader = entry.createReader()
+				dirReader.readEntries(entries => {
+					var dirPromises = []
+					for(var i = 0; i < entries.length; i++){
+						dirPromises.push(this.walkEntry(entries[i], path + entry.name + "/", output))
+					}
+					return Promise.all(dirPromises).then(resolve)
+				}, resolve)
+			}else{
+				return resolve()
+			}
+		}).then(() => output)
 	}
 	importLocal(files){
 		if(!files.length){
-			return
+			return Promise.resolve("cancel")
 		}
 		this.locked = true
 		this.loading(true)
 		
 		var importSongs = new ImportSongs()
-		importSongs.load(files).then(this.songsLoaded.bind(this), e => {
+		return importSongs.load(files).then(this.songsLoaded.bind(this), e => {
 			this.browse.parentNode.reset()
 			this.locked = false
 			this.loading(false)
@@ -315,7 +374,7 @@ class CustomSongs{
 			var length = songs.length
 			assets.songs = songs
 			assets.customSongs = true
-			assets.customSelected = 0
+			assets.customSelected = this.noPage ? +localStorage.getItem("customSelected") : 0
 		}
 		assets.sounds["se_don"].play()
 		this.clean()
@@ -393,15 +452,18 @@ class CustomSongs{
 			touched = this.touchEnabled
 		}
 		this.clean()
-		assets.sounds[confirm ? "se_don" : "se_cancel"].play()
-		setTimeout(() => {
+		if(!this.noPage){
+			assets.sounds[confirm ? "se_don" : "se_cancel"].play()
+		}
+		return new Promise(resolve => setTimeout(() => {
 			new SongSelect("customSongs", false, touched)
-		}, 500)
+			resolve()
+		}, 500))
 	}
 	showError(text){
 		this.locked = false
 		this.loading(false)
-		if(this.mode === "error"){
+		if(this.noPage || this.mode === "error"){
 			return
 		}
 		this.mode = "error"
@@ -418,6 +480,10 @@ class CustomSongs{
 		assets.sounds[confirm ? "se_don" : "se_cancel"].play()
 	}
 	clean(){
+		delete this.loaderDiv
+		if(this.noPage){
+			return
+		}
 		this.keyboard.clean()
 		this.gamepad.clean()
 		pageEvents.remove(this.browse, "change")
@@ -443,7 +509,6 @@ class CustomSongs{
 		delete this.linkPrivacy
 		delete this.endButton
 		delete this.items
-		delete this.loaderDiv
 		delete this.errorDiv
 		delete this.errorContent
 		delete this.errorEnd

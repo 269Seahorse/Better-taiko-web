@@ -252,6 +252,7 @@ class Loader{
 			settings = new Settings()
 			pageEvents.setKbd()
 			scoreStorage = new ScoreStorage()
+			db = new IDB("taiko", "store")
 			
 			Promise.all(this.promises).then(() => {
 				if(this.error){

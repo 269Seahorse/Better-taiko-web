@@ -90,6 +90,7 @@ var settings
 var scoreStorage
 var account = {}
 var gpicker
+var db
 
 pageEvents.add(root, ["touchstart", "touchmove", "touchend"], event => {
 	if(event.cancelable && cancelTouch && event.target.tagName !== "SELECT"){
