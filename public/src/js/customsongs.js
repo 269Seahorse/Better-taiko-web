@@ -363,6 +363,9 @@ class CustomSongs{
 		open("privacy")
 	}
 	loading(show){
+		if(this.noPage){
+			return
+		}
 		if(show){
 			loader.screen.appendChild(this.loaderDiv)
 		}else if(this.loaderDiv.parentNode){
@@ -376,7 +379,9 @@ class CustomSongs{
 			assets.customSongs = true
 			assets.customSelected = this.noPage ? +localStorage.getItem("customSelected") : 0
 		}
-		assets.sounds["se_don"].play()
+		if(!this.noPage){
+			assets.sounds["se_don"].play()
+		}
 		this.clean()
 		setTimeout(() => {
 			new SongSelect("customSongs", false, this.touchEnabled)

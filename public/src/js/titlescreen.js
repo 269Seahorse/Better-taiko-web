@@ -56,7 +56,9 @@ class Titlescreen{
 			}
 			this.titleScreen.style.cursor = "auto"
 			this.clean()
-			assets.sounds["se_don"].play()
+			if(!this.customFolder || assets.customSongs){
+				assets.sounds["se_don"].play()
+			}
 			this.goNext()
 		}
 	}
@@ -71,9 +73,20 @@ class Titlescreen{
 				pageEvents.remove(p2, "message")
 				if(this.customFolder && !fromP2 && !assets.customSongs){
 					var customSongs = new CustomSongs(this.touched, true)
-					customSongs.walkFilesystem(this.customFolder).then(files => customSongs.importLocal(files)).catch(() => {
+					var soundPlayed = false
+					customSongs.walkFilesystem(this.customFolder).then(files => {
+						assets.sounds["se_don"].play()
+						soundPlayed = true
+						return customSongs.importLocal(files)
+					}).catch(() => {
+						localStorage.removeItem("customSelected")
 						db.removeItem("customFolder")
-						new SongSelect(false, false, this.touched, this.songId)
+						if(!soundPlayed){
+							assets.sounds["se_don"].play()
+						}
+						setTimeout(() => {
+							new SongSelect(false, false, this.touched, this.songId)
+						}, 500)
 					})
 				}else{
 					setTimeout(() => {

@@ -757,7 +757,7 @@ class SongSelect{
 			autoplay = true
 		}else if(shift){
 			autoplay = shift
-		}else if(p2.socket.readyState === 1 && !assets.customSongs){
+		}else if(p2.socket && p2.socket.readyState === 1 && !assets.customSongs){
 			multiplayer = ctrl
 		}
 		var diff = this.difficultyId[difficulty]
