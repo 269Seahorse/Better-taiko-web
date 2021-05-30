@@ -74,10 +74,15 @@ class Titlescreen{
 				if(this.customFolder && !fromP2 && !assets.customSongs){
 					var customSongs = new CustomSongs(this.touched, true)
 					var soundPlayed = false
-					customSongs.walkFilesystem(this.customFolder).then(files => {
+					var promises = []
+					var allFiles = []
+					this.customFolder.forEach(file => {
+						promises.push(customSongs.walkFilesystem(file, undefined, allFiles))
+					})
+					Promise.all(promises).then(() => {
 						assets.sounds["se_don"].play()
 						soundPlayed = true
-						return customSongs.importLocal(files)
+						return customSongs.importLocal(allFiles)
 					}).catch(() => {
 						localStorage.removeItem("customSelected")
 						db.removeItem("customFolder")

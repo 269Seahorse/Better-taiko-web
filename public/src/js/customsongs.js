@@ -151,7 +151,7 @@ class CustomSongs{
 		if(typeof showDirectoryPicker === "function"){
 			return showDirectoryPicker().then(file => {
 				this.walkFilesystem(file).then(files => this.importLocal(files)).then(e => {
-					db.setItem("customFolder", file)
+					db.setItem("customFolder", [file])
 				}).catch(e => {
 					if(e !== "cancel"){
 						return Promise.reject(e)
@@ -169,23 +169,22 @@ class CustomSongs{
 		}
 		this.importLocal(files)
 	}
-	walkFilesystem(dir, path=dir.name + "/", output=[]){
-		return filePermission(dir).then(dir => {
-			var values = dir.values()
-			var walkValues = () => values.next().then(generator => {
-				if(generator.done){
-					return output
-				}
-				var file = generator.value
-				if(file.kind === "directory"){
-					return this.walkFilesystem(file, path + file.name + "/", output).then(() => walkValues())
-				}else{
-					output.push(new FilesystemFile(file, path + file.name))
-					return walkValues()
-				}
-			})
-			return walkValues()
-		}, () => Promise.resolve())
+	walkFilesystem(file, path="", output=[]){
+		if(file.kind === "directory"){
+			return filePermission(file).then(file => {
+				var values = file.values()
+				var walkValues = () => values.next().then(generator => {
+					if(generator.done){
+						return output
+					}
+					return this.walkFilesystem(generator.value, path + file.name + "/", output).then(() => walkValues())
+				})
+				return walkValues()
+			}, () => Promise.resolve())
+		}else{
+			output.push(new FilesystemFile(file, path + file.name))
+			return Promise.resolve(output)
+		}
 	}
 	filesDropped(event){
 		event.preventDefault()
@@ -196,22 +195,14 @@ class CustomSongs{
 		}
 		var allFiles = []
 		var dropPromises = []
-		var dropLength = event.dataTransfer.items.length
-		for(var i = 0; i < dropLength; i++){
+		var dbItems = []
+		for(var i = 0; i < event.dataTransfer.items.length; i++){
 			var item = event.dataTransfer.items[i]
 			let promise
 			if(item.getAsFileSystemHandle){
 				promise = item.getAsFileSystemHandle().then(file => {
-					if(file.kind === "directory"){
-						return this.walkFilesystem(file).then(files => {
-							if(files.length && dropLength === 1){
-								db.setItem("customFolder", file)
-							}
-							return files
-						})
-					}else{
-						return [new FilesystemFile(file, file.name)]
-					}
+					dbItems.push(file)
+					return this.walkFilesystem(file)
 				})
 			}else{
 				var entry = item.webkitGetAsEntry()
@@ -225,7 +216,11 @@ class CustomSongs{
 				}))
 			}
 		}
-		Promise.all(dropPromises).then(() => this.importLocal(allFiles))
+		Promise.all(dropPromises).then(() => this.importLocal(allFiles)).then(() => {
+			if(dbItems.length){
+				db.setItem("customFolder", dbItems)
+			}
+		})
 	}
 	walkEntry(entry, path="", output=[]){
 		return new Promise(resolve => {
