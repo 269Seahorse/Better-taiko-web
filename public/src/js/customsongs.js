@@ -79,7 +79,8 @@ class CustomSongs{
 			this.selected = this.items.length - 1
 		}
 		
-		if(DataTransferItem.prototype.getAsFileSystemHandle || DataTransferItem.prototype.webkitGetAsEntry){
+		this.fileSystem = location.protocol === "https:" && DataTransferItem.prototype.getAsFileSystemHandle
+		if(this.fileSystem || DataTransferItem.prototype.webkitGetAsEntry){
 			this.dropzone = document.getElementById("dropzone")
 			var dropContent = this.dropzone.getElementsByClassName("view-content")[0]
 			dropContent.innerText = strings.customSongs.dropzone
@@ -199,7 +200,7 @@ class CustomSongs{
 		for(var i = 0; i < event.dataTransfer.items.length; i++){
 			var item = event.dataTransfer.items[i]
 			let promise
-			if(item.getAsFileSystemHandle){
+			if(this.fileSystem){
 				promise = item.getAsFileSystemHandle().then(file => {
 					dbItems.push(file)
 					return this.walkFilesystem(file)
@@ -245,7 +246,11 @@ class CustomSongs{
 	}
 	importLocal(files){
 		if(!files.length){
-			return Promise.resolve("cancel")
+			if(this.noPage){
+				return Promise.reject("cancel")
+			}else{
+				return Promise.resolve("cancel")
+			}
 		}
 		this.locked = true
 		this.loading(true)
