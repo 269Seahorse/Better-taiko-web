@@ -210,7 +210,7 @@ class SongSelect{
 		if(!assets.customSongs && !fromTutorial && !("selectedSong" in localStorage) && !songId){
 			fromTutorial = touchEnabled ? "about" : "tutorial"
 		}
-		if(p2.session){
+		if(p2.session || assets.customSongs && "customSelected" in localStorage){
 			fromTutorial = false
 		}
 		
@@ -231,7 +231,7 @@ class SongSelect{
 			if(songIdIndex !== -1){
 				this.selectedSong = songIdIndex
 			}else if(assets.customSongs){
-				this.selectedSong = assets.customSelected
+				this.selectedSong = Math.min(Math.max(0, assets.customSelected), this.songs.length - 1)
 			}else if((!p2.session || fadeIn) && "selectedSong" in localStorage){
 				this.selectedSong = Math.min(Math.max(0, localStorage["selectedSong"] |0), this.songs.length - 1)
 			}
@@ -508,7 +508,7 @@ class SongSelect{
 				moveTo = "account"
 			}else if(p2.session && 438 < mouse.x && mouse.x < 834 && mouse.y > 603){
 				moveTo = "session"
-			}else if(!p2.session && mouse.x > 641 && mouse.y > 603 && p2.socket.readyState === 1 && !assets.customSongs){
+			}else if(!p2.session && mouse.x > 641 && mouse.y > 603 && p2.socket && p2.socket.readyState === 1 && !assets.customSongs){
 				moveTo = "session"
 			}else{
 				var moveTo = this.songSelMouse(mouse.x, mouse.y)
@@ -739,6 +739,7 @@ class SongSelect{
 		try{
 			if(assets.customSongs){
 				assets.customSelected = this.selectedSong
+				localStorage["customSelected"] = this.selectedSong
 			}else{
 				localStorage["selectedSong"] = this.selectedSong
 			}
@@ -756,7 +757,7 @@ class SongSelect{
 			autoplay = true
 		}else if(shift){
 			autoplay = shift
-		}else if(p2.socket.readyState === 1 && !assets.customSongs){
+		}else if(p2.socket && p2.socket.readyState === 1 && !assets.customSongs){
 			multiplayer = ctrl
 		}
 		var diff = this.difficultyId[difficulty]
@@ -832,7 +833,7 @@ class SongSelect{
 			this.state.moveHover = null
 		}else{
 			localStorage["selectedSong"] = this.selectedSong
-
+			
 			this.playSound("se_don")
 			this.clean()
 			setTimeout(() => {
@@ -850,6 +851,8 @@ class SongSelect{
 			setTimeout(() => {
 				new SongSelect("customSongs", false, this.touchEnabled)
 			}, 500)
+			localStorage.removeItem("customSelected")
+			db.removeItem("customFolder")
 			pageEvents.send("import-songs-default")
 		}else{
 			localStorage["selectedSong"] = this.selectedSong
@@ -1174,6 +1177,7 @@ class SongSelect{
 				this.state.locked = 2
 				if(assets.customSongs){
 					assets.customSelected = this.selectedSong
+					localStorage["customSelected"] = this.selectedSong
 				}else if(!p2.session){
 					try{
 						localStorage["selectedSong"] = this.selectedSong
@@ -2097,7 +2101,7 @@ class SongSelect{
 		ctx.lineTo(x + 4, y + 4)
 		ctx.lineTo(x + 4, y + h)
 		ctx.fill()
-		if(screen !== "difficulty" && p2.socket.readyState === 1 && !assets.customSongs){
+		if(screen !== "difficulty" && p2.socket && p2.socket.readyState === 1 && !assets.customSongs){
 			var elapsed = (ms - this.state.screenMS) % 3100
 			var fade = 1
 			if(!p2.session && screen === "song"){

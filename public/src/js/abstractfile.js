@@ -4,6 +4,21 @@ function readFile(file, arrayBuffer, encoding){
 	reader[arrayBuffer ? "readAsArrayBuffer" : "readAsText"](file, encoding)
 	return promise
 }
+function filePermission(file){
+	return file.queryPermission().then(response => {
+		if(response === "granted"){
+			return file
+		}else{
+			return file.requestPermission().then(response => {
+				if(response === "granted"){
+					return file
+				}else{
+					return Promise.reject(file)
+				}
+			})
+		}
+	})
+}
 class RemoteFile{
 	constructor(url){
 		this.url = url
@@ -52,6 +67,23 @@ class LocalFile{
 	}
 	blob(){
 		return Promise.resolve(this.file)
+	}
+}
+class FilesystemFile{
+	constructor(file, path){
+		this.file = file
+		this.path = path
+		this.url = this.path
+		this.name = file.name
+	}
+	arrayBuffer(){
+		return this.blob().then(blob => blob.arrayBuffer())
+	}
+	read(encoding){
+		return this.blob().then(blob => readFile(blob, false, encoding))
+	}
+	blob(){
+		return filePermission(this.file).then(file => file.getFile())
 	}
 }
 class GdriveFile{

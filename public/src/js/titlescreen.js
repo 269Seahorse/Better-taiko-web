@@ -1,6 +1,7 @@
 class Titlescreen{
 	constructor(songId){
 		this.songId = songId
+		db.getItem("customFolder").then(folder => this.customFolder = folder)
 		
 		if(!songId){
 			loader.changePage("titlescreen", false)
@@ -50,30 +51,58 @@ class Titlescreen{
 	
 	onPressed(pressed, name){
 		if(pressed){
-			if(name === "gamepadConfirm" && snd.buffer.context.state === "suspended"){
+			if(name === "gamepadConfirm" && (snd.buffer.context.state === "suspended" || this.customFolder)){
 				return
 			}
 			this.titleScreen.style.cursor = "auto"
 			this.clean()
-			assets.sounds["se_don"].play()
+			if(!this.customFolder || assets.customSongs){
+				assets.sounds["se_don"].play()
+			}
 			this.goNext()
 		}
 	}
 	goNext(fromP2){
 		if(p2.session && !fromP2){
 			p2.send("songsel")
-		}else if(fromP2 || localStorage.getItem("tutorial") === "true"){
-			if(this.touched){
-				localStorage.setItem("tutorial", "true")
-			}
-			pageEvents.remove(p2, "message")
-			setTimeout(() => {
-				new SongSelect(false, false, this.touched, this.songId)
-			}, 500)
 		}else{
-			setTimeout(() => {
-				new SettingsView(this.touched, true, this.songId)
-			}, 500)
+			if(fromP2 || this.customFolder || localStorage.getItem("tutorial") === "true"){
+				if(this.touched){
+					localStorage.setItem("tutorial", "true")
+				}
+				pageEvents.remove(p2, "message")
+				if(this.customFolder && !fromP2 && !assets.customSongs){
+					var customSongs = new CustomSongs(this.touched, true)
+					var soundPlayed = false
+					var promises = []
+					var allFiles = []
+					this.customFolder.forEach(file => {
+						promises.push(customSongs.walkFilesystem(file, undefined, allFiles))
+					})
+					Promise.all(promises).then(() => {
+						assets.sounds["se_don"].play()
+						soundPlayed = true
+						return customSongs.importLocal(allFiles)
+					}).catch(() => {
+						localStorage.removeItem("customSelected")
+						db.removeItem("customFolder")
+						if(!soundPlayed){
+							assets.sounds["se_don"].play()
+						}
+						setTimeout(() => {
+							new SongSelect(false, false, this.touched, this.songId)
+						}, 500)
+					})
+				}else{
+					setTimeout(() => {
+						new SongSelect(false, false, this.touched, this.songId)
+					}, 500)
+				}
+			}else{
+				setTimeout(() => {
+					new SettingsView(this.touched, true, this.songId)
+				}, 500)
+			}
 		}
 	}
 	setLang(lang, noEvent){

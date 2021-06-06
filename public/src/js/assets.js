@@ -35,7 +35,8 @@ var assets = {
 		"account.js",
 		"lyrics.js",
 		"customsongs.js",
-		"abstractfile.js"
+		"abstractfile.js",
+		"idb.js"
 	],
 	"css": [
 		"main.css",
