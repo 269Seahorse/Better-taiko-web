@@ -3,6 +3,7 @@ class Controller{
 		this.selectedSong = selectedSong
 		this.songData = songData
 		this.autoPlayEnabled = autoPlayEnabled
+		this.mods = selectedSong.mods;
 		this.saveScore = !autoPlayEnabled
 		this.multiplayer = multiplayer
 		this.touchEnabled = touchEnabled
@@ -35,9 +36,9 @@ class Controller{
 		}
 		
 		if(selectedSong.type === "tja"){
-			this.parsedSongData = new ParseTja(songData, selectedSong.difficulty, selectedSong.stars, selectedSong.offset)
+			this.parsedSongData = new ParseTja(songData, selectedSong.difficulty, selectedSong.stars, selectedSong.offset, false, selectedSong.mods)
 		}else{
-			this.parsedSongData = new ParseOsu(songData, selectedSong.difficulty, selectedSong.stars, selectedSong.offset)
+			this.parsedSongData = new ParseOsu(songData, selectedSong.difficulty, selectedSong.stars, selectedSong.offset, false, selectedSong.mods)
 		}
 		this.offset = this.parsedSongData.soundOffset
 		
@@ -205,7 +206,10 @@ class Controller{
 		var score = this.getGlobalScore()
 		var vp
 		if(this.game.rules.clearReached(score.gauge)){
-			if(score.bad === 0){
+			if(score.ok === 0 && score.bad === 0){ // TODO: donder fullcombo
+				vp = "donderfulcombo"
+                                this.playSound("v_blank", 0.050)
+							}else if(score.bad === 0){
 				vp = "fullcombo"
 				this.playSound("v_fullcombo", 1.350)
 			}else{
@@ -224,8 +228,8 @@ class Controller{
 			this.scoresheet = new Scoresheet(this, this.getGlobalScore(), this.multiplayer, this.touchEnabled)
 		}
 	}
-	displayScore(score, notPlayed, bigNote){
-		this.view.displayScore(score, notPlayed, bigNote)
+	displayScore(score, notPlayed, bigNote, adlib){
+		this.view.displayScore(score, notPlayed, bigNote, adlib)
 	}
 	songSelection(fadeIn, showWarning){
 		if(!fadeIn){
@@ -299,7 +303,7 @@ class Controller{
 		}))
 	}
 	playSound(id, time, noSnd){
-		if(!this.drumSounds && (id === "neiro_1_don" || id === "neiro_1_ka" || id === "se_don" || id === "se_ka")){
+		if(!this.drumSounds && (id === "neiro_1_don" || id === "neiro_1_ka" || id === "neiro_2_don" || id === "neiro_2_ka" || id === "neiro_3_don" || id === "neiro_3_ka" || id === "neiro_4_don" || id === "neiro_4_ka" || id === "neiro_5_don" || id === "neiro_5_ka" || id === "neiro_6_don" || id === "neiro_6_ka" || id === "neiro_7_don" || id === "neiro_7_ka" || id === "neiro_8_don" || id === "neiro_8_ka" || id === "neiro_9_don" || id === "neiro_9_ka" || id === "neiro_10_don" || id === "neiro_10_ka" || id === "neiro_11_don" || id === "neiro_11_ka" || id === "neiro_12_don" || id === "neiro_12_ka" || id === "neiro_13_don" || id === "neiro_13_ka" || id === "neiro_14_don" || id === "neiro_14_ka" || id === "neiro_15_don" || id === "neiro_15_ka" || id === "neiro_16_don" || id === "neiro_16_ka" || id === "neiro_17_don" || id === "neiro_17_ka" || id === "neiro_18_don" || id === "neiro_18_ka" || id === "neiro_19_don" || id === "neiro_19_ka" || id === "neiro_20_don" || id === "neiro_20_ka" || id === "neiro_21_don" || id === "neiro_21_ka" || id === "neiro_22_don" || id === "neiro_22_ka" || id === "neiro_23_don" || id === "neiro_23_ka" || id === "neiro_24_don" || id === "neiro_24_ka" || id === "neiro_25_don" || id === "neiro_25_ka" || id === "neiro_26_don" || id === "neiro_26_ka" || id === "neiro_27_don" || id === "neiro_27_ka" || id === "neiro_28_don" || id === "neiro_28_ka" || id === "se_don" || id === "se_ka")){
 			return
 		}
 		var ms = Date.now() + (time || 0) * 1000
@@ -377,5 +381,27 @@ class Controller{
 		if(this.lyrics){
 			this.lyrics.clean()
 		}
+	}
+	getModBadge() {
+		if (!this.mods) { 
+			return null;
+		}
+		if (this.mods.speed > 1) {
+			return "badge_x" + this.mods.speed.toString();
+		} else if (this.mods.shuffle > 0) { 
+			return "badge_s" + this.mods.shuffle.toString();
+		} else if (this.mods.doron) { 
+			return "badge_doron";
+		} else if (this.mods.hardcore) { 
+			return "badge_kanbeki";
+		} else if (this.mods.allDon) { 
+			this.saveScore= false
+			return "badge_don";
+		} else if (this.mods.allKat) {			
+			this.saveScore = false
+			return "badge_kat";
+		}
+		
+		return null;
 	}
 }

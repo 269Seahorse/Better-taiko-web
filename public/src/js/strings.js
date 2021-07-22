@@ -1,4 +1,4 @@
-﻿var languageList = ["ja", "en", "cn", "tw", "ko"]
+var languageList = ["ja", "en", "cn", "tw", "ko"]
 var translations = {
 	name: {
 		ja: "日本語",
@@ -102,6 +102,209 @@ var translations = {
 		tw: "遊戲設定",
 		ko: "게임 설정"
 	},
+	soundOptions: {
+		ja: "音色",
+		en: "sound",
+		cn: "音色",
+		tw: "音色",
+		ko: "sound"
+	},
+	taikoS: {
+		ja: "太鼓",
+		en: "太鼓",
+		cn: "太鼓",
+		tw: "太鼓",
+		ko: "太鼓"
+	},
+	testS: {
+		ja: "どんちゃん",
+		en: "どんちゃん",
+		cn: "どんちゃん",
+		tw: "どんちゃん",
+		ko: "どんちゃん"
+	},
+	s3: {
+		ja: "豪華な太鼓",
+		en: "豪華な太鼓",
+		cn: "豪華な太鼓",
+		tw: "豪華な太鼓",
+		ko: "豪華な太鼓"
+	},
+	s4: {
+		ja: "太古の太鼓",
+		en: "太古の太鼓",
+		cn: "太古の太鼓",
+		tw: "太古の太鼓",
+		ko: "太古の太鼓"
+	},
+	s5: {
+		ja: "ドラム",
+		en: "ドラム",
+		cn: "ドラム",
+		tw: "ドラム",
+		ko: "ドラム"
+	},
+	s6: {
+		ja: "シンセドラム",
+		en: "シンセドラム",
+		cn: "シンセドラム",
+		tw: "シンセドラム",
+		ko: "シンセドラム"
+	},
+	s7: {
+		ja: "ドラゴンドラム",
+		en: "ドラゴンドラム",
+		cn: "ドラゴンドラム",
+		tw: "ドラゴンドラム",
+		ko: "ドラゴンドラム"
+	},
+	s8: {
+		ja: "もくぎょ",
+		en: "もくぎょ",
+		cn: "もくぎょ",
+		tw: "もくぎょ",
+		ko: "もくぎょ"
+	},
+	s9: {
+		ja: "メドル太鼓",
+		en: "メドル太鼓",
+		cn: "メドル太鼓",
+		tw: "メドル太鼓",
+		ko: "メドル太鼓"
+	},
+	s10: {
+		ja: "ヘビメタ太鼓",
+		en: "ヘビメタ太鼓",
+		cn: "ヘビメタ太鼓",
+		tw: "ヘビメタ太鼓",
+		ko: "ヘビメタ太鼓"
+	},
+	s11: {
+		ja: "コンガ",
+		en: "コンガ",
+		cn: "コンガ",
+		tw: "コンガ",
+		ko: "コンガ"
+	},
+	s12: {
+		ja: "大地のコンガ",
+		en: "大地のコンガ",
+		cn: "大地のコンガ",
+		tw: "大地のコンガ",
+		ko: "大地のコンガ"
+	},
+	s13: {
+		ja: "手裏剣",
+		en: "手裏剣",
+		cn: "手裏剣",
+		tw: "手裏剣",
+		ko: "手裏剣"
+	},
+	s14: {
+		ja: "神風手裏剣",
+		en: "神風手裏剣",
+		cn: "神風手裏剣",
+		tw: "神風手裏剣",
+		ko: "神風手裏剣"
+	},
+	s15: {
+		ja: "剣道",
+		en: "剣道",
+		cn: "剣道",
+		tw: "剣道",
+		ko: "剣道"
+	},
+	s16: {
+		ja: "和田かつ",
+		en: "和田かつ",
+		cn: "和田かつ",
+		tw: "和田かつ",
+		ko: "和田かつ"
+	},
+	s17: {
+		ja: "ドラ",
+		en: "ドラ",
+		cn: "ドラ",
+		tw: "ドラ",
+		ko: "ドラ"
+	},
+	s18: {
+		ja: "フライパン",
+		en: "フライパン",
+		cn: "フライパン",
+		tw: "フライパン",
+		ko: "フライパン"
+	},
+	s19: {
+		ja: "クイズ",
+		en: "クイズ",
+		cn: "クイズ",
+		tw: "クイズ",
+		ko: "クイズ"
+	},
+	s20: {
+		ja: "野球",
+		en: "野球",
+		cn: "野球",
+		tw: "野球",
+		ko: "野球"
+	},
+	s21: {
+		ja: "サッカー",
+		en: "サッカー",
+		cn: "サッカー",
+		tw: "サッカー",
+		ko: "サッカー"
+	},
+	s22: {
+		ja: "メカドン",
+		en: "メカドン",
+		cn: "メカドン",
+		tw: "メカドン",
+		ko: "メカドン"
+	},
+	s23: {
+		ja: "小太鼓",
+		en: "小太鼓",
+		cn: "小太鼓",
+		tw: "小太鼓",
+		ko: "小太鼓"
+	},
+	s24: {
+		ja: "雷太鼓",
+		en: "雷太鼓",
+		cn: "雷太鼓",
+		tw: "雷太鼓",
+		ko: "雷太鼓"
+	},
+	s25: {
+		ja: "和田兄弟",
+		en: "和田兄弟",
+		cn: "和田兄弟",
+		tw: "和田兄弟",
+		ko: "和田兄弟"
+	},
+	s26: {
+		ja: "タンバリン",
+		en: "タンバリン",
+		cn: "タンバリン",
+		tw: "タンバリン",
+		ko: "タンバリン"
+	},
+	s27: {
+		ja: "お祭り",
+		en: "お祭り",
+		cn: "お祭り",
+		tw: "お祭り",
+		ko: "お祭り"
+	},
+	s28: {
+		ja: "無音",
+		en: "無音",
+		cn: "無音",
+		tw: "無音",
+		ko: "無音"
+	},
 	songOptions: {
 		ja: "演奏オプション",
 		en: "Song Options",
@@ -117,18 +320,18 @@ var translations = {
 		ko: "없음"
 	},
 	auto: {
-		ja: "オート",
-		en: "Auto",
-		cn: "自动",
-		tw: "自動",
-		ko: "자동"
+		ja: "オート(無効な2Pモード)",
+		en: "Auto(Not in 2P mode)",
+		cn: "自动(2P模式无效)",
+		tw: "自動(2P模式無效)",
+		ko: "자동(잘못된2P모드)"
 	},
 	netplay: {
-		ja: "ネットプレイ",
-		en: "Netplay",
-		cn: "网络对战",
-		tw: "網上對打",
-		ko: "온라인 대전"
+		ja: "ネットプレイ(無効な2Pモード)",
+		en: "Netplay(Not in 2P mode)",
+		cn: "网络对战(2P模式无效)",
+		tw: "網上對打(2P模式無效)",
+		ko: "온라인 대전(잘못된2P모드)"
 	},
 	easy: {
 		ja: "かんたん",
@@ -202,7 +405,8 @@ var translations = {
 	},
 	scoreSaveFailed: {
 		ja: null,
-		en: "Could not connect to the server, your score has not been saved.\n\nPlease log in or refresh the page to try saving the score again."
+		en: "Could not connect to the server, your score has not been saved.\n\nPlease log in or refresh the page to try saving the score again.",
+		tw: "無法連接至伺服器，你的成績未能儲存。若要儲存成績，請登入或重新載入頁面。"
 	},
 	loadSongError: {
 		ja: null,
@@ -279,6 +483,13 @@ var translations = {
 			tw: "氣球",
 			ko: "풍선"
 		},
+		green: {
+			ja: "???",
+			en: "???",
+			cn: "???",
+			tw: "???",
+			ko: "???"
+		},
 	},
 	ex_note: {
 		don: {
@@ -344,6 +555,13 @@ var translations = {
 		cn: "不可",
 		tw: "不可",
 		ko: "에구"
+	},
+	adlib: {
+		ja: "AD-LIB",
+		en: "AD-LIB",
+		cn: "AD-LIB",
+		tw: "AD-LIB",
+		ko: "AD-LIB"
 	},
 	branch: {
 		normal: {
@@ -426,7 +644,8 @@ var translations = {
 	
 	errorOccured: {
 		ja: "エラーが発生しました。再読み込みしてください。",
-		en: "An error occurred, please refresh"
+		en: "An error occurred, please refresh",
+		tw: "發生錯誤，請重新載入頁面。"
 	},
 	tutorial: {
 		basics: {
@@ -489,9 +708,9 @@ var translations = {
 			],
 			tw: [
 				"%s暫停遊戲",
-				'%s and %s while selecting song \u2014 navigate categories',
-				"選擇難度時按住%s以啟用自動模式",
-				"選擇難度時按住%s以啟用網上對打模式"
+				'選擇歌曲時，按下 %s 或 %s 以快速切換類別',
+				"選擇難度時，按住 %s 以啟用自動模式",
+				"選擇難度時，按住 %s 以啟用網上對打模式"
 			],
 			ko: [
 				"%s \u2014 게임을 일시 중지합니다",
@@ -552,6 +771,11 @@ var translations = {
 				"您可以向我们报告在游戏中出现的任何bug，",
 				"可以通过我们的Github仓库或发送电子邮件来报告错误。"
 			],
+			tw: [
+				"此模擬器仍處於開發階段，",
+				"請回報任何你遇到的 bug。",
+				"你可以透過 Github 或電子郵件回報。"
+			],
 			ko: [
 				"이 시뮬레이터는 아직 개발 중입니다.",
 				"버그를 찾으시면 신고해주시기 바랍니다.",
@@ -562,11 +786,13 @@ var translations = {
 			ja: "以下の端末診断情報も併せて報告してください！",
 			en: "Be sure to include the following diagnostic data!",
 			cn: "请确保您的报告包括以下诊断数据!",
+			tw: "記得附上下方的診斷資料！",
 			ko: "신고하실 때 반드시 다음 진단 정보를 포함해주시기 바랍니다!"
 		},
 		issueTemplate: {
 			ja: "###### 下記の問題を説明してください。 スクリーンショットと診断情報を含めてください。",
 			en: "###### Describe the problem you are having below. Please include a screenshot and the diagnostic information.",
+			tw: "###### 在下方說明您遇到的問題。請一併傳送截圖及診斷資料。"
 		},
 		issues: {
 			ja: "課題",
@@ -674,14 +900,14 @@ var translations = {
 				ja: "面(左)",
 				en: "Left Surface",
 				cn: "表面（左）",
-				tw: "表面（左）",
+				tw: "鼓面（左）",
 				ko: "북 면 (왼쪽)"
 			},
 			don_r: {
 				ja: "面(右)",
 				en: "Right Surface",
 				cn: "表面（右）",
-				tw: "表面（右）",
+				tw: "鼓面（右）",
 				ko: "북 면 (오른쪽)"
 			},
 			ka_r: {
@@ -727,36 +953,42 @@ var translations = {
 				ja: null,
 				en: "Latency",
 				cn: "延迟校准",
+				tw: "延遲",
 				ko: "레이턴시"
 			},
 			value: {
 				ja: null,
 				en: "Audio: %s, Video: %s",
 				cn: "音频: %s, 视频: %s",
+				tw: "聲音: %s, 畫面: %s",
 				ko: "오디오: %s, 비디오: %s"
 			},
 			calibration: {
 				ja: null,
 				en: "Latency Calibration",
 				cn: "自动辅助校准",
+				tw: "自動延遲校正",
 				ko: "레이턴시 조절"
 			},
 			audio: {
 				ja: null,
 				en: "Audio",
 				cn: "音频",
+				tw: "聲音",
 				ko: "오디오"
 			},
 			video: {
 				ja: null,
 				en: "Video",
 				cn: "视频",
+				tw: "畫面",
 				ko: "비디오"
 			},
 			drumSounds: {
 				ja: null,
 				en: "Drum Sounds",
 				cn: "鼓声",
+				tw: "鼓聲",
 				ko: "북 소리"
 			}
 		},
@@ -774,6 +1006,7 @@ var translations = {
 				ja: "歌詞の表示",
 				en: "Show Lyrics",
 				cn: "显示歌词",
+				tw: "顯示歌詞",
 				ko: "가사 표시하기"
 			}
 		},
@@ -810,6 +1043,7 @@ var translations = {
 		title: {
 			ja: null,
 			en: "Latency Calibration",
+			tw: "延遲校正"
 		},
 		ms: {
 			ja: null,
@@ -818,23 +1052,29 @@ var translations = {
 		back: {
 			ja: null,
 			en: "Back to Settings",
+			tw: "返回設定"
 		},
 		retryPrevious: {
 			ja: null,
 			en: "Retry Previous",
+			tw: "重試"
 		},
 		start: {
 			ja: null,
 			en: "Start",
+			tw: "開始"
 		},
 		finish: {
 			ja: null,
 			en: "Finish",
+			tw: "完成"
 		},
 		audioHelp: {
 			title: {
 				ja: null,
 				en: "Audio Latency Calibration",
+				tw: "聲音延遲校正"
+				
 			},
 			content: {
 				ja: null,
@@ -848,11 +1088,13 @@ var translations = {
 		audioComplete: {
 			ja: null,
 			en: "Audio Latency Calibration completed!",
+			tw: "聲音延遲校正完成！"
 		},
 		videoHelp: {
 			title: {
 				ja: null,
 				en: "Video Latency Calibration",
+				tw: "畫面延遲校正"
 			},
 			content: {
 				ja: null,
@@ -862,15 +1104,18 @@ var translations = {
 		videoComplete: {
 			ja: null,
 			en: "Video Latency Calibration completed!",
+			tw: "畫面延遲校正完成！"
 		},
 		results: {
 			title: {
 				ja: null,
 				en: "Latency Calibration Results",
+				tw: "延遲校正結果"
 			},
 			content: {
 				ja: null,
 				en: "Audio latency: %s\nVideo latency: %s\n\nYou can configure these latency values in the settings.",
+				tw: "聲音延遲 :%s\n畫面延遲: %s\n\n您可以在設定中調整這些數值。"
 			}
 		}
 	},
@@ -914,7 +1159,7 @@ var translations = {
 			ja: "ログイン状態を保持する",
 			en: "Remember me",
 			cn: "记住登录",
-			tw: "記住登錄",
+			tw: "記住我",
 			ko: "자동 로그인"
 		},
 		login: {
@@ -949,12 +1194,13 @@ var translations = {
 			ja: "パスワードが一致しません",
 			en: "Passwords do not match",
 			cn: "密码不匹配",
-			tw: "密碼不匹配",
+			tw: "密碼不符合",
 			ko: "비밀번호가 일치하지 않습니다"
 		},
 		newPasswordsDoNotMatch: {
 			ja: null,
 			en: "New passwords do not match",
+			tw: "新密碼不符合"
 		},
 		cannotBeEmpty: {
 			ja: "%sは空にできません",
@@ -987,10 +1233,12 @@ var translations = {
 		cancel: {
 			ja: null,
 			en: "Cancel",
+			tw: "取消"
 		},
 		save: {
 			ja: null,
 			en: "Save",
+			tw: "儲存"
 		},
 		displayName: {
 			ja: null,
@@ -1000,19 +1248,23 @@ var translations = {
 			bodyFill: {
 				ja: null,
 				en: "Body",
+				tw: "身體"
 			},
 			faceFill: {
 				ja: null,
 				en: "Face",
+				tw: "臉"
 			},
 			reset: {
 				ja: null,
 				en: "Reset",
+				tw: "重設"
 			}
 		},
 		changePassword: {
 			ja: null,
 			en: "Change Password",
+			tw: "更改密碼"
 		},
 		currentNewRepeat: {
 			ja: null,
@@ -1021,78 +1273,100 @@ var translations = {
 				"New Password",
 				"Repeat New Password"
 			],
+			tw: [
+				"目前密碼",
+				"新密碼",
+				"重複新密碼"
+			]
 		},
 		deleteAccount: {
 			ja: null,
 			en: "Delete Account",
+			tw: "刪除帳號"
 		},
 		verifyPassword: {
 			ja: null,
 			en: "Verify password to delete this account",
+			tw: "請確認您的密碼以刪除帳號"
 		}
 	},
 	serverError: {
 		not_logged_in: {
 			ja: null,
 			en: "Not logged in",
+			tw: "未登入"
 		},
 		invalid_username: {
 			ja: null,
 			en: "Invalid username, a username can only contain letters, numbers, and underscores, and must be between 3 and 20 characters long",
+			tw: "使用者名稱無效，使用者名稱只能由字母、數字、及底線組成，且長度必須介於 3 到 20 個字之間"
 		},
 		username_in_use: {
 			ja: null,
 			en: "A user already exists with that username",
+			tw: "已有一位相同名稱的使用者"
 		},
 		invalid_password: {
 			ja: null,
 			en: "Cannot use this password, please check that your password is at least 6 characters long",
+			tw: "無法使用此密碼，密碼長度至少要 6 個字。"
 		},
 		invalid_username_password: {
 			ja: null,
 			en: "Invalid Username or Password",
+			tw: "無效的使用者名稱或密碼"
 		},
 		invalid_display_name: {
 			ja: null,
 			en: "Cannot use this name, please check that your new name is at most 25 characters long",
+			tw: "無法使用此名稱。名稱最多不能超過 25 個字。"
 		},
 		invalid_don: {
 			ja: null,
-			en: "Could not save your custom Don"
+			en: "Could not save your custom Don",
+			tw: "無法儲存小咚"
 		},
 		current_password_invalid: {
 			ja: null,
 			en: "Current password does not match",
+			tw: "目前密碼不符合"
 		},
 		invalid_new_password: {
 			ja: null,
 			en: "Cannot use this password, please check that your new password is at least 6 characters long",
+			tw: "無法使用此密碼，您的新密碼長度至少要 6 個字"
 		},
 		verify_password_invalid: {
 			ja: null,
 			en: "Verification password does not match",
+			tw: "確認密碼不符合"
 		},
 		invalid_csrf: {
 			ja: null,
-			en: "Security token expired. Please refresh the page."
+			en: "Security token expired. Please refresh the page.",
+			tw: "安全權杖過期。請重新載入頁面。"
 		}
 	},
 	browserSupport: {
 		browserWarning: {
 			ja: "サポートされていないブラウザを実行しています (%s)",
 			en: "You are running an unsupported browser (%s)",
+			tw: "您正在使用不支援的瀏覽器 (%s)"
 		},
 		details: {
 			ja: "詳しく",
 			en: "Details...",
+			tw: "詳細資料"
 		},
 		failedTests: {
 			ja: "このテストは失敗しました：",
 			en: "The following tests have failed:",
+			tw: "以下的測試未通過："
 		},
 		supportedBrowser: {
 			ja: "%sなどのサポートされているブラウザを使用してください",
 			en: "Please use a supported browser such as %s",
+			tw: "請使用支援的瀏覽器，例如：%s"
 		}
 	},
 	creative: {
@@ -1118,6 +1392,78 @@ var translations = {
 		tw: "帶歌詞",
 		ko: "가사 포함됨"
 	},
+	songMods: {
+		x2: {
+			ja: "ばいそく",
+			en: "x2",
+			cn: "二倍速",
+			tw: "二倍速",
+			kr: "배속"
+		},
+		x3: {
+			ja: "さんばい",
+			en: "x3",
+			cn: "三倍速",
+			tw: "三倍速",
+			kr: "세배"
+		},
+		x4: {
+			ja: "よんばい",
+			en: "x4",
+			cn: "四倍速",
+			tw: "四倍速",
+			kr: "네배"
+		},
+		reverse: {
+			ja: "あべこべ",
+			en: "Inverse",
+			cn: "颠倒",
+			tw: "顛倒",
+			kr: "역전"
+		},
+		half_shuffle: {
+			ja: "きまぐれ",
+			en: "Whimsical",
+			cn: "随兴",
+			tw: "小亂",
+			kr: "변덕"
+		},
+		shuffle: {
+			ja: "でたらめ",
+			en: "Messy",
+			cn: "随意",
+			tw: "大亂",
+			kr: "대충"
+		},
+		doron: {
+			ja: "ドロン",
+			en: "Vanish",
+			cn: "隐身",
+			tw: "隱譜",
+			kr: "은신"
+		},
+		hardcore: {
+			ja: "ハードコア",
+			en: "Hardcore",
+			cn: "硬核",
+			tw: "良或不可",
+			kr: "Hardcore"
+		},
+		allDon: {
+			ja: "ドン(記録されていません)",
+			en: "Don(Score not recorded)",
+			cn: "咚(不紀錄成績)",
+			tw: "咚(不紀錄成績)",
+			kr: "Don(Score not recorded)"
+		},
+		allKat: {
+			ja: "カッ(記録されていません)",
+			en: "Kat(Score not recorded)",
+			cn: "咔(不紀錄成績)",
+			tw: "咔(不紀錄成績)",
+			kr: "Kat(Score not recorded)"
+		}
+	},
 	customSongs: {
 		title: {
 			ja: "カスタム曲リスト",
@@ -1130,7 +1476,7 @@ var translations = {
 			ja: "デフォルト曲リスト",
 			en: "Default Song List",
 			cn: "默认歌曲列表",
-			tw: "默認歌曲列表",
+			tw: "預設歌曲列表",
 			ko: "기본 노래 목록"
 		},
 		description: {
@@ -1140,19 +1486,22 @@ var translations = {
 			cn: [
 				"请选择一个含有太鼓谱面文件（TJA格式）的文件夹，以用于在自定义歌单中游玩。"
 			],
+			tw: [
+				"請選擇包含太鼓譜面檔案 (TJA格式) 的資料夾，即可在自訂歌單中遊玩。"
+			],
 		},
 		localFolder: {
 			ja: "ローカルフォルダ...",
 			en: "Local Folder...",
 			cn: "本地文件夹...",
-			tw: "本地文件夾...",
+			tw: "本機資料夾...",
 			ko: "로컬 폴더..."
 		},
 		gdriveFolder: {
 			ja: "Google ドライブ...",
 			en: "Google Drive...",
 			cn: "Google云端硬盘...",
-			tw: "Google雲端硬碟...",
+			tw: "Google 雲端硬碟...",
 			ko: "구글 드라이브..."
 		},
 		gdriveAccount: {
@@ -1170,10 +1519,12 @@ var translations = {
 			ko: "파일을 여기에 드롭하세요"
 		},
 		importError: {
-			en: "Import Error"
+			en: "Import Error",
+			tw: "匯入失敗"
 		},
 		noSongs: {
-			en: "No Taiko chart files have been found in the provided folder."
+			en: "No Taiko chart files have been found in the provided folder.",
+			tw: "在你選擇的資料夾中找不到譜面檔案。"
 		}
 	},
 	gpicker: {
@@ -1206,10 +1557,12 @@ var translations = {
 			ko: "공유 문서함"
 		},
 		authError: {
-			en: "Auth error: %s"
+			en: "Auth error: %s",
+			tw: "驗證錯誤：%s"
 		},
 		cookieError: {
-			en: "This function requires third party cookies."
+			en: "This function requires third party cookies.",
+			tw: "此功能需要第三方 cookies。"
 		}
 	}
 }

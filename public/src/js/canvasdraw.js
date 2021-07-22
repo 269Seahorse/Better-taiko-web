@@ -178,19 +178,31 @@
 			let _y = y + border
 			let _w = w - border * 2
 			let _h = h - border * 2
-			ctx.fillStyle = config.borderStyle[1]
-			ctx.fillRect(_x, _y, _w, _h)
+			if(config.background === "recommended"){
+				ctx.drawImage(assets.image["bg_recommended"], _x, _y, _w - 1, _h - 1)
+			}else{
+				ctx.fillStyle = config.background
+				ctx.fillRect(_x, _y, _w, _h)
+			}
 			ctx.fillStyle = config.borderStyle[0]
 			ctx.beginPath()
 			ctx.moveTo(_x, _y)
 			ctx.lineTo(_x + _w, _y)
 			ctx.lineTo(_x + _w - innerBorder, _y + innerBorder)
+			ctx.lineTo(_x + innerBorder, _y + innerBorder)
+			ctx.lineTo(_x + innerBorder, _y + _h - innerBorder)
+			ctx.lineTo(_x, _y + _h)
+			ctx.fill()
+			ctx.fillStyle = config.borderStyle[1]
+			ctx.beginPath()
+			ctx.moveTo(_x + _w, _y + _h)
+			ctx.lineTo(_x + _w, _y)
+			ctx.lineTo(_x + _w - innerBorder, _y + innerBorder)
+			ctx.lineTo(_x + _w - innerBorder, _y + _h - innerBorder)
 			ctx.lineTo(_x + innerBorder, _y + _h - innerBorder)
 			ctx.lineTo(_x, _y + _h)
 			ctx.fill()
 		}
-		ctx.fillStyle = config.background
-		ctx.fillRect(innerX, innerY, innerW, innerH)
 		
 		ctx.save()
 		
@@ -477,6 +489,8 @@
 				ctx.translate(40 * mul, 0)
 				ctx.scale(strokeScaling, scaling)
 				ctx.translate(-40 * mul, 0)
+			}else if(config.align === "middle"){
+				var offsetY = drawnHeight > config.height ? 0 : (config.height - drawnHeight) / 2
 			}else{
 				strokeScaling = scaling
 				ctx.scale(1, scaling)
@@ -1232,7 +1246,7 @@
 		}
 		ctx.strokeStyle = "#000"
 		ctx.lineWidth = 7
-		if(strings.good === "良"){
+		if(strings.good === "良" && config.score !== "adlib"){
 			if(config.align === "center"){
 				ctx.translate(config.score === "bad" ? -49 / 2 : -23 / 2, 0)
 			}
@@ -1288,6 +1302,14 @@
 				ctx.fillStyle = grd
 				ctx.strokeText(strings.bad, 0, 4)
 				ctx.fillText(strings.bad, 0, 4)
+				}else if(config.score === "adlib"){
+				if(config.results){
+					ctx.textAlign = "right"
+				}
+				ctx.strokeStyle = "#ef9100"
+				ctx.fillStyle = "#fff"
+				ctx.strokeText(strings.adlib, 0, 4)
+				ctx.fillText(strings.adlib, 0, 4)
 			}
 		}
 		ctx.restore()
@@ -1348,7 +1370,15 @@
 		
 		if(config.type){
 			var grd = ctx.createLinearGradient(0, 0, 94, 0)
-			if(config.type === "gold"){
+			if(config.type === "rainbow"){ // TODO
+				grd.addColorStop(0,"#0000ff")
+				grd.addColorStop(0.15,"#00ffff")
+				grd.addColorStop(0.35,"#00ff88")
+				grd.addColorStop(0.5,"#ffffff")
+				grd.addColorStop(0.65,"#ffff00")
+				grd.addColorStop(0.85,"#ff8800")
+				grd.addColorStop(1,"#ff00ff")
+			}else if(config.type === "gold"){
 				grd.addColorStop(0, "#ffffc5")
 				grd.addColorStop(0.23, "#ffff44")
 				grd.addColorStop(0.53, "#efbd12")

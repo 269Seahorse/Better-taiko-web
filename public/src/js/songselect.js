@@ -182,9 +182,16 @@ class SongSelect{
 			iconName: "options",
 			iconFill: "#d9f19f",
 			letterSpacing: 0
+		},
+		{
+			text: strings.soundOptions,
+			fill: "#ff99b2",
+			iconName: "sounds",
+			iconFill: "#ffccd8",
+			letterSpacing: -4
 		}]
-		this.optionsList = [strings.none, strings.auto, strings.netplay]
-		
+		this.optionsList = [strings.none, strings.auto, strings.netplay, strings.songMods.x2, strings.songMods.x3, strings.songMods.x4,strings.songMods.doron, strings.songMods.reverse, strings.songMods.half_shuffle, strings.songMods.shuffle, strings.songMods.hardcore, strings.songMods.allDon, strings.songMods.allKat]
+		this.soundList = [strings.taikoS, strings.testS, strings.s3, strings.s4, strings.s5, strings.s6, strings.s7, strings.s8, strings.s9, strings.s10, strings.s11, strings.s12, strings.s13, strings.s14, strings.s15, strings.s16, strings.s17, strings.s18, strings.s19, strings.s20, strings.s21, strings.s22, strings.s23, strings.s24, strings.s25, strings.s26, strings.s27, strings.s28]
 		this.draw = new CanvasDraw(noSmoothing)
 		this.songTitleCache = new CanvasCache(noSmoothing)
 		this.selectTextCache = new CanvasCache(noSmoothing)
@@ -204,6 +211,7 @@ class SongSelect{
 		
 		this.selectedSong = 0
 		this.selectedDiff = 0
+		this.selectedSound = 0
 		this.lastCurrentSong = {}
 		assets.sounds["bgm_songsel"].playLoop(0.1, false, 0, 1.442, 3.506)
 		
@@ -264,6 +272,7 @@ class SongSelect{
 			locked: true,
 			hasPointer: false,
 			options: 0,
+			sound: 0,
 			selLock: false,
 			catJump: false,
 			focused: true
@@ -389,6 +398,8 @@ class SongSelect{
 					this.toSongSelect()
 				}else if(this.selectedDiff === 1){
 					this.toOptions(1)
+				}else if(this.selectedDiff === 2){
+					this.toSound(1)
 				}else{
 					this.toLoadSong(this.selectedDiff - this.diffOptions.length, shift, ctrl)
 				}
@@ -466,6 +477,8 @@ class SongSelect{
 				this.toSongSelect()
 			}else if(moveBy === 1){
 				this.toOptions(1)
+			}else if(moveBy === 2){
+				this.toSound(1)
 			}else if(moveBy === "maker"){
 				window.open(this.songs[this.selectedSong].maker.url)
 			}else if(moveBy === this.diffOptions.length + 4){
@@ -565,8 +578,8 @@ class SongSelect{
 	}
 	diffSelMouse(x, y){
 		if(this.state.locked === 0){
-			if(223 < x && x < 367 && 132 < y && y < 436){
-				return Math.floor((x - 223) / ((367 - 223) / 2))
+			if(223 < x && x < 439 && 132 < y && y < 436){
+				return Math.floor((x - 223) / ((439 - 223) / 3))
 			}else if(this.songs[this.selectedSong].maker && this.songs[this.selectedSong].maker.id > 0 && this.songs[this.selectedSong].maker.url && x > 230 && x < 485 && y > 446 && y < 533) {
 				return "maker"
 			}else if(550 < x && x < 1050 && 109 < y && y < 538){
@@ -751,6 +764,16 @@ class SongSelect{
 		}
 		var autoplay = false
 		var multiplayer = false
+		var mods = {
+			speed: 1,
+			shuffle: 0,
+			doron: false,
+			hardcore: false,
+			allDon: false,
+			allKat: false
+		}
+		var soundEffec = this.state.sound + 1
+		localStorage.setItem("vOneLocalStorage", soundEffec);
 		if(p2.session || this.state.options === 2){
 			multiplayer = true
 		}else if(this.state.options === 1){
@@ -760,6 +783,25 @@ class SongSelect{
 		}else if(p2.socket && p2.socket.readyState === 1 && !assets.customSongs){
 			multiplayer = ctrl
 		}
+		
+		if (this.state.options > 2 && this.state.options < 6) {
+			mods.speed = this.state.options - 1;
+		} else if (this.state.options === 7) { 
+			mods.shuffle = 1;
+		} else if (this.state.options === 8) { 
+			mods.shuffle = 0.25;
+		} else if (this.state.options === 9) { 
+			mods.shuffle = 0.5;
+		} else if (this.state.options === 6) { 
+			mods.doron = true;
+		} else if (this.state.options === 10) { 
+			mods.hardcore = true;
+		} else if (this.state.options === 11) { 
+			mods.allDon = true;
+		} else if (this.state.options === 12) { 
+			mods.allKat = true;
+		}
+		
 		var diff = this.difficultyId[difficulty]
 		
 		new LoadSong({
@@ -774,17 +816,23 @@ class SongSelect{
 			"songSkin": selectedSong.songSkin,
 			"stars": selectedSong.courses[diff].stars,
 			"hash": selectedSong.hash,
+			"mods": mods,
 			"lyrics": selectedSong.lyrics
 		}, autoplay, multiplayer, touch)
 	}
 	toOptions(moveBy){
-		if(!p2.session){
 			this.playSound("se_ka", 0, p2.session ? p2.player : false)
 			this.selectedDiff = 1
 			do{
 				this.state.options = this.mod(this.optionsList.length, this.state.options + moveBy)
 			}while((p2.socket.readyState !== 1 || assets.customSongs) && this.state.options === 2)
-		}
+	}
+	toSound(moveBy){
+			this.playSound("se_ka", 0, p2.session ? p2.player : false)
+			this.selectedDiff = 2
+			do{
+				this.state.sound = this.mod(this.soundList.length, this.state.sound + moveBy)
+			}while((p2.socket.readyState !== 1 || assets.customSongs) && this.state.options === 2)
 	}
 	toTitleScreen(){
 		if(!p2.session){
@@ -1425,6 +1473,10 @@ class SongSelect{
 						var text = this.diffOptions[i].text
 						if(this.diffOptions[i].iconName === "options" && (this.selectedDiff === i || this.state.options !== 0)){
 							text = this.optionsList[this.state.options]
+						}
+						
+						if(this.diffOptions[i].iconName === "sounds" && (this.selectedDiff === i || this.state.sound !== 0)){
+							text = this.soundList[this.state.sound]
 						}
 						
 						this.draw.verticalText({

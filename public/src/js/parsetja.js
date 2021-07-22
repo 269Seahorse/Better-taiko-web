@@ -1,5 +1,5 @@
 ﻿class ParseTja{
-	constructor(file, difficulty, stars, offset, metaOnly){
+	constructor(file, difficulty, stars, offset, metaOnly, mods){
 		this.data = []
 		for(let line of file){
 			var indexComment = line.indexOf("//")
@@ -15,6 +15,14 @@
 		this.difficulty = difficulty
 		this.stars = stars
 		this.offset = (offset || 0) * -1000
+		this.mods = mods || {
+			speed: 1,
+			shuffle: 0,
+			doron: false,
+			hardcore: false,
+			allDon: false,
+			allKat: false
+		};
 		this.soundOffset = 0
 		this.noteTypes = {
 			"0": {name: false, txt: false},
@@ -28,7 +36,9 @@
 			"8": {name: false, txt: false},
 			"9": {name: "balloon", txt: strings.note.balloon},
 			"A": {name: "daiDon", txt: strings.note.daiDon},
-			"B": {name: "daiKa", txt: strings.note.daiKa}
+			"B": {name: "daiKa", txt: strings.note.daiKa},
+			"F": {name: "adlib", txt: false},
+			"G": {name: "green", txt: strings.note.green}
 		}
 		this.noteTypes_ex = strings.ex_note;
 		this.courseTypes = {
@@ -198,7 +208,7 @@
 			this.measures.push({
 				ms: ms,
 				originalMS: ms,
-				speed: speed,
+				speed: speed * this.mods.speed,
 				visible: barLine,
 				branch: currentBranch,
 				branchFirst: branchFirstMeasure
@@ -226,21 +236,79 @@
 				for (var i = 0; i < currentMeasure.length; i++){
 					//console.log(note_chain.length);
 					var note = currentMeasure[i]
-					circleID++
-					var circleObj = new Circle({
-						id: circleID,
-						start: note.start,
-						type: note.type,
-						txt: note.txt,
-						speed: note.bpm * note.scroll / 60,
-						gogoTime: note.gogo,
-						endTime: note.endTime,
-						requiredHits: note.requiredHits,
-						beatMS: 60000 / note.bpm,
-						branch: currentBranch,
-						section: note.section
-					})
 					if (note.type) {
+						circleID++;
+						if (Math.random() < this.mods.shuffle) { 
+							switch (note.type) { 
+								case "don":
+									note.type = "ka";
+									note.txt = strings.note.ka;
+									break;
+								case "ka":
+									note.type = "don";
+									note.txt = strings.note.don;
+									break;
+								case "daiDon":
+									note.type = "daiKa";
+									note.txt = strings.note.daiKa;
+									break;
+								case "daiKa":
+									note.type = "daiDon";
+									note.txt = strings.note.daiDon;
+									break;
+								default:
+									break;
+							}
+						}
+						if (this.mods.allDon) {
+							switch (note.type) { 
+								case "don":
+									break;
+								case "ka":
+									note.type = "don";
+									note.txt = strings.note.don;
+									break;
+								case "daiDon":
+									break;
+								case "daiKa":
+									note.type = "daiDon";
+									note.txt = strings.note.daiDon;
+									break;
+								default:
+									break;
+							}
+						}
+						if (this.mods.allKat) {
+							switch (note.type) { 
+								case "don":
+									note.type = "ka";
+									note.txt = strings.note.ka;
+									break;
+								case "ka":
+									break;
+								case "daiDon":
+									note.type = "daiKa";
+									note.txt = strings.note.daiKa;
+									break;
+								case "daiKa":
+									break;
+								default:
+									break;
+							}
+						}
+						var circleObj = new Circle({
+							id: circleID,
+							start: note.start,
+							type: note.type,
+							txt: note.txt,
+							speed: note.bpm * note.scroll * this.mods.speed / 60,
+							gogoTime: note.gogo,
+							endTime: note.endTime,
+							requiredHits: note.requiredHits,
+							beatMS: 60000 / note.bpm,
+							branch: currentBranch,
+							section: note.section
+						})
 						if (note.type === "don" || note.type === "ka" || note.type === "daiDon" || note.type === "daiKa") {
 							note_chain.push(circleObj);
 						} else { 
@@ -253,6 +321,9 @@
 							lastDrumroll = circleObj
 						}
 						
+						if(note.event){
+							this.events.push(circleObj)
+						}
 						if(note.type !== "event"){
 							circles.push(circleObj)
 						}
@@ -262,9 +333,6 @@
 							checkChain(note_chain, currentMeasure.length, true);
 						}
 						note_chain = [];
-					}
-					if(note.event){
-						this.events.push(circleObj)
 					}
 					if("lyricsLine" in note){
 						if(!this.lyrics){
@@ -458,7 +526,7 @@
 						case "0":
 							insertBlankNote()
 							break
-						case "1": case "2": case "3": case "4": case "A": case "B":
+						case "1": case "2": case "3": case "4": case "A": case "B": case "F": case "G":
 							var type = this.noteTypes[symbol]
 							var circleObj = {
 								type: type.name,
@@ -488,9 +556,8 @@
 							sectionBegin = false
 							if(lastDrumroll){
 								if(symbol === "9"){
-									insertNote({
+									insertBlankNote({
 										endDrumroll: lastDrumroll,
-										gogo: gogo,
 										bpm: bpm,
 										scroll: scroll,
 										section: sectionBegin
@@ -515,9 +582,8 @@
 							break
 						case "8":
 							if(lastDrumroll){
-								insertNote({
+								insertBlankNote({
 									endDrumroll: lastDrumroll,
-									gogo: gogo,
 									bpm: bpm,
 									scroll: scroll,
 									section: sectionBegin
@@ -525,7 +591,10 @@
 								sectionBegin = false
 								lastDrumroll = false
 							}else{
-								insertBlankNote()
+								insertBlankNote({
+									bpm: bpm,
+									scroll: scroll
+								})
 							}
 							break
 						case ",":
@@ -564,7 +633,7 @@
 		}
 		this.scoreinit = meta.scoreinit;
 		this.scorediff = meta.scorediff;
-		if (this.scoreinit && this.scorediff) {
+		if (this.scoreinit) {
 			this.scoremode = meta.scoremode || 1;
 		} else { 
 			this.scoremode = meta.scoremode || 2;
