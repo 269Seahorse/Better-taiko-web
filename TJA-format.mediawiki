@@ -1,0 +1,715 @@
+TJA is a file format created for Taiko simulators to have playable charts. It contains the metadata and the notation for all of the song's difficulty levels. "WAVE:" in the file points to an external audio file that should be in the same directory as the TJA.
+
+This page covers TJA support in taiko-web, but may apply to other simulators as well.
+
+== Specification ==
+TJA file is a plain text file that can be encoded as either UTF-8 with BOM or as Shift-JIS. The extension is ".tja". The container format for the audio file does not matter as long as it is supported in the simulator, however, when hosted on a taiko-web server, it is necessary for the audio file to be [[Setup#about-audio|reencoded to MP3]]. If the TJA file is hosted on taiko-web, the filename should be "main.tja" for the TJA file and "main.mp3" for the audio file.
+
+Comments can be inserted at any point by starting them with <code>//</code>, comment will continue until the end of that line.
+
+== Metadata ==
+Before any song notation starts, it is necessary to include some metadata about the song such as title, audio file, and song's BPM. All metadata is placed at the beginning of the file and is separated by line breaks, which can be either "LF" or "CR LF". Values are separated from the header name with the colon symbol <code>:</code> and an optional space after it.
+
+Headers marked with ''(i)'' are ignored when TJA is hosted on taiko-web. Headers marked with ''(?)'' are not supported in taiko-web.
+
+=== Main metadata ===
+==== TITLE: ''(i)'' ====
+* Song's title that appears on song selection, in the game, and on the results screen.
+* When hosted on taiko-web, "title" field in the database is used.
+
+;Example:
+ TITLE:さいたま2000
+
+==== TITLEEN: ''(i)'' ====
+* Translated version of the title, overrides TITLE: if translations are preferred by the user.
+* Other versions of this header:
+:* "TITLEJA:" - Japanese, if the original title is not in Japanese.
+:* "TITLEEN:" - English.
+:* "TITLECN:" - Simplified Chinese.
+:* "TITLETW:" - Traditional Chinese.
+:* "TITLEKO:" - Korean.
+* When hosted on taiko-web, "title_lang" field in the database is used.
+
+;Example:
+ TITLEEN:Saitama 2000
+ TITLECN:埼玉２０００
+ TITLETW:埼玉２０００
+ TITLEKO:사이타마 2000
+
+==== SUBTITLE: ''(i)'' ====
+* The sub-title that appears on the selected song in song selection that may explain the origin of the song, such as the originating media or the lead singer.
+* Adding <code>--</code> or <code>++</code> at the beginning changes the appearance of the subtitle on the results screen by either hiding (<code>--</code>) or showing it (<code>++</code>) next to the title. This has no effect in taiko-web.
+* When translations are preferred by the user, SUBTITLE: will not be displayed if a translated TITLEEN: is specified, even if there is no matching SUBTITLEEN:.
+* When hosted on taiko-web, "subtitle" field in the database is used.
+
+;Example:
+ SUBTITLE:--「風のクロノア」より
+
+==== SUBTITLEEN: ''(i)'' ====
+* Translated version of the subtitle, overrides SUBTITLE: if translations are preferred by the user.
+* Unlike SUBTITLE:, this header does not strip the leading <code>--</code> and <code>++</code> because the translated subtitle appearance on the results screen should be the same as the original subtitle.
+* Other versions of this header:
+:* "SUBTITLEJA:" - Japanese, if the original subtitle is not in Japanese.
+:* "SUBTITLEEN:" - English.
+:* "SUBTITLECN:" - Simplified Chinese.
+:* "SUBTITLETW:" - Traditional Chinese.
+:* "SUBTITLEKO:" - Korean.
+* When hosted on taiko-web, "subtitle_lang" field in the database is used.
+
+;Example:
+ SUBTITLEEN:From "Klonoa"
+
+==== BPM: ====
+* Song's beats per minute.
+* The following formula is used: <code>BPM = MEASURE / SIGN * 4</code>, where MEASURE is amount of measures per minute and SIGN is the time signature, eg. <code>4 / 4</code> if the current time signature is common.
+* If omitted, BPM defaults to 120.
+
+;Example:
+ BPM:120
+
+==== WAVE: ''(i)'' ====
+* The audio file that plays in the background, should be in the same directory as the TJA file.
+* When hosted on taiko-web, the value is forced to "main.mp3".
+* If omitted, no music plays in the background
+
+;Example:
+ WAVE:さいたま2000.ogg
+
+==== OFFSET: ====
+* Floating point value for chart offset in seconds.
+* Negative values will delay notes, positive will cause them to appear sooner.
+* If the "offset" field is set in a taiko-web database, both values will be summed together.
+
+;Example:
+ OFFSET:-2.077
+
+==== DEMOSTART: ''(i)'' ====
+* Offset of song preview during song selection in seconds.
+* Default is <code>0</code>, which also disables the generation of a "preview.mp3" file when hosted on taiko-web.
+* When hosted on taiko-web, "preview" field in the database is used.
+
+;Example:
+ DEMOSTART:37.793
+
+==== GENRE: ''(i)'' ====
+* Song's genre that controls where the song appears in the song selection.
+* The following values can be used:
+:* "J-POP"
+:* "アニメ"
+:* "どうよう"
+:* "バラエティ"
+:* "ボーカロイド", "VOCALOID"
+:* "クラシック"
+:* "ゲームミュージック"
+:* "ナムコオリジナル"
+* In addition to that list, taiko-web supports genres in different languages as well as directory names containing the genre.
+* Overrides the genre set in "genre.ini" and "box.def" files.
+* When hosted on taiko-web, "category" field and "categories" table in the database are used.
+
+==== SCOREMODE: ====
+* Scoring method that affects the final score. All scores are divided by 10, rounded towards negative infinity, then multiplied by 10.
+* Value of "0" - AC 1 to AC 7 generation scoring.
+:* Less than 200 combo: <code>INIT</code> or 1000 pts per note.
+:* 200 combo or more: <code>INIT + DIFF</code> or 2000 pts (1000+1000) per note.
+:* This value is not supported in taiko-web.
+* Value of "1" - AC 8 to AC 14 generation scoring.
+:* Combo multiplier rises by <code>DIFF</code> with each 10 combo until 100, after which it increases at a constant rate.
+:* Formula: <code>INIT + max(0, DIFF * floor((min(COMBO, 100) - 1) / 10))</code>
+* Value of "2" - AC 0 generation scoring.
+:* Similar to "1" with some DIFF multipliers missing.
+:* Formula: <code>INIT + DIFF * {100<=COMBO: 8, 50<=COMBO: 4, 30<=COMBO: 2, 10<=COMBO: 1, 0}</code>
+* Default is "1".
+
+==== MAKER: ''(i)'' ====
+* Chart creator's name.
+* Marks the song with "Creative" badge and adds the name to difficulty selection.
+* When hosted on taiko-web, "maker_id" field and "makers" table in the database are used.
+
+;Example:
+ MAKER:名無し
+
+==== LYRICS: ''(i)'' ====
+* Path to a timed WEBVTT lyrics file, usually with a .vtt extension.
+* Shows song lyrics at the bottom of the screen.
+* Marks the song as having lyrics on the song select.
+* Contents of the vtt file:
+:* Offset of all lyrics can be specified after the header as a floating point number in seconds: <code>WEBVTT Offset: 0.250</code>
+:* All commands are separated with a double new line.
+:* Timestamps are separated with <code>--></code> and have either <code>MM:SS.msc</code> or <code>HH:MM:SS.msc</code> format.
+::* First timestamp is when the line should appear, second is when it should end.
+::* Timestamps within the file should be sequentially ordered, a line cannot start before the previous one ends.
+:* Ruby tags can be used to display annotations for complex words: <code><ruby>漢字<rt>かんじ</rt></ruby></code>
+:* <code><lang en></code> (where "en" is the language code) begins a translated version of the line.
+::* If user's language does not match any of the lang tags, the line before all of them is used.
+* Overrides [[TJA-format#lyric|#LYRIC]] commands in the notation.
+* When hosted on taiko-web, setting "lyrics" field in the database to true will force the value to be "main.vtt", otherwise it will be ignored.
+
+;Example:
+ LYRICS:熱情のスペクトラム.vtt
+
+;Example vtt file:
+ 
+ WEBVTT Offset: 0.250
+ 
+ 00:30.910 --> 00:36.890
+ <ruby>新時代<rt>はじまり</rt></ruby>をいつか僕らの手で生み出すんだよ
+ <lang en>Hajimari wo itsuka bokura no te de umidasunda yo
+ 
+ 00:36.890 --> 00:42.160
+ 優しい君の声もきっと世界を変えられる
+ <lang en>Yasashii kimi no koe mo kitto sekai wo kaerareru
+
+==== SONGVOL: ''(?)'' ====
+* Music volume percentage.
+* Default is 100, but can be made louder by increasing the value further.
+* Ignored in taiko-web.
+
+;Example:
+ SONGVOL:100
+
+==== SEVOL: ''(?)'' ====
+* Sound effect volume percentage, such as drumming and Don's voice lines.
+* Default is 100.
+* Ignored in taiko-web.
+
+;Example:
+ SEVOL:100
+
+;Example:
+ SCOREMODE:2
+
+==== SIDE: ''(?)'' ====
+* Value can be either:
+:* "Normal" or "1"
+:* "Ex" or "2"
+:* "Both" or "3"
+* Value of "Normal" and "1" makes the song appear when song selection is in the default mode.
+* "Ex" and "2" hides the song from default song selection.
+:* The song appears after the user presses the buttons for next song and previous song 20 times alternatingly (10 for each button).
+* Default is "Both", making the song appear during song selection in both modes.
+* Ignored in taiko-web.
+
+;Example:
+ SIDE:2
+
+==== LIFE: ''(?)'' ====
+* Amount of misses that are allowed to be made before interrupting the game and immediately showing the results screen.
+* Removes the gauge, replacing it with lit up souls that fade one by one after missing a note.
+* The amount is not limited, but only 16 souls fit on screen.
+* Default is <code>0</code>, which does not limit the misses and will play until the end.
+* Ignored in taiko-web.
+
+;Example:
+ LIFE:5
+
+==== GAME: ''(?)'' ====
+* Value can be either "Taiko" or "Jube".
+* Game will be forced to autoplay mode with "Jube" value.
+* Default is "Taiko".
+* Ignored in taiko-web.
+
+;Example:
+ GAME:Taiko
+
+==== HEADSCROLL: ''(?)'' ====
+* Initial game scrolling speed.
+* #SCROLL command in a song notation will be a multiple of this value.
+* Ignored in taiko-web.
+
+;Example:
+ HEADSCROLL:0.8
+
+==== BGIMAGE: ''(?)'' ====
+* A limited song skin that combines donbg and songbg into a single image.
+* Scaling is not applied to the image, its size should match simulator's internal resolution.
+* Ignored in taiko-web.
+
+;Example:
+ BGIMAGE:bg.png
+
+==== BGMOVIE: ''(?)'' ====
+* Video file that is played in the background during the gameplay.
+* Can be turned off by the user.
+* Ignored in taiko-web.
+
+;Example:
+ BGMOVIE:bg.avi
+
+==== MOVIEOFFSET: ''(?)'' ====
+* Floating point offset of video file's starting position in seconds.
+* Cannot be a negative number.
+* Ignored in taiko-web.
+
+;Example:
+ MOVIEOFFSET:1.5
+
+==== TAIKOWEBSKIN: ''(i)'' ====
+* Selects a skin to be used for the song's background.
+* Works only for songs imported to taiko-web by the user, when hosted on taiko-web, "skin_id" field and "song_skins" table in the database are used.
+
+The value of the TAIKOWEBSKIN header is a comma separated name-value object, the parts before first spaces are names and anything afterwards are values. At least one of "song", "stage", or "don" should appear in the header.
+
+{|
+! Name
+! Description
+! Example
+|-
+| dir
+|
+* Path to the skin directory, relative to TJA. Default is current directory.
+|
+ dir ../song_skins
+|-
+| name
+|
+* The common name that will be used. Appears near the end of filenames for images.
+|
+ name yokai
+|-
+| song
+|
+* Background that appears below the game.
+* Value can be either:
+:* "none" - no background.
+:* "static" - single image file.
+:* Valid CSS value defined in [https://github.com/bui/taiko-web/blob/master/public/src/css/songbg.css songbg.css] (prefixed with "songbg-").
+:* Blank values will use the default background.
+* For "static" values the image filename will look like "bg_'''song'''_yokai.png".
+* When a CSS value is used, two images are required, with filenames like "bg_'''song'''_idolmaster'''_a'''.png" and "bg_'''song'''_idolmaster'''_b'''.png".
+|
+ song slowfade
+|-
+| stage
+|
+* Stage that appears at the bottom.
+* Value can be either:
+:* "none" - no stage.
+:* "static" - single image file.
+:* Blank values will use the default stage.
+* For "static" values the image filename will look like "bg_'''stage'''_ymck.png" which should be able to repeat horizontally.
+|
+ stage
+|-
+| don
+|
+* Scrolling background that appear at the top of the game behind Don.
+* Value can be either:
+:* "none" - no don background.
+:* "static" - single image file.
+:* Valid CSS value defined in [https://github.com/bui/taiko-web/blob/master/public/src/css/songbg.css songbg.css] (prefixed with "donbg-").
+:* Blank value will use the default don background.
+* For "static" values the image filename will look like "bg_'''don'''_touhou.png".
+* When a CSS value is used, two images are required, with filenames like "bg_'''don'''_miku'''_a'''.png" and "bg_'''don'''_miku'''_b'''.png".
+|
+ don static
+|}
+
+;Example:
+ TAIKOWEBSKIN:dir ../song_skins,name miku,song static,stage none,don fastscroll
+
+=== Course metadata ===
+Courses for each difficulty has the same format as the regular metadata, they can be mixed together with the regular metadata and old values will be reused for other courses unless defined again.
+
+==== COURSE: ====
+* The name of the difficulty (case-insensitive), value is either:
+:* "Easy" or "0".
+:* "Normal" or "1".
+:* "Hard" or "2".
+:* "Oni" or "3".
+:* "Edit" or "4" - hidden Ura Oni mode, revealed when right button on rightmost difficulty is hit on difficulty selection.
+:* "Tower" or "5" - causes all drumroll notes (5 and 6) to draw above all other notes.
+:* "Dan" or "6" - starts the course in dojo mode with three gauges that should be cleared.
+* "Ura" is also accepted in taiko-web, which is the same as "Edit" and "4".
+* "Tower", "5", "Dan", and "6" values are not supported in taiko-web.
+* Default is "Oni".
+
+;Example:
+ COURSE:Oni
+
+==== LEVEL: ''(i)'' ====
+* The difficulty integer between 1 and 10.
+* Represents the amount of stars that appear on the song select next to the difficulty.
+* Floating point numbers will be floored and numbers outside of the range will be clipped.
+* When hosted on taiko-web, the value is taken from "easy", "normal", "hard", "oni", or "ura" subfield from the "courses" field.
+
+;Example:
+ LEVEL:5
+
+==== BALLOON: ====
+* Comma separated array of integers for Balloon notes (<code>7</code>) and Kusudama notes (<code>9</code>). 
+* Required when balloon notes appear in the course.
+* Amount of values in the array should correspond to the amount of balloons in the course.
+* The balloon values are used as they appear in the chart and the values have to be repeated when branches are used.
+
+;Example:
+ BALLOON:6,15,3,30,6,15,3
+
+==== SCOREINIT: ====
+* Sets INIT value for the scoring method. See [[TJA-format#scoremode|SCOREMODE:]] header for more information.
+
+;Example:
+ SCOREINIT:390
+
+==== SCOREDIFF: ====
+* Sets DIFF value for the scoring method. See [[TJA-format#scoremode|SCOREMODE:]] header for more information.
+
+;Example:
+ SCOREDIFF:100
+
+==== BALLOONNOR:, BALLOONEXP:, BALLOONMAS: ''(?)'' ====
+* BALLOON: command that is separated for branches.
+* BALLOONNOR: are balloons during a normal branch, BALLOONEXP: during an advanced branch, BALLOONMAS: during a master branch.
+* Ignored in taiko-web.
+
+;Example:
+ BALLOONNOR:6,10
+ BALLOONEXP:8,12
+ BALLOONMAS:10,14
+
+==== STYLE: ''(?)'' ====
+* Play the song notation after next #START depending on if playing in singleplayer or multiplayer.
+* The values can be either:
+:* "Single" or "1" (default).
+:* "Double", "Couple", or "2" - both players should pick the same difficulty in multiplayer to play the song notation below this command.
+* "#START P1" and "#START P2" commands can be used instead when first and second players' charts differ.
+* Ignored in taiko-web.
+
+;Example:
+ STYLE:Double
+
+==== EXAM1:, EXAM2:, EXAM3: ''(?)'' ====
+* The three gauges required to clear a dojo course ([[TJA-format#course|COURSE:]] with "Dan" or "6" value)
+* Value is a comma separated array with the following values: condition, red requirement, gold requirement, scope.
+* Condition value:
+:* g - Gauge percentage (default)
+:* jp - GOOD amount
+:* jg - OK amount
+:* jb - BAD amount
+:* s - Score
+:* r - Drumroll hits
+:* h - Number of correct hits and drumroll hits
+:* c - MAX Combo
+* Scope value:
+:* m - Greater than requirement (default)
+:* l - Less than requirement
+* Ignored in taiko-web.
+
+;Example:
+ EXAM1:g,98,100,m
+ EXAM2:jp,1000,1150,m
+ EXAM3:jb,10,5,l
+
+==== GAUGEINCR: ''(?)'' ====
+* Gauge increment method, performing rounding with each note that is hit, value is either:
+:*NORMAL - Default calculation method, which delays the gauge from appearing at the beginning.
+:*FLOOR - Round towards negative infinity.
+:*ROUND - Round towards nearest whole.
+:*NOTFIX - Do not perform rounding.
+:*CEILING - Round towards positive infinity, the gauge appears to fill with the first note.
+* Ignored in taiko-web.
+
+;Example:
+ GAUGEINCR:Normal
+
+==== TOTAL: ''(?)'' ====
+* Percentage multiplier for amount of notes in the song notation that is applied to gauge calculation.
+* Value of 100 will require all notes to be hit perfectly to get a full gauge at the end.
+* Values less than 100 will make it impossible to get a full gauge.
+* Values greater than 100 will make it easier to fill the gauge.
+* Ignored in taiko-web.
+
+;Example:
+ TOTAL:200
+
+==== HIDDENBRANCH: ''(?)'' ====
+* Hide the diverge notes indication on the song selection screen and current branch in the game until branching actually starts.
+* Ignored in taiko-web.
+
+;Example:
+ HIDDENBRANCH:1
+
+== Song notation ==
+The song notation is written between #START and #END commands. Each measure may contain any number of notes (notes are the numbers from 0 to 9) and is terminated with a comma character <code>,</code> followed by a line break. First note in the measure is drawn on top of the measure line.
+
+=== Notes ===
+* <code>0</code> - Blank, no note.
+* <code>1</code> - Don.
+* <code>2</code> - Ka.
+* <code>3</code> - DON (Big).
+* <code>4</code> - KA (Big).
+* <code>5</code> - Drumroll.
+:* Should end with an <code>8</code>.
+* <code>6</code> - DRUMROLL (Big).
+:* Should end with an <code>8</code>.
+* <code>7</code> - Balloon.
+:* Should end with an <code>8</code>.
+* <code>8</code> - End of a balloon or drumroll.
+* <code>9</code> - Kusudama, yam, oimo, or big balloon (has the same appearance as a regular balloon in taiko-web).
+:* Should end with either an <code>8</code> or another <code>9</code>.
+* <code>A</code> - DON (Both), multiplayer note with hands.
+* <code>B</code> - KA (Both), multiplayer note with hands.
+* <code>F</code> - ADLIB, hidden note that will increase combo if discovered and does not give a BAD when missed.
+:* Ignored in taiko-web.
+
+;Example:
+ 1020112010201120,
+ 34040122,
+ 1101103070000080,
+ 50080060,
+ 08009009,
+
+=== Measures ===
+Measures in the chart are separated with a comma character <code>,</code> followed by a line break. Timing between each measure is the same as long as <code>#MEASURE</code> and <code>#BPMCHANGE</code> commands are not used. Measures may contain any amount of notes, including zero, the less numbers there are in a measure, the more far apart the notes will be in the chart, each measure is equally divided by the amount of numbers there are inside. "<code>12,</code>" can be written as "<code>1020,</code>" and "<code>10002000,</code>", the timing is identical in all three examples.
+
+=== Commands ===
+All song notation commands are prefixed with a hash sign <code>#</code>, with space separating command and the value. All commands should begin and end with a line break. Some commands can be placed in the middle of a measure, breaking it into multiple lines.
+
+==== #START, #END ====
+* Marks the beginning and end of the song notation where only notes and commands are accepted and metadata for the song cannot be changed.
+* #START with value set to "P1" or "P2" will mark it as the chart for the first or second player respectively, but only if same difficulty is picked by both players.
+:* One difficulty may have three different song notations: singleplayer (no value in #START), multiplayer P1, and multiplayer P2.
+:* These values are not supported in taiko-web.
+
+==== #MEASURE ====
+* Changes time signature used.
+* Numerator and denominator from the value are divided by one another.
+* Formula to get the amount of milliseconds per measure: <code>60000 * MEASURE * 4 / BPM</code>.
+* After inserting a note, the current timing point is increased by milliseconds per measure divided by amount of notes in the current measure.
+* Command can only be placed between measures.
+
+;Example:
+ #MEASURE 4/4
+ 1000100011101010,
+ #MEASURE 2/4
+ 0212,
+
+==== #BPMCHANGE ====
+* Changes song's BPM, similar to [[TJA-format#bpm|BPM:]] command in metadata.
+* Can be placed in the middle of a measure, therefore it is necessary to calculate milliseconds per measure value for each note.
+
+;Example:
+ #BPMCHANGE 115
+ 2344
+ #BPMCHANGE 125
+ 3443,
+
+==== #DELAY ====
+* Floating point value in seconds that offsets the position of the following song notation.
+* If value is negative, following song notation will overlap with the previous. All notes should be placed in such way that notes after #DELAY do not appear earlier or at the same time as the notes before.
+* Can be placed in the middle of a measure.
+
+;Example:
+ #DELAY 0.02
+
+==== #SCROLL ====
+* Multiplies the default scrolling speed by this value
+* Changes how the notes appear on the screen, values above 1 will make them scroll faster and below 1 scroll slower.
+* Negative values will scroll notes from the left instead of the right. This behaviour is not supported in taiko-web.
+* The value cannot be <code>0</code>.
+* Can be placed in the middle of a measure.
+
+;Example:
+ #SCROLL 4
+ 30
+ #SCROLL 0.5
+ 11201022112010,
+
+==== #GOGOSTART, #GOGOEND ====
+* Activates Go-Go Time mode for notes between #GOGOSTART and #GOGOEND.
+* Don will be dancing, bar will be glowing, and marker will be burning during this mode.
+* Score is multiplied by 1.2 for all notes hit during this mode.
+* Can be placed in the middle of a measure.
+
+;Example:
+ #GOGOSTART
+ 10201120,
+ #GOGOEND
+
+==== #BARLINEOFF, #BARLINEON ====
+* Turns off the visual appearance of measure lines between #BARLINEOFF and #BARLINEON commands.
+
+;Example:
+ #BARLINEOFF
+ ,
+ #BARLINEON
+
+==== #BRANCHSTART ====
+* Having this command in a song notation will mark the song's difficulty on song selection as having diverge notes and the song will appear to start on the Normal branch. If hosted on taiko-web, the difficulty level in the database should have a " B" suffix (example: <code>7 B</code>).
+* Value is a comma separated array. First value in that array is type, second is advanced requirement, third is master requirement.
+* If the type is "r", amount of drumroll and balloon hits determines the path.
+* If the type is "p" or any other value, accuracy determines the path. Note accuracy between #SECTION and one measure before #BRANCHSTART are summed together, divided by their amount, and multiplied by 100 (exception: zero amount of notes will equal zero accuracy). GOOD notes have 1 accuracy, OK notes have 0.5 accuracy, and BAD notes have 0 accuracy.
+* Advanced requirement and master requirement values is the minimum threshold for drumroll hits or accuracy. Some paths can be made impossible to get to by placing the requirement value out of bounds (such as negative values and values above 100 for "p" type) or having advanced requirement greater than master, which makes the master requirement override advanced.
+* The requirement is calculated one measure before #BRANCHSTART, changing the branch visually when it is calculated and changing the notes after #BRANCHSTART.
+* The first measure's line after #BRANCHSTART is always yellow.
+* Branch can be ended either with #BRANCHEND or with another #BRANCHSTART.
+
+;Example:
+ #BRANCHSTART p,75,85
+ #BRANCHEND
+
+==== #N, #E, #M ====
+* Starts a song notation for a path:
+:* #N - starts Normal path, background is the default grey.
+:* #E - starts Advanced or Professional path, background is blue.
+:* #M - starts Master path, background is purple.
+* Only one of the paths from a #BRANCHSTART can be played in one go.
+* When taking a path, it skips measures, notes, and commands from all other paths, except for iterating over the [[TJA-format#BALLOON|BALLOON:]] metadata.
+* The path is required if the requirement does not make it impossible to get to.
+* All paths can be omitted, ending the branch with #BRANCHEND immediately.
+* All paths are required to have their measures complete in the same time at the end.
+
+;Example:
+ 5800,
+ 0,
+ #BRANCHSTART r,1,2
+ #N
+ 1111,
+ #E
+ 22202220,
+ #M
+ 12121212,
+
+==== #BRANCHEND ====
+* Begins a normal song notation without branching.
+* Retains the visual branch from previous #BRANCHSTART.
+
+==== #SECTION ====
+* Reset accuracy values for notes and drumrolls on the next measure.
+* Placing it near #BRANCHSTART or a measure before does not reset the accuracy for that branch. The value is calculated before it and a measure has not started yet at that point.
+
+;Example:
+ 11111111,
+ ,
+ #SECTION
+ #BRANCHSTART p,50,75
+ #BRANCHEND
+ 11111111,
+ ,
+ #BRANCHSTART p,50,75
+ #BRANCHEND
+ 11111111,
+
+==== #LYRIC ====
+* Shows song lyrics at the bottom of the screen until the next #LYRIC command.
+* Line breaks can be added with <code>\n</code>.
+* Has to be repeated for each difficulty.
+* Can be placed in the middle of a measure.
+* If [[TJA-format#lyrics-i|LYRICS:]] is defined in the metadata, the command is ignored.
+
+;Example:
+ #LYRIC ケロッ！ケロッ！ケロッ！いざ進め〜ッ
+
+==== #LEVELHOLD ''(?)'' ====
+* The branch that is currently being played is forced until the end of the song.
+* Ignored in taiko-web.
+
+;Example:
+ 11111111,
+ ,
+ #SECTION
+ #BRANCHSTART p,101,75
+ #N
+ #LEVELHOLD
+ 1111,
+ ,
+ #M
+ 22222222,
+ ,
+ #BRANCHSTART p,101,75
+ #N
+ 1111,
+ #M
+ 22222222,
+
+==== #BMSCROLL, #HBSCROLL ''(?)'' ====
+* Command that appears one line before a #START command.
+* #BPMCHANGE will make the notes after it appear at the same scrolling speed as the notes that are currently being played, but then change their speed suddenly after #BPMCHANGE is passed.
+* #DELAY will stop the scrolling completely.
+* #BMSCROLL ignores #SCROLL commands.
+* Behaviour can be turned off by the user.
+* Ignored in taiko-web.
+
+;Example:
+ #HBSCROLL
+ #START
+ 1111,
+ #BPMCHANGE 480
+ 1111,
+ #DELAY 2
+ 1111,
+
+==== #SENOTECHANGE ''(?)'' ====
+* Force note lyrics with a specific value, which is an integer index for the following lookup table:
+:* 1: ドン, 2: ド, 3: コ, 4: カッ, 5: カ, 6: ドン(大), 7: カッ(大), 8: 連打, 9: ー, 10: ーっ!!, 11: 連打(大), 12: ふうせん
+* The lyrics are replaced only if the next note is Don (<code>1</code>) or Ka (<code>2</code>).
+* Can be placed in the middle of a measure.
+* Ignored in taiko-web.
+
+;Example:
+ #SENOTECHANGE 3
+ 1
+ #SENOTECHANGE 2
+ 11000000000000,
+ // ドコドン becomes コドドン
+
+==== #NEXTSONG ''(?)'' ====
+* Changes song when [[TJA-format#course|COUSE:]] is set to "Dan" and "6".
+* Value is a comma separated array, with these values, all of which are required:
+:* Title
+:* Subtitle
+:* Genre
+:* Audio filename
+:* ScoreInit
+:* ScoreDiff
+* Comma character in the value can be escaped with a backslash character (<code>\,</code>).
+* Ignored in taiko-web.
+
+;Example
+ #NEXTSONG GO!GO!明るい社会,うるまでるび,バラエティ,GO!GO!明るい社会.ogg,560,160
+
+==== #DIRECTION ''(?)'' ====
+* Scrolling direction for notes afterwards.
+* Value is an integer index for the following lookup table:
+:* 0: From right, 1: From above, 2: From bottom, 3: From top-right, 4: From bottom-right, 5: From left, 6: From upper-left, 7: From bottom-left
+* Default is 0.
+* Can be placed in the middle of a measure.
+* Ignored in taiko-web.
+
+;Example:
+ #DIRECTION 2
+
+==== #SUDDEN ''(?)'' ====
+* Delays notes from appearing, starting their movement in the middle of the screen instead of off-screen.
+* The value is two floating point numbers separated with a space.
+* First value is appearance time, marking the note appearance this many seconds in advance.
+* Second value is movement wait time, notes stay in place and start moving when this many seconds are left.
+* Can be placed in the middle of a measure.
+* Ignored in taiko-web.
+
+;Example:
+ #SUDDEN 2 1
+ 1122,
+
+==== #JPOSSCROLL ''(?)'' ====
+* Linearly transition cursor's position to a different position on a bar.
+* Value is a space-separated array:
+:* First value is the amount of seconds it takes for cursor to transition. If it takes too long before another #JPOSSCROLL is passed, it will be cancelled and next transition will happen at the cursor's current position.
+:* Second value is the relative distance in pixels to move the cursor.
+:* Third value is the direction, "0" is left and "1" is right.
+* Can be placed in the middle of a measure.
+* Ignored in taiko-web.
+
+;Example
+ #BPMCHANGE 120
+ #JPOSSCROLL 2 760 1
+ #SCROLL 0.8
+ 1111,
+ #JPOSSCROLL 2 760 0
+ #SCROLL -0.8
+ 2222,
+
+== Further reading ==
+* [https://web.archive.org/web/20190914085205/https://aioilight.space/taiko/tjap3/doc/tja/ ".tja フォーマット"] (.tja format) - AioiLight.space.
+* [https://wikiwiki.jp/jiro/%E5%A4%AA%E9%BC%93%E3%81%95%E3%82%93%E6%AC%A1%E9%83%8E "仕様"] (Specifications) - 太鼓さん次郎交流 Wiki (Taiko Jiro Kouryuu Wiki).
+* [http://taikosanjiro.hatenablog.com/entry/%E8%AD%9C%E9%9D%A2-2 "譜面追加　自分で作る"] (Adding charts, creating one yourself) - 太鼓さん次郎解説 (Taiko Jiro Kaisetsu).
+* [https://github.com/AioiLight/TJAPlayer3/blob/master/TJAPlayer3/Songs/CDTX.cs "CDTX.cs"] - AioiLight/TJAPlayer3 repository.
