@@ -191,7 +191,7 @@ class SongSelect{
 			letterSpacing: -4
 		}]
 		this.optionsList = [strings.none, strings.auto, strings.netplay, strings.songMods.x2, strings.songMods.x3, strings.songMods.x4,strings.songMods.doron, strings.songMods.reverse, strings.songMods.half_shuffle, strings.songMods.shuffle, strings.songMods.hardcore, strings.songMods.allDon, strings.songMods.allKat]
-		this.soundList = [strings.taikoS, strings.testS, strings.s3, strings.s4, strings.s5, strings.s6, strings.s7, strings.s8, strings.s9, strings.s10, strings.s11, strings.s12, strings.s13, strings.s14, strings.s15, strings.s16, strings.s17, strings.s18, strings.s19, strings.s20, strings.s21, strings.s22, strings.s23, strings.s24, strings.s25, strings.s26, strings.s27, strings.s28]
+		this.soundList = [strings.taikoS, strings.testS, strings.s3, strings.s4, strings.s5, strings.s6, strings.s7, strings.s8, strings.s9, strings.s10, strings.s11, strings.s12, strings.s13, strings.s14, strings.s15, strings.s16, strings.s17, strings.s18, strings.s19, strings.s20, strings.s21, strings.s22, strings.s23, strings.s24, strings.s25, strings.s26, strings.s27, strings.s28, strings.s29, strings.s30]
 		this.draw = new CanvasDraw(noSmoothing)
 		this.songTitleCache = new CanvasCache(noSmoothing)
 		this.selectTextCache = new CanvasCache(noSmoothing)

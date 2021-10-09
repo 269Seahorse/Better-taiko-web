@@ -305,6 +305,20 @@ var translations = {
 		tw: "無音",
 		ko: "無音"
 	},
+	s29: {
+		ja: "笨羊1",
+		en: "stupid sheep1",
+		cn: "笨羊1",
+		tw: "笨羊1",
+		ko: "笨羊1"
+	},
+	s30: {
+		ja: "笨羊2",
+		en: "stupid sheep2",
+		cn: "笨羊2",
+		tw: "笨羊2",
+		ko: "笨羊2"
+	},
 	songOptions: {
 		ja: "演奏オプション",
 		en: "Song Options",
@@ -1283,6 +1297,11 @@ var translations = {
 			ja: null,
 			en: "Delete Account",
 			tw: "刪除帳號"
+		},
+		forgetPass: {
+			ja: null,
+			en: "Forget Password",
+			tw: "忘記密碼"
 		},
 		verifyPassword: {
 			ja: null,
