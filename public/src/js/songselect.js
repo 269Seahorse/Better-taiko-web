@@ -275,7 +275,8 @@ class SongSelect{
 			sound: 0,
 			selLock: false,
 			catJump: false,
-			focused: true
+			focused: true,
+			skip: false
 		}
 		this.songSelecting = {
 			speed: 800,
@@ -354,6 +355,7 @@ class SongSelect{
 			return
 		}
 		var ctrl = this.pressedKeys["ctrl"] || this.pressedKeys["ctrlGamepad"]
+		var ctrl2 = event ? event.ctrlKey : this.pressedKeys["ctrl"]
 		var shift = event ? event.shiftKey : this.pressedKeys["shift"]
 		if(this.state.showWarning){
 			if(name === "confirm"){
@@ -373,7 +375,13 @@ class SongSelect{
 					if(!repeat){
 						this.categoryJump(-1)
 					}
-				}else{
+				}
+				else if(ctrl2 || ctrl){
+					if(!repeat){
+						this.moveToSong(-7.1)
+					}
+				}
+				else{
 					this.moveToSong(-1)
 				}
 			}else if(name === "right"){
@@ -381,7 +389,13 @@ class SongSelect{
 					if(!repeat){
 						this.categoryJump(1)
 					}
-				}else{
+				}
+				else if(ctrl2 || ctrl){
+					if(!repeat){
+						this.moveToSong(7.1)
+					}
+				}
+				else{
 					this.moveToSong(1)
 				}
 			}else if(name === "jump_left" && !repeat){
@@ -453,7 +467,7 @@ class SongSelect{
 			}
 		}else if(this.state.screen === "song"){
 			if(20 < mouse.y && mouse.y < 90 && 410 < mouse.x && mouse.x < 880 && (mouse.x < 540 || mouse.x > 750)){
-				this.categoryJump(mouse.x < 640 ? -1 : 1)
+				this.moveToSong(mouse.x < 640 ? -7.1 : 7.1)
 			}else if(!p2.session && 60 < mouse.x && mouse.x < 332 && 640 < mouse.y && mouse.y < 706 && gameConfig.accounts){
 				this.toAccount()
 			}else if(p2.session && 438 < mouse.x && mouse.x < 834 && mouse.y > 603){
@@ -600,7 +614,20 @@ class SongSelect{
 	}
 	
 	moveToSong(moveBy, fromP2){
-		var ms = this.getMS()
+		var ctrl = false
+		if(moveBy == 7.1){
+			moveBy = 7
+			ctrl = true
+			var ms = this.getMS() - 799
+		}
+		else if(moveBy == -7.1){
+			moveBy = -7
+			ctrl = true
+			var ms = this.getMS() - 799
+		}
+		else{
+			var ms = this.getMS()
+		}
 		if(p2.session && !fromP2){
 			if(!this.state.selLock && ms > this.state.moveMS + 800){
 				this.state.selLock = true
@@ -618,7 +645,11 @@ class SongSelect{
 			this.state.lastMove = moveBy
 			this.state.locked = 1
 			this.state.moveHover = null
-			
+			if(ctrl){
+				this.state.skip = true
+			}else{
+				this.state.skip = false
+			}
 			var lastMoveMul = Math.pow(Math.abs(moveBy), 1 / 4)
 			var changeSpeed = this.songSelecting.speed * lastMoveMul
 			var resize = changeSpeed * this.songSelecting.resize / lastMoveMul
@@ -628,10 +659,15 @@ class SongSelect{
 			
 			var soundsDelay = Math.abs((scroll + resize) / moveBy)
 			this.lastMoveBy = fromP2 ? fromP2.player : false
-			
-			for(var i = 0; i < Math.abs(moveBy) - 1; i++){
-				this.playSound("se_ka", (resize + i * soundsDelay) / 1000, fromP2 ? fromP2.player : false)
+			if(ctrl){
+				this.playSound("se_jump", 0, fromP2 ? fromP2.player : false)
 			}
+			else{
+				for(var i = 0; i < Math.abs(moveBy) - 1; i++){
+					this.playSound("se_ka", (resize + i * soundsDelay) / 1000, fromP2 ? fromP2.player : false)
+				}
+			}
+			ctrl = false
 			this.pointer(false)
 		}
 	}
@@ -1172,10 +1208,13 @@ class SongSelect{
 			
 			if(this.state.catJump || (this.state.move && ms > this.state.moveMS + resize2 - scrollDelay)){
 				var isJump = this.state.catJump
+				var isSkip = this.state.skip
 				var previousSelectedSong = this.selectedSong
 				
 				if(!isJump){
-					this.playSound("se_ka", 0, this.lastMoveBy)
+					if(!isSkip){
+						this.playSound("se_ka", 0, this.lastMoveBy)
+					}
 					this.selectedSong = this.mod(this.songs.length, this.selectedSong + this.state.move)
 				}else{
 					var currentCat = this.songs[this.selectedSong].category
