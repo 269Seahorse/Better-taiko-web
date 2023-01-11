@@ -1,8 +1,8 @@
 # taiko-web
 A web-based Taiko no Tatsujin simulator.
 
-Running instance: [https://taiko.seahorse.tk](https://taiko.seahorse.tk)
-Forked from Bui: [https://taiko.bui.pm](https://taiko.bui.pm)
+Running instance: Down
+Forked from Bui: Down
 
 Still in development. Works best with Chrome and Edge.
 
