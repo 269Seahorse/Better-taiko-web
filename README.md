@@ -1,7 +1,7 @@
 # taiko-web
 A web-based Taiko no Tatsujin simulator.
 
-Running instance: Down
+Running instance: Down ( ͡° ͜ʖ ͡°)
 Forked from Bui: Down
 
 Still in development. Works best with Chrome and Edge.
