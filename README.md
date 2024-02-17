@@ -7,4 +7,4 @@ Forked from Bui: Down
 Still in development. Works best with Chrome and Edge.
 
 ## Setup
-Please see the [Setup](https://github.com/269Seahorse/Better-taiko-web/wiki/Setup](https://github.com/269Seahorse/Better-taiko-web/blob/master/Setup.md)https://github.com/269Seahorse/Better-taiko-web/blob/master/Setup.md) page for setup instructions.
+Please see the [Setup](https://github.com/269Seahorse/Better-taiko-web/blob/master/Setup.md) page for setup instructions.
